@@ -1,23 +1,31 @@
-"""Galaxy Tools Language Server implementation"""
+"""
+Galaxy Tools Language Server implementation
+"""
 
-from .validation import GalaxyToolValidator
+from typing import Optional
+from .validation import GalaxyToolXsdValidator
+from .pygls_utils import get_word_at_position
 
 from pygls.server import LanguageServer
 from pygls.features import (
-    TEXT_DOCUMENT_DID_OPEN,
+    HOVER,
     TEXT_DOCUMENT_DID_CHANGE,
-    TEXT_DOCUMENT_DID_SAVE,
-    TEXT_DOCUMENT_DID_CLOSE
+    TEXT_DOCUMENT_DID_CLOSE,
+    TEXT_DOCUMENT_DID_OPEN,
+    TEXT_DOCUMENT_DID_SAVE
 )
 from pygls.types import (
-    DidOpenTextDocumentParams,
-    DidChangeTextDocumentParams,
-    DidSaveTextDocumentParams,
-    DidCloseTextDocumentParams,
-    TextDocumentPositionParams,
     Diagnostic,
+    DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams,
+    DidSaveTextDocumentParams,
+    Hover,
+    MarkupContent,
+    MarkupKind,
     Position,
-    Range
+    Range,
+    TextDocumentPositionParams
 )
 
 SERVER_NAME = "Galaxy Tools LS"
@@ -28,10 +36,24 @@ class GalaxyToolsLanguageServer(LanguageServer):
 
     def __init__(self):
         super().__init__()
-        self.validator = GalaxyToolValidator(SERVER_NAME)
+        self.validator = GalaxyToolXsdValidator(SERVER_NAME)
 
 
 language_server = GalaxyToolsLanguageServer()
+
+
+@language_server.feature(HOVER)
+def hover(server: GalaxyToolsLanguageServer,
+          params: TextDocumentPositionParams) -> Optional[Hover]:
+    """Displays Markdown documentation for the element under the cursor."""
+    xml_doc = server.workspace.get_document(params.textDocument.uri)
+    word = get_word_at_position(xml_doc, params.position)
+
+    if not word:
+        return None
+
+    documentation = server.validator.get_documentation_for(word.text)
+    return Hover(MarkupContent(MarkupKind.Markdown, documentation), word.position_range)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
@@ -62,6 +84,6 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 
 def _validate(server: GalaxyToolsLanguageServer, params):
     """Validates the Galaxy tool"""
-    text_doc = server.workspace.get_document(params.textDocument.uri)
-    diagnostics = server.validator.validate_xml(text_doc.source)
-    server.publish_diagnostics(text_doc.uri, diagnostics)
+    xml_doc = server.workspace.get_document(params.textDocument.uri)
+    diagnostics = server.validator.validate_xml(xml_doc.source)
+    server.publish_diagnostics(xml_doc.uri, diagnostics)
