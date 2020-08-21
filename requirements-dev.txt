@@ -1,0 +1,5 @@
+# Specifies only dev-specific requirements
+# But imports the runtime ones too
+-r requirements.txt
+
+pytest

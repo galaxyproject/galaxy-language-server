@@ -1,5 +1,4 @@
-"""
-Utilities to validate Galaxy xml tool wrappers and extract
+"""Utilities to validate Galaxy xml tool wrappers and extract
 information from the XSD schema.
 """
 
@@ -27,7 +26,8 @@ class GalaxyToolXsdValidator():
 
     def validate_xml(self, source: str) -> List[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list
-        of diagnotics if there are any problems."""
+        of diagnotics if there are any problems.
+        """
         diagnostics = []
         try:
             xml = etree.fromstring(source)

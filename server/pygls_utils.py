@@ -1,6 +1,5 @@
 
-"""
-Utilities to simplify some operations with pygls.
+"""Utilities to simplify some operations with pygls.
 """
 
 from typing import Optional
@@ -9,14 +8,31 @@ from pygls.workspace import Document
 
 
 class WordLocation:
+    """Represents a word in the document with it's text and location.
+
+    The location is a document Range containing the start and
+    end position (and the line number) inside de document.
+    """
+
     def __init__(self, word: str, position_range: Range):
         self.text = word
         self.position_range = position_range
 
+    def __eq__(self, other):
+        if isinstance(other, WordLocation):
+            return (self.text == other.text
+                    and self.position_range == other.position_range)
+        return NotImplemented
+
 
 def get_word_at_position(document: Document,
                          position: Position) -> Optional[WordLocation]:
-    """Gets the WordLocation at the given document position."""
+    """Gets the word at the given document position.
+
+    The resulting WordLocation contains the actual text of the word
+    and the start and end position in the document.
+    If there is no word in the given position, None will be returned.
+    """
     word = document.word_at_position(position)
     word_len = len(word)
 

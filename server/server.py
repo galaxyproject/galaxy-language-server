@@ -1,5 +1,4 @@
-"""
-Galaxy Tools Language Server implementation
+"""Galaxy Tools Language Server implementation
 """
 
 from typing import Optional
