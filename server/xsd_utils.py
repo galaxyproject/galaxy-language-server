@@ -15,8 +15,12 @@ from pygls.types import (
 TOOL_XSD = os.path.join(os.path.dirname(__file__), 'xsd', "galaxy.xsd")
 
 
-class GalaxyToolXsdValidator():
-    """Galaxy tool validator based on XSD Schema."""
+class GalaxyToolXsdService():
+    """Galaxy tool Xml Schema Definition service.
+
+    This service provides functionality to extract information from
+    the XSD schema and validate XML files against it.
+    """
 
     def __init__(self, server_name: str):
         """Initializes the validator by loading the XSD."""

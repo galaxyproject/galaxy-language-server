@@ -2,7 +2,7 @@
 """
 
 from typing import Optional
-from .validation import GalaxyToolXsdValidator
+from .xsd_utils import GalaxyToolXsdService
 from .pygls_utils import get_word_at_position
 
 from pygls.server import LanguageServer
@@ -35,7 +35,7 @@ class GalaxyToolsLanguageServer(LanguageServer):
 
     def __init__(self):
         super().__init__()
-        self.validator = GalaxyToolXsdValidator(SERVER_NAME)
+        self.xsd_service = GalaxyToolXsdService(SERVER_NAME)
 
 
 language_server = GalaxyToolsLanguageServer()
@@ -51,7 +51,7 @@ def hover(server: GalaxyToolsLanguageServer,
     if not word:
         return None
 
-    documentation = server.validator.get_documentation_for(word.text)
+    documentation = server.xsd_service.get_documentation_for(word.text)
     return Hover(MarkupContent(MarkupKind.Markdown, documentation), word.position_range)
 
 
@@ -84,5 +84,5 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 def _validate(server: GalaxyToolsLanguageServer, params):
     """Validates the Galaxy tool"""
     xml_doc = server.workspace.get_document(params.textDocument.uri)
-    diagnostics = server.validator.validate_xml(xml_doc.source)
+    diagnostics = server.xsd_service.validate_xml(xml_doc.source)
     server.publish_diagnostics(xml_doc.uri, diagnostics)
