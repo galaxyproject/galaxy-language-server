@@ -1,10 +1,10 @@
 """Galaxy Tools Language Server implementation
 """
 
-from typing import Optional
-from .xsd_utils import GalaxyToolXsdService
-from .pygls_utils import get_word_at_position
 
+from .services.language import GalaxyToolLanguageService
+
+from typing import Optional
 from pygls.server import LanguageServer
 from pygls.features import (
     HOVER,
@@ -35,7 +35,7 @@ class GalaxyToolsLanguageServer(LanguageServer):
 
     def __init__(self):
         super().__init__()
-        self.xsd_service = GalaxyToolXsdService(SERVER_NAME)
+        self.service = GalaxyToolLanguageService(SERVER_NAME)
 
 
 language_server = GalaxyToolsLanguageServer()
@@ -46,13 +46,7 @@ def hover(server: GalaxyToolsLanguageServer,
           params: TextDocumentPositionParams) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
     xml_doc = server.workspace.get_document(params.textDocument.uri)
-    word = get_word_at_position(xml_doc, params.position)
-
-    if not word:
-        return None
-
-    documentation = server.xsd_service.get_documentation_for(word.text)
-    return Hover(MarkupContent(MarkupKind.Markdown, documentation), word.position_range)
+    return server.service.get_documentation(xml_doc, params.position)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
@@ -82,7 +76,7 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 
 
 def _validate(server: GalaxyToolsLanguageServer, params):
-    """Validates the Galaxy tool"""
+    """Validates the Galaxy tool and reports any problem found."""
     xml_doc = server.workspace.get_document(params.textDocument.uri)
-    diagnostics = server.xsd_service.validate_xml(xml_doc.source)
+    diagnostics = server.service.get_diagnostics(xml_doc.source)
     server.publish_diagnostics(xml_doc.uri, diagnostics)

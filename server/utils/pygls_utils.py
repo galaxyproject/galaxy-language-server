@@ -6,23 +6,7 @@ from typing import Optional
 from pygls.types import Position, Range
 from pygls.workspace import Document
 
-
-class WordLocation:
-    """Represents a word in the document with it's text and location.
-
-    The location is a document Range containing the start and
-    end position (and the line number) inside de document.
-    """
-
-    def __init__(self, word: str, position_range: Range):
-        self.text = word
-        self.position_range = position_range
-
-    def __eq__(self, other):
-        if isinstance(other, WordLocation):
-            return (self.text == other.text
-                    and self.position_range == other.position_range)
-        return NotImplemented
+from ..types import WordLocation
 
 
 def get_word_at_position(document: Document,

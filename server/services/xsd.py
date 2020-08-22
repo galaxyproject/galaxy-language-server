@@ -2,7 +2,7 @@
 information from the XSD schema.
 """
 
-import os
+from ..constants import TOOL_XSD
 from typing import Optional, List
 from lxml import etree
 
@@ -11,8 +11,6 @@ from pygls.types import (
     Position,
     Range,
 )
-
-TOOL_XSD = os.path.join(os.path.dirname(__file__), 'xsd', "galaxy.xsd")
 
 
 class GalaxyToolXsdService():

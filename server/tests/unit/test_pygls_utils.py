@@ -3,7 +3,7 @@
 
 import pytest
 
-from ...pygls_utils import WordLocation, get_word_at_position
+from ...utils.pygls_utils import WordLocation, get_word_at_position
 
 from pygls.workspace import Document, Position
 from pygls.types import Position, Range
