@@ -1,5 +1,7 @@
 # Galaxy Tools
 
+[![Build Status](https://travis-ci.com/davelopez/galaxy-tools-extension.svg?branch=master)](https://travis-ci.com/davelopez/galaxy-tools-extension)
+
 The aim of this project is to implement the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) to assist in the development of [Galaxy tool wrappers](https://docs.galaxyproject.org/en/latest/dev/schema.html) inside modern code editors. The idea is to provide realtime XML validation, code completion, help/documentation and best practices suggestions to assist in the development process of XML tool wrappers for Galaxy.
 
 This repository contains both, the [server](https://github.com/davelopez/galaxy-tools-extension/tree/master/server) implementation in [Python](https://www.python.org/) and the [client](https://github.com/davelopez/galaxy-tools-extension/tree/master/client) implementation of a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
