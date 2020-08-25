@@ -11,12 +11,11 @@ class WordLocation:
     end position (and the line number) inside de document.
     """
 
-    def __init__(self, word: str, position_range: Range):
+    def __init__(self, word: str, range: Range):
         self.text = word
-        self.position_range = position_range
+        self.range = range
 
     def __eq__(self, other):
         if isinstance(other, WordLocation):
-            return (self.text == other.text
-                    and self.position_range == other.position_range)
+            return self.text == other.text and self.range == other.range
         return NotImplemented

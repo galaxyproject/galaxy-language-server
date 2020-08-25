@@ -3,7 +3,7 @@ information from the XSD schema.
 """
 
 from ..constants import TOOL_XSD
-from typing import Optional, List
+from typing import List
 from lxml import etree
 
 from pygls.types import (
@@ -13,7 +13,7 @@ from pygls.types import (
 )
 
 
-class GalaxyToolXsdService():
+class GalaxyToolXsdService:
     """Galaxy tool Xml Schema Definition service.
 
     This service provides functionality to extract information from
@@ -42,45 +42,53 @@ class GalaxyToolXsdService():
         return diagnostics
 
     def get_documentation_for(self, element: str) -> str:
-        """Gets the documentation annotated in the XSD about the given element."""
+        """Gets the documentation annotated in the XSD about the
+        given element.
+        """
         try:
             value = self.xsd_doc.xpath(
                 ".//*[@name=$elem]/xs:annotation/xs:documentation/text()",
-                namespaces={'xs': 'http://www.w3.org/2001/XMLSchema'},
-                elem=element)
+                namespaces={"xs": "http://www.w3.org/2001/XMLSchema"},
+                elem=element,
+            )
             return value[0]
-        except:
+        except BaseException:
             return "No documentation available"
 
-    def _build_diagnostics(self, error_log: etree._ListErrorLog) -> List[Diagnostic]:
+    def _build_diagnostics(
+        self, error_log: etree._ListErrorLog
+    ) -> List[Diagnostic]:
         """Gets a list of Diagnostics resulting from the xml validation."""
         diagnostics = []
         for error in error_log.filter_from_errors():
-            # Macro validation may get a bit complex, for the moment just skip macro expansion
+            # Macro validation may get a bit complex, for the
+            # moment just skip macro expansion
             if "expand" in error.message:
                 continue
 
             result = Diagnostic(
                 Range(
                     Position(error.line - 1, error.column),
-                    Position(error.line - 1, error.column)
+                    Position(error.line - 1, error.column),
                 ),
                 error.message,
-                source=self.server_name
+                source=self.server_name,
             )
             diagnostics.append(result)
 
         return diagnostics
 
-    def _build_diagnostics_from_XMLSyntaxError(self, e: etree.XMLSyntaxError) -> Diagnostic:
+    def _build_diagnostics_from_XMLSyntaxError(
+        self, e: etree.XMLSyntaxError
+    ) -> Diagnostic:
         """Builds a Diagnostic element from the XMLSyntaxError."""
         result = Diagnostic(
             Range(
-                Position(e.lineno - 1, e.position[0]-1),
-                Position(e.lineno - 1, e.position[1]-1)
+                Position(e.lineno - 1, e.position[0] - 1),
+                Position(e.lineno - 1, e.position[1] - 1),
             ),
             e.msg,
-            source=self.server_name
+            source=self.server_name,
         )
 
         return [result]

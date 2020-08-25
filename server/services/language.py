@@ -1,4 +1,3 @@
-
 from .xsd import GalaxyToolXsdService
 from .format import GalaxyToolFormatService
 from ..utils.pygls_utils import get_word_at_position
@@ -12,12 +11,11 @@ from pygls.types import (
     MarkupContent,
     MarkupKind,
     Position,
-    Range,
-    TextEdit
+    TextEdit,
 )
 
 
-class GalaxyToolLanguageService():
+class GalaxyToolLanguageService:
     """Galaxy tool Language service.
 
     This service manages all the operations supported
@@ -43,10 +41,13 @@ class GalaxyToolLanguageService():
 
         documentation = self.xsd_service.get_documentation_for(word.text)
 
-        return Hover(MarkupContent(MarkupKind.Markdown, documentation), word.position_range)
+        return Hover(
+            MarkupContent(MarkupKind.Markdown, documentation), word.range
+        )
 
-    def format_document(self, content: str,
-                        params: DocumentFormattingParams) -> List[TextEdit]:
+    def format_document(
+        self, content: str, params: DocumentFormattingParams
+    ) -> List[TextEdit]:
         """Given the document contents returns the list of TextEdits
         needed to properly layout the document.
         """

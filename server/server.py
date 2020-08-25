@@ -12,22 +12,17 @@ from pygls.features import (
     TEXT_DOCUMENT_DID_CHANGE,
     TEXT_DOCUMENT_DID_CLOSE,
     TEXT_DOCUMENT_DID_OPEN,
-    TEXT_DOCUMENT_DID_SAVE
+    TEXT_DOCUMENT_DID_SAVE,
 )
 from pygls.types import (
-    Diagnostic,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DidSaveTextDocumentParams,
     DocumentFormattingParams,
     Hover,
-    MarkupContent,
-    MarkupKind,
-    Position,
-    Range,
     TextDocumentPositionParams,
-    TextEdit
+    TextEdit,
 )
 
 SERVER_NAME = "Galaxy Tools LS"
@@ -45,49 +40,55 @@ language_server = GalaxyToolsLanguageServer()
 
 
 @language_server.feature(HOVER)
-def hover(server: GalaxyToolsLanguageServer,
-          params: TextDocumentPositionParams) -> Optional[Hover]:
+def hover(
+    server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
+) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
     document = server.workspace.get_document(params.textDocument.uri)
     return server.service.get_documentation(document, params.position)
 
 
 @language_server.feature(FORMATTING)
-def formatting(server: GalaxyToolsLanguageServer,
-               params: DocumentFormattingParams) -> List[TextEdit]:
+def formatting(
+    server: GalaxyToolsLanguageServer, params: DocumentFormattingParams
+) -> List[TextEdit]:
     document = server.workspace.get_document(params.textDocument.uri)
     content = document.source
     return server.service.format_document(content, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
-async def did_open(server: GalaxyToolsLanguageServer,
-                   params: DidOpenTextDocumentParams) -> None:
+async def did_open(
+    server: GalaxyToolsLanguageServer, params: DidOpenTextDocumentParams
+) -> None:
     """Occurs when a new xml document is open."""
-    server.show_message('Xml Document Opened')
+    server.show_message("Xml Document Opened")
     _validate(server, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_CHANGE)
-def did_change(server: GalaxyToolsLanguageServer,
-               params: DidChangeTextDocumentParams) -> None:
+def did_change(
+    server: GalaxyToolsLanguageServer, params: DidChangeTextDocumentParams
+) -> None:
     """Occurs when the xml document is changed by the user."""
     _validate(server, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_SAVE)
-def did_save(server: GalaxyToolsLanguageServer,
-             params: DidSaveTextDocumentParams) -> None:
+def did_save(
+    server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParams
+) -> None:
     """Occurs when the xml document is saved to disk."""
     _validate(server, params)
-    server.show_message('Xml Document Saved')
+    server.show_message("Xml Document Saved")
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_CLOSE)
-def did_close(server: GalaxyToolsLanguageServer,
-              params: DidCloseTextDocumentParams) -> None:
+def did_close(
+    server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams
+) -> None:
     """Occurs when the xml document is closed."""
-    server.show_message('Xml Document Closed')
+    server.show_message("Xml Document Closed")
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:

@@ -1,4 +1,3 @@
-
 """Utilities to simplify some operations with pygls.
 """
 
@@ -9,8 +8,9 @@ from pygls.workspace import Document
 from ..types import WordLocation
 
 
-def get_word_at_position(document: Document,
-                         position: Position) -> Optional[WordLocation]:
+def get_word_at_position(
+    document: Document, position: Position
+) -> Optional[WordLocation]:
     """Gets the word at the given document position.
 
     The resulting WordLocation contains the actual text of the word
@@ -24,7 +24,7 @@ def get_word_at_position(document: Document,
         return None
 
     line: str = document.lines[position.line]
-    start = position.character-word_len
+    start = position.character - word_len
 
     if start < 0:
         start = 0
@@ -32,7 +32,10 @@ def get_word_at_position(document: Document,
     begin = line.find(word, start)
     end = begin + word_len
 
-    return WordLocation(word, Range(
-        start=Position(line=position.line, character=begin),
-        end=Position(line=position.line, character=end),
-    ))
+    return WordLocation(
+        word,
+        Range(
+            start=Position(line=position.line, character=begin),
+            end=Position(line=position.line, character=end),
+        ),
+    )
