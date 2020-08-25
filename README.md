@@ -1,6 +1,6 @@
 # Galaxy Tools
 
-[![Build Status](https://travis-ci.com/davelopez/galaxy-tools-extension.svg?branch=master)](https://travis-ci.com/davelopez/galaxy-tools-extension)
+[![Actions Status](https://github.com/davelopez/galaxy-tools-extension/workflows/CI/badge.svg)](https://github.com/davelopez/galaxy-tools-extension/actions)
 
 The aim of this project is to implement the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) to assist in the development of [Galaxy tool wrappers](https://docs.galaxyproject.org/en/latest/dev/schema.html) inside modern code editors. The idea is to provide realtime XML validation, code completion, help/documentation and best practices suggestions to assist in the development process of XML tool wrappers for Galaxy.
 

@@ -1,5 +1,5 @@
 # Galaxy Tools Language Server
-[![Build Status](https://travis-ci.com/davelopez/galaxy-tools-extension.svg?branch=master)](https://travis-ci.com/davelopez/galaxy-tools-extension)
+[![Actions Status](https://github.com/davelopez/galaxy-tools-extension/workflows/CI/badge.svg)](https://github.com/davelopez/galaxy-tools-extension/actions)
 
 [Language Server](https://microsoft.github.io/language-server-protocol/) implementation written in Python to assist in the development of [Galaxy tool wrappers](https://docs.galaxyproject.org/en/latest/dev/schema.html).
 
