@@ -3,65 +3,67 @@
 
 import pytest
 
-from ...utils.pygls_utils import WordLocation, get_word_at_position
-
 from pygls.workspace import Document, Position
 from pygls.types import Range
 
+from ...utils.pygls_utils import WordLocation, get_word_at_position
 
-def _get_fake_xml_document():
-    fake_document_uri = "file://fake_doc.xml"
-    fake_content = (
-        '<tool id="test">\n<description/>\n   <test value="0"/>\n</tool>'
-    )
-    fake_document = Document(fake_document_uri, fake_content)
-    return fake_document
+# The content starts at line 1 for convenience
+FAKE_CONTENT = """
+<tool id="test">
+    <description/>
+    <test value="0"/>
+</tool>'
+"""
+FAKE_DOC_URI = "file://fake_doc.xml"
+FAKE_DOCUMENT = Document(FAKE_DOC_URI, FAKE_CONTENT)
 
 
 testdata = [
+    (FAKE_DOCUMENT, Position(0, 0), None),  # Line 0 is empty
     (
-        _get_fake_xml_document(),
-        Position(0, 3),
+        FAKE_DOCUMENT,
+        Position(1, 3),
         WordLocation(
             "tool",
             Range(
-                start=Position(line=0, character=1),
-                end=Position(line=0, character=5),
+                start=Position(line=1, character=1),
+                end=Position(line=1, character=5),
             ),
         ),
     ),
     (
-        _get_fake_xml_document(),
-        Position(0, 7),
+        FAKE_DOCUMENT,
+        Position(1, 7),
         WordLocation(
             "id",
             Range(
-                start=Position(line=0, character=6),
-                end=Position(line=0, character=8),
+                start=Position(line=1, character=6),
+                end=Position(line=1, character=8),
             ),
         ),
     ),
     (
-        _get_fake_xml_document(),
-        Position(1, 3),
+        FAKE_DOCUMENT,
+        Position(2, 5),
         WordLocation(
             "description",
             Range(
-                start=Position(line=1, character=1),
-                end=Position(line=1, character=12),
+                start=Position(line=2, character=5),
+                end=Position(line=2, character=16),
             ),
         ),
     ),
-    (_get_fake_xml_document(), Position(1, 13), None),
-    (_get_fake_xml_document(), Position(2, 2), None),
+    (FAKE_DOCUMENT, Position(2, 17), None),
+    (FAKE_DOCUMENT, Position(3, 2), None),
     (
-        _get_fake_xml_document(),
-        Position(3, 2),
+        FAKE_DOCUMENT,
+        Position(4, 2),
         WordLocation(
             "tool",
             Range(
-                start=Position(line=3, character=2),
-                end=Position(line=3, character=6),
+                start=Position(line=4, character=2),
+                end=Position(line=4, character=6),
             ),
         ),
     ),
