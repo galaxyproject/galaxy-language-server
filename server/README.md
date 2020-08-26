@@ -6,6 +6,7 @@
 #### Dependencies
 * [pygls](https://github.com/openlawlibrary/pygls) generic implementation of the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/specification) in python
 * [lxml](https://lxml.de/index.html) python library for processing xml files
+* [anytree](https://github.com/c0fec0de/anytree) python library with an easy to use tree structure
 
 
 ## Quick Start
