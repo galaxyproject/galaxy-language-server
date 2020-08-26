@@ -1,4 +1,4 @@
-from .xsd import GalaxyToolXsdService
+from .xsd.service import GalaxyToolXsdService
 from .format import GalaxyToolFormatService
 from ..utils.pygls_utils import get_word_at_position
 

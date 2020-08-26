@@ -2,7 +2,6 @@
 information from the XSD schema.
 """
 
-from ..constants import TOOL_XSD
 from typing import List
 from lxml import etree
 
@@ -11,6 +10,9 @@ from pygls.types import (
     Position,
     Range,
 )
+
+from .constants import TOOL_XSD_FILE
+from .parser import XsdParser
 
 
 class GalaxyToolXsdService:
@@ -23,8 +25,9 @@ class GalaxyToolXsdService:
     def __init__(self, server_name: str):
         """Initializes the validator by loading the XSD."""
         self.server_name = server_name
-        self.xsd_doc = etree.parse(TOOL_XSD)
+        self.xsd_doc = etree.parse(TOOL_XSD_FILE)
         self.xsd_schema = etree.XMLSchema(self.xsd_doc)
+        self.xsd_parser = XsdParser(self.xsd_doc.getroot())
 
     def validate_xml(self, source: str) -> List[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list
