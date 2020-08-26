@@ -132,6 +132,9 @@ dmypy.json
 # VS Code
 .vscode/settings.json
 
+# Visual Studio
+.vs
+
 # Node
 out
 node_modules
