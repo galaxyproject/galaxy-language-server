@@ -16,3 +16,6 @@ XS_ELEMENT = f"{XS_NAMESPACE}element"
 XS_SCHEMA = f"{XS_NAMESPACE}schema"
 XS_SEQUENCE = f"{XS_NAMESPACE}sequence"
 XS_SIMPLE_TYPE = f"{XS_NAMESPACE}simpleType"
+
+# Messages
+MSG_NO_DOCUMENTATION_AVAILABLE = "No documentation available"

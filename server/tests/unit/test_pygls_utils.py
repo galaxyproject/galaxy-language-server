@@ -19,7 +19,7 @@ FAKE_DOC_URI = "file://fake_doc.xml"
 FAKE_DOCUMENT = Document(FAKE_DOC_URI, FAKE_CONTENT)
 
 
-testdata = [
+testdata_for_word_location = [
     (FAKE_DOCUMENT, Position(0, 0), None),  # Line 0 is empty
     (
         FAKE_DOCUMENT,
@@ -70,10 +70,48 @@ testdata = [
 ]
 
 
-@pytest.mark.parametrize("document,position,expected", testdata)
+@pytest.mark.parametrize(
+    "document,position,expected", testdata_for_word_location
+)
 def test_get_word_at_position(
     document: Document, position: Position, expected: WordLocation
 ):
     actual = get_word_at_position(document, position)
 
     assert actual == expected
+
+
+testdata_for_word_location_equality = [
+    (
+        WordLocation("test", Range(Position(), Position())),
+        WordLocation("test", Range(Position(), Position())),
+        True,
+    ),
+    (
+        WordLocation("test", Range(Position(), Position())),
+        WordLocation("test2", Range(Position(), Position())),
+        False,
+    ),
+    (
+        WordLocation("test", Range(Position(), Position())),
+        WordLocation("test", Range(Position(1, 0), Position())),
+        False,
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "word,other_word,expected", testdata_for_word_location_equality
+)
+def test_word_location_equality(
+    word: WordLocation, other_word: WordLocation, expected: bool
+):
+    actual = word == other_word
+    assert actual == expected
+
+
+def test_word_location_equals_not_implemented_for_other_types():
+    equals = WordLocation("test", Range(Position(), Position())).__eq__(
+        "other type"
+    )
+    assert equals == NotImplemented
