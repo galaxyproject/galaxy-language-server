@@ -65,32 +65,34 @@ def test_get_tree_returns_valid_element_names():
     parser = _get_test_parser()
 
     tree = parser.get_tree()
+    root = tree.root
 
-    assert len(tree.ancestors) == 0
-    assert len(tree.descendants) == 4
-    assert tree.name == "testElement"
-    assert tree.children[0].name == "firstElement"
-    assert tree.children[1].name == "secondElement"
-    assert tree.children[2].name == "thirdElement"
-    assert tree.children[2].children[0].name == "childElement"
+    assert len(root.ancestors) == 0
+    assert len(root.descendants) == 4
+    assert root.name == "testElement"
+    assert root.children[0].name == "firstElement"
+    assert root.children[1].name == "secondElement"
+    assert root.children[2].name == "thirdElement"
+    assert root.children[2].children[0].name == "childElement"
 
 
 def test_get_tree_returns_valid_attribute_names():
     parser = _get_test_parser()
 
     tree = parser.get_tree()
+    root = tree.root
 
-    assert len(tree.attributes) == 2
-    assert tree.attributes[0].name == "id"
-    assert tree.attributes[1].name == "value"
-    assert tree.children[2].attributes[0].name == "testDate"
+    assert len(root.attributes) == 2
+    assert root.attributes[0].name == "id"
+    assert root.attributes[1].name == "value"
+    assert root.children[2].attributes[0].name == "testDate"
 
 
 def test_get_documentation_returns_valid_when_exists():
     parser = _get_test_parser()
     tree = parser.get_tree()
 
-    doc = tree.get_doc()
+    doc = tree.root.get_doc()
 
     assert doc == "Documentation ``example``."
 
@@ -99,7 +101,7 @@ def test_get_documentation_returns_valid_when_language_is_given():
     parser = _get_test_parser()
     tree = parser.get_tree()
 
-    doc = tree.get_doc("es")
+    doc = tree.root.get_doc("es")
 
     assert doc == "``Ejemplo`` de documentación."
 
@@ -108,6 +110,6 @@ def test_get_documentation_should_return_no_documentation_when_not_exists():
     parser = _get_test_parser()
     tree = parser.get_tree()
 
-    doc = tree.get_doc("de")
+    doc = tree.root.get_doc("de")
 
     assert doc == MSG_NO_DOCUMENTATION_AVAILABLE

@@ -1,16 +1,22 @@
 """ Type definitions for XSD processing.
 """
 
-from anytree import NodeMixin
-from typing import List
+from anytree import NodeMixin, find
+from typing import List, Dict
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
 
-class XmlBase:
+class XsdBase:
+    """Base class that encapsulates an element from the XSD schema.
+
+    It contains common information and functionality shared by
+    XML nodes and attributes.
+    """
+
     name: str
 
     def __init__(self, name: str, element):
-        super(XmlBase, self).__init__()
+        super(XsdBase, self).__init__()
         self.name = name
         self.xsd_element = element
 
@@ -40,25 +46,70 @@ class XmlBase:
             return MSG_NO_DOCUMENTATION_AVAILABLE
 
 
-class XmlAttribute(XmlBase):
+class XsdAttribute(XsdBase):
+    """Represents an attribute in an XML tag.
+
+    It contains information about the attribute extracted
+    from the XSD schema.
+
+    Args:
+        XsdBase: Inherits base functionality from XsdBase.
+    """
+
     type_name: str
     is_required: bool
+    enumeration: List[str]
 
     def __init__(self, name, element, type_name, is_required):
-        super(XmlAttribute, self).__init__(name, element)
+        super(XsdAttribute, self).__init__(name, element)
         self.type_name = type_name
         self.is_required = is_required
+        self.enumeration = []
 
 
-class XmlElement(XmlBase, NodeMixin):
-    attributes: List[XmlAttribute]
+class XsdNode(XsdBase, NodeMixin):
+    """Represents a particular XML tag.
+
+    The node contains information extracted from the XSD schema
+    about the XML tag, possible descendants, attributes, etc.
+
+    Args:
+        XsdBase: Inherits base functionality from XsdBase.
+        NodeMixin: Inherits tree node functionality from NodeMixin.
+    """
+
     min_occurs: int
     max_occurs: int
     type_name: str
+    attributes: Dict[str, XsdAttribute]
 
     def __init__(self, name, element, parent=None):
-        super(XmlElement, self).__init__(name, element)
+        super(XsdNode, self).__init__(name, element)
         self.parent = parent
-        self.attributes = []
+        self.attributes = {}
         self.min_occurs = 1  # required by default
         self.max_occurs = -1  # unbounded by default
+
+
+class XsdTree:
+    """Represents a tree structure containing the important
+    XSD information for all the elements and attributes.
+    """
+
+    root: XsdNode
+
+    def __init__(self, root: XsdNode):
+        self.root = root
+
+    def find_element_by_name(self, name: str) -> XsdBase:
+        """Finds the element (node or atrribute) in the tree
+        that matches the given name.
+
+        Args:
+            name (str): The name of the node or attribute to find.
+
+        Returns:
+            XsdBase: The element that matches the name or None if
+            not found.
+        """
+        return find(self.root, lambda node: node.name == name)

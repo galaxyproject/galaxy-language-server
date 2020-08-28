@@ -11,7 +11,7 @@ from pygls.types import (
     Range,
 )
 
-from .constants import TOOL_XSD_FILE
+from .constants import TOOL_XSD_FILE, MSG_NO_DOCUMENTATION_AVAILABLE
 from .parser import XsdParser
 
 
@@ -44,19 +44,15 @@ class GalaxyToolXsdService:
 
         return diagnostics
 
-    def get_documentation_for(self, element: str) -> str:
+    def get_documentation_for(self, element_name: str) -> str:
         """Gets the documentation annotated in the XSD about the
-        given element.
+        given element name (node or attribute).
         """
-        try:
-            value = self.xsd_doc.xpath(
-                ".//*[@name=$elem]/xs:annotation/xs:documentation/text()",
-                namespaces={"xs": "http://www.w3.org/2001/XMLSchema"},
-                elem=element,
-            )
-            return value[0]
-        except BaseException:
-            return "No documentation available"
+        tree = self.xsd_parser.get_tree()
+        element = tree.find_element_by_name(element_name)
+        if element is None:
+            return MSG_NO_DOCUMENTATION_AVAILABLE
+        return element.get_doc()
 
     def _build_diagnostics(
         self, error_log: etree._ListErrorLog
