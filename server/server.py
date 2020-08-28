@@ -1,21 +1,21 @@
 """Galaxy Tools Language Server implementation
 """
 
-
 from .services.language import GalaxyToolLanguageService
 
 from typing import Optional, List
 from pygls.server import LanguageServer
 from pygls.features import (
+    COMPLETION,
     FORMATTING,
     HOVER,
-    TEXT_DOCUMENT_DID_CHANGE,
     TEXT_DOCUMENT_DID_CLOSE,
     TEXT_DOCUMENT_DID_OPEN,
     TEXT_DOCUMENT_DID_SAVE,
 )
 from pygls.types import (
-    DidChangeTextDocumentParams,
+    CompletionList,
+    CompletionParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DidSaveTextDocumentParams,
@@ -37,6 +37,15 @@ class GalaxyToolsLanguageServer(LanguageServer):
 
 
 language_server = GalaxyToolsLanguageServer()
+
+
+@language_server.feature(COMPLETION, trigger_characters=["<", " "])
+def completions(
+    server: GalaxyToolsLanguageServer, params: CompletionParams
+) -> CompletionList:
+    """Returns completion items depending on the current document context."""
+    document = server.workspace.get_document(params.textDocument.uri)
+    return server.service.get_completion(document, params)
 
 
 @language_server.feature(HOVER)
@@ -63,14 +72,6 @@ async def did_open(
 ) -> None:
     """Occurs when a new xml document is open."""
     server.show_message("Xml Document Opened")
-    _validate(server, params)
-
-
-@language_server.feature(TEXT_DOCUMENT_DID_CHANGE)
-def did_change(
-    server: GalaxyToolsLanguageServer, params: DidChangeTextDocumentParams
-) -> None:
-    """Occurs when the xml document is changed by the user."""
     _validate(server, params)
 
 

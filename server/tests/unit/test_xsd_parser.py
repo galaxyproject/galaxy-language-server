@@ -83,9 +83,28 @@ def test_get_tree_returns_valid_attribute_names():
     root = tree.root
 
     assert len(root.attributes) == 2
-    assert root.attributes[0].name == "id"
-    assert root.attributes[1].name == "value"
-    assert root.children[2].attributes[0].name == "testDate"
+    assert root.attributes["id"]
+    assert root.attributes["value"]
+    assert root.children[2].attributes["testDate"]
+
+
+def test_tree_find_node_by_name_returns_expected_node():
+    parser = _get_test_parser()
+    tree = parser.get_tree()
+    expected = "childElement"
+
+    node = tree.find_node_by_name(expected)
+
+    assert node.name == expected
+
+
+def test_tree_find_node_by_name_returns_None_when_node_not_found():
+    parser = _get_test_parser()
+    tree = parser.get_tree()
+
+    node = tree.find_node_by_name("unknown")
+
+    assert node is None
 
 
 def test_get_documentation_returns_valid_when_exists():
@@ -94,7 +113,7 @@ def test_get_documentation_returns_valid_when_exists():
 
     doc = tree.root.get_doc()
 
-    assert doc == "Documentation ``example``."
+    assert doc.value == "Documentation ``example``."
 
 
 def test_get_documentation_returns_valid_when_language_is_given():
@@ -103,7 +122,7 @@ def test_get_documentation_returns_valid_when_language_is_given():
 
     doc = tree.root.get_doc("es")
 
-    assert doc == "``Ejemplo`` de documentación."
+    assert doc.value == "``Ejemplo`` de documentación."
 
 
 def test_get_documentation_should_return_no_documentation_when_not_exists():
@@ -112,4 +131,4 @@ def test_get_documentation_should_return_no_documentation_when_not_exists():
 
     doc = tree.root.get_doc("de")
 
-    assert doc == MSG_NO_DOCUMENTATION_AVAILABLE
+    assert doc.value == MSG_NO_DOCUMENTATION_AVAILABLE

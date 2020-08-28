@@ -7,6 +7,7 @@ from lxml import etree
 
 from pygls.types import (
     Diagnostic,
+    MarkupContent,
     Position,
     Range,
 )
@@ -44,12 +45,12 @@ class GalaxyToolXsdService:
 
         return diagnostics
 
-    def get_documentation_for(self, element_name: str) -> str:
+    def get_documentation_for(self, element_name: str) -> MarkupContent:
         """Gets the documentation annotated in the XSD about the
         given element name (node or attribute).
         """
         tree = self.xsd_parser.get_tree()
-        element = tree.find_element_by_name(element_name)
+        element = tree.find_node_by_name(element_name)
         if element is None:
             return MSG_NO_DOCUMENTATION_AVAILABLE
         return element.get_doc()

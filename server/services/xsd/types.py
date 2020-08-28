@@ -1,8 +1,9 @@
 """ Type definitions for XSD processing.
 """
 
-from anytree import NodeMixin, find
+from anytree import NodeMixin, findall
 from typing import List, Dict
+from pygls.types import MarkupContent, MarkupKind
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
 
@@ -20,8 +21,8 @@ class XsdBase:
         self.name = name
         self.xsd_element = element
 
-    def get_doc(self, lang: str = "en") -> str:
-        """Gets the documentation associated with this element
+    def get_doc(self, lang: str = "en") -> MarkupContent:
+        """Gets the Markdown documentation associated with this element
         from the XSD schema.
 
         If there is no documentation in the schema for the element,
@@ -41,9 +42,11 @@ class XsdBase:
                 namespaces=self.xsd_element.nsmap,
                 lang=lang,
             )
-            return doc[0].strip()
+            return MarkupContent(MarkupKind.Markdown, doc[0].strip())
         except BaseException:
-            return MSG_NO_DOCUMENTATION_AVAILABLE
+            return MarkupContent(
+                MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE
+            )
 
 
 class XsdAttribute(XsdBase):
@@ -101,15 +104,17 @@ class XsdTree:
     def __init__(self, root: XsdNode):
         self.root = root
 
-    def find_element_by_name(self, name: str) -> XsdBase:
-        """Finds the element (node or atrribute) in the tree
-        that matches the given name.
+    def find_node_by_name(self, name: str) -> XsdNode:
+        """Finds node in the tree that matches the given name.
 
         Args:
-            name (str): The name of the node or attribute to find.
+            name (str): The name of the node to find.
 
         Returns:
-            XsdBase: The element that matches the name or None if
+            XsdNode: The node that matches the name or None if
             not found.
         """
-        return find(self.root, lambda node: node.name == name)
+        nodes = findall(self.root, lambda node: node.name == name)
+        if len(nodes) == 0:
+            return None
+        return nodes[0]
