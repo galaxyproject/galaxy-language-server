@@ -45,19 +45,16 @@ class XmlContextService:
             determined, the default context with no information is returned.
         """
         context = XmlContext()
-        try:
-            if self.is_empty_content(xml_content):
-                context.node = self.xsd_tree.root
-                context.is_empty = True
-                return context
+        if self.is_empty_content(xml_content):
+            context.node = self.xsd_tree.root
+            context.is_empty = True
+            return context
 
-            current_tag = self.find_current_tag(xml_content, offset)
-            if current_tag:
-                node = self.xsd_tree.find_node_by_name(current_tag)
-                return XmlContext(current_tag, node)
-            return context
-        except BaseException:
-            return context
+        current_tag = self.find_current_tag(xml_content, offset)
+        if current_tag:
+            node = self.xsd_tree.find_node_by_name(current_tag)
+            return XmlContext(current_tag, node)
+        return context
 
     @staticmethod
     def is_empty_content(xml_content: str) -> bool:
@@ -69,7 +66,9 @@ class XmlContextService:
         Returns:
             bool: True if the document is empty and False otherwise.
         """
-        return xml_content.replace("<", " ").isspace()
+        return (
+            not xml_content.strip() or xml_content.replace("<", " ").isspace()
+        )
 
     @staticmethod
     def find_current_tag(content: str, offset: int) -> Optional[str]:
@@ -107,6 +106,6 @@ class XmlContextService:
         )
         end = chunk.find(" ")
         if end < 0:
-            end = begin
+            end = len(chunk)
         tag = chunk[0:end]
         return tag
