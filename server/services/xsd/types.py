@@ -1,8 +1,9 @@
 """ Type definitions for XSD processing.
 """
 
+from lxml import etree
 from anytree import NodeMixin, RenderTree, findall
-from typing import List, Dict
+from typing import List, Dict, Optional
 from pygls.types import MarkupContent, MarkupKind
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
@@ -63,7 +64,13 @@ class XsdAttribute(XsdBase):
     is_required: bool
     enumeration: List[str]
 
-    def __init__(self, name, element, type_name, is_required):
+    def __init__(
+        self,
+        name: str,
+        element: etree.Element,
+        type_name: Optional[str] = None,
+        is_required: bool = False,
+    ):
         super(XsdAttribute, self).__init__(name, element)
         self.type_name = type_name
         self.is_required = is_required
@@ -86,7 +93,9 @@ class XsdNode(XsdBase, NodeMixin):
     type_name: str
     attributes: Dict[str, XsdAttribute]
 
-    def __init__(self, name, element, parent=None):
+    def __init__(
+        self, name: str, element: etree.Element, parent: NodeMixin = None
+    ):
         super(XsdNode, self).__init__(name, element)
         self.parent = parent
         self.attributes = {}

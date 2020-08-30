@@ -11,7 +11,7 @@ from .xsd.parser import XsdTree, XsdNode, XsdAttribute
 from .context import XmlContext
 
 
-class CompletionService:
+class XmlCompletionService:
     """Service in charge of generating completion lists based
     on the current XML context.
     """
@@ -70,10 +70,11 @@ class CompletionService:
             about the attributes.
         """
         result = []
-        if context.node:
-            for attr_name in context.node.attributes:
-                attr = context.node.attributes[attr_name]
-                result.append(self._build_attribute_completion_item(attr))
+        if not context.is_empty:
+            if context.node:
+                for attr_name in context.node.attributes:
+                    attr = context.node.attributes[attr_name]
+                    result.append(self._build_attribute_completion_item(attr))
         return CompletionList(items=result, is_incomplete=False)
 
     def _build_attribute_completion_item(

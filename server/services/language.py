@@ -1,6 +1,6 @@
 from .xsd.service import GalaxyToolXsdService
 from .format import GalaxyToolFormatService
-from .completion import CompletionService
+from .completion import XmlCompletionService
 from .context import XmlContextService
 from ..utils.pygls_utils import get_word_at_position
 
@@ -9,6 +9,7 @@ from pygls.workspace import Document
 from pygls.types import (
     CompletionList,
     CompletionParams,
+    CompletionTriggerKind,
     Diagnostic,
     DocumentFormattingParams,
     Hover,
@@ -28,7 +29,7 @@ class GalaxyToolLanguageService:
         self.xsd_service = GalaxyToolXsdService(server_name)
         self.format_service = GalaxyToolFormatService()
         tree = self.xsd_service.xsd_parser.get_tree()
-        self.completion_service = CompletionService(tree)
+        self.completion_service = XmlCompletionService(tree)
         self.xml_context_service = XmlContextService(tree)
 
     def get_diagnostics(self, content: str) -> List[Diagnostic]:
@@ -64,11 +65,16 @@ class GalaxyToolLanguageService:
         """Gets completion items depending on the current document context."""
         xml_content = document.source
         offset = document.offset_at_position(params.position)
+        triggerKind = params.context.triggerKind
 
-        offset = offset - 1  # ignore completion trigger
-        context = self.xml_context_service.get_xml_context(xml_content, offset)
-
-        if params.context.triggerCharacter == "<":
-            return self.completion_service.get_node_completion(context)
-        if params.context.triggerCharacter == " ":
-            return self.completion_service.get_attribute_completion(context)
+        if triggerKind == CompletionTriggerKind.TriggerCharacter:
+            offset = offset - 1  # ignore/remove trigger character
+            context = self.xml_context_service.get_xml_context(
+                xml_content, offset
+            )
+            if params.context.triggerCharacter == "<":
+                return self.completion_service.get_node_completion(context)
+            if params.context.triggerCharacter == " ":
+                return self.completion_service.get_attribute_completion(
+                    context
+                )
