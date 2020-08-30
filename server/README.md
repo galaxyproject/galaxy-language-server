@@ -9,5 +9,5 @@
 * [anytree](https://github.com/c0fec0de/anytree): Python library with an easy to use tree structure.
 
 
-## Quick Start
-See [this](https://github.com/davelopez/galaxy-tools-extension/blob/master/README.md#quick-start).
+## Development setup
+See [this](https://github.com/davelopez/galaxy-tools-extension/blob/master/README.md#development-setup).
