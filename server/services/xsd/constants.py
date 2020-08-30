@@ -5,17 +5,23 @@ import os
 
 TOOL_XSD_FILE = os.path.join(os.path.dirname(__file__), "galaxy.xsd")
 
+# Maximum depth when the schema contains recursive definitions
+MAX_RECURSION_DEPTH = 25
+
 # Schema namespace
 XS_NAMESPACE = "{http://www.w3.org/2001/XMLSchema}"
 
 # XSD elements
-XS_ALL = f"{XS_NAMESPACE}all"
 XS_ATTRIBUTE = f"{XS_NAMESPACE}attribute"
 XS_COMPLEX_TYPE = f"{XS_NAMESPACE}complexType"
 XS_ELEMENT = f"{XS_NAMESPACE}element"
 XS_SCHEMA = f"{XS_NAMESPACE}schema"
 XS_SEQUENCE = f"{XS_NAMESPACE}sequence"
+XS_ALL = f"{XS_NAMESPACE}all"
+XS_CHOICE = f"{XS_NAMESPACE}choice"
 XS_SIMPLE_TYPE = f"{XS_NAMESPACE}simpleType"
+XS_GROUP = f"{XS_NAMESPACE}group"
+XS_ATTRIBUTE_GROUP = f"{XS_NAMESPACE}attributeGroup"
 
 # Messages
 MSG_NO_DOCUMENTATION_AVAILABLE = "No documentation available"

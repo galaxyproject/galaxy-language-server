@@ -13,7 +13,7 @@ from pygls.types import (
 )
 
 from .constants import TOOL_XSD_FILE, MSG_NO_DOCUMENTATION_AVAILABLE
-from .parser import XsdParser
+from .parser import GalaxyToolXsdParser
 
 
 class GalaxyToolXsdService:
@@ -28,7 +28,7 @@ class GalaxyToolXsdService:
         self.server_name = server_name
         self.xsd_doc = etree.parse(TOOL_XSD_FILE)
         self.xsd_schema = etree.XMLSchema(self.xsd_doc)
-        self.xsd_parser = XsdParser(self.xsd_doc.getroot())
+        self.xsd_parser = GalaxyToolXsdParser(self.xsd_doc.getroot())
 
     def validate_xml(self, source: str) -> List[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list
