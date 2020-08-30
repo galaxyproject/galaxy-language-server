@@ -1,7 +1,7 @@
 """ Type definitions for XSD processing.
 """
 
-from anytree import NodeMixin, findall
+from anytree import NodeMixin, RenderTree, findall
 from typing import List, Dict
 from pygls.types import MarkupContent, MarkupKind
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
@@ -93,6 +93,18 @@ class XsdNode(XsdBase, NodeMixin):
         self.min_occurs = 1  # required by default
         self.max_occurs = -1  # unbounded by default
 
+    def render(self) -> str:
+        """Gets an ascii representation of this node.
+
+        Returns:
+            str: An ascii representation of the node.
+        """
+        return str(
+            RenderTree(self).by_attr(
+                lambda node: f"[{node.name}] {' '.join(node.attributes)}"
+            )
+        )
+
 
 class XsdTree:
     """Represents a tree structure containing the important
@@ -118,3 +130,11 @@ class XsdTree:
         if len(nodes) == 0:
             return None
         return nodes[0]
+
+    def render(self) -> str:
+        """Gets an ascii representation of this tree.
+
+        Returns:
+            str: An ascii representation of the tree.
+        """
+        return self.root.render()

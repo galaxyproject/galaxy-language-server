@@ -23,6 +23,7 @@ XS_SIMPLE_TYPE = f"{XS_NAMESPACE}simpleType"
 XS_GROUP = f"{XS_NAMESPACE}group"
 XS_ATTRIBUTE_GROUP = f"{XS_NAMESPACE}attributeGroup"
 XS_SIMPLE_CONTENT = f"{XS_NAMESPACE}simpleContent"
+XS_COMPLEX_CONTENT = f"{XS_NAMESPACE}complexContent"
 XS_EXTENSION = f"{XS_NAMESPACE}extension"
 
 # Messages

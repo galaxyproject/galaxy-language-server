@@ -17,37 +17,36 @@ TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   </xs:element>
   <xs:complexType name="CustomComplexType">
     <xs:sequence>
-      <xs:element name="firstElement" type="CustomIntSimpleType"/>
-      <xs:element name="secondElement" type="xs:string"/>
+      <xs:element name="firstElement" type="CustomIntSimpleType">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+            <![CDATA[
+              This is a multiline
+              documentation example.
+            ]]>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="secondElement" type="TestComplexContent"/>
       <xs:element name="thirdElement">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="childElement" type="TestSimpleContent">
-              <xs:annotation>
-                <xs:documentation xml:lang="en">
-                  <![CDATA[
-                    This is a multiline
-                    documentation example.
-                  ]]>
-                </xs:documentation>
-              </xs:annotation>
-            </xs:element>
+            <xs:element name="childElement" type="TestSimpleContent"/>
           </xs:sequence>
           <xs:attribute name="testDate" type="xs:date"/>
         </xs:complexType>
       </xs:element>
-      <xs:element name="element_with_group">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:group ref="TestGroup" minOccurs="0" maxOccurs="1"/>
-          </xs:sequence>
-          <xs:attribute name="testDate" type="xs:date"/>
-        </xs:complexType>
-      </xs:element>
+      <xs:element name="element_with_group" type="ComplexWithGroup"/>
     </xs:sequence>
     <xs:attribute name="id" type="xs:integer" use="required"/>
     <xs:attribute name="value" type="ValueSimpleType"/>
     <xs:attributeGroup ref="TestAttrGroup"/>
+  </xs:complexType>
+  <xs:complexType name="ComplexWithGroup">
+    <xs:sequence>
+      <xs:group ref="TestGroup" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="group_id" type="xs:integer"/>
   </xs:complexType>
   <xs:complexType name="TestSimpleContent">
     <xs:simpleContent>
@@ -55,6 +54,16 @@ TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
         <xs:attribute name="simple" type="ValueSimpleType" use="required"/>
       </xs:extension>
     </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="TestComplexContent">
+    <xs:complexContent>
+      <xs:extension base="ComplexWithGroup">
+        <xs:sequence>
+          <xs:element name="content" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="complex" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
   <xs:simpleType name="CustomIntSimpleType">
     <xs:restriction base="xs:integer">
@@ -80,6 +89,22 @@ TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     </xs:sequence>
   </xs:group>
 </xs:schema>
+"""
+# Resulting XML tree for quick visual reference
+# Please update it if the XSD above is modified:
+#   print(tree.render())
+"""
+[testElement] id value gattr1 gattr2
+├── [firstElement]
+├── [secondElement] group_id complex
+│   ├── [group_elem1]
+│   ├── [group_elem2]
+│   └── [content]
+├── [thirdElement] testDate
+│   └── [childElement] simple
+└── [element_with_group] group_id
+    ├── [group_elem1]
+    └── [group_elem2]
 """
 
 RECURSIVE_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -112,11 +137,17 @@ class TestXsdParserClass:
         tree = xsd_parser.get_tree()
         root = tree.root
 
+        # If the test fails the tree will be printed
+        print(tree.render())
+
         assert len(root.ancestors) == 0
-        assert len(root.descendants) == 7
+        assert len(root.descendants) == 10
         assert root.name == "testElement"
         assert root.children[0].name == "firstElement"
         assert root.children[1].name == "secondElement"
+        assert root.children[1].children[0].name == "group_elem1"
+        assert root.children[1].children[1].name == "group_elem2"
+        assert root.children[1].children[2].name == "content"
         assert root.children[2].name == "thirdElement"
         assert root.children[2].children[0].name == "childElement"
         assert root.children[3].name == "element_with_group"
@@ -143,6 +174,15 @@ class TestXsdParserClass:
 
         assert len(simple_content_elem.attributes) == 1
         assert simple_content_elem.attributes["simple"]
+
+    def test_get_tree_returns_valid_element_when_complex_content(
+        self, xsd_parser
+    ):
+        tree = xsd_parser.get_tree()
+        complex_content_elem = tree.root.children[2].children[0]
+
+        assert len(complex_content_elem.attributes) == 1
+        assert complex_content_elem.attributes["simple"]
 
     def test_get_tree_with_recursive_xsd_stops_recursion(
         self, recursive_xsd_parser

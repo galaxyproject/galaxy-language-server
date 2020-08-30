@@ -18,6 +18,7 @@ from .constants import (
     XS_SEQUENCE,
     XS_SIMPLE_TYPE,
     XS_SIMPLE_CONTENT,
+    XS_COMPLEX_CONTENT,
     XS_EXTENSION,
 )
 
@@ -145,6 +146,8 @@ class GalaxyToolXsdParser:
                     self._apply_attribute_group_to_node(element_ref, node)
             elif tag == XS_SIMPLE_CONTENT:
                 self._apply_simple_content_to_node(child_element, node)
+            elif tag == XS_COMPLEX_CONTENT:
+                self._apply_complex_content_to_node(child_element, node, depth)
 
     def _apply_attribute_group_to_node(
         self, group_name: str, node: XsdNode
@@ -155,7 +158,7 @@ class GalaxyToolXsdParser:
                 self._add_attribute_to_node(child_element, node)
 
     def _apply_group_to_node(
-        self, group_name: str, node: XsdNode, depth: int = 0,
+        self, group_name: str, node: XsdNode, depth: int,
     ) -> None:
         group = self._named_group_map.get(group_name)
         if group is not None:
@@ -170,6 +173,16 @@ class GalaxyToolXsdParser:
                 attributes = child_elem.findall(XS_ATTRIBUTE)
                 for attr_elem in attributes:
                     self._add_attribute_to_node(attr_elem, node)
+
+    def _apply_complex_content_to_node(
+        self, complex_content: etree.Element, node: XsdNode, depth: int
+    ) -> None:
+        for child_elem in complex_content:
+            if child_elem.tag == XS_EXTENSION:
+                attr_base = child_elem.attrib.get("base")
+                if attr_base:
+                    self._apply_named_type_to_node(attr_base, node, depth)
+                self._apply_complex_type_to_node(child_elem, node, depth)
 
     def _add_attribute_to_node(
         self, attribute_element: etree.Element, node: XsdNode
