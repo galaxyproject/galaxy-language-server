@@ -22,7 +22,7 @@ TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="thirdElement">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="childElement" type="xs:integer">
+            <xs:element name="childElement" type="TestSimpleContent">
               <xs:annotation>
                 <xs:documentation xml:lang="en">
                   <![CDATA[
@@ -48,6 +48,13 @@ TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:attribute name="id" type="xs:integer" use="required"/>
     <xs:attribute name="value" type="ValueSimpleType"/>
     <xs:attributeGroup ref="TestAttrGroup"/>
+  </xs:complexType>
+  <xs:complexType name="TestSimpleContent">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="simple" type="ValueSimpleType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
   <xs:simpleType name="CustomIntSimpleType">
     <xs:restriction base="xs:integer">
@@ -127,6 +134,15 @@ class TestXsdParserClass:
         assert root.attributes["value"]
         assert root.attributes["gattr1"]
         assert root.attributes["gattr2"]
+
+    def test_get_tree_returns_valid_attribute_names_when_simple_content(
+        self, xsd_parser
+    ):
+        tree = xsd_parser.get_tree()
+        simple_content_elem = tree.root.children[2].children[0]
+
+        assert len(simple_content_elem.attributes) == 1
+        assert simple_content_elem.attributes["simple"]
 
     def test_get_tree_with_recursive_xsd_stops_recursion(
         self, recursive_xsd_parser

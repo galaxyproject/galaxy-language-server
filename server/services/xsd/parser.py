@@ -17,6 +17,8 @@ from .constants import (
     XS_GROUP,
     XS_SEQUENCE,
     XS_SIMPLE_TYPE,
+    XS_SIMPLE_CONTENT,
+    XS_EXTENSION,
 )
 
 
@@ -107,7 +109,6 @@ class GalaxyToolXsdParser:
                 # minOccurs defaults to 1
                 node.min_occurs = int(element.attrib.get("minOccurs", 1))
                 self._build_tree_recursive(element, node, depth + 1)
-
             elif tag == XS_COMPLEX_TYPE:
                 if not element_name:
                     # The type is anonymous and is declared inside the element
@@ -115,7 +116,6 @@ class GalaxyToolXsdParser:
                     self._apply_complex_type_to_node(
                         element, parent_node, depth + 1
                     )
-
             elif tag == XS_GROUP:
                 element_ref = element.attrib.get("ref")
                 if element_ref:
@@ -143,6 +143,8 @@ class GalaxyToolXsdParser:
                 element_ref = child_element.attrib.get("ref")
                 if element_ref:
                     self._apply_attribute_group_to_node(element_ref, node)
+            elif tag == XS_SIMPLE_CONTENT:
+                self._apply_simple_content_to_node(child_element, node)
 
     def _apply_attribute_group_to_node(
         self, group_name: str, node: XsdNode
@@ -159,6 +161,15 @@ class GalaxyToolXsdParser:
         if group is not None:
             for child_element in group:
                 self._build_tree_recursive(child_element, node, depth + 1)
+
+    def _apply_simple_content_to_node(
+        self, simple_content: etree.Element, node: XsdNode
+    ) -> None:
+        for child_elem in simple_content:
+            if child_elem.tag == XS_EXTENSION:
+                attributes = child_elem.findall(XS_ATTRIBUTE)
+                for attr_elem in attributes:
+                    self._add_attribute_to_node(attr_elem, node)
 
     def _add_attribute_to_node(
         self, attribute_element: etree.Element, node: XsdNode
