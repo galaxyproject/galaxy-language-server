@@ -66,9 +66,7 @@ class XmlContextService:
         Returns:
             bool: True if the document is empty and False otherwise.
         """
-        return (
-            not xml_content.strip() or xml_content.replace("<", " ").isspace()
-        )
+        return not xml_content.strip() or xml_content.replace("<", " ").isspace()
 
     @staticmethod
     def find_current_tag(content: str, offset: int) -> Optional[str]:
@@ -98,12 +96,7 @@ class XmlContextService:
             begin = begin + 1  # skip <
             chunk = content[begin:close_pos]
             close_pos = chunk.rfind("/>")
-        chunk = (
-            chunk.replace("/", " ")
-            .replace(">", " ")
-            .replace("\n", " ")
-            .replace("\r", "")
-        )
+        chunk = chunk.replace("/", " ").replace(">", " ").replace("\n", " ").replace("\r", "")
         end = chunk.find(" ")
         if end < 0:
             end = len(chunk)

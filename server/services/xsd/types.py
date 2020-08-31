@@ -45,9 +45,7 @@ class XsdBase:
             )
             return MarkupContent(MarkupKind.Markdown, doc[0].strip())
         except BaseException:
-            return MarkupContent(
-                MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE
-            )
+            return MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
 
 
 class XsdAttribute(XsdBase):
@@ -93,9 +91,7 @@ class XsdNode(XsdBase, NodeMixin):
     type_name: str
     attributes: Dict[str, XsdAttribute]
 
-    def __init__(
-        self, name: str, element: etree.Element, parent: NodeMixin = None
-    ):
+    def __init__(self, name: str, element: etree.Element, parent: NodeMixin = None):
         super(XsdNode, self).__init__(name, element)
         self.parent = parent
         self.attributes = {}
@@ -109,9 +105,7 @@ class XsdNode(XsdBase, NodeMixin):
             str: An ascii representation of the node.
         """
         return str(
-            RenderTree(self).by_attr(
-                lambda node: f"[{node.name}] {' '.join(node.attributes)}"
-            )
+            RenderTree(self).by_attr(lambda node: f"[{node.name}] {' '.join(node.attributes)}")
         )
 
 

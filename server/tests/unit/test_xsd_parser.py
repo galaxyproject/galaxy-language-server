@@ -154,9 +154,7 @@ class TestXsdParserClass:
         assert root.children[3].children[0].name == "group_elem1"
         assert root.children[3].children[1].name == "group_elem2"
 
-    def test_get_tree_returns_valid_attribute_names_using_groups(
-        self, xsd_parser
-    ):
+    def test_get_tree_returns_valid_attribute_names_using_groups(self, xsd_parser):
         tree = xsd_parser.get_tree()
         root = tree.root
 
@@ -166,27 +164,21 @@ class TestXsdParserClass:
         assert root.attributes["gattr1"]
         assert root.attributes["gattr2"]
 
-    def test_get_tree_returns_valid_attribute_names_when_simple_content(
-        self, xsd_parser
-    ):
+    def test_get_tree_returns_valid_attribute_names_when_simple_content(self, xsd_parser):
         tree = xsd_parser.get_tree()
         simple_content_elem = tree.root.children[2].children[0]
 
         assert len(simple_content_elem.attributes) == 1
         assert simple_content_elem.attributes["simple"]
 
-    def test_get_tree_returns_valid_element_when_complex_content(
-        self, xsd_parser
-    ):
+    def test_get_tree_returns_valid_element_when_complex_content(self, xsd_parser):
         tree = xsd_parser.get_tree()
         complex_content_elem = tree.root.children[2].children[0]
 
         assert len(complex_content_elem.attributes) == 1
         assert complex_content_elem.attributes["simple"]
 
-    def test_get_tree_with_recursive_xsd_stops_recursion(
-        self, recursive_xsd_parser
-    ):
+    def test_get_tree_with_recursive_xsd_stops_recursion(self, recursive_xsd_parser):
         tree = recursive_xsd_parser.get_tree()
 
         assert len(tree.root.descendants) > 0

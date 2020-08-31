@@ -40,9 +40,7 @@ language_server = GalaxyToolsLanguageServer()
 
 
 @language_server.feature(COMPLETION, trigger_characters=["<", " "])
-def completions(
-    server: GalaxyToolsLanguageServer, params: CompletionParams
-) -> CompletionList:
+def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> CompletionList:
     """Returns completion items depending on the current document context."""
     document = server.workspace.get_document(params.textDocument.uri)
     return server.service.get_completion(document, params)
@@ -67,27 +65,21 @@ def formatting(
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
-async def did_open(
-    server: GalaxyToolsLanguageServer, params: DidOpenTextDocumentParams
-) -> None:
+async def did_open(server: GalaxyToolsLanguageServer, params: DidOpenTextDocumentParams) -> None:
     """Occurs when a new xml document is open."""
     server.show_message("Xml Document Opened")
     _validate(server, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_SAVE)
-def did_save(
-    server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParams
-) -> None:
+def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParams) -> None:
     """Occurs when the xml document is saved to disk."""
     _validate(server, params)
     server.show_message("Xml Document Saved")
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_CLOSE)
-def did_close(
-    server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams
-) -> None:
+def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams) -> None:
     """Occurs when the xml document is closed."""
     server.show_message("Xml Document Closed")
 

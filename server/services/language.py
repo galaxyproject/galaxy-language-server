@@ -51,17 +51,13 @@ class GalaxyToolLanguageService:
 
         return Hover(documentation, word.range)
 
-    def format_document(
-        self, content: str, params: DocumentFormattingParams
-    ) -> List[TextEdit]:
+    def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
         """Given the document contents returns the list of TextEdits
         needed to properly format and layout the document.
         """
         return self.format_service.format(content, params)
 
-    def get_completion(
-        self, document: Document, params: CompletionParams
-    ) -> CompletionList:
+    def get_completion(self, document: Document, params: CompletionParams) -> CompletionList:
         """Gets completion items depending on the current document context."""
         xml_content = document.source
         offset = document.offset_at_position(params.position)
@@ -69,12 +65,8 @@ class GalaxyToolLanguageService:
 
         if triggerKind == CompletionTriggerKind.TriggerCharacter:
             offset = offset - 1  # ignore/remove trigger character
-            context = self.xml_context_service.get_xml_context(
-                xml_content, offset
-            )
+            context = self.xml_context_service.get_xml_context(xml_content, offset)
             if params.context.triggerCharacter == "<":
                 return self.completion_service.get_node_completion(context)
             if params.context.triggerCharacter == " ":
-                return self.completion_service.get_attribute_completion(
-                    context
-                )
+                return self.completion_service.get_attribute_completion(context)

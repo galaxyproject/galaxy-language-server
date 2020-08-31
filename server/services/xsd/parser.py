@@ -87,10 +87,7 @@ class GalaxyToolXsdParser:
             self._named_group_map[name] = element
 
     def _build_tree_recursive(
-        self,
-        parent_element: etree.Element,
-        parent_node: XsdNode,
-        depth: int = 0,
+        self, parent_element: etree.Element, parent_node: XsdNode, depth: int = 0,
     ) -> None:
         if depth > MAX_RECURSION_DEPTH:
             return None  # Stop recursion
@@ -104,9 +101,7 @@ class GalaxyToolXsdParser:
                 if not parent_node:  # Is root element
                     self._tree = XsdTree(node)
                 node.type_name = element_type_name
-                self._apply_named_type_to_node(
-                    element_type_name, node, depth + 1
-                )
+                self._apply_named_type_to_node(element_type_name, node, depth + 1)
                 # minOccurs defaults to 1
                 node.min_occurs = int(element.attrib.get("minOccurs", 1))
                 self._build_tree_recursive(element, node, depth + 1)
@@ -114,19 +109,13 @@ class GalaxyToolXsdParser:
                 if not element_name:
                     # The type is anonymous and is declared inside the element
                     # so we can directly apply it to the node
-                    self._apply_complex_type_to_node(
-                        element, parent_node, depth + 1
-                    )
+                    self._apply_complex_type_to_node(element, parent_node, depth + 1)
             elif tag == XS_GROUP:
                 element_ref = element.attrib.get("ref")
                 if element_ref:
-                    self._apply_group_to_node(
-                        element_ref, parent_node, depth + 1
-                    )
+                    self._apply_group_to_node(element_ref, parent_node, depth + 1)
 
-    def _apply_named_type_to_node(
-        self, type_name: str, node: XsdNode, depth: int = 0
-    ) -> None:
+    def _apply_named_type_to_node(self, type_name: str, node: XsdNode, depth: int = 0) -> None:
         element_type = self._named_type_map.get(type_name)
         if element_type is not None and element_type.tag == XS_COMPLEX_TYPE:
             self._apply_complex_type_to_node(element_type, node, depth + 1)
@@ -149,25 +138,19 @@ class GalaxyToolXsdParser:
             elif tag == XS_COMPLEX_CONTENT:
                 self._apply_complex_content_to_node(child_element, node, depth)
 
-    def _apply_attribute_group_to_node(
-        self, group_name: str, node: XsdNode
-    ) -> None:
+    def _apply_attribute_group_to_node(self, group_name: str, node: XsdNode) -> None:
         group = self._named_group_map.get(group_name)
         if group is not None:
             for child_element in group:
                 self._add_attribute_to_node(child_element, node)
 
-    def _apply_group_to_node(
-        self, group_name: str, node: XsdNode, depth: int,
-    ) -> None:
+    def _apply_group_to_node(self, group_name: str, node: XsdNode, depth: int,) -> None:
         group = self._named_group_map.get(group_name)
         if group is not None:
             for child_element in group:
                 self._build_tree_recursive(child_element, node, depth + 1)
 
-    def _apply_simple_content_to_node(
-        self, simple_content: etree.Element, node: XsdNode
-    ) -> None:
+    def _apply_simple_content_to_node(self, simple_content: etree.Element, node: XsdNode) -> None:
         for child_elem in simple_content:
             if child_elem.tag == XS_EXTENSION:
                 attributes = child_elem.findall(XS_ATTRIBUTE)
@@ -184,27 +167,17 @@ class GalaxyToolXsdParser:
                     self._apply_named_type_to_node(attr_base, node, depth)
                 self._apply_complex_type_to_node(child_elem, node, depth)
 
-    def _add_attribute_to_node(
-        self, attribute_element: etree.Element, node: XsdNode
-    ) -> None:
+    def _add_attribute_to_node(self, attribute_element: etree.Element, node: XsdNode) -> None:
         attr_name = attribute_element.attrib.get("name")
         attr_type = attribute_element.attrib.get("type")
         attr_use = attribute_element.attrib.get("use")
-        attr = XsdAttribute(
-            attr_name, attribute_element, attr_type, attr_use == "required"
-        )
-        attr.enumeration = self._get_enumeration_restrictions_from_type(
-            attr_type
-        )
+        attr = XsdAttribute(attr_name, attribute_element, attr_type, attr_use == "required")
+        attr.enumeration = self._get_enumeration_restrictions_from_type(attr_type)
         node.attributes[attr_name] = attr
 
-    def _get_enumeration_restrictions_from_type(
-        self, type_name: str
-    ) -> Optional[List[str]]:
+    def _get_enumeration_restrictions_from_type(self, type_name: str) -> Optional[List[str]]:
         simple_type = self._named_type_map.get(type_name)
         if simple_type is None:
             return []
         if simple_type.tag == XS_SIMPLE_TYPE:
-            return simple_type.xpath(
-                ".//xs:enumeration/@value", namespaces=simple_type.nsmap
-            )
+            return simple_type.xpath(".//xs:enumeration/@value", namespaces=simple_type.nsmap)

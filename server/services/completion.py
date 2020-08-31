@@ -53,9 +53,7 @@ class XmlCompletionService:
             CompletionItem: The completion item with the basic information
             about the node.
         """
-        return CompletionItem(
-            node.name, CompletionItemKind.Class, documentation=node.get_doc(),
-        )
+        return CompletionItem(node.name, CompletionItemKind.Class, documentation=node.get_doc(),)
 
     def get_attribute_completion(self, context: XmlContext) -> CompletionList:
         """Gets a list of completion items with all the attributes that can be
@@ -77,9 +75,7 @@ class XmlCompletionService:
                     result.append(self._build_attribute_completion_item(attr))
         return CompletionList(items=result, is_incomplete=False)
 
-    def _build_attribute_completion_item(
-        self, attr: XsdAttribute
-    ) -> CompletionItem:
+    def _build_attribute_completion_item(self, attr: XsdAttribute) -> CompletionItem:
         """Generates a completion item with the information about the
         given attribute definition.
 

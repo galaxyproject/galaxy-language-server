@@ -68,9 +68,7 @@ class TestXmlContextServiceClass:
 
         assert actual is None
 
-    def test_get_xml_context_returns_empty_document_context(
-        self, mocker: MockerFixture
-    ) -> None:
+    def test_get_xml_context_returns_empty_document_context(self, mocker: MockerFixture) -> None:
         xml_content = ""
         offset = 0
         xsd_tree_mock = mocker.Mock()
@@ -80,9 +78,7 @@ class TestXmlContextServiceClass:
 
         assert context.is_empty
 
-    def test_get_xml_context_returns_valid_context_with_node(
-        self, mocker: MockerFixture,
-    ) -> None:
+    def test_get_xml_context_returns_valid_context_with_node(self, mocker: MockerFixture,) -> None:
         xsd_tree_mock = mocker.Mock()
         expected_element = "test"
         xml_content = f"<{expected_element}>"

@@ -55,9 +55,7 @@ class GalaxyToolXsdService:
             return MSG_NO_DOCUMENTATION_AVAILABLE
         return element.get_doc()
 
-    def _build_diagnostics(
-        self, error_log: etree._ListErrorLog
-    ) -> List[Diagnostic]:
+    def _build_diagnostics(self, error_log: etree._ListErrorLog) -> List[Diagnostic]:
         """Gets a list of Diagnostics resulting from the xml validation."""
         diagnostics = []
         for error in error_log.filter_from_errors():
@@ -68,8 +66,7 @@ class GalaxyToolXsdService:
 
             result = Diagnostic(
                 Range(
-                    Position(error.line - 1, error.column),
-                    Position(error.line - 1, error.column),
+                    Position(error.line - 1, error.column), Position(error.line - 1, error.column),
                 ),
                 error.message,
                 source=self.server_name,
@@ -78,9 +75,7 @@ class GalaxyToolXsdService:
 
         return diagnostics
 
-    def _build_diagnostics_from_XMLSyntaxError(
-        self, e: etree.XMLSyntaxError
-    ) -> Diagnostic:
+    def _build_diagnostics_from_XMLSyntaxError(self, e: etree.XMLSyntaxError) -> Diagnostic:
         """Builds a Diagnostic element from the XMLSyntaxError."""
         result = Diagnostic(
             Range(
