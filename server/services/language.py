@@ -1,15 +1,18 @@
-from .xsd import GalaxyToolXsdService
+from .xsd.service import GalaxyToolXsdService
 from .format import GalaxyToolFormatService
+from .completion import XmlCompletionService
+from .context import XmlContextService
 from ..utils.pygls_utils import get_word_at_position
 
 from typing import List
 from pygls.workspace import Document
 from pygls.types import (
+    CompletionList,
+    CompletionParams,
+    CompletionTriggerKind,
     Diagnostic,
     DocumentFormattingParams,
     Hover,
-    MarkupContent,
-    MarkupKind,
     Position,
     TextEdit,
 )
@@ -25,6 +28,9 @@ class GalaxyToolLanguageService:
     def __init__(self, server_name: str):
         self.xsd_service = GalaxyToolXsdService(server_name)
         self.format_service = GalaxyToolFormatService()
+        tree = self.xsd_service.xsd_parser.get_tree()
+        self.completion_service = XmlCompletionService(tree)
+        self.xml_context_service = XmlContextService(tree)
 
     def get_diagnostics(self, content: str) -> List[Diagnostic]:
         """Validates the Galaxy tool and returns a list
@@ -34,6 +40,8 @@ class GalaxyToolLanguageService:
 
     def get_documentation(self, document: Document, position: Position) -> str:
         """Gets the documentation about the element at the given position."""
+
+        # TODO: use context to get a real *keyword* (tag, attribute)
         word = get_word_at_position(document, position)
 
         if not word:
@@ -41,14 +49,24 @@ class GalaxyToolLanguageService:
 
         documentation = self.xsd_service.get_documentation_for(word.text)
 
-        return Hover(
-            MarkupContent(MarkupKind.Markdown, documentation), word.range
-        )
+        return Hover(documentation, word.range)
 
-    def format_document(
-        self, content: str, params: DocumentFormattingParams
-    ) -> List[TextEdit]:
+    def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
         """Given the document contents returns the list of TextEdits
-        needed to properly layout the document.
+        needed to properly format and layout the document.
         """
         return self.format_service.format(content, params)
+
+    def get_completion(self, document: Document, params: CompletionParams) -> CompletionList:
+        """Gets completion items depending on the current document context."""
+        xml_content = document.source
+        offset = document.offset_at_position(params.position)
+        triggerKind = params.context.triggerKind
+
+        if triggerKind == CompletionTriggerKind.TriggerCharacter:
+            offset = offset - 1  # ignore/remove trigger character
+            context = self.xml_context_service.get_xml_context(xml_content, offset)
+            if params.context.triggerCharacter == "<":
+                return self.completion_service.get_node_completion(context)
+            if params.context.triggerCharacter == " ":
+                return self.completion_service.get_attribute_completion(context)

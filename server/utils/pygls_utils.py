@@ -8,9 +8,7 @@ from pygls.workspace import Document
 from ..types import WordLocation
 
 
-def get_word_at_position(
-    document: Document, position: Position
-) -> Optional[WordLocation]:
+def get_word_at_position(document: Document, position: Position) -> Optional[WordLocation]:
     """Gets the word at the given document position.
 
     The resulting WordLocation contains the actual text of the word
@@ -20,22 +18,19 @@ def get_word_at_position(
     word = document.word_at_position(position)
     word_len = len(word)
 
-    if word_len == 0:
-        return None
+    if word_len:
+        line: str = document.lines[position.line]
+        start = position.character - word_len
 
-    line: str = document.lines[position.line]
-    start = position.character - word_len
+        start = max(0, start)
 
-    if start < 0:
-        start = 0
+        begin = line.find(word, start)
+        end = begin + word_len
 
-    begin = line.find(word, start)
-    end = begin + word_len
-
-    return WordLocation(
-        word,
-        Range(
-            start=Position(line=position.line, character=begin),
-            end=Position(line=position.line, character=end),
-        ),
-    )
+        return WordLocation(
+            word,
+            Range(
+                start=Position(line=position.line, character=begin),
+                end=Position(line=position.line, character=end),
+            ),
+        )

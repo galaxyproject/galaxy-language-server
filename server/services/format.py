@@ -15,15 +15,11 @@ class GalaxyToolFormatService:
     following best practices for Galaxy tools.
     """
 
-    def format(
-        self, content: str, params: DocumentFormattingParams
-    ) -> List[TextEdit]:
+    def format(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
         """Given the document contents returns the list of TextEdits
         needed to properly layout the document.
         """
-        formatted_result = self._format_document(
-            content, params.options.tabSize
-        )
+        formatted_result = self._format_document(content, params.options.tabSize)
 
         lines = content.count("\n")
         start = Position(0, 0)
