@@ -2,8 +2,9 @@
 """
 
 import os
+import galaxy.tool_util
 
-TOOL_XSD_FILE = os.path.join(os.path.dirname(__file__), "galaxy.xsd")
+TOOL_XSD_FILE = os.path.join(os.path.dirname(galaxy.tool_util.__file__), "xsd", "galaxy.xsd")
 
 # Maximum depth when the schema contains recursive definitions
 MAX_RECURSION_DEPTH = 25
