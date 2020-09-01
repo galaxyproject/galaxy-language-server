@@ -3,4 +3,4 @@
 
 
 ## Development setup
-See [this](https://github.com/davelopez/galaxy-tools-extension/blob/master/README.md#development-setup).
+See [this](../README.md#development-setup).
