@@ -68,11 +68,10 @@ class XmlCompletionService:
             about the attributes.
         """
         result = []
-        if not context.is_empty:
-            if context.node:
-                for attr_name in context.node.attributes:
-                    attr = context.node.attributes[attr_name]
-                    result.append(self._build_attribute_completion_item(attr))
+        if context.node and not context.is_empty:
+            for attr_name in context.node.attributes:
+                attr = context.node.attributes[attr_name]
+                result.append(self._build_attribute_completion_item(attr))
         return CompletionList(items=result, is_incomplete=False)
 
     def _build_attribute_completion_item(self, attr: XsdAttribute) -> CompletionItem:

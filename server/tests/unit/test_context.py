@@ -139,6 +139,7 @@ class TestXmlContextServiceClass:
             ("<test/>\n", 7, None),
             ("<test><other>\n", 7, "other"),
             ("<test><other/>\n", 14, "test"),
+            ("<test>\r\n<other/>\n", 17, "test"),
         ],
     )
     def test_find_current_tag_returns_expected_tag(
