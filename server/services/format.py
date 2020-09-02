@@ -29,11 +29,11 @@ class GalaxyToolFormatService:
     def _format_document(self, content: str, tabSize: int) -> str:
         """Formats the whole XML document."""
         try:
-            xml = etree.fromstring(content)
+            parser = etree.XMLParser(strip_cdata=False)
+            xml = etree.fromstring(content, parser=parser)
             spaces = " " * tabSize
             etree.indent(xml, space=spaces)
             result = etree.tostring(xml, pretty_print=True, encoding=str)
             return result
         except etree.XMLSyntaxError:
-            # Do not auto-format if there are syntax errors
-            return content
+            return content  # Do not auto-format if there are syntax errors
