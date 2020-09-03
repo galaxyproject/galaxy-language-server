@@ -26,7 +26,7 @@ When creating the issue, explain the problem and include additional details to h
 >
 > 1. What version of the extension are you using?
 > 1. What version of Visual Studio Code are you using?
-> 2. What operating system and processor architecture are you using?
+> 2. What OS and processor architecture are you using?
 > 3. What did you do?
 > 4. What did you expect to see?
 > 5. What did you see instead?
@@ -160,4 +160,3 @@ The maintainers will check regularly if there are any open pull requests and rev
 Currently the style guide is only defined for the [Language Server](../server) which is writen in ``Python``.
 
 Basically you can rely on [flake8](https://pypi.org/project/flake8/) and [black](https://github.com/psf/black) (along with the configuration files provided in the project directory) to manage all the styling for you. If you installed the [development requirements](../requirements-dev.txt) you already have them installed :)
-
