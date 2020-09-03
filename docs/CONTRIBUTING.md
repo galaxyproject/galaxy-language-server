@@ -110,7 +110,7 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
     pytest --cov=server
     ```
 
-4. Create a branch for local development:
+5. Create a branch for local development:
 
     ```sh
     git checkout -b name-of-your-bugfix-or-feature
@@ -119,20 +119,26 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
     >
     >Remember to check the [Style Guide](#style-guide) to maintain an uniform code style.
 
-5. When you're done making changes, check that your changes pass ``style linter`` and the ``tests``.
+6. When you're done making changes, check that your changes pass ``style linter`` and the ``tests``.
     ```sh
     flake8
     pytest
     ```
 
-6. Commit your changes and push your branch to GitHub::
+7. Commit your changes and push your branch to GitHub::
     ```sh
     git add .
     git commit -m "Your detailed description of your changes."
     git push origin name-of-your-bugfix-or-feature
     ```
 
-7. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
+
+### Setup Visual Studio Code for debugging
+If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
+1. Open the `galaxy-tool-extension` directory in Visual Studio Code
+2. Open debug view (`ctrl + shift + D`)
+3. Select `Server + Client` and press `F5`
 
 ## Pull Request Guidelines
 
@@ -140,7 +146,7 @@ Before you submit a pull request, check that it meets the following guidelines:
 
 1. Provide a **detailed description** about the context or motivation of the pull request.
 2. If the pull request adds functionality, please remember to **add or update the documentation**.
-2. Check **all the tests are passing**.
+3. Check **all the tests are passing**.
 4. The [Style Guide](#style-guide) is respected.
 
 
