@@ -3,6 +3,7 @@
 > The idea is to provide realtime XML validation, code completion, help/documentation and other features to help in following best practices during the development process of XML tool wrappers for Galaxy.
 
 [![Actions Status](https://github.com/davelopez/galaxy-tools-extension/workflows/CI/badge.svg)](https://github.com/davelopez/galaxy-tools-extension/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The aim of this project is to implement the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) to assist in the development of [Galaxy tool wrappers](https://docs.galaxyproject.org/en/latest/dev/schema.html) inside modern code editors.
 
