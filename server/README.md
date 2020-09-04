@@ -7,7 +7,8 @@
 * [pygls](https://github.com/openlawlibrary/pygls): generic implementation of the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/specification) in Python.
 * [lxml](https://lxml.de/index.html): Python library for processing XML files.
 * [anytree](https://github.com/c0fec0de/anytree): Python library with an easy to use tree structure.
+* [galaxy-tool-util](https://pypi.org/project/galaxy-tool-util/): the [Galaxy](https://galaxyproject.org/) tool utilities for Python.
 
 
-## Development setup
-See [this](../README.md#development-setup).
+# Getting Started
+See [this](../README.md#getting-started).

@@ -8,62 +8,79 @@ The aim of this project is to implement the [Language Server Protocol](https://m
 
 This repository contains both the [server](https://github.com/davelopez/galaxy-tools-extension/tree/master/server) implementation in [Python](https://www.python.org/) and the [client](https://github.com/davelopez/galaxy-tools-extension/tree/master/client) implementation of a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
 
+## Features
+![Demo Animation](../assets/features.gif?raw=true)
+* Basic tag and attribute auto-completion 
+* Documentation on Hover
+* Document validation based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd)
+* Document auto-formatting
+
 ## Release History
-See the [change log](docs/CHANGELOG.md).
+
+Current version: **``Unreleased``**
+
+See the [change log](docs/CHANGELOG.md) for details.
 
 
-## Development setup
-Clone this repo
-```sh
-git clone https://github.com/davelopez/galaxy-tools-extension.git
-cd galaxy-tools-extension
-```
-### Install Dependencies
+# Getting Started
+If you are considering contributing, please read the [contribution guide](docs/CONTRIBUTING.md).
 
-**On Linux & OSX using Conda**
-```sh
-# create the virtual environment for Python 3.8
-conda create -n <environment-name> python=3.8
-conda activate <environment-name>
+## Setup for local development
 
-# for the server:
-pip install -r requirements-dev.txt
+1. Fork this repo on Github
+2. Clone your fork locally:
+    ````sh
+    git clone https://github.com/<your_github_name>/galaxy-tools-extension.git
+    ````
+3. Create a virtual environment using conda and install the dependencies:
 
-# for the client:
-conda install nodejs typescript
-npm install
-```
+    ```sh
+    conda create -n <environment-name> python=3.8
+    conda activate <environment-name>
 
-**On Windows**
+    # For the language server:
+    pip install -r requirements-dev.txt
 
-For the server:
+    # For the client extension:
+    conda install nodejs typescript
+    npm install
+    ```
+4. Run the tests locally
+    ```sh
+    # For the language server:
+    pytest
+    # Additionally you can check the coverage:
+    pytest --cov=server
+    ```
 
-Install [Python 3.8](https://docs.python.org/3/using/windows.html#windows-full)
-```sh
-# create the virtual environment
-python -m venv env
+5. Create a branch for local development:
 
-# activate the virtual environment
-.\env\Scripts\activate
-```
-Or select the `venv` virtual environment in Visual Studio Code (more information [here](https://code.visualstudio.com/docs/python/environments))
-```sh
-# Install dependencies
-pip install -r requirements-dev.txt
-```
+    ```sh
+    git checkout -b name-of-your-bugfix-or-feature
+    ```
+    >Now you can make your changes locally.
+    >
+    >Remember to check the [Style Guide](#style-guide) to maintain an uniform code style.
 
-For the client:
+6. When you're done making changes, check that your changes pass ``style linter`` and the ``tests``.
+    ```sh
+    flake8
+    pytest
+    ```
 
-Install [Node.js](https://nodejs.org/en/download/)
+7. Commit your changes and push your branch to GitHub::
+    ```sh
+    git add .
+    git commit -m "Your detailed description of your changes."
+    git push origin name-of-your-bugfix-or-feature
+    ```
 
-Open terminal in the `galaxy-tools-extension` directory where the `package.json` file is in
-```sh
-npm install
-```
+8. Submit a pull request through the GitHub website.
 
-
-### Debug Server + Client in Visual Studio Code
-
+### Setup Visual Studio Code for debugging
+If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
 1. Open the `galaxy-tool-extension` directory in Visual Studio Code
-1. Open debug view (`ctrl + shift + D`)
-1. Select `Server + Client` and press `F5`
+2. Open debug view (`ctrl + shift + D`)
+3. Select `Server + Client` and press `F5`
+
+
