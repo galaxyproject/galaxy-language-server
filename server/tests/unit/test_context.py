@@ -16,6 +16,10 @@ FAKE_DOC_URI = "file://fake_doc.xml"
 FAKE_DOCUMENT = Document(FAKE_DOC_URI, FAKE_CONTENT)
 
 
+def get_fake_document(content: str):
+    return Document(FAKE_DOC_URI, content)
+
+
 class TestXmlContextClass:
     def test_init_sets_properties(self, mocker: MockerFixture) -> None:
         expected_name = "test"
@@ -70,11 +74,11 @@ class TestXmlContextServiceClass:
 
     def test_get_xml_context_returns_empty_document_context(self, mocker: MockerFixture) -> None:
         xml_content = ""
-        offset = 0
+        position = Position()
         xsd_tree_mock = mocker.Mock()
         service = XmlContextService(xsd_tree_mock)
 
-        context = service.get_xml_context(xml_content, offset)
+        context = service.get_xml_context(Document(FAKE_DOC_URI, xml_content), position)
 
         assert context.is_empty
 
@@ -82,10 +86,10 @@ class TestXmlContextServiceClass:
         xsd_tree_mock = mocker.Mock()
         expected_element = "test"
         xml_content = f"<{expected_element}>"
-        offset = 3
+        position = Position(line=0, character=3)
         service = XmlContextService(xsd_tree_mock)
 
-        context = service.get_xml_context(xml_content, offset)
+        context = service.get_xml_context(Document(FAKE_DOC_URI, xml_content), position)
 
         assert context
         assert context.node
@@ -96,10 +100,10 @@ class TestXmlContextServiceClass:
     ) -> None:
         xsd_tree_mock = mocker.Mock()
         xml_content = "content with no tags"
-        offset = 3
+        position = Position(line=0, character=3)
         service = XmlContextService(xsd_tree_mock)
 
-        context = service.get_xml_context(xml_content, offset)
+        context = service.get_xml_context(Document(FAKE_DOC_URI, xml_content), position)
 
         assert context
         assert context.node is None
@@ -108,17 +112,17 @@ class TestXmlContextServiceClass:
     @pytest.mark.parametrize(
         "xml_content, expected",
         [
-            ("", True),
-            ("<", True),
-            (" ", True),
-            ("   ", True),
-            ("\r\n", True),
-            ("\r", True),
-            (" \r", True),
-            ("\n", True),
-            (" \n", True),
-            ("<a", False),
-            ("<test", False),
+            (get_fake_document(""), True),
+            (get_fake_document("<"), True),
+            (get_fake_document(" "), True),
+            (get_fake_document("   "), True),
+            (get_fake_document("\r\n"), True),
+            (get_fake_document("\r"), True),
+            (get_fake_document(" \r"), True),
+            (get_fake_document("\n"), True),
+            (get_fake_document(" \n"), True),
+            (get_fake_document("<a"), False),
+            (get_fake_document("<test"), False),
         ],
     )
     def test_is_empty_content_returns_empty_document_context(
