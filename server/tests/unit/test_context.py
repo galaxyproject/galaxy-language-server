@@ -1,7 +1,11 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from ...services.context import XmlContextService, XmlContext
+from ...services.context import (
+    XmlContextService,
+    XmlContext,
+    XmlContextParser,
+)
 
 from pygls.workspace import Document, Position
 
@@ -27,7 +31,7 @@ class TestXmlContextClass:
 
         context = XmlContext(expected_name, expected_node)
 
-        assert context.element_name == expected_name
+        assert context.token_name == expected_name
         assert context.node == expected_node
 
 
@@ -93,7 +97,7 @@ class TestXmlContextServiceClass:
 
         assert context
         assert context.node
-        assert context.element_name == expected_element
+        assert context.token_name == expected_element
 
     def test_get_xml_context_returns_valid_context_without_node(
         self, mocker: MockerFixture,
@@ -107,7 +111,7 @@ class TestXmlContextServiceClass:
 
         assert context
         assert context.node is None
-        assert context.element_name is None
+        assert context.token_name is None
 
     @pytest.mark.parametrize(
         "xml_content, expected",
@@ -152,3 +156,90 @@ class TestXmlContextServiceClass:
         actual = XmlContextService.find_current_tag(xml_content, offset)
 
         assert actual == expected
+
+
+class TestXmlContextParserClass:
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (FAKE_DOCUMENT, Position(line=1, character=4), "tool"),
+            (FAKE_DOCUMENT, Position(line=1, character=8), "id"),
+            (FAKE_DOCUMENT, Position(line=1, character=10), "test"),
+            (FAKE_DOCUMENT, Position(line=2, character=5), "description"),
+            (FAKE_DOCUMENT, Position(line=2, character=17), None),
+            (FAKE_DOCUMENT, Position(line=3, character=5), "test"),
+            (FAKE_DOCUMENT, Position(line=3, character=12), "value"),
+            (FAKE_DOCUMENT, Position(line=3, character=17), "0"),
+        ],
+    )
+    def test_parse_well_formed_xml_return_expected_context_token_name(
+        self, document: Document, position: Position, expected: str
+    ) -> None:
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.token_name == expected
+
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (get_fake_document('<other id="1"'), Position(line=0, character=2), "other"),
+            (get_fake_document('<other id="1"'), Position(line=0, character=7), "id"),
+            (get_fake_document('<other id="1"'), Position(line=0, character=11), "1"),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=2),
+                "first",
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=8),
+                "id",
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=11),
+                "1",
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=12),
+                "1",
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=14),
+                "test",
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=20),
+                "value",
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=25),
+                "value",
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=1, character=5),
+                "second",
+            ),
+        ],
+    )
+    def test_parse_incomplete_xml_return_expected_context_token_name(
+        self, document: Document, position: Position, expected: str
+    ) -> None:
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.token_name == expected
+
+
+# <tool id="test">
+#     <description/>
+#     <test value="0"/>
+# </tool>'

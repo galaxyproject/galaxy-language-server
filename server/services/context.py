@@ -3,25 +3,12 @@ context inside an XML document."""
 
 from typing import Optional, List
 from .xsd.types import XsdTree, XsdNode
-from lxml import etree
 from io import BytesIO
 from pygls.workspace import Document, Position
+import xml.sax
 
 START_TAG_EVENT = "start"
 END_TAG_EVENT = "end"
-
-
-class XmlElement:
-    tag: str
-    tag_position: Position
-    tag_offset: int
-    element: etree.Element
-
-    def __init__(self, tag: str, line: int, character: int):
-        self.tag = tag
-        self.tag_position = Position(line, character)
-        self.tag_offset = -1
-        self.element
 
 
 class XmlContext:
@@ -31,20 +18,21 @@ class XmlContext:
     under the cursor.
     """
 
-    element_name: str
-    node: XsdNode
-    is_empty: bool
-
-    is_tag: bool
-    is_attribute: bool
-    is_content: bool
-
-    def __init__(self, name: str = None, node: XsdNode = None):
-        self.element_name = name
-        self.node = node
-        self.is_empty = False
-        self.is_tag = False
-        self.is_attribute = False
+    def __init__(
+        self,
+        name: str = None,
+        node: XsdNode = None,
+        position: Position = Position(),
+        document_line: str = "",
+    ):
+        self.token_name: str = name
+        self.node: XsdNode = node
+        self.target_position: Position = position
+        self.document_line: str = document_line
+        self.is_empty: bool = False
+        self.is_tag: bool = False
+        self.is_attribute: bool = False
+        self.stack: List[str] = []
 
 
 class XmlContextService:
@@ -139,33 +127,119 @@ class XmlContextService:
 
 
 class XmlContextParser:
-
-    _current_element: Optional[XmlElement]
-    _content_lines: List[str]
-    _element_stack: List[XmlElement]
-
     def __init__(self):
-        self._current_element = None
-        self._content_lines = []
-        self._element_stack = []
+        self._document: Document = None
+
+    def parse(self, document: Document, position: Position) -> XmlContext:
+        self._document = document
+        source = BytesIO(document.source.encode())
+        context_line = document.lines[position.line]
+        context = XmlContext(document_line=context_line, position=position)
+
+        reader = self._build_xml_reader()
+        locator = xml.sax.expatreader.ExpatLocator(reader)
+        content_handler = ContextBuilderContentHandler(locator, context)
+        error_handler = MyErrorHandler(context)
+        reader.setContentHandler(content_handler)
+        reader.setErrorHandler(error_handler)
+        try:
+            reader.parse(source)
+        except ContextFoundException:
+            pass  # All is good, we got what we needed
+
+        return context
+
+    def _build_xml_reader(self) -> xml.sax.xmlreader.XMLReader:
+        reader = xml.sax.make_parser()
+        reader.setFeature(xml.sax.handler.feature_namespaces, False)
+        reader.setFeature(xml.sax.handler.feature_validation, False)
+        return reader
+
+
+class ContextBuilderContentHandler(xml.sax.ContentHandler):
+    def __init__(self, locator, context: XmlContext):
+        xml.sax.ContentHandler.__init__(self)
+        self._loc = locator
+        self._context: XmlContext = context
+        self.setDocumentLocator(self._loc)
+
+    def startDocument(self):
         pass
 
-    def parse(self, xml_content: str, offset: int):
-        self._content_lines = xml_content.split("\n")
-        source = BytesIO(xml_content.encode())
+    def endDocument(self):
+        pass
 
-        for event, element in etree.iterparse(source, recover=True):
-            if event == END_TAG_EVENT:
-                character = self._find_tag_start_at_line_number(
-                    xml_content, element.tag, element.sourceline
-                )
-                xml_element = XmlElement(element.tag, element.sourceline, character)
-                xml_element.internal = element
-                self._current_element = xml_element
-            else:
-                print(event)
+    def startElement(self, tag, attributes):
+        self._context.stack.append(tag)
+        current_position = self.get_current_position()
 
-    def _find_tag_start_at_line_number(self, xml_content: str, tag: str, line_number: int):
-        line = self._content_lines[line_number - 1]
-        start_position = line.find(tag)
-        return start_position
+        if current_position.line == self._context.target_position.line:
+            target_offset = self._context.target_position.character
+            tag_offset = current_position.character + len(tag)
+            is_on_tag = current_position.character < target_offset <= tag_offset
+            if is_on_tag:
+                self._context.is_tag = True
+                self._context.token_name = tag
+                raise ContextFoundException()
+
+            accum = 0
+            for attr_name, attr_value in attributes.items():
+                attr_start = tag_offset + accum + 2  # +2 for '<' and ' '
+                attr_end = attr_start + len(attr_name)
+                is_on_attr = attr_start <= target_offset <= attr_end
+                if is_on_attr:
+                    self._context.is_attribute = True
+                    self._context.token_name = attr_name
+                    raise ContextFoundException()
+                attr_value_start = attr_end + 2  # +2 for '=' and '\"'
+                attr_value_end = attr_value_start + len(attr_value)
+                is_on_attr_value = attr_value_start <= target_offset <= attr_value_end
+                if is_on_attr_value:
+                    self._context.is_attribute_value = True
+                    self._context.token_name = attr_value
+                    raise ContextFoundException()
+                accum = attr_end
+
+    def endElement(self, tag):
+        pass
+
+    def characters(self, content):
+        pass
+
+    def get_current_position(self) -> Position:
+        return Position(line=self._loc.getLineNumber() - 1, character=self._loc.getColumnNumber())
+
+
+class MyErrorHandler(xml.sax.ErrorHandler):
+    _context: XmlContext
+
+    def __init__(self, context: XmlContext):
+        xml.sax.ErrorHandler.__init__(self)
+        self._context = context
+
+    def error(self, exception: xml.sax.SAXParseException):
+        pass
+
+    def fatalError(self, exception: xml.sax.SAXParseException):
+        position = self.get_position(exception)
+        if exception.getMessage() == "unclosed token":
+            self._try_process_context_from_unclosed_token(position)
+
+    def warning(self, exception: xml.sax.SAXParseException):
+        pass
+
+    def get_position(self, exception: xml.sax.SAXParseException) -> Position:
+        return Position(line=exception.getLineNumber() - 1, character=exception.getColumnNumber())
+
+    def _try_process_context_from_unclosed_token(self, start_position: Position) -> None:
+        # TODO search directly on context line
+        # self._context.document_line
+        pass
+
+
+class ContextFoundException(Exception):
+    """When raised, this exception indicates that the parsing can be stopped,
+    since there is enought information for the context.
+    """
+
+    pass
