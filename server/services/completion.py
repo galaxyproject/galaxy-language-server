@@ -16,10 +16,8 @@ class XmlCompletionService:
     on the current XML context.
     """
 
-    xsd_tree: XsdTree
-
     def __init__(self, xsd_tree: XsdTree):
-        self.xsd_tree = xsd_tree
+        self.xsd_tree: XsdTree = xsd_tree
 
     def get_node_completion(self, context: XmlContext) -> CompletionList:
         """Gets a list of completion items with all the available child tags

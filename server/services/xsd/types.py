@@ -15,11 +15,9 @@ class XsdBase:
     XML nodes and attributes.
     """
 
-    name: str
-
     def __init__(self, name: str, element):
         super(XsdBase, self).__init__()
-        self.name = name
+        self.name: str = name
         self.xsd_element = element
 
     def get_doc(self, lang: str = "en") -> MarkupContent:
@@ -58,10 +56,6 @@ class XsdAttribute(XsdBase):
         XsdBase: Inherits base functionality from XsdBase.
     """
 
-    type_name: str
-    is_required: bool
-    enumeration: List[str]
-
     def __init__(
         self,
         name: str,
@@ -70,9 +64,9 @@ class XsdAttribute(XsdBase):
         is_required: bool = False,
     ):
         super(XsdAttribute, self).__init__(name, element)
-        self.type_name = type_name
-        self.is_required = is_required
-        self.enumeration = []
+        self.type_name: str = type_name
+        self.is_required: bool = is_required
+        self.enumeration: List[str] = []
 
 
 class XsdNode(XsdBase, NodeMixin):
@@ -86,17 +80,12 @@ class XsdNode(XsdBase, NodeMixin):
         NodeMixin: Inherits tree node functionality from NodeMixin.
     """
 
-    min_occurs: int
-    max_occurs: int
-    type_name: str
-    attributes: Dict[str, XsdAttribute]
-
     def __init__(self, name: str, element: etree.Element, parent: NodeMixin = None):
         super(XsdNode, self).__init__(name, element)
-        self.parent = parent
-        self.attributes = {}
-        self.min_occurs = 1  # required by default
-        self.max_occurs = -1  # unbounded by default
+        self.parent: NodeMixin = parent
+        self.attributes: Dict[str, XsdAttribute] = {}
+        self.min_occurs: int = 1  # required by default
+        self.max_occurs: int = -1  # unbounded by default
 
     def render(self) -> str:
         """Gets an ascii representation of this node.
@@ -114,10 +103,8 @@ class XsdTree:
     XSD information for all the elements and attributes.
     """
 
-    root: XsdNode
-
     def __init__(self, root: XsdNode):
-        self.root = root
+        self.root: XsdNode = root
 
     def find_node_by_name(self, name: str) -> XsdNode:
         """Finds node in the tree that matches the given name.

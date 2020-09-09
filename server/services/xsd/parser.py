@@ -32,28 +32,23 @@ class GalaxyToolXsdParser:
     supported by the XSD specification.
     """
 
-    _root: etree.Element
-    _tree: Optional[XsdTree]
-    _named_type_map: Dict[str, etree.Element]
-    _named_group_map: Dict[str, etree.Element]
-
     def __init__(self, xsd_root: etree.Element):
         """Initializes the parser with the given etree root element.
 
         Args:
             xsd_root (etree.Element): The root element of the XSD.
         """
-        self._root = xsd_root
-        self._tree = None
-        self._named_type_map = {}
-        self._named_group_map = {}
+        self._root: etree.Element = xsd_root
+        self._tree: Optional[XsdTree] = None
+        self._named_type_map: Dict[str, etree.Element] = {}
+        self._named_group_map: Dict[str, etree.Element] = {}
 
     def get_tree(self) -> XsdTree:
         """Builds the tree structure from the root etree.Element if
         it does not exists, or returns it if exists.
 
         Returns:
-            XsdTree: The tree structure with all the relevan
+            XsdTree: The tree structure with all the relevant
             information from the XSD schema.
         """
         if self._tree is None:
