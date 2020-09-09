@@ -7,6 +7,7 @@ from ...services.completion import (
     XsdNode,
     XsdAttribute,
 )
+from ...services.context import ContextTokenType
 
 
 @pytest.fixture()
@@ -21,16 +22,19 @@ def fake_tree(mocker: MockerFixture):
 @pytest.fixture()
 def fake_empty_context(fake_tree):
     fake_root = fake_tree.root
-    fake_context = XmlContext(None, fake_root)
-    fake_context.is_empty = True
+    fake_context = XmlContext(is_empty=True)
+    fake_context.node = fake_root
     return fake_context
 
 
 @pytest.fixture()
 def fake_context_on_root_node(fake_tree):
     fake_root = fake_tree.root
-    fake_context = XmlContext(fake_root.name, fake_root)
+    fake_context = XmlContext()
     fake_context.is_empty = False
+    fake_context.token_type = ContextTokenType.TAG
+    fake_context.token_name = fake_root.name
+    fake_context.node = fake_root
     return fake_context
 
 
