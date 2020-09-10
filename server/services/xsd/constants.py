@@ -1,10 +1,10 @@
 """This module contains constants related to XSD processing.
 """
 
-import os
 import galaxy.tool_util
+from pathlib import Path
 
-TOOL_XSD_FILE = os.path.join(os.path.dirname(galaxy.tool_util.__file__), "xsd", "galaxy.xsd")
+TOOL_XSD_FILE = Path(galaxy.tool_util.__file__).parent / "xsd" / "galaxy.xsd"
 
 # Maximum depth when the schema contains recursive definitions
 MAX_RECURSION_DEPTH = 25

@@ -26,7 +26,7 @@ class GalaxyToolXsdService:
     def __init__(self, server_name: str):
         """Initializes the validator by loading the XSD."""
         self.server_name = server_name
-        self.xsd_doc = etree.parse(TOOL_XSD_FILE)
+        self.xsd_doc = etree.parse(str(TOOL_XSD_FILE))
         self.xsd_schema = etree.XMLSchema(self.xsd_doc)
         self.xsd_parser = GalaxyToolXsdParser(self.xsd_doc.getroot())
 
