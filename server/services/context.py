@@ -48,6 +48,7 @@ class XmlContext:
         self.token_name: Optional[str] = token_name
         self.token_type: ContextTokenType = token_type
         self.node: Optional[XsdNode] = None
+        self.is_node_content: bool = False
         self.node_stack: List[str] = []
 
     def is_tag(self) -> bool:
@@ -184,7 +185,6 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
     def startElement(self, tag, attributes):
         self._context.node_stack.append(tag)
         current_position = self.get_current_position()
-
         if current_position.line == self._context.target_position.line:
             self._build_context_from_element_line(current_position.character, tag, attributes)
 
@@ -192,7 +192,13 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         self._context.node_stack.pop(-1)
 
     def characters(self, content):
-        pass
+        current_position = self.get_current_position()
+        if current_position.line == self._context.target_position.line:
+            content_start = current_position.character
+            content_end = current_position.character + len(content)
+            if content_start <= self._context.target_position.character <= content_end:
+                self._context.is_node_content = True
+                raise ContextFoundException()
 
     def get_current_position(self) -> Position:
         """Gets the current position inside the document where the parser is.

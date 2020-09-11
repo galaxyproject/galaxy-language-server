@@ -252,3 +252,95 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.node_stack == expected
+
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=0, character=1),
+                False,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=0, character=8),
+                False,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=0, character=14),
+                True,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=0),
+                True,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=4),
+                True,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=5),
+                False,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=6),
+                False,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=24),
+                False,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=25),
+                True,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=29),
+                True,
+            ),
+            (
+                get_fake_document(
+                    '<first id="1">\n    <second attr="value">test</second>\n<third'
+                ),
+                Position(line=1, character=30),
+                False,
+            ),
+        ],
+    )
+    def test_parse_returns_context_with_expected_is_node_content(
+        self, document: Document, position: Position, expected: bool
+    ) -> None:
+        print_context_params(document, position)
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.is_node_content == expected
