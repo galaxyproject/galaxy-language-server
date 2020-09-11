@@ -12,8 +12,8 @@ class WordLocation:
     """
 
     def __init__(self, word: str, range: Range):
-        self.text = word
-        self.range = range
+        self.text: str = word
+        self.range: Range = range
 
     def __eq__(self, other):
         if isinstance(other, WordLocation):

@@ -59,13 +59,9 @@ class GalaxyToolLanguageService:
 
     def get_completion(self, document: Document, params: CompletionParams) -> CompletionList:
         """Gets completion items depending on the current document context."""
-        xml_content = document.source
-        offset = document.offset_at_position(params.position)
         triggerKind = params.context.triggerKind
-
         if triggerKind == CompletionTriggerKind.TriggerCharacter:
-            offset = offset - 1  # ignore/remove trigger character
-            context = self.xml_context_service.get_xml_context(xml_content, offset)
+            context = self.xml_context_service.get_xml_context(document, params.position)
             if params.context.triggerCharacter == "<":
                 return self.completion_service.get_node_completion(context)
             if params.context.triggerCharacter == " ":
