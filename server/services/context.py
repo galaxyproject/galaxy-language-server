@@ -11,10 +11,11 @@ from .xsd.types import XsdTree, XsdNode
 
 
 START_TAG_REGEX = r"<([a-z]+)[ \n]?"
-ATTR_KEY_VALUE_REGEX = r" ([a-z]*)=\"([\w.]*)[\"]?"
+ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
 ATTR_VALUE_GROUP = 2
+SUPPORTED_RECOVERY_EXCEPTIONS = ["unclosed token", "no element found"]
 
 
 @unique
@@ -48,7 +49,9 @@ class XmlContext:
         self.token_name: Optional[str] = token_name
         self.token_type: ContextTokenType = token_type
         self.node: Optional[XsdNode] = None
+        self.is_node_content: bool = False
         self.node_stack: List[str] = []
+        self.is_invalid: bool = False
 
     def is_tag(self) -> bool:
         """Indicates if the token in context is a tag"""
@@ -184,7 +187,6 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
     def startElement(self, tag, attributes):
         self._context.node_stack.append(tag)
         current_position = self.get_current_position()
-
         if current_position.line == self._context.target_position.line:
             self._build_context_from_element_line(current_position.character, tag, attributes)
 
@@ -192,7 +194,13 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         self._context.node_stack.pop(-1)
 
     def characters(self, content):
-        pass
+        current_position = self.get_current_position()
+        if current_position.line == self._context.target_position.line:
+            content_start = current_position.character
+            content_end = current_position.character + len(content)
+            if content_start <= self._context.target_position.character <= content_end:
+                self._context.is_node_content = True
+                raise ContextFoundException()
 
     def get_current_position(self) -> Position:
         """Gets the current position inside the document where the parser is.
@@ -207,7 +215,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         tag_offset = start_position + len(tag)
         is_on_tag = start_position < target_offset <= tag_offset
         if is_on_tag:
-            self._context.is_tag = True
+            self._context.token_type = ContextTokenType.TAG
             self._context.token_name = tag
             raise ContextFoundException()
 
@@ -217,7 +225,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             attr_end = attr_start + len(attr_name)
             is_on_attr = attr_start <= target_offset <= attr_end
             if is_on_attr:
-                self._context.is_attribute = True
+                self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                 self._context.token_name = attr_name
                 raise ContextFoundException()
 
@@ -225,7 +233,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             attr_value_end = attr_value_start + len(attr_value)
             is_on_attr_value = attr_value_start <= target_offset <= attr_value_end
             if is_on_attr_value:
-                self._context.is_attribute_value = True
+                self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
                 self._context.token_name = attr_value
                 raise ContextFoundException()
             accum = attr_value_end
@@ -242,13 +250,15 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
 
     def fatalError(self, exception: xml.sax.SAXParseException):
         position = self.get_position(exception)
-        if exception.getMessage() == "unclosed token":
-            self._try_process_context_from_unclosed_token(position.character)
+        if exception.getMessage() in SUPPORTED_RECOVERY_EXCEPTIONS:
+            self._try_recover_context_from_exception(position.character)
+        else:
+            self._context.is_invalid = True
 
     def get_position(self, exception: xml.sax.SAXParseException) -> Position:
         return Position(line=exception.getLineNumber() - 1, character=exception.getColumnNumber())
 
-    def _try_process_context_from_unclosed_token(self, start_offset: int) -> None:
+    def _try_recover_context_from_exception(self, start_offset: int) -> None:
         target_offset = self._context.target_position.character
         self._try_get_tag_context_at_line_position(target_offset)
         self._try_get_attribute_context_at_line_position(target_offset)
@@ -256,7 +266,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
     def _try_get_tag_context_at_line_position(self, target_offset):
         tag_match = re.search(START_TAG_REGEX, self._context.document_line, re.DOTALL)
         if tag_match and tag_match.start(TAG_GROUP) <= target_offset <= tag_match.end(TAG_GROUP):
-            self._context.is_tag = True
+            self._context.token_type = ContextTokenType.TAG
             self._context.token_name = tag_match.group(TAG_GROUP)
             raise ContextFoundException()
 
@@ -267,11 +277,11 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
         if attribute_matches:
             for matchNum, match in enumerate(attribute_matches, start=1):
                 if match.start(ATTR_KEY_GROUP) <= target_offset <= match.end(ATTR_KEY_GROUP):
-                    self._context.is_attribute = True
+                    self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                     self._context.token_name = match.group(ATTR_KEY_GROUP)
                     raise ContextFoundException()
                 if match.start(ATTR_VALUE_GROUP) <= target_offset <= match.end(ATTR_VALUE_GROUP):
-                    self._context.is_attribute_value = True
+                    self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
                     self._context.token_name = match.group(ATTR_VALUE_GROUP)
                     raise ContextFoundException()
 
