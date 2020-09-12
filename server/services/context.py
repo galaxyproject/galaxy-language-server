@@ -15,7 +15,7 @@ ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
 ATTR_VALUE_GROUP = 2
-UNCLOSED_TOKEN = "unclosed token"
+SUPPORTED_RECOVERY_EXCEPTIONS = ["unclosed token", "no element found"]
 
 
 @unique
@@ -250,15 +250,15 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
 
     def fatalError(self, exception: xml.sax.SAXParseException):
         position = self.get_position(exception)
-        if exception.getMessage() == UNCLOSED_TOKEN:
-            self._try_process_context_from_unclosed_token(position.character)
+        if exception.getMessage() in SUPPORTED_RECOVERY_EXCEPTIONS:
+            self._try_recover_context_from_exception(position.character)
         else:
             self._context.is_invalid = True
 
     def get_position(self, exception: xml.sax.SAXParseException) -> Position:
         return Position(line=exception.getLineNumber() - 1, character=exception.getColumnNumber())
 
-    def _try_process_context_from_unclosed_token(self, start_offset: int) -> None:
+    def _try_recover_context_from_exception(self, start_offset: int) -> None:
         target_offset = self._context.target_position.character
         self._try_get_tag_context_at_line_position(target_offset)
         self._try_get_attribute_context_at_line_position(target_offset)
