@@ -31,6 +31,9 @@ class XmlCompletionService:
             CompletionList: A list of completion items with the child nodes
             that can be placed under the current node.
         """
+        if context.is_invalid:
+            return CompletionList(is_incomplete=False)
+
         result = []
         if context.is_empty:
             result.append(self._build_node_completion_item(context.node))
@@ -65,8 +68,16 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
+        if (
+            context.is_empty
+            or context.is_invalid
+            or context.is_node_content
+            or context.is_attribute_value()
+        ):
+            return CompletionList(is_incomplete=False)
+
         result = []
-        if context.node and not context.is_empty:
+        if context.node:
             for attr_name in context.node.attributes:
                 attr = context.node.attributes[attr_name]
                 result.append(self._build_attribute_completion_item(attr))

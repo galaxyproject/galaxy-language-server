@@ -185,6 +185,31 @@ class TestXmlContextParserClass:
                 Position(line=1, character=5),
                 "second",
             ),
+            (
+                get_fake_document('<first id="one_test">\n    <second'),
+                Position(line=0, character=11),
+                "one_test",
+            ),
+            (
+                get_fake_document('<first id="one_test">\n    <second'),
+                Position(line=0, character=19),
+                "one_test",
+            ),
+            (
+                get_fake_document('<first id="one test">\n    <second'),
+                Position(line=0, character=11),
+                "one test",
+            ),
+            (
+                get_fake_document('<first id="one test">\n    <second'),
+                Position(line=0, character=19),
+                "one test",
+            ),
+            (
+                get_fake_document('<first id="one test'),
+                Position(line=0, character=19),
+                "one test",
+            ),
         ],
     )
     def test_parse_incomplete_xml_return_expected_context_token_name(
@@ -196,6 +221,51 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.token_name == expected
+
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=0),
+                ContextTokenType.UNKNOWN,
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=2),
+                ContextTokenType.TAG,
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=8),
+                ContextTokenType.ATTRIBUTE_KEY,
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=0, character=11),
+                ContextTokenType.ATTRIBUTE_VALUE,
+            ),
+            (
+                get_fake_document('<first id="one_test">\n    <second'),
+                Position(line=0, character=19),
+                ContextTokenType.ATTRIBUTE_VALUE,
+            ),
+            (
+                get_fake_document('<first id="one test'),
+                Position(line=0, character=19),
+                ContextTokenType.ATTRIBUTE_VALUE,
+            ),
+        ],
+    )
+    def test_parse_incomplete_xml_return_expected_context_token_type(
+        self, document: Document, position: Position, expected: str
+    ) -> None:
+        print_context_params(document, position)
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.token_type == expected
 
     @pytest.mark.parametrize(
         "document, position, expected",
