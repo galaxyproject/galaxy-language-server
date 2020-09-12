@@ -11,7 +11,7 @@ from .xsd.types import XsdTree, XsdNode
 
 
 START_TAG_REGEX = r"<([a-z]+)[ \n]?"
-ATTR_KEY_VALUE_REGEX = r" ([a-z]*)=\"([\w.]*)[\"]?"
+ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
 ATTR_VALUE_GROUP = 2
