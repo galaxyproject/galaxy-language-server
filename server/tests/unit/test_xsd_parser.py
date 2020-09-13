@@ -191,6 +191,23 @@ class TestXsdParserClass:
 
         assert node.name == expected
 
+    @pytest.mark.parametrize(
+        "stack, expected",
+        [
+            (["testElement"], "testElement",),
+            (["testElement", "firstElement"], "firstElement",),
+            (["testElement", "secondElement"], "secondElement",),
+            (["testElement", "secondElement", "group_elem1"], "group_elem1",),
+            (["testElement", "element_with_group", "group_elem1"], "group_elem1",),
+        ],
+    )
+    def test_tree_find_node_by_stack_returns_expected_node(self, xsd_parser, stack, expected):
+        tree = xsd_parser.get_tree()
+
+        node = tree.find_node_by_stack(stack)
+
+        assert node.name == expected
+
     def test_tree_find_node_by_name_returns_None_when_node_not_found(
         self, xsd_parser,
     ):

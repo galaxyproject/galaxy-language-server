@@ -2,7 +2,7 @@
 """
 
 from lxml import etree
-from anytree import NodeMixin, RenderTree, findall
+from anytree import NodeMixin, RenderTree, findall, Resolver, ResolverError
 from typing import List, Dict, Optional
 from pygls.types import MarkupContent, MarkupKind
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
@@ -105,8 +105,9 @@ class XsdTree:
 
     def __init__(self, root: XsdNode):
         self.root: XsdNode = root
+        self.node_resolver = Resolver("name")
 
-    def find_node_by_name(self, name: str) -> XsdNode:
+    def find_node_by_name(self, name: str) -> Optional[XsdNode]:
         """Finds node in the tree that matches the given name.
 
         Args:
@@ -121,6 +122,26 @@ class XsdTree:
             return None
         return nodes[0]
 
+    def find_node_by_stack(self, node_stack: List[str]) -> Optional[XsdNode]:
+        """Finds the node definition in the tree that matches the given stack of tags.
+
+        Args:
+            node_stack (List[str]): The stack of tag names composing a tree branch.
+            Like: ['root', 'node', 'subnode', 'leaf']
+
+        Returns:
+            Optional[XsdNode]: The node definition matching the leaf in the path or
+            None if the node could not be found.
+        """
+        result_node = None
+        if node_stack:
+            try:
+                path = self._get_path_from_stack(node_stack)
+                result_node = self.node_resolver.get(self.root, path)
+            except ResolverError as e:
+                print(e)
+        return result_node
+
     def render(self) -> str:
         """Gets an ascii representation of this tree.
 
@@ -128,3 +149,8 @@ class XsdTree:
             str: An ascii representation of the tree.
         """
         return self.root.render()
+
+    def _get_path_from_stack(self, node_stack: List[str]) -> str:
+        if node_stack[0] == self.root.name:
+            node_stack[0] = "."
+        return "/".join(node_stack)
