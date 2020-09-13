@@ -2,7 +2,8 @@
 """
 
 from .services.language import GalaxyToolLanguageService
-
+from .features import AUTO_CLOSE_TAGS
+from .types import AutoCloseTagResult
 from typing import Optional, List
 from pygls.server import LanguageServer
 from pygls.features import (
@@ -46,6 +47,15 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
     return server.service.get_completion(document, params)
 
 
+@language_server.feature(AUTO_CLOSE_TAGS)
+def auto_close_tag(
+    server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
+) -> AutoCloseTagResult:
+    """Responds to a close tag request to close the currently opened node."""
+    document = server.workspace.get_document(params.textDocument.uri)
+    return server.service.get_auto_close_tag(document, params)
+
+
 @language_server.feature(HOVER)
 def hover(
     server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
@@ -59,6 +69,7 @@ def hover(
 def formatting(
     server: GalaxyToolsLanguageServer, params: DocumentFormattingParams
 ) -> List[TextEdit]:
+    """Formats the whole document using the provided parameters"""
     document = server.workspace.get_document(params.textDocument.uri)
     content = document.source
     return server.service.format_document(content, params)

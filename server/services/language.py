@@ -1,6 +1,6 @@
 from .xsd.service import GalaxyToolXsdService
 from .format import GalaxyToolFormatService
-from .completion import XmlCompletionService
+from .completion import XmlCompletionService, AutoCloseTagResult
 from .context import XmlContextService
 from ..utils.pygls_utils import get_word_at_position
 
@@ -14,6 +14,7 @@ from pygls.types import (
     DocumentFormattingParams,
     Hover,
     Position,
+    TextDocumentPositionParams,
     TextEdit,
 )
 
@@ -66,3 +67,12 @@ class GalaxyToolLanguageService:
                 return self.completion_service.get_node_completion(context)
             if params.context.triggerCharacter == " ":
                 return self.completion_service.get_attribute_completion(context)
+
+    def get_auto_close_tag(
+        self, document: Document, params: TextDocumentPositionParams
+    ) -> AutoCloseTagResult:
+        """Gets the closing result for the currently opened tag in context."""
+        trigger_character = document.lines[params.position.line][params.position.character - 1]
+        position_before_trigger = Position(params.position.line, params.position.character - 1)
+        context = self.xml_context_service.get_xml_context(document, position_before_trigger)
+        return self.completion_service.get_auto_close_tag(context, trigger_character)

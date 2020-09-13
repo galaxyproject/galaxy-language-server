@@ -19,3 +19,13 @@ class WordLocation:
         if isinstance(other, WordLocation):
             return self.text == other.text and self.range == other.range
         return NotImplemented
+
+
+class AutoCloseTagResult:
+    """Contains the code snippet and the range in the text document that
+    will be returned to the client when a tag auto-close is requested.
+    """
+
+    def __init__(self, snippet: str, replace_range: Range = None):
+        self.snippet = snippet
+        self.range = replace_range

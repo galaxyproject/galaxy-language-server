@@ -5,10 +5,13 @@ from pygls.types import (
     CompletionItemKind,
     CompletionList,
     InsertTextFormat,
+    Position,
+    Range,
 )
 
 from .xsd.parser import XsdTree, XsdNode, XsdAttribute
 from .context import XmlContext
+from ..types import AutoCloseTagResult
 
 
 class XmlCompletionService:
@@ -42,20 +45,6 @@ class XmlCompletionService:
                 result.append(self._build_node_completion_item(child))
         return CompletionList(items=result, is_incomplete=False)
 
-    def _build_node_completion_item(self, node: XsdNode) -> CompletionItem:
-        """Generates a completion item with the information about the
-        given node definition.
-
-        Args:
-            node (XsdNode): The node definition used to build the
-            completion item.
-
-        Returns:
-            CompletionItem: The completion item with the basic information
-            about the node.
-        """
-        return CompletionItem(node.name, CompletionItemKind.Class, documentation=node.get_doc(),)
-
     def get_attribute_completion(self, context: XmlContext) -> CompletionList:
         """Gets a list of completion items with all the attributes that can be
         used in the current context node.
@@ -82,6 +71,37 @@ class XmlCompletionService:
                 attr = context.node.attributes[attr_name]
                 result.append(self._build_attribute_completion_item(attr))
         return CompletionList(items=result, is_incomplete=False)
+
+    def get_auto_close_tag(
+        self, context: XmlContext, trigger_character: str
+    ) -> AutoCloseTagResult:
+        """Gets the closing result for the currently opened tag in context."""
+        tag = context.node.name
+        snippet = f"$0</{tag}>"
+        replace_range = None
+        is_self_closing = trigger_character == "/"
+        if is_self_closing:
+            start = Position(context.target_position.line, context.target_position.character)
+            end = Position(context.target_position.line, context.target_position.character + 1)
+            replace_range = Range(start=start, end=end)
+            if not context.is_node_content:
+                snippet = "/>$0"
+
+        return AutoCloseTagResult(snippet, replace_range)
+
+    def _build_node_completion_item(self, node: XsdNode) -> CompletionItem:
+        """Generates a completion item with the information about the
+        given node definition.
+
+        Args:
+            node (XsdNode): The node definition used to build the
+            completion item.
+
+        Returns:
+            CompletionItem: The completion item with the basic information
+            about the node.
+        """
+        return CompletionItem(node.name, CompletionItemKind.Class, documentation=node.get_doc(),)
 
     def _build_attribute_completion_item(self, attr: XsdAttribute) -> CompletionItem:
         """Generates a completion item with the information about the
