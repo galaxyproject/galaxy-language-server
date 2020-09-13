@@ -2,7 +2,14 @@ import pytest
 from pytest_mock import MockerFixture
 from pygls.workspace import Document, Position
 
-from ...services.context import XmlContextService, XmlContext, XmlContextParser, ContextTokenType
+from ...services.context import (
+    XmlContextService,
+    XmlContext,
+    XmlContextParser,
+    ContextTokenType,
+    XsdTree,
+    XsdNode,
+)
 
 
 # The content starts at line 1 for convenience
@@ -23,6 +30,14 @@ def get_fake_document(content: str):
 def print_context_params(document: Document, position: Position):
     print(f"Test context at position [line={position.line}, char={position.character}]")
     print(f"Document:\n{document.source}")
+
+
+def get_mock_xsd_tree(mocker: MockerFixture) -> XsdTree:
+    root = XsdNode(name="root", element=mocker.Mock())
+    child = XsdNode(name="child", parent=root, element=mocker.Mock())
+    XsdNode(name="sibling", parent=root, element=mocker.Mock())
+    XsdNode(name="subchild", parent=child, element=mocker.Mock())
+    return XsdTree(root)
 
 
 class TestXmlContextClass:
@@ -83,18 +98,60 @@ class TestXmlContextServiceClass:
 
         assert context.is_empty
 
-    def test_get_xml_context_returns_valid_context_with_node(self, mocker: MockerFixture,) -> None:
-        xsd_tree_mock = mocker.Mock()
-        expected_element = "test"
-        xml_content = f"<{expected_element}>"
-        position = Position(line=0, character=3)
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (get_fake_document("<root><child"), Position(line=0, character=0), "root",),
+            (get_fake_document("<root><child"), Position(line=0, character=6), "root",),
+            (get_fake_document("<root><child"), Position(line=0, character=7), "child",),
+            (get_fake_document("<root><child"), Position(line=0, character=12), "child",),
+            (get_fake_document("<root><child "), Position(line=0, character=13), "child",),
+            (get_fake_document('<root attr="4"><child '), Position(line=0, character=14), "root",),
+            (
+                get_fake_document('<root attr="4"><child '),
+                Position(line=0, character=16),
+                "child",
+            ),
+            (
+                get_fake_document('<root attr="4">\n<child/><other'),
+                Position(line=1, character=7),
+                "child",
+            ),
+            (
+                get_fake_document('<root attr="4">\n<child/><other'),
+                Position(line=1, character=8),
+                "root",
+            ),
+            (
+                get_fake_document('<root attr="4">\n<child/><other'),
+                Position(line=1, character=9),
+                "root",
+            ),
+            (
+                get_fake_document('<root attr="4">\n<child/><sibling'),
+                Position(line=1, character=9),
+                "sibling",
+            ),
+            (
+                get_fake_document('<root attr="4">\n    <\n<child'),
+                Position(line=1, character=5),
+                "root",
+            ),
+        ],
+    )
+    def test_get_xml_context_returns_context_with_expected_node(
+        self, mocker: MockerFixture, document, position, expected
+    ) -> None:
+        xsd_tree_mock = get_mock_xsd_tree(mocker)
         service = XmlContextService(xsd_tree_mock)
+        print(xsd_tree_mock.render())
+        print_context_params(document, position)
 
-        context = service.get_xml_context(Document(FAKE_DOC_URI, xml_content), position)
+        context = service.get_xml_context(document, position)
 
         assert context
         assert context.node
-        assert context.token_name == expected_element
+        assert context.node.name == expected
 
 
 class TestXmlContextParserClass:
@@ -311,9 +368,19 @@ class TestXmlContextParserClass:
                 Position(line=0, character=17),
                 ["first", "third"],
             ),
+            (
+                get_fake_document('<first><second attr="value"/><third'),
+                Position(line=0, character=29),
+                ["first"],
+            ),
+            (
+                get_fake_document('<first><second attr="value"/><third'),
+                Position(line=0, character=30),
+                ["first", "third"],
+            ),
         ],
     )
-    def test_parse_return_valid_tag_stack_context(
+    def test_parse_return_expected_tag_stack_context(
         self, document: Document, position: Position, expected: bool
     ) -> None:
         print_context_params(document, position)

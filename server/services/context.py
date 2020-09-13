@@ -10,12 +10,16 @@ import re
 from .xsd.types import XsdTree, XsdNode
 
 
-START_TAG_REGEX = r"<([a-z]+)[ \n]?"
+START_TAG_REGEX = r"<([a-z_]+)[ \n\W]?"
 ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
 ATTR_VALUE_GROUP = 2
-SUPPORTED_RECOVERY_EXCEPTIONS = ["unclosed token", "no element found"]
+SUPPORTED_RECOVERY_EXCEPTIONS = [
+    "unclosed token",
+    "no element found",
+    "not well-formed (invalid token)",
+]
 
 
 @unique
@@ -71,11 +75,8 @@ class XmlContext:
         Args:
             xsd_tree (XsdTree): The XSD tree definition.
         """
-        try:
-            # TODO: use the whole node_stack to find the exact node definition
-            last_node_in_path = self.node_stack[-1]
-            self.node = xsd_tree.find_node_by_name(last_node_in_path)
-        except IndexError:
+        self.node = xsd_tree.find_node_by_stack(self.node_stack)
+        if not self.node:
             self.node = xsd_tree.root
 
 
@@ -264,11 +265,35 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
         self._try_get_attribute_context_at_line_position(target_offset)
 
     def _try_get_tag_context_at_line_position(self, target_offset):
-        tag_match = re.search(START_TAG_REGEX, self._context.document_line, re.DOTALL)
-        if tag_match and tag_match.start(TAG_GROUP) <= target_offset <= tag_match.end(TAG_GROUP):
-            self._context.token_type = ContextTokenType.TAG
-            self._context.token_name = tag_match.group(TAG_GROUP)
-            raise ContextFoundException()
+        tag_matches = re.finditer(START_TAG_REGEX, self._context.document_line, re.DOTALL)
+        if tag_matches:
+            for matchNum, match in enumerate(tag_matches, start=1):
+                tag = match.group(TAG_GROUP)
+                tag_start = match.start(TAG_GROUP)
+                tag_end = match.end(TAG_GROUP)
+                if tag_start <= target_offset <= tag_end:
+                    self._context.token_type = ContextTokenType.TAG
+                    self._context.token_name = tag
+                    self._context.node_stack.append(tag)
+                    raise ContextFoundException()
+
+                if (
+                    target_offset > tag_end
+                    and tag not in self._context.node_stack
+                    and not self._is_tag_closed_before_offset(tag, target_offset)
+                ):
+                    self._context.node_stack.append(tag)
+
+    def _is_tag_closed_before_offset(self, tag: str, offset: int) -> bool:
+        match = re.search(f"</{tag}>", self._context.document_line)
+        if match:
+            if offset >= match.end(0):
+                return True
+        match = re.search(f"<{tag}[^>]*/>", self._context.document_line)
+        if match:
+            if offset >= match.end(0):
+                return True
+        return False
 
     def _try_get_attribute_context_at_line_position(self, target_offset):
         attribute_matches = re.finditer(
