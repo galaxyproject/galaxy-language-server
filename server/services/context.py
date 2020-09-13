@@ -267,7 +267,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
     def _try_get_tag_context_at_line_position(self, target_offset):
         tag_matches = re.finditer(START_TAG_REGEX, self._context.document_line, re.DOTALL)
         if tag_matches:
-            for matchNum, match in enumerate(tag_matches, start=1):
+            for match in tag_matches:
                 tag = match.group(TAG_GROUP)
                 tag_start = match.start(TAG_GROUP)
                 tag_end = match.end(TAG_GROUP)
@@ -285,22 +285,18 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                     self._context.node_stack.append(tag)
 
     def _is_tag_closed_before_offset(self, tag: str, offset: int) -> bool:
-        match = re.search(f"</{tag}>", self._context.document_line)
-        if match:
-            if offset >= match.end(0):
-                return True
-        match = re.search(f"<{tag}[^>]*/>", self._context.document_line)
-        if match:
-            if offset >= match.end(0):
-                return True
-        return False
+        match_close = re.search(f"</{tag}>", self._context.document_line)
+        if match_close and offset >= match_close.end(0):
+            return True
+        match_self_close = re.search(f"<{tag}[^>]*/>", self._context.document_line)
+        return match_self_close and offset >= match_self_close.end(0)
 
     def _try_get_attribute_context_at_line_position(self, target_offset):
         attribute_matches = re.finditer(
             ATTR_KEY_VALUE_REGEX, self._context.document_line, re.DOTALL
         )
         if attribute_matches:
-            for matchNum, match in enumerate(attribute_matches, start=1):
+            for match in attribute_matches:
                 if match.start(ATTR_KEY_GROUP) <= target_offset <= match.end(ATTR_KEY_GROUP):
                     self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                     self._context.token_name = match.group(ATTR_KEY_GROUP)
