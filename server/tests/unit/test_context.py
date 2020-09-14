@@ -403,6 +403,11 @@ class TestXmlContextParserClass:
                 Position(line=0, character=30),
                 ["first", "third"],
             ),
+            (
+                get_fake_document('<first attr="value"><third>\n'),
+                Position(line=0, character=26),
+                ["first", "third"],
+            ),
         ],
     )
     def test_parse_return_expected_tag_stack_context(

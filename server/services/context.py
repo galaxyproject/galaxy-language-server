@@ -274,7 +274,8 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 if tag_start <= target_offset <= tag_end:
                     self._context.token_type = ContextTokenType.TAG
                     self._context.token_name = tag
-                    self._context.node_stack.append(tag)
+                    if tag not in self._context.node_stack:
+                        self._context.node_stack.append(tag)
                     raise ContextFoundException()
 
                 if (
