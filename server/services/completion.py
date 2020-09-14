@@ -82,10 +82,18 @@ class XmlCompletionService:
         is_self_closing = trigger_character == "/"
         if is_self_closing:
             start = Position(context.target_position.line, context.target_position.character)
-            end = Position(context.target_position.line, context.target_position.character + 1)
+            end_character = context.target_position.character + 1
+            if (
+                len(context.document_line) > end_character
+                and context.document_line[end_character] == ">"
+            ):
+                end_character = end_character + 1
+            end = Position(context.target_position.line, end_character)
             replace_range = Range(start=start, end=end)
             if not context.is_node_content:
                 snippet = "/>$0"
+        elif context.is_node_content:
+            return None
 
         return AutoCloseTagResult(snippet, replace_range)
 

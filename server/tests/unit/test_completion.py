@@ -1,6 +1,7 @@
 import pytest
 from pytest_mock import MockerFixture
 from ...services.completion import (
+    AutoCloseTagResult,
     XmlCompletionService,
     XmlContext,
     XsdTree,
@@ -82,3 +83,14 @@ class TestXmlCompletionServiceClass:
         actual = service.get_attribute_completion(fake_context_on_root_node)
 
         assert len(actual.items) > 0
+
+
+class TestAutoCloseTagResultClass:
+    def test_init_sets_properties(self, mocker: MockerFixture) -> None:
+        expected_snippet = "snippet"
+        expected_replace_range = mocker.Mock()
+
+        result = AutoCloseTagResult(expected_snippet, expected_replace_range)
+
+        assert result.snippet == expected_snippet
+        assert result.range == expected_replace_range
