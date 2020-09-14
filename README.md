@@ -10,11 +10,15 @@ The aim of this project is to implement the [Language Server Protocol](https://m
 This repository contains both the [server](https://github.com/davelopez/galaxy-tools-extension/tree/master/server) implementation in [Python](https://www.python.org/) and the [client](https://github.com/davelopez/galaxy-tools-extension/tree/master/client) implementation of a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
 
 ## Features
-![Demo Animation](../assets/features.gif)
 * Basic tag and attribute auto-completion 
 * Documentation on Hover
 * Document validation based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd)
 * Document auto-formatting
+
+    ![Demo Animation](../assets/features.gif)
+* Tag auto-closing
+
+    ![Demo Animation](../assets/autoCloseTag.gif)
 
 ## Release History
 
