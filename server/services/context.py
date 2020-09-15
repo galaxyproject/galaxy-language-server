@@ -4,6 +4,7 @@ context inside an XML document."""
 from typing import Optional, List
 from io import BytesIO
 from pygls.workspace import Document, Position
+from pygls.types import Range
 from enum import Enum, unique
 import xml.sax
 import re
@@ -47,11 +48,12 @@ class XmlContext:
         token_name: str = None,
         token_type: ContextTokenType = ContextTokenType.UNKNOWN,
     ):
-        self.document_line: str = document_line
-        self.target_position: Position = position
-        self.is_empty: bool = is_empty
-        self.token_name: Optional[str] = token_name
-        self.token_type: ContextTokenType = token_type
+        self.document_line = document_line
+        self.target_position = position
+        self.is_empty = is_empty
+        self.token_name = token_name
+        self.token_type = token_type
+        self.token_range: Range = None
         self.node: Optional[XsdNode] = None
         self.is_node_content: bool = False
         self.node_stack: List[str] = []
@@ -218,6 +220,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         if is_on_tag:
             self._context.token_type = ContextTokenType.TAG
             self._context.token_name = tag
+            self._context.token_range = Range(start_position, tag_offset)
             raise ContextFoundException()
 
         accum = tag_offset + 1  # +1 for '<'
@@ -228,6 +231,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             if is_on_attr:
                 self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                 self._context.token_name = attr_name
+                self._context.token_range = Range(attr_start, attr_end)
                 raise ContextFoundException()
 
             attr_value_start = attr_end + 2  # +2 for '=' and '\"'
@@ -236,6 +240,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             if is_on_attr_value:
                 self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
                 self._context.token_name = attr_value
+                self._context.token_range = Range(attr_value_start, attr_value_end)
                 raise ContextFoundException()
             accum = attr_value_end
 
@@ -274,6 +279,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 if tag_start <= target_offset <= tag_end:
                     self._context.token_type = ContextTokenType.TAG
                     self._context.token_name = tag
+                    self._context.token_range = Range(tag_start, tag_end)
                     self._context.node_stack.append(tag)
                     raise ContextFoundException()
 
@@ -300,10 +306,16 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 if match.start(ATTR_KEY_GROUP) <= target_offset <= match.end(ATTR_KEY_GROUP):
                     self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                     self._context.token_name = match.group(ATTR_KEY_GROUP)
+                    self._context.token_range = Range(
+                        match.start(ATTR_KEY_GROUP), match.end(ATTR_KEY_GROUP)
+                    )
                     raise ContextFoundException()
                 if match.start(ATTR_VALUE_GROUP) <= target_offset <= match.end(ATTR_VALUE_GROUP):
                     self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
                     self._context.token_name = match.group(ATTR_VALUE_GROUP)
+                    self._context.token_range = Range(
+                        match.start(ATTR_VALUE_GROUP), match.end(ATTR_VALUE_GROUP)
+                    )
                     raise ContextFoundException()
 
 
