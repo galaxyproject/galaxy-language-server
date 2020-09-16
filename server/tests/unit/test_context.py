@@ -480,9 +480,14 @@ class TestXmlContextParserClass:
                 Range(start=Position(line=1, character=14), end=Position(line=1, character=19)),
             ),
             (
-                get_fake_document("<first><second/><third"),
-                Position(line=0, character=10),
-                Range(start=Position(line=0, character=8), end=Position(line=0, character=14)),
+                get_fake_document('<first attr1="value1" attr2="value2">'),
+                Position(line=0, character=24),
+                Range(start=Position(line=0, character=22), end=Position(line=0, character=27)),
+            ),
+            (
+                get_fake_document('<first attr1="value1" attr2="value2">'),
+                Position(line=0, character=30),
+                Range(start=Position(line=0, character=29), end=Position(line=0, character=35)),
             ),
         ],
     )

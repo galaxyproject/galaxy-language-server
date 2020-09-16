@@ -273,7 +273,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
                     Position(line=self._context.target_position.line, character=attr_value_end),
                 )
                 raise ContextFoundException()
-            accum = attr_value_end
+            accum = attr_value_end + 1  # closing \"
 
 
 class ContextParseErrorHandler(xml.sax.ErrorHandler):
