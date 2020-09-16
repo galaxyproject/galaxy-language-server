@@ -8,12 +8,14 @@ from lxml import etree
 from pygls.types import (
     Diagnostic,
     MarkupContent,
+    MarkupKind,
     Position,
     Range,
 )
 
 from .constants import TOOL_XSD_FILE, MSG_NO_DOCUMENTATION_AVAILABLE
 from .parser import GalaxyToolXsdParser
+from ..context import XmlContext
 
 
 class GalaxyToolXsdService:
@@ -45,14 +47,19 @@ class GalaxyToolXsdService:
 
         return diagnostics
 
-    def get_documentation_for(self, element_name: str) -> MarkupContent:
+    def get_documentation_for(self, context: XmlContext) -> MarkupContent:
         """Gets the documentation annotated in the XSD about the
         given element name (node or attribute).
         """
         tree = self.xsd_parser.get_tree()
-        element = tree.find_node_by_name(element_name)
+        node = tree.find_node_by_stack(context.node_stack)
+        element = None
+        if context.is_tag():
+            element = node
+        if context.is_attribute_key():
+            element = node.attributes.get(context.token_name)
         if element is None:
-            return MSG_NO_DOCUMENTATION_AVAILABLE
+            return MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
         return element.get_doc()
 
     def _build_diagnostics(self, error_log: etree._ListErrorLog) -> List[Diagnostic]:

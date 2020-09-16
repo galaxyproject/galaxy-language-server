@@ -2,9 +2,8 @@ from .xsd.service import GalaxyToolXsdService
 from .format import GalaxyToolFormatService
 from .completion import XmlCompletionService
 from .context import XmlContextService
-from ..utils.pygls_utils import get_word_at_position
 
-from typing import List
+from typing import List, Optional
 from pygls.workspace import Document
 from pygls.types import (
     CompletionList,
@@ -38,18 +37,13 @@ class GalaxyToolLanguageService:
         """
         return self.xsd_service.validate_xml(content)
 
-    def get_documentation(self, document: Document, position: Position) -> str:
+    def get_documentation(self, document: Document, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
-
-        # TODO: use context to get a real *keyword* (tag, attribute)
-        word = get_word_at_position(document, position)
-
-        if not word:
+        context = self.xml_context_service.get_xml_context(document, position)
+        if context.is_node_content:
             return None
-
-        documentation = self.xsd_service.get_documentation_for(word.text)
-
-        return Hover(documentation, word.range)
+        documentation = self.xsd_service.get_documentation_for(context)
+        return Hover(documentation, context.token_range)
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
         """Given the document contents returns the list of TextEdits
