@@ -1,5 +1,4 @@
-"""This module provides a service to determine position
-context inside an XML document."""
+"""This module provides a service to determine position context inside an XML document."""
 
 from typing import Optional, List
 from io import BytesIO
@@ -194,7 +193,30 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             self._build_context_from_element_line(current_position.character, tag, attributes)
 
     def endElement(self, tag):
-        self._context.node_stack.pop(-1)
+        current_position = self.get_current_position()
+        if current_position.line < self._context.target_position.line:
+            self._context.node_stack.pop(-1)
+        elif current_position.line == self._context.target_position.line:
+            line_after_position = self._context.document_line[current_position.character :]
+            closing_tag = f"</{tag}>"
+            is_fully_closed = line_after_position.find(closing_tag) >= 0
+            tag_start = current_position.character
+            tag_end = current_position.character + len(closing_tag)
+            if is_fully_closed and tag_start <= self._context.target_position.character <= tag_end:
+                self._context.token_type = ContextTokenType.TAG
+                self._context.token_name = tag
+                self._context.token_range = Range(
+                    Position(line=current_position.line, character=tag_start),
+                    Position(line=current_position.line, character=tag_end),
+                )
+                raise ContextFoundException()
+            if (
+                is_fully_closed
+                and self._context.target_position.character > tag_end
+                or not is_fully_closed
+                and self._context.target_position.character >= current_position.character
+            ):
+                self._context.node_stack.pop(-1)
 
     def characters(self, content):
         current_position = self.get_current_position()
@@ -220,7 +242,10 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         if is_on_tag:
             self._context.token_type = ContextTokenType.TAG
             self._context.token_name = tag
-            self._context.token_range = Range(start_position, tag_offset)
+            self._context.token_range = Range(
+                Position(line=self._context.target_position.line, character=start_position + 1),
+                Position(line=self._context.target_position.line, character=tag_offset + 1),
+            )
             raise ContextFoundException()
 
         accum = tag_offset + 1  # +1 for '<'
@@ -231,7 +256,10 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             if is_on_attr:
                 self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                 self._context.token_name = attr_name
-                self._context.token_range = Range(attr_start, attr_end)
+                self._context.token_range = Range(
+                    Position(line=self._context.target_position.line, character=attr_start),
+                    Position(line=self._context.target_position.line, character=attr_end),
+                )
                 raise ContextFoundException()
 
             attr_value_start = attr_end + 2  # +2 for '=' and '\"'
@@ -240,7 +268,10 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             if is_on_attr_value:
                 self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
                 self._context.token_name = attr_value
-                self._context.token_range = Range(attr_value_start, attr_value_end)
+                self._context.token_range = Range(
+                    Position(line=self._context.target_position.line, character=attr_value_start),
+                    Position(line=self._context.target_position.line, character=attr_value_end),
+                )
                 raise ContextFoundException()
             accum = attr_value_end
 
@@ -279,7 +310,10 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 if tag_start <= target_offset <= tag_end:
                     self._context.token_type = ContextTokenType.TAG
                     self._context.token_name = tag
-                    self._context.token_range = Range(tag_start, tag_end)
+                    self._context.token_range = Range(
+                        Position(line=self._context.target_position.line, character=tag_start),
+                        Position(line=self._context.target_position.line, character=tag_end),
+                    )
                     self._context.node_stack.append(tag)
                     raise ContextFoundException()
 
@@ -307,14 +341,28 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                     self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                     self._context.token_name = match.group(ATTR_KEY_GROUP)
                     self._context.token_range = Range(
-                        match.start(ATTR_KEY_GROUP), match.end(ATTR_KEY_GROUP)
+                        Position(
+                            line=self._context.target_position.line,
+                            character=match.start(ATTR_KEY_GROUP),
+                        ),
+                        Position(
+                            line=self._context.target_position.line,
+                            character=match.end(ATTR_KEY_GROUP),
+                        ),
                     )
                     raise ContextFoundException()
                 if match.start(ATTR_VALUE_GROUP) <= target_offset <= match.end(ATTR_VALUE_GROUP):
                     self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
                     self._context.token_name = match.group(ATTR_VALUE_GROUP)
                     self._context.token_range = Range(
-                        match.start(ATTR_VALUE_GROUP), match.end(ATTR_VALUE_GROUP)
+                        Position(
+                            line=self._context.target_position.line,
+                            character=match.start(ATTR_VALUE_GROUP),
+                        ),
+                        Position(
+                            line=self._context.target_position.line,
+                            character=match.end(ATTR_VALUE_GROUP),
+                        ),
                     )
                     raise ContextFoundException()
 
