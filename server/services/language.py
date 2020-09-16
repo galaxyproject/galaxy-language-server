@@ -40,7 +40,7 @@ class GalaxyToolLanguageService:
     def get_documentation(self, document: Document, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
         context = self.xml_context_service.get_xml_context(document, position)
-        if context.is_node_content:
+        if context.is_node_content or context.is_attribute_value():
             return None
         documentation = self.xsd_service.get_documentation_for(context)
         return Hover(documentation, context.token_range)
