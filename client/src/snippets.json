@@ -19,5 +19,22 @@
             "</tool>"
         ],
         "description": "Creates a basic Galaxy tool structure"
+    },
+    "Conditional Select": {
+        "prefix": "gx-conditional-select",
+        "body": [
+            "<conditional name=\"$1\">",
+            "    <param name=\"$2\" type=\"select\" label=\"$3\">",
+            "        <option value=\"$4\">TODO: option $4</option>",
+            "        <option value=\"$5\">TODO: option $5</option>",
+            "    </param>",
+            "    <when value=\"$4\">",
+            "        $0",
+            "    </when>",
+            "    <when value=\"$5\">",
+            "    </when>",
+            "</conditional>"
+        ],
+        "description": "Conditional parameter select with two options"
     }
 }
