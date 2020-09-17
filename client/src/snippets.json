@@ -1,6 +1,6 @@
 {
     "Basic Galaxy tool": {
-        "prefix": "gtool",
+        "prefix": "gx-tool",
         "body": [
             "<tool id='$1' name='$2' version='0.1.0'>",
             "    <requirements>",
