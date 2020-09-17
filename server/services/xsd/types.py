@@ -20,6 +20,9 @@ class XsdBase:
         self.name: str = name
         self.xsd_element = element
 
+    def __repr__(self) -> str:
+        return self.name
+
     def get_doc(self, lang: str = "en") -> MarkupContent:
         """Gets the Markdown documentation associated with this element
         from the XSD schema.
