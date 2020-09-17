@@ -15,3 +15,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-formatting when saving file.
 - Display tag documentation when hovering.
 - Basic tag and attribute auto-completion.
+- Auto-close tags feature.

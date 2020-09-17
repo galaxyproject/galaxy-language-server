@@ -159,7 +159,7 @@ class TestXmlContextParserClass:
     @pytest.mark.parametrize(
         "document, position, expected",
         [
-            (FAKE_DOCUMENT, Position(line=1, character=0), None),
+            (FAKE_DOCUMENT, Position(line=1, character=0), "tool"),
             (FAKE_DOCUMENT, Position(line=1, character=1), "tool"),
             (FAKE_DOCUMENT, Position(line=1, character=5), "tool"),
             (FAKE_DOCUMENT, Position(line=1, character=6), "id"),
@@ -296,7 +296,7 @@ class TestXmlContextParserClass:
             (
                 get_fake_document('<first id="1" test="value">\n    <second'),
                 Position(line=0, character=0),
-                ContextTokenType.UNKNOWN,
+                ContextTokenType.TAG,
             ),
             (
                 get_fake_document('<first id="1" test="value">\n    <second'),
@@ -319,9 +319,24 @@ class TestXmlContextParserClass:
                 ContextTokenType.ATTRIBUTE_VALUE,
             ),
             (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=1, character=0),
+                ContextTokenType.UNKNOWN,
+            ),
+            (
+                get_fake_document('<first id="1" test="value">\n    <second'),
+                Position(line=1, character=4),
+                ContextTokenType.UNKNOWN,
+            ),
+            (
                 get_fake_document('<first id="one test'),
                 Position(line=0, character=19),
                 ContextTokenType.ATTRIBUTE_VALUE,
+            ),
+            (
+                get_fake_document('<first id="1">value</first>'),
+                Position(line=0, character=14),
+                ContextTokenType.UNKNOWN,
             ),
             (
                 get_fake_document('<first id="value"><second/></first>'),
@@ -400,7 +415,7 @@ class TestXmlContextParserClass:
                 ["first", "third"],
             ),
             (
-                get_fake_document("<first><second></second><third>"),
+                get_fake_document("<first><second></second><third"),
                 Position(line=0, character=25),
                 ["first", "third"],
             ),
@@ -422,6 +437,11 @@ class TestXmlContextParserClass:
             (
                 get_fake_document('<first><second attr="value"/><third'),
                 Position(line=0, character=30),
+                ["first", "third"],
+            ),
+            (
+                get_fake_document('<first attr="value"><third>\n'),
+                Position(line=0, character=26),
                 ["first", "third"],
             ),
         ],
@@ -592,3 +612,12 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.is_node_content == expected
+
+    def test_parse_returns_invalid_context_when_invalid_content(self) -> None:
+        document = get_fake_document("Invalid xml")
+        position = Position(line=0, character=4)
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.is_invalid

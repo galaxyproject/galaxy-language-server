@@ -2,8 +2,9 @@
 
 import * as net from "net";
 import * as path from "path";
-import { ExtensionContext, workspace } from "vscode";
+import { ExtensionContext, workspace, TextDocument, Position } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
+import { activateTagClosing, TagCloseRequest } from './tagClosing';
 
 let client: LanguageClient;
 
@@ -70,6 +71,14 @@ export function activate(context: ExtensionContext) {
   }
 
   context.subscriptions.push(client.start());
+
+  // Setup auto close tags
+  const tagProvider = (document: TextDocument, position: Position) => {
+    let param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
+    let text = client.sendRequest(TagCloseRequest.type, param);
+    return text;
+  };
+  context.subscriptions.push(activateTagClosing(tagProvider));
 }
 
 export function deactivate(): Thenable<void> {

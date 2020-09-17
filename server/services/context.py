@@ -238,7 +238,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
     def _build_context_from_element_line(self, start_position: int, tag: str, attributes):
         target_offset = self._context.target_position.character
         tag_offset = start_position + len(tag)
-        is_on_tag = start_position < target_offset <= tag_offset
+        is_on_tag = start_position <= target_offset <= tag_offset
         if is_on_tag:
             self._context.token_type = ContextTokenType.TAG
             self._context.token_name = tag
@@ -314,7 +314,8 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                         Position(line=self._context.target_position.line, character=tag_start),
                         Position(line=self._context.target_position.line, character=tag_end),
                     )
-                    self._context.node_stack.append(tag)
+                    if tag not in self._context.node_stack:
+                        self._context.node_stack.append(tag)
                     raise ContextFoundException()
 
                 if (
