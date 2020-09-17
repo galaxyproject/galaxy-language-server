@@ -9,6 +9,7 @@ from ...services.context import (
     ContextTokenType,
     XsdTree,
     XsdNode,
+    Range,
 )
 
 
@@ -267,6 +268,16 @@ class TestXmlContextParserClass:
                 Position(line=0, character=19),
                 "one test",
             ),
+            (
+                get_fake_document('<first id="value"><second/></first>'),
+                Position(line=0, character=19),
+                "second",
+            ),
+            (
+                get_fake_document('<first id="value"><second/></first>'),
+                Position(line=0, character=29),
+                "first",
+            ),
         ],
     )
     def test_parse_incomplete_xml_return_expected_context_token_name(
@@ -311,6 +322,21 @@ class TestXmlContextParserClass:
                 get_fake_document('<first id="one test'),
                 Position(line=0, character=19),
                 ContextTokenType.ATTRIBUTE_VALUE,
+            ),
+            (
+                get_fake_document('<first id="value"><second/></first>'),
+                Position(line=0, character=19),
+                ContextTokenType.TAG,
+            ),
+            (
+                get_fake_document('<first id="value"><second/></first>'),
+                Position(line=0, character=29),
+                ContextTokenType.TAG,
+            ),
+            (
+                get_fake_document('<first id="value"><second/></first'),
+                Position(line=0, character=29),
+                ContextTokenType.UNKNOWN,
             ),
         ],
     )
@@ -365,8 +391,28 @@ class TestXmlContextParserClass:
             ),
             (
                 get_fake_document("<first><second/><third>"),
+                Position(line=0, character=8),
+                ["first", "second"],
+            ),
+            (
+                get_fake_document("<first><second/><third>"),
                 Position(line=0, character=17),
                 ["first", "third"],
+            ),
+            (
+                get_fake_document("<first><second></second><third>"),
+                Position(line=0, character=25),
+                ["first", "third"],
+            ),
+            (
+                get_fake_document("<first><second/></first>"),
+                Position(line=0, character=18),
+                ["first"],
+            ),
+            (
+                get_fake_document("<first><second/>\n</first>"),
+                Position(line=1, character=2),
+                ["first"],
             ),
             (
                 get_fake_document('<first><second attr="value"/><third'),
@@ -389,6 +435,71 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.node_stack == expected
+
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (
+                get_fake_document("<first><second><third>"),
+                Position(line=0, character=1),
+                Range(start=Position(line=0, character=1), end=Position(line=0, character=6)),
+            ),
+            (
+                get_fake_document("<first><second><third>"),
+                Position(line=0, character=8),
+                Range(start=Position(line=0, character=8), end=Position(line=0, character=14)),
+            ),
+            (
+                get_fake_document("<first><second/><third>"),
+                Position(line=0, character=8),
+                Range(start=Position(line=0, character=8), end=Position(line=0, character=14)),
+            ),
+            (
+                get_fake_document("<first><second/><third>"),
+                Position(line=0, character=17),
+                Range(start=Position(line=0, character=17), end=Position(line=0, character=22)),
+            ),
+            (
+                get_fake_document("<first><second></second><third>"),
+                Position(line=0, character=25),
+                Range(start=Position(line=0, character=25), end=Position(line=0, character=30)),
+            ),
+            (
+                get_fake_document("<first><second/>\n</first>"),
+                Position(line=1, character=2),
+                Range(start=Position(line=1, character=0), end=Position(line=1, character=8)),
+            ),
+            (
+                get_fake_document('<first attr="value"/><third'),
+                Position(line=0, character=8),
+                Range(start=Position(line=0, character=7), end=Position(line=0, character=11)),
+            ),
+            (
+                get_fake_document('<first>\n<second attr="value"/>\n<third'),
+                Position(line=1, character=15),
+                Range(start=Position(line=1, character=14), end=Position(line=1, character=19)),
+            ),
+            (
+                get_fake_document('<first attr1="value1" attr2="value2">'),
+                Position(line=0, character=24),
+                Range(start=Position(line=0, character=22), end=Position(line=0, character=27)),
+            ),
+            (
+                get_fake_document('<first attr1="value1" attr2="value2">'),
+                Position(line=0, character=30),
+                Range(start=Position(line=0, character=29), end=Position(line=0, character=35)),
+            ),
+        ],
+    )
+    def test_parse_return_expected_tag_range_context(
+        self, document: Document, position: Position, expected: bool
+    ) -> None:
+        print_context_params(document, position)
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.token_range == expected
 
     @pytest.mark.parametrize(
         "document, position, expected",
