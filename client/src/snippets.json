@@ -1,0 +1,23 @@
+{
+    "Basic Galaxy tool": {
+        "prefix": "gtool",
+        "body": [
+            "<tool id='$1' name='$2' version='0.1.0'>",
+            "    <requirements>",
+            "        $0",
+            "    </requirements>",
+            "    <command detect_errors='exit_code'><![CDATA[",
+            "        TODO: Fill in command template.",
+            "    ]]></command>",
+            "    <inputs>",
+            "    </inputs>",
+            "    <outputs>",
+            "    </outputs>",
+            "    <help><![CDATA[",
+            "        TODO: Fill in help.",
+            "    ]]></help>",
+            "</tool>"
+        ],
+        "description": "Creates a basic Galaxy tool structure"
+    }
+}
