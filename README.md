@@ -16,9 +16,16 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-t
 * Document auto-formatting
 
     ![Demo Animation](../assets/features.gif)
+
 * Tag auto-closing
 
     ![Demo Animation](../assets/autoCloseTag.gif)
+
+* Snippets
+
+    ![Demo Animation](../assets/snippets.gif)
+    
+    >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
 
 ## Release History
 
@@ -87,5 +94,3 @@ If you want to debug the [extension](../client) and the [Language Server](../ser
 1. Open the `galaxy-tool-extension` directory in Visual Studio Code
 2. Open debug view (`ctrl + shift + D`)
 3. Select `Server + Client` and press `F5`
-
-
