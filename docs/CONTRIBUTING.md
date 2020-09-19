@@ -67,7 +67,7 @@ Even spelling/grammar, typo corrections, are much appreciated!
 ### Adding Snippets
 If you want to contribute new snippets to accelerate your tool development or quickly write repetitive and common blocks, this is the place!
 
-Adding a new snippet is really easy, you just need to edit the [snippets.json](../client/snippets.json) file and write a ``new entry with the name of your snippet`` and the following data:
+Adding a new snippet is really easy, you just need to edit the [snippets.json](../client/src/snippets.json) file and write a ``new entry with the name of your snippet`` and the following data:
 - ``prefix``: defines one or more trigger words that display the snippet in IntelliSense. To differentiate Galaxy tool snippets, they should start with ``gx-`` and then some word that identifies your snippet.
 - ``body``: here you define a list with the lines composing your snippet. These lines can use special constructs to control cursors and the text being inserted. See this [guide](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax) for more information.
 - ``description``: here you can write a description for you snippet that will be shown in IntelliSense.
