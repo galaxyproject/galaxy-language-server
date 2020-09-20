@@ -239,3 +239,13 @@ class TestXsdParserClass:
         doc = tree.root.get_doc("de")
 
         assert doc.value == MSG_NO_DOCUMENTATION_AVAILABLE
+
+    def test_parser_returns_expected_enumeration_restrictions(
+        self, xsd_parser,
+    ):
+        tree = xsd_parser.get_tree()
+
+        attribute_with_restriction = tree.root.attributes["value"]
+        actual = attribute_with_restriction.enumeration
+
+        assert actual == ["v1", "v2", "v3"]
