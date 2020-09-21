@@ -36,6 +36,7 @@ class XmlCompletionService:
         elif triggerKind == CompletionTriggerKind.Invoked:
             if xml_context.is_attribute_value():
                 return self.get_attribute_value_completion(xml_context)
+        return CompletionList(items=[], is_incomplete=False)
 
     def get_node_completion(self, context: XmlContext) -> CompletionList:
         """Gets a list of completion items with all the available child tags
@@ -88,6 +89,15 @@ class XmlCompletionService:
         return CompletionList(items=result, is_incomplete=False)
 
     def get_attribute_value_completion(self, context: XmlContext) -> CompletionList:
+        """Gets a list of possible values for a anumeration restricted attribute if exists.
+
+        Args:
+            context (XmlContext): The XML context at an attribute value position.
+
+        Returns:
+            CompletionList: The list of possible values of the attribute if it has an enumeration
+            restriction.
+        """
         attribute: XsdAttribute = context.node.attributes.get(context.attr_name)
         if attribute and attribute.enumeration:
             result = [
@@ -148,7 +158,7 @@ class XmlCompletionService:
         """
         return CompletionItem(
             attr.name,
-            CompletionItemKind.Value,
+            CompletionItemKind.Variable,
             documentation=attr.get_doc(),
             insert_text=f'{attr.name}="$1"',
             insert_text_format=InsertTextFormat.Snippet,
