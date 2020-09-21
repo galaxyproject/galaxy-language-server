@@ -2,6 +2,9 @@ import pytest
 from pytest_mock import MockerFixture
 from ...services.completion import (
     AutoCloseTagResult,
+    CompletionContext,
+    CompletionTriggerKind,
+    CompletionItemKind,
     Position,
     Range,
     XmlCompletionService,
@@ -17,6 +20,7 @@ from ...services.context import ContextTokenType
 def fake_tree(mocker: MockerFixture) -> XsdTree:
     fake_root = XsdNode("root", element=mocker.Mock())
     fake_attr = XsdAttribute("attr", element=mocker.Mock())
+    fake_attr.enumeration = ["v1", "v2"]
     fake_root.attributes[fake_attr.name] = fake_attr
     XsdNode("child", element=mocker.Mock(), parent=fake_root)
     return XsdTree(fake_root)
@@ -68,6 +72,64 @@ class TestXmlCompletionServiceClass:
 
         assert service.xsd_tree
 
+    def test_get_completion_at_context_with_open_tag_trigger_returns_expected_node(
+        self, fake_tree: XsdTree
+    ) -> None:
+        fake_context = XmlContext()
+        fake_context.is_empty = False
+        fake_context.token_type = ContextTokenType.UNKNOWN
+        fake_context.node = fake_tree.root
+        fake_completion_context = CompletionContext(
+            CompletionTriggerKind.TriggerCharacter, trigger_character="<"
+        )
+        service = XmlCompletionService(fake_tree)
+
+        actual = service.get_completion_at_context(fake_context, fake_completion_context)
+
+        assert actual
+        assert len(actual.items) == 1
+        assert actual.items[0].label == "child"
+        assert actual.items[0].kind == CompletionItemKind.Class
+
+    def test_get_completion_at_context_on_node_returns_expected_attributes(
+        self, fake_tree: XsdTree
+    ) -> None:
+        fake_context = XmlContext()
+        fake_context.is_empty = False
+        fake_context.token_type = ContextTokenType.UNKNOWN
+        fake_context.node = fake_tree.root
+        fake_completion_context = CompletionContext(
+            CompletionTriggerKind.TriggerCharacter, trigger_character=" "
+        )
+        service = XmlCompletionService(fake_tree)
+
+        actual = service.get_completion_at_context(fake_context, fake_completion_context)
+
+        assert actual
+        assert len(actual.items) == 1
+        assert actual.items[0].label == "attr"
+        assert actual.items[0].kind == CompletionItemKind.Variable
+
+    def test_get_completion_at_context_on_attr_value_returns_expected_enums(
+        self, fake_tree: XsdTree
+    ) -> None:
+        fake_context = XmlContext()
+        fake_context.is_empty = False
+        fake_context.token_type = ContextTokenType.ATTRIBUTE_VALUE
+        fake_context.attr_name = "attr"
+        fake_context.node = fake_tree.root
+        fake_completion_context = CompletionContext(CompletionTriggerKind.Invoked)
+        service = XmlCompletionService(fake_tree)
+
+        actual = service.get_completion_at_context(fake_context, fake_completion_context)
+
+        assert actual
+        assert len(actual.items) == 2
+        assert actual.items[0].label == "v1"
+        assert actual.items[0].kind == CompletionItemKind.Value
+        assert actual.items[1].label == "v2"
+        assert actual.items[1].kind == CompletionItemKind.Value
+
     def test_return_valid_completion_with_node_context(
         self, fake_tree: XsdTree, fake_context_on_root_node
     ) -> None:
@@ -114,6 +176,21 @@ class TestXmlCompletionServiceClass:
         actual = service.get_attribute_completion(fake_context_on_root_node)
 
         assert len(actual.items) > 0
+
+    def test_return_valid_attribute_value_completion_when_enum_context(
+        self, fake_tree: XsdTree, fake_context_on_root_node
+    ) -> None:
+        fake_context = XmlContext()
+        fake_context.is_empty = False
+        fake_context.token_type = ContextTokenType.ATTRIBUTE_VALUE
+        fake_context.attr_name = "attr"
+        fake_context.node = fake_tree.root
+
+        service = XmlCompletionService(fake_tree)
+
+        actual = service.get_attribute_value_completion(fake_context)
+
+        assert len(actual.items) == 2
 
     @pytest.mark.parametrize(
         "context_line, position, trigger, expected",

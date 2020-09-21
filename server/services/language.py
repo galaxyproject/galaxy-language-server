@@ -8,7 +8,6 @@ from pygls.workspace import Document
 from pygls.types import (
     CompletionList,
     CompletionParams,
-    CompletionTriggerKind,
     Diagnostic,
     DocumentFormattingParams,
     Hover,
@@ -54,13 +53,8 @@ class GalaxyToolLanguageService:
 
     def get_completion(self, document: Document, params: CompletionParams) -> CompletionList:
         """Gets completion items depending on the current document context."""
-        triggerKind = params.context.triggerKind
-        if triggerKind == CompletionTriggerKind.TriggerCharacter:
-            context = self.xml_context_service.get_xml_context(document, params.position)
-            if params.context.triggerCharacter == "<":
-                return self.completion_service.get_node_completion(context)
-            if params.context.triggerCharacter == " ":
-                return self.completion_service.get_attribute_completion(context)
+        context = self.xml_context_service.get_xml_context(document, params.position)
+        return self.completion_service.get_completion_at_context(context, params.context)
 
     def get_auto_close_tag(
         self, document: Document, params: TextDocumentPositionParams

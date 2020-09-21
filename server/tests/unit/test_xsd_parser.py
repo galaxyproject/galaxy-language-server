@@ -1,5 +1,6 @@
 import pytest
 
+from typing import List
 from lxml import etree
 from ...services.xsd.parser import GalaxyToolXsdParser
 from ...services.xsd.constants import MSG_NO_DOCUMENTATION_AVAILABLE
@@ -133,7 +134,7 @@ def recursive_xsd_parser() -> GalaxyToolXsdParser:
 
 
 class TestXsdParserClass:
-    def test_get_tree_returns_valid_element_names(self, xsd_parser):
+    def test_get_tree_returns_valid_element_names(self, xsd_parser: GalaxyToolXsdParser) -> None:
         tree = xsd_parser.get_tree()
         root = tree.root
 
@@ -154,7 +155,9 @@ class TestXsdParserClass:
         assert root.children[3].children[0].name == "group_elem1"
         assert root.children[3].children[1].name == "group_elem2"
 
-    def test_get_tree_returns_valid_attribute_names_using_groups(self, xsd_parser):
+    def test_get_tree_returns_valid_attribute_names_using_groups(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
         root = tree.root
 
@@ -164,26 +167,34 @@ class TestXsdParserClass:
         assert root.attributes["gattr1"]
         assert root.attributes["gattr2"]
 
-    def test_get_tree_returns_valid_attribute_names_when_simple_content(self, xsd_parser):
+    def test_get_tree_returns_valid_attribute_names_when_simple_content(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
         simple_content_elem = tree.root.children[2].children[0]
 
         assert len(simple_content_elem.attributes) == 1
         assert simple_content_elem.attributes["simple"]
 
-    def test_get_tree_returns_valid_element_when_complex_content(self, xsd_parser):
+    def test_get_tree_returns_valid_element_when_complex_content(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
         complex_content_elem = tree.root.children[2].children[0]
 
         assert len(complex_content_elem.attributes) == 1
         assert complex_content_elem.attributes["simple"]
 
-    def test_get_tree_with_recursive_xsd_stops_recursion(self, recursive_xsd_parser):
+    def test_get_tree_with_recursive_xsd_stops_recursion(
+        self, recursive_xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = recursive_xsd_parser.get_tree()
 
         assert len(tree.root.descendants) > 0
 
-    def test_tree_find_node_by_name_returns_expected_node(self, xsd_parser):
+    def test_tree_find_node_by_name_returns_expected_node(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
         expected = "childElement"
 
@@ -201,7 +212,9 @@ class TestXsdParserClass:
             (["testElement", "element_with_group", "group_elem1"], "group_elem1",),
         ],
     )
-    def test_tree_find_node_by_stack_returns_expected_node(self, xsd_parser, stack, expected):
+    def test_tree_find_node_by_stack_returns_expected_node(
+        self, xsd_parser: GalaxyToolXsdParser, stack: List[str], expected: str
+    ) -> None:
         tree = xsd_parser.get_tree()
 
         node = tree.find_node_by_stack(stack)
@@ -209,22 +222,26 @@ class TestXsdParserClass:
         assert node.name == expected
 
     def test_tree_find_node_by_name_returns_None_when_node_not_found(
-        self, xsd_parser,
-    ):
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
 
         node = tree.find_node_by_name("unknown")
 
         assert node is None
 
-    def test_get_documentation_returns_valid_when_exists(self, xsd_parser):
+    def test_get_documentation_returns_valid_when_exists(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
 
         doc = tree.root.get_doc()
 
         assert doc.value == "Documentation ``example``."
 
-    def test_get_documentation_returns_valid_other_language(self, xsd_parser):
+    def test_get_documentation_returns_valid_other_language(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
 
         doc = tree.root.get_doc("es")
@@ -232,10 +249,20 @@ class TestXsdParserClass:
         assert doc.value == "``Ejemplo`` de documentación."
 
     def test_get_documentation_should_return_no_documentation_when_not_exists(
-        self, xsd_parser,
-    ):
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
         tree = xsd_parser.get_tree()
 
         doc = tree.root.get_doc("de")
 
         assert doc.value == MSG_NO_DOCUMENTATION_AVAILABLE
+
+    def test_parser_returns_expected_enumeration_restrictions(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
+        tree = xsd_parser.get_tree()
+
+        attribute_with_restriction = tree.root.attributes["value"]
+        actual = attribute_with_restriction.enumeration
+
+        assert actual == ["v1", "v2", "v3"]
