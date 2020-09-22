@@ -20,6 +20,8 @@ SUPPORTED_RECOVERY_EXCEPTIONS = [
     "no element found",
     "not well-formed (invalid token)",
 ]
+CDATA_BLOCK_START_SIZE = len("<![CDATA[")
+CDATA_BLOCK_END_SIZE = len("]]>")
 
 
 @unique
@@ -139,10 +141,8 @@ class XmlContextParser:
         context = XmlContext(document_line=context_line, position=position)
 
         source = BytesIO(document.source.encode())
-        reader = self._build_xml_reader()
-        locator = xml.sax.expatreader.ExpatLocator(reader)
-        reader.setContentHandler(ContextBuilderHandler(locator, context))
-        reader.setErrorHandler(ContextParseErrorHandler(context))
+        reader = self._build_xml_reader(context)
+
         try:
             reader.parse(source)
         except ContextFoundException:
@@ -150,10 +150,15 @@ class XmlContextParser:
 
         return context
 
-    def _build_xml_reader(self) -> xml.sax.xmlreader.XMLReader:
+    def _build_xml_reader(self, context: XmlContext) -> xml.sax.xmlreader.XMLReader:
         reader = xml.sax.make_parser()
         reader.setFeature(xml.sax.handler.feature_namespaces, False)
         reader.setFeature(xml.sax.handler.feature_validation, False)
+        locator = xml.sax.expatreader.ExpatLocator(reader)
+        saxhandler = ContextBuilderHandler(locator, context)
+        reader.setProperty(xml.sax.handler.property_lexical_handler, saxhandler)
+        reader.setContentHandler(saxhandler)
+        reader.setErrorHandler(ContextParseErrorHandler(context))
         return reader
 
     @staticmethod
@@ -220,13 +225,34 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
                 self._context.node_stack.pop(-1)
 
     def characters(self, content):
-        current_position = self.get_current_position()
-        if current_position.line == self._context.target_position.line:
-            content_start = current_position.character
-            content_end = current_position.character + len(content)
-            if content_start <= self._context.target_position.character <= content_end:
-                self._context.is_node_content = True
-                raise ContextFoundException()
+        if self._is_target_at_current_element(len(content)):
+            self._context.is_node_content = True
+            raise ContextFoundException()
+
+    def comment(self, content):
+        pass
+
+    def startDTD(self, name, public_id, system_id):
+        pass
+
+    def endDTD(self):
+        pass
+
+    def startEntity(self, name):
+        pass
+
+    def endEntity(self, name):
+        pass
+
+    def startCDATA(self):
+        if self._is_target_at_current_element(CDATA_BLOCK_START_SIZE):
+            self._context.is_node_content = True
+            raise ContextFoundException()
+
+    def endCDATA(self):
+        if self._is_target_at_current_element(CDATA_BLOCK_END_SIZE):
+            self._context.is_node_content = True
+            raise ContextFoundException()
 
     def get_current_position(self) -> Position:
         """Gets the current position inside the document where the parser is.
@@ -235,6 +261,14 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             Position: The current position inside the document.
         """
         return Position(line=self._loc.getLineNumber() - 1, character=self._loc.getColumnNumber())
+
+    def _is_target_at_current_element(self, element_size: int) -> bool:
+        current_position = self.get_current_position()
+        if current_position.line == self._context.target_position.line:
+            element_start = current_position.character
+            content_end = current_position.character + element_size
+            return element_start <= self._context.target_position.character <= content_end
+        return False
 
     def _build_context_from_element_line(self, start_position: int, tag: str, attributes):
         target_offset = self._context.target_position.character
