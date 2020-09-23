@@ -10,6 +10,8 @@ import re
 from .xsd.types import XsdTree, XsdNode
 
 
+CDATA_BLOCK_START_SIZE = len("<![CDATA[")
+CDATA_BLOCK_END_SIZE = len("]]>")
 START_TAG_REGEX = r"<([a-z_]+)[ \n\W]?"
 ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
@@ -20,8 +22,6 @@ SUPPORTED_RECOVERY_EXCEPTIONS = [
     "no element found",
     "not well-formed (invalid token)",
 ]
-CDATA_BLOCK_START_SIZE = len("<![CDATA[")
-CDATA_BLOCK_END_SIZE = len("]]>")
 
 
 @unique
