@@ -18,17 +18,21 @@ FAKE_CONTENT = """
 <tool id="test">
     <description/>
     <test value="0"/>
+    <help><![CDATA[
+        Sample text
+    ]]></help>
+    <inputs></inputs>
 </tool>'
 """
 FAKE_DOC_URI = "file://fake_doc.xml"
 FAKE_DOCUMENT = Document(FAKE_DOC_URI, FAKE_CONTENT)
 
 
-def get_fake_document(content: str):
+def get_fake_document(content: str) -> Document:
     return Document(FAKE_DOC_URI, content)
 
 
-def print_context_params(document: Document, position: Position):
+def print_context_params(document: Document, position: Position) -> None:
     print(f"Test context at position [line={position.line}, char={position.character}]")
     print(f"Document:\n{document.source}")
 
@@ -444,6 +448,10 @@ class TestXmlContextParserClass:
                 Position(line=0, character=26),
                 ["first", "third"],
             ),
+            (FAKE_DOCUMENT, Position(line=4, character=10), ["tool", "help"]),
+            (FAKE_DOCUMENT, Position(line=4, character=18), ["tool", "help"]),
+            (FAKE_DOCUMENT, Position(line=6, character=5), ["tool", "help"]),
+            (FAKE_DOCUMENT, Position(line=6, character=7), ["tool", "help"]),
         ],
     )
     def test_parse_return_expected_tag_stack_context(
@@ -601,6 +609,10 @@ class TestXmlContextParserClass:
                 Position(line=1, character=30),
                 False,
             ),
+            (FAKE_DOCUMENT, Position(line=4, character=10), True),
+            (FAKE_DOCUMENT, Position(line=4, character=18), True),
+            (FAKE_DOCUMENT, Position(line=6, character=5), True),
+            (FAKE_DOCUMENT, Position(line=6, character=7), True),
         ],
     )
     def test_parse_returns_context_with_expected_is_node_content(
