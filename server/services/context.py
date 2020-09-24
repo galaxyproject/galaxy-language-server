@@ -13,6 +13,7 @@ from .xsd.types import XsdTree, XsdNode
 CDATA_BLOCK_START_SIZE = len("<![CDATA[")
 CDATA_BLOCK_END_SIZE = len("]]>")
 START_TAG_REGEX = r"<([a-z_]+)[ \n\W]?"
+END_TAG_REGEX = r"<\/([\w]*)>"
 ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
@@ -223,6 +224,8 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
                 and self._context.target_position.character >= current_position.character
             ):
                 self._context.node_stack.pop(-1)
+            if current_position.character > self._context.target_position.character:
+                raise ContextFoundException()
 
     def characters(self, content):
         if self._is_target_at_current_element(len(content)):
@@ -268,6 +271,8 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
             element_start = current_position.character
             content_end = current_position.character + element_size
             return element_start <= self._context.target_position.character <= content_end
+        elif current_position.line > self._context.target_position.line:
+            raise ContextFoundException()
         return False
 
     def _build_context_from_element_line(self, start_position: int, tag: str, attributes):
@@ -335,8 +340,9 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
         target_offset = self._context.target_position.character
         self._try_get_tag_context_at_line_position(target_offset)
         self._try_get_attribute_context_at_line_position(target_offset)
+        self._context.is_node_content = True
 
-    def _try_get_tag_context_at_line_position(self, target_offset):
+    def _try_get_tag_context_at_line_position(self, target_offset: int) -> None:
         tag_matches = re.finditer(START_TAG_REGEX, self._context.document_line, re.DOTALL)
         if tag_matches:
             for match in tag_matches:
@@ -360,6 +366,22 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                     and not self._is_tag_closed_before_offset(tag, target_offset)
                 ):
                     self._context.node_stack.append(tag)
+
+        match_close = re.search(END_TAG_REGEX, self._context.document_line)
+        if match_close:
+            tag = match_close.group(TAG_GROUP)
+            tag_start = match_close.start(TAG_GROUP)
+            tag_end = match_close.end(TAG_GROUP)
+            if tag_start <= self._context.target_position.character <= tag_end:
+                self._context.token_type = ContextTokenType.TAG
+                self._context.token_name = tag
+                self._context.token_range = Range(
+                    Position(line=self._context.target_position.line, character=tag_start),
+                    Position(line=self._context.target_position.line, character=tag_end),
+                )
+                if tag not in self._context.node_stack:
+                    self._context.node_stack.append(tag)
+                raise ContextFoundException()
 
     def _is_tag_closed_before_offset(self, tag: str, offset: int) -> bool:
         match_close = re.search(f"</{tag}>", self._context.document_line)
