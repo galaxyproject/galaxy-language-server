@@ -125,7 +125,7 @@ class XmlCompletionService:
             replace_range = Range(start=start, end=end)
             if not context.is_node_content:
                 snippet = "/>$0"
-        elif context.is_node_content:
+        elif context.is_node_content or context.is_invalid:
             return None
 
         return AutoCloseTagResult(snippet, replace_range)
