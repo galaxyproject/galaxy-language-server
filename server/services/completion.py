@@ -84,6 +84,8 @@ class XmlCompletionService:
         result = []
         if context.node:
             for attr_name in context.node.attributes:
+                if attr_name in context.attr_list:
+                    continue
                 attr = context.node.attributes[attr_name]
                 result.append(self._build_attribute_completion_item(attr, len(result)))
         return CompletionList(items=result, is_incomplete=False)
