@@ -85,7 +85,7 @@ class XmlCompletionService:
         if context.node:
             for attr_name in context.node.attributes:
                 attr = context.node.attributes[attr_name]
-                result.append(self._build_attribute_completion_item(attr))
+                result.append(self._build_attribute_completion_item(attr, len(result)))
         return CompletionList(items=result, is_incomplete=False)
 
     def get_attribute_value_completion(self, context: XmlContext) -> CompletionList:
@@ -144,7 +144,7 @@ class XmlCompletionService:
         """
         return CompletionItem(node.name, CompletionItemKind.Class, documentation=node.get_doc(),)
 
-    def _build_attribute_completion_item(self, attr: XsdAttribute) -> CompletionItem:
+    def _build_attribute_completion_item(self, attr: XsdAttribute, order:int) -> CompletionItem:
         """Generates a completion item with the information about the
         given attribute definition.
 
@@ -162,4 +162,5 @@ class XmlCompletionService:
             documentation=attr.get_doc(),
             insert_text=f'{attr.name}="$1"',
             insert_text_format=InsertTextFormat.Snippet,
+            sort_text=str(order)
         )
