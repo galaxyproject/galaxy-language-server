@@ -162,5 +162,5 @@ class XmlCompletionService:
             documentation=attr.get_doc(),
             insert_text=f'{attr.name}="$1"',
             insert_text_format=InsertTextFormat.Snippet,
-            sort_text=str(order)
+            sort_text=str(order).zfill(2)
         )
