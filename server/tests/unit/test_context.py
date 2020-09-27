@@ -459,6 +459,11 @@ class TestXmlContextParserClass:
                 Position(line=0, character=26),
                 ["first", "third"],
             ),
+            (
+                get_fake_document("<first>\n    <second>  \n</first>"),
+                Position(line=1, character=11),
+                ["first", "second"],
+            ),
             (FAKE_DOCUMENT, Position(line=4, character=10), ["tool", "help"]),
             (FAKE_DOCUMENT, Position(line=4, character=18), ["tool", "help"]),
             (FAKE_DOCUMENT, Position(line=6, character=5), ["tool", "help"]),
@@ -474,6 +479,7 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.node_stack == expected
+        assert not context.is_invalid
 
     @pytest.mark.parametrize(
         "document, position, expected",

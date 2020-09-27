@@ -22,6 +22,7 @@ SUPPORTED_RECOVERY_EXCEPTIONS = [
     "unclosed token",
     "no element found",
     "not well-formed (invalid token)",
+    "mismatched tag",
 ]
 
 
