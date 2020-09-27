@@ -1,4 +1,5 @@
 import pytest
+from typing import List, Optional
 from pytest_mock import MockerFixture
 from pygls.workspace import Document, Position
 
@@ -188,7 +189,7 @@ class TestXmlContextParserClass:
         ],
     )
     def test_parse_well_formed_xml_return_expected_context_token_name(
-        self, document: Document, position: Position, expected: str
+        self, document: Document, position: Position, expected: Optional[str]
     ) -> None:
         print_context_params(document, position)
         parser = XmlContextParser()
@@ -361,7 +362,7 @@ class TestXmlContextParserClass:
         ],
     )
     def test_parse_incomplete_xml_return_expected_context_token_type(
-        self, document: Document, position: Position, expected: str
+        self, document: Document, position: Position, expected: ContextTokenType
     ) -> None:
         print_context_params(document, position)
         parser = XmlContextParser()
@@ -463,10 +464,15 @@ class TestXmlContextParserClass:
             (FAKE_DOCUMENT, Position(line=4, character=18), ["tool", "help"]),
             (FAKE_DOCUMENT, Position(line=6, character=5), ["tool", "help"]),
             (FAKE_DOCUMENT, Position(line=6, character=7), ["tool", "help"]),
+            (
+                get_fake_document('<first>\n<second attr="value"\n</second>'),
+                Position(line=2, character=2),
+                ["first", "second"],
+            ),
         ],
     )
     def test_parse_return_expected_tag_stack_context(
-        self, document: Document, position: Position, expected: bool
+        self, document: Document, position: Position, expected: List[str]
     ) -> None:
         print_context_params(document, position)
         parser = XmlContextParser()
@@ -531,7 +537,7 @@ class TestXmlContextParserClass:
         ],
     )
     def test_parse_return_expected_tag_range_context(
-        self, document: Document, position: Position, expected: bool
+        self, document: Document, position: Position, expected: Range
     ) -> None:
         print_context_params(document, position)
         parser = XmlContextParser()
@@ -644,3 +650,43 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.is_invalid
+
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (
+                get_fake_document('<first id="1" test="2"'),
+                Position(line=0, character=2),
+                ["id", "test"],
+            ),
+            (
+                get_fake_document('<first id="1" test="2"'),
+                Position(line=0, character=14),
+                ["id", "test"],
+            ),
+            (
+                get_fake_document('<first id="1" test="2"'),
+                Position(line=0, character=22),
+                ["id", "test"],
+            ),
+            (
+                get_fake_document('<first id="1" test="2"/>'),
+                Position(line=0, character=2),
+                ["id", "test"],
+            ),
+            (
+                get_fake_document('<first id="1" test="2">\n</first>'),
+                Position(line=0, character=10),
+                ["id", "test"],
+            ),
+        ],
+    )
+    def test_parse_return_expected_attributes_at_node(
+        self, document: Document, position: Position, expected: List[str]
+    ) -> None:
+        print_context_params(document, position)
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.attr_list == expected

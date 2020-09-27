@@ -340,8 +340,8 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
 
     def _try_recover_context_from_exception(self, start_offset: int) -> None:
         target_offset = self._context.target_position.character
-        self._try_get_tag_context_at_line_position(target_offset)
         self._try_get_attribute_context_at_line_position(target_offset)
+        self._try_get_tag_context_at_line_position(target_offset)
 
     def _try_get_tag_context_at_line_position(self, target_offset: int) -> None:
         tag_matches = re.finditer(START_TAG_REGEX, self._context.document_line, re.DOTALL)
@@ -397,6 +397,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
         )
         self._context.attr_list = []
         for match in attribute_matches:
+            self._context.attr_list.append(match.group(ATTR_KEY_GROUP))
             if match.start(ATTR_KEY_GROUP) <= target_offset <= match.end(ATTR_KEY_GROUP):
                 self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                 self._context.token_name = match.group(ATTR_KEY_GROUP)
@@ -411,9 +412,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                     ),
                 )
                 raise ContextFoundException()
-            else:
-                self._context.attr_list.append(match.group(ATTR_KEY_GROUP))
-            
+
             if match.start(ATTR_VALUE_GROUP) <= target_offset <= match.end(ATTR_VALUE_GROUP):
                 self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
                 self._context.token_name = match.group(ATTR_VALUE_GROUP)
@@ -429,7 +428,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                     ),
                 )
                 raise ContextFoundException()
-            
+
 
 class ContextFoundException(Exception):
     """When this exception is raised, it indicates that the necessary

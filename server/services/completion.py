@@ -146,7 +146,7 @@ class XmlCompletionService:
         """
         return CompletionItem(node.name, CompletionItemKind.Class, documentation=node.get_doc(),)
 
-    def _build_attribute_completion_item(self, attr: XsdAttribute, order:int) -> CompletionItem:
+    def _build_attribute_completion_item(self, attr: XsdAttribute, order: int) -> CompletionItem:
         """Generates a completion item with the information about the
         given attribute definition.
 
@@ -164,5 +164,5 @@ class XmlCompletionService:
             documentation=attr.get_doc(),
             insert_text=f'{attr.name}="$1"',
             insert_text_format=InsertTextFormat.Snippet,
-            sort_text=str(order).zfill(2)
+            sort_text=str(order).zfill(2),
         )
