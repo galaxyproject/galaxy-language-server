@@ -479,7 +479,6 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.node_stack == expected
-        assert not context.is_invalid
 
     @pytest.mark.parametrize(
         "document, position, expected",
@@ -641,12 +640,3 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.is_node_content == expected
-
-    def test_parse_returns_invalid_context_when_invalid_content(self) -> None:
-        document = get_fake_document("Invalid xml")
-        position = Position(line=0, character=4)
-        parser = XmlContextParser()
-
-        context = parser.parse(document, position)
-
-        assert context.is_invalid
