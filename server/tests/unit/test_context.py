@@ -460,6 +460,11 @@ class TestXmlContextParserClass:
                 Position(line=0, character=26),
                 ["first", "third"],
             ),
+            (
+                get_fake_document("<first>\n    <second>  \n</first>"),
+                Position(line=1, character=11),
+                ["first", "second"],
+            ),
             (FAKE_DOCUMENT, Position(line=4, character=10), ["tool", "help"]),
             (FAKE_DOCUMENT, Position(line=4, character=18), ["tool", "help"]),
             (FAKE_DOCUMENT, Position(line=6, character=5), ["tool", "help"]),
@@ -641,15 +646,6 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.is_node_content == expected
-
-    def test_parse_returns_invalid_context_when_invalid_content(self) -> None:
-        document = get_fake_document("Invalid xml")
-        position = Position(line=0, character=4)
-        parser = XmlContextParser()
-
-        context = parser.parse(document, position)
-
-        assert context.is_invalid
 
     @pytest.mark.parametrize(
         "document, position, expected",

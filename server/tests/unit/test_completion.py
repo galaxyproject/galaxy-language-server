@@ -48,15 +48,6 @@ def fake_empty_context(fake_tree: XsdTree) -> XmlContext:
 
 
 @pytest.fixture()
-def fake_invalid_context(fake_tree: XsdTree) -> XmlContext:
-    fake_root = fake_tree.root
-    fake_context = XmlContext()
-    fake_context.is_invalid = True
-    fake_context.node = fake_root
-    return fake_context
-
-
-@pytest.fixture()
 def fake_context_on_root_node(fake_tree: XsdTree) -> XmlContext:
     fake_root = fake_tree.root
     fake_context = XmlContext()
@@ -184,15 +175,6 @@ class TestXmlCompletionServiceClass:
 
         assert len(actual.items) == 1
         assert actual.items[0].label == fake_tree.root.name
-
-    def test_returns_empty_completion_when_invalid_context(
-        self, fake_tree: XsdTree, fake_invalid_context
-    ) -> None:
-        service = XmlCompletionService(fake_tree)
-
-        actual = service.get_node_completion(fake_invalid_context)
-
-        assert len(actual.items) == 0
 
     def test_return_empty_attribute_completion_when_empty_context(
         self, fake_tree: XsdTree, fake_empty_context

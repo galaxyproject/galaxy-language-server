@@ -18,11 +18,6 @@ ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
 ATTR_VALUE_GROUP = 2
-SUPPORTED_RECOVERY_EXCEPTIONS = [
-    "unclosed token",
-    "no element found",
-    "not well-formed (invalid token)",
-]
 
 
 @unique
@@ -61,7 +56,6 @@ class XmlContext:
         self.node: Optional[XsdNode] = None
         self.is_node_content: bool = False
         self.node_stack: List[str] = []
-        self.is_invalid: bool = False
 
     def is_tag(self) -> bool:
         """Indicates if the token in context is a tag"""
@@ -330,10 +324,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
 
     def fatalError(self, exception: xml.sax.SAXParseException):
         position = self.get_position(exception)
-        if exception.getMessage() in SUPPORTED_RECOVERY_EXCEPTIONS:
-            self._try_recover_context_from_exception(position.character)
-        else:
-            self._context.is_invalid = True
+        self._try_recover_context_from_exception(position.character)
 
     def get_position(self, exception: xml.sax.SAXParseException) -> Position:
         return Position(line=exception.getLineNumber() - 1, character=exception.getColumnNumber())
