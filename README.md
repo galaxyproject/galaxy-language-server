@@ -9,29 +9,60 @@ The aim of this project is to implement the [Language Server Protocol](https://m
 
 This repository contains both the [server](https://github.com/davelopez/galaxy-tools-extension/tree/master/server) implementation in [Python](https://www.python.org/) and the [client](https://github.com/davelopez/galaxy-tools-extension/tree/master/client) implementation of a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
 
+---
+
 ## Features
-* Basic tag and attribute auto-completion 
-* Documentation on Hover
-* Document validation based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd)
-* Document auto-formatting
+### Tag and attribute auto-completion 
 
-    ![Demo Animation](../assets/features.gif)
+![Demo feature auto-completion](../assets/feature.autocompletion.gif)
 
-* Tag auto-closing
+The tags and attributes are suggested based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema. They will appear in the same order that they are declared in the schema, so they can comply with the best practices recommendations defined in the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
 
-    ![Demo Animation](../assets/autoCloseTag.gif)
 
-* Snippets
+### Documentation on Hover
 
-    ![Demo Animation](../assets/snippets.gif)
-    
-    >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
+![Demo feature hover documentation](../assets/feature.hover.documentation.gif)
+
+The documentation of tags and attributes is retrieved from the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
+>Please note that some elements in the schema are still missing documentation. This will probably be improved over time.
+
+
+### Document validation
+
+![Demo feature validation](../assets/feature.validation.png)
+
+The tools are also validated against the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
+
+
+### Document auto-formatting
+
+![Demo feature auto-formatting](../assets/feature.autoformat.gif)
+
+When the tool file is saved it gets auto-formatted to maintain a consistent format with the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
+
+### Tag auto-closing
+
+![Demo feature auto-close tags](../assets/autoCloseTag.gif)
+
+Whenever you write a closing ``>`` the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
+
+
+### Snippets
+
+![Demo snippets](../assets/snippets.gif)
+
+Snippets can be really helpful to speed up your tool wrapper development. They allow to quickly create common blocks and let you enter just the important information by pressing ``tab`` and navigating to the next available value.
+>If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
+
+---
 
 ## Release History
 
 Current version: **``Unreleased``**
 
 See the [change log](docs/CHANGELOG.md) for details.
+
+> Please note this is still an early work in progress and **bugs and issues are expected**.
 
 
 # Getting Started
@@ -88,6 +119,7 @@ If you are considering contributing, please read the [contribution guide](docs/C
     ```
 
 8. Submit a pull request through the GitHub website.
+
 
 ### Setup Visual Studio Code for debugging
 If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
