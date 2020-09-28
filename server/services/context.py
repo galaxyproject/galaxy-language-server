@@ -52,6 +52,7 @@ class XmlContext:
         self.token_type = token_type
         self.token_range: Range = None
         self.attr_name = None
+        self.attr_list: List[str] = []
         self.node: Optional[XsdNode] = None
         self.is_node_content: bool = False
         self.node_stack: List[str] = []
@@ -270,6 +271,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         return False
 
     def _build_context_from_element_line(self, start_position: int, tag: str, attributes):
+        self._context.attr_list = list(attributes.keys())
         target_offset = self._context.target_position.character
         tag_offset = start_position + len(tag)
         is_on_tag = start_position <= target_offset <= tag_offset
@@ -329,8 +331,8 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
 
     def _try_recover_context_from_exception(self, start_offset: int) -> None:
         target_offset = self._context.target_position.character
-        self._try_get_tag_context_at_line_position(target_offset)
         self._try_get_attribute_context_at_line_position(target_offset)
+        self._try_get_tag_context_at_line_position(target_offset)
 
     def _try_get_tag_context_at_line_position(self, target_offset: int) -> None:
         tag_matches = re.finditer(START_TAG_REGEX, self._context.document_line, re.DOTALL)
@@ -384,37 +386,39 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
         attribute_matches = re.finditer(
             ATTR_KEY_VALUE_REGEX, self._context.document_line, re.DOTALL
         )
-        if attribute_matches:
-            for match in attribute_matches:
-                if match.start(ATTR_KEY_GROUP) <= target_offset <= match.end(ATTR_KEY_GROUP):
-                    self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
-                    self._context.token_name = match.group(ATTR_KEY_GROUP)
-                    self._context.token_range = Range(
-                        Position(
-                            line=self._context.target_position.line,
-                            character=match.start(ATTR_KEY_GROUP),
-                        ),
-                        Position(
-                            line=self._context.target_position.line,
-                            character=match.end(ATTR_KEY_GROUP),
-                        ),
-                    )
-                    raise ContextFoundException()
-                if match.start(ATTR_VALUE_GROUP) <= target_offset <= match.end(ATTR_VALUE_GROUP):
-                    self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
-                    self._context.token_name = match.group(ATTR_VALUE_GROUP)
-                    self._context.attr_name = match.group(ATTR_KEY_GROUP)
-                    self._context.token_range = Range(
-                        Position(
-                            line=self._context.target_position.line,
-                            character=match.start(ATTR_VALUE_GROUP),
-                        ),
-                        Position(
-                            line=self._context.target_position.line,
-                            character=match.end(ATTR_VALUE_GROUP),
-                        ),
-                    )
-                    raise ContextFoundException()
+        self._context.attr_list = []
+        for match in attribute_matches:
+            self._context.attr_list.append(match.group(ATTR_KEY_GROUP))
+            if match.start(ATTR_KEY_GROUP) <= target_offset <= match.end(ATTR_KEY_GROUP):
+                self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
+                self._context.token_name = match.group(ATTR_KEY_GROUP)
+                self._context.token_range = Range(
+                    Position(
+                        line=self._context.target_position.line,
+                        character=match.start(ATTR_KEY_GROUP),
+                    ),
+                    Position(
+                        line=self._context.target_position.line,
+                        character=match.end(ATTR_KEY_GROUP),
+                    ),
+                )
+                raise ContextFoundException()
+
+            if match.start(ATTR_VALUE_GROUP) <= target_offset <= match.end(ATTR_VALUE_GROUP):
+                self._context.token_type = ContextTokenType.ATTRIBUTE_VALUE
+                self._context.token_name = match.group(ATTR_VALUE_GROUP)
+                self._context.attr_name = match.group(ATTR_KEY_GROUP)
+                self._context.token_range = Range(
+                    Position(
+                        line=self._context.target_position.line,
+                        character=match.start(ATTR_VALUE_GROUP),
+                    ),
+                    Position(
+                        line=self._context.target_position.line,
+                        character=match.end(ATTR_VALUE_GROUP),
+                    ),
+                )
+                raise ContextFoundException()
 
 
 class ContextFoundException(Exception):

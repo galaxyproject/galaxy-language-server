@@ -27,6 +27,19 @@ def fake_tree(mocker: MockerFixture) -> XsdTree:
 
 
 @pytest.fixture()
+def fake_tree_with_attrs(mocker: MockerFixture) -> XsdTree:
+    fake_root = XsdNode("root", element=mocker.Mock())
+    fake_attr = XsdAttribute("one", element=mocker.Mock())
+    fake_root.attributes[fake_attr.name] = fake_attr
+    fake_attr = XsdAttribute("two", element=mocker.Mock())
+    fake_root.attributes[fake_attr.name] = fake_attr
+    fake_attr = XsdAttribute("three", element=mocker.Mock())
+    fake_root.attributes[fake_attr.name] = fake_attr
+    XsdNode("child", element=mocker.Mock(), parent=fake_root)
+    return XsdTree(fake_root)
+
+
+@pytest.fixture()
 def fake_empty_context(fake_tree: XsdTree) -> XmlContext:
     fake_root = fake_tree.root
     fake_context = XmlContext(is_empty=True)
@@ -100,6 +113,28 @@ class TestXmlCompletionServiceClass:
         assert len(actual.items) == 1
         assert actual.items[0].label == "attr"
         assert actual.items[0].kind == CompletionItemKind.Variable
+
+    def test_get_completion_at_context_on_node_with_attribute_returns_expected_attributes(
+        self, fake_tree_with_attrs: XsdTree
+    ) -> None:
+        fake_context = XmlContext()
+        fake_context.is_empty = False
+        fake_context.attr_list = ["one"]
+        fake_context.token_type = ContextTokenType.UNKNOWN
+        fake_context.node = fake_tree_with_attrs.root
+        fake_completion_context = CompletionContext(
+            CompletionTriggerKind.TriggerCharacter, trigger_character=" "
+        )
+        service = XmlCompletionService(fake_tree_with_attrs)
+
+        actual = service.get_completion_at_context(fake_context, fake_completion_context)
+
+        assert actual
+        assert len(actual.items) == 2
+        assert actual.items[0].label == "two"
+        assert actual.items[0].kind == CompletionItemKind.Variable
+        assert actual.items[1].label == "three"
+        assert actual.items[1].kind == CompletionItemKind.Variable
 
     def test_get_completion_at_context_on_attr_value_returns_expected_enums(
         self, fake_tree: XsdTree
