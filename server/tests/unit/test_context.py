@@ -686,3 +686,26 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.attr_list == expected
+
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (get_fake_document("<first> </first>"), Position(line=0, character=7), False,),
+            (get_fake_document("<first></first>"), Position(line=0, character=8), True,),
+            (get_fake_document("<first></first>"), Position(line=0, character=14), True,),
+            (get_fake_document("<first></first >"), Position(line=0, character=14), True,),
+            (get_fake_document("<first></first"), Position(line=0, character=10), True,),
+            (get_fake_document("<first/>"), Position(line=0, character=7), True,),
+            (get_fake_document("<first/ >"), Position(line=0, character=7), True,),
+        ],
+    )
+    def test_parse_return_expected_is_closin_tag(
+        self, document: Document, position: Position, expected: bool
+    ) -> None:
+        print_context_params(document, position)
+        parser = XmlContextParser()
+
+        context = parser.parse(document, position)
+
+        assert context.is_closing_tag == expected
+
