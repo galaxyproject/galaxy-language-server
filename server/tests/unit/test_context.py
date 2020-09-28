@@ -697,6 +697,9 @@ class TestXmlContextParserClass:
             (get_fake_document("<first></first"), Position(line=0, character=10), True,),
             (get_fake_document("<first/>"), Position(line=0, character=7), True,),
             (get_fake_document("<first/ >"), Position(line=0, character=7), True,),
+            (get_fake_document('<first attr="1"/>'), Position(line=0, character=15), False,),
+            (get_fake_document('<first attr="1" />'), Position(line=0, character=15), False,),
+            (get_fake_document('<first attr="1"/'), Position(line=0, character=15), False,),
         ],
     )
     def test_parse_return_expected_is_closin_tag(
@@ -708,4 +711,3 @@ class TestXmlContextParserClass:
         context = parser.parse(document, position)
 
         assert context.is_closing_tag == expected
-
