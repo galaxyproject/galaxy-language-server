@@ -13,7 +13,8 @@ from .xsd.types import XsdTree, XsdNode
 CDATA_BLOCK_START_SIZE = len("<![CDATA[")
 CDATA_BLOCK_END_SIZE = len("]]>")
 START_TAG_REGEX = r"<([a-z_]+)[ \n\W]?"
-END_TAG_REGEX = r"<\/([\w]*)>"
+END_TAG_REGEX = r"<\/[\s]*([\w]*)[^>]*>?"
+SELF_CLOSED_TAG_REGEX = r"<[\s]*([\w]*)[^>]*/[^>]*>?"
 ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
@@ -55,6 +56,7 @@ class XmlContext:
         self.attr_list: List[str] = []
         self.node: Optional[XsdNode] = None
         self.is_node_content: bool = False
+        self.is_closing_tag: bool = False
         self.node_stack: List[str] = []
 
     def is_tag(self) -> bool:
@@ -199,23 +201,24 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         if current_position.line < self._context.target_position.line:
             self._context.node_stack.pop(-1)
         elif current_position.line == self._context.target_position.line:
-            line_after_position = self._context.document_line[current_position.character :]
-            closing_tag = f"</{tag}>"
-            is_fully_closed = line_after_position.find(closing_tag) >= 0
+            match_close = re.search(f"<[\\s]*/[\\s]*{tag}[\\s]*>", self._context.document_line)
             tag_start = current_position.character
-            tag_end = current_position.character + len(closing_tag)
-            if is_fully_closed and tag_start <= self._context.target_position.character <= tag_end:
+            if (
+                match_close
+                and tag_start <= self._context.target_position.character <= match_close.end(0)
+            ):
+                self._context.is_closing_tag = True
                 self._context.token_type = ContextTokenType.TAG
                 self._context.token_name = tag
                 self._context.token_range = Range(
                     Position(line=current_position.line, character=tag_start),
-                    Position(line=current_position.line, character=tag_end),
+                    Position(line=current_position.line, character=match_close.end(0)),
                 )
                 raise ContextFoundException()
             if (
-                is_fully_closed
-                and self._context.target_position.character > tag_end
-                or not is_fully_closed
+                match_close
+                and self._context.target_position.character > match_close.end(0)
+                or not match_close
                 and self._context.target_position.character >= current_position.character
             ):
                 self._context.node_stack.pop(-1)
@@ -365,6 +368,23 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
             tag_start = match_close.start(TAG_GROUP)
             tag_end = match_close.end(TAG_GROUP)
             if tag_start <= self._context.target_position.character <= tag_end:
+                self._context.is_closing_tag = True
+                self._context.token_type = ContextTokenType.TAG
+                self._context.token_name = tag
+                self._context.token_range = Range(
+                    Position(line=self._context.target_position.line, character=tag_start),
+                    Position(line=self._context.target_position.line, character=tag_end),
+                )
+                if tag not in self._context.node_stack:
+                    self._context.node_stack.append(tag)
+                raise ContextFoundException()
+        match_close = re.search(SELF_CLOSED_TAG_REGEX, self._context.document_line)
+        if match_close:
+            tag = match_close.group(1)
+            tag_start = match_close.start(0)
+            tag_end = match_close.end(0)
+            if tag_start <= self._context.target_position.character < tag_end:
+                self._context.is_closing_tag = True
                 self._context.token_type = ContextTokenType.TAG
                 self._context.token_name = tag
                 self._context.token_range = Range(
@@ -376,7 +396,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 raise ContextFoundException()
 
     def _is_tag_closed_before_offset(self, tag: str, offset: int) -> bool:
-        match_close = re.search(f"</{tag}>", self._context.document_line)
+        match_close = re.search(f"<[\\s]*/[\\s]*{tag}[\\s]*>", self._context.document_line)
         if match_close and offset >= match_close.end(0):
             return True
         match_self_close = re.search(f"<{tag}[^>]*/>", self._context.document_line)
