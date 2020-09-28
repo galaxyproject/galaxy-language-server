@@ -357,7 +357,7 @@ class TestXmlContextParserClass:
             (
                 get_fake_document('<first id="value"><second/></first'),
                 Position(line=0, character=29),
-                ContextTokenType.UNKNOWN,
+                ContextTokenType.TAG,
             ),
         ],
     )
