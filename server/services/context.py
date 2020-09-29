@@ -14,11 +14,12 @@ CDATA_BLOCK_START_SIZE = len("<![CDATA[")
 CDATA_BLOCK_END_SIZE = len("]]>")
 START_TAG_REGEX = r"<([a-z_]+)[ \n\W]?"
 END_TAG_REGEX = r"<\/[\s]*([\w]*)[^>]*>?"
-SELF_CLOSED_TAG_REGEX = r"<[\s]*([\w]*)[^>]*/[^>]*>?"
+SELF_CLOSED_TAG_REGEX = r"<[\s]*([\w]*)[^>/]*(/[^><]*>?)"
 ATTR_KEY_VALUE_REGEX = r" ([a-z_]*)=\"([\w. ]*)[\"]?"
 TAG_GROUP = 1
 ATTR_KEY_GROUP = 1
 ATTR_VALUE_GROUP = 2
+END_SELF_TAG_GROUP = 2
 
 
 @unique
@@ -222,6 +223,16 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
                 and self._context.target_position.character >= current_position.character
             ):
                 self._context.node_stack.pop(-1)
+
+            match_close = re.search(SELF_CLOSED_TAG_REGEX, self._context.document_line)
+            if match_close:
+                tag = match_close.group(TAG_GROUP)
+                tag_start = match_close.start(END_SELF_TAG_GROUP)
+                tag_end = match_close.end(END_SELF_TAG_GROUP)
+                if tag_start < self._context.target_position.character < tag_end:
+                    self._context.is_closing_tag = True
+                    raise ContextFoundException()
+
             if current_position.character > self._context.target_position.character:
                 raise ContextFoundException()
 
@@ -380,10 +391,10 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 raise ContextFoundException()
         match_close = re.search(SELF_CLOSED_TAG_REGEX, self._context.document_line)
         if match_close:
-            tag = match_close.group(1)
-            tag_start = match_close.start(0)
-            tag_end = match_close.end(0)
-            if tag_start <= self._context.target_position.character < tag_end:
+            tag = match_close.group(TAG_GROUP)
+            tag_start = match_close.start(END_SELF_TAG_GROUP)
+            tag_end = match_close.end(END_SELF_TAG_GROUP)
+            if tag_start < self._context.target_position.character < tag_end:
                 self._context.is_closing_tag = True
                 self._context.token_type = ContextTokenType.TAG
                 self._context.token_name = tag
