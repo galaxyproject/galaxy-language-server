@@ -70,7 +70,12 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
-        if context.is_empty or context.is_node_content or context.is_attribute_value():
+        if (
+            context.is_empty
+            or context.is_node_content
+            or context.is_attribute_value()
+            or context.is_closing_tag
+        ):
             return CompletionList(is_incomplete=False)
 
         result = []
