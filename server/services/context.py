@@ -42,7 +42,7 @@ class XmlContext:
     def __init__(
         self,
         document_line: str = "",
-        position: Position = Position(),
+        position: Position = None,
         is_empty: bool = False,
         token_name: str = None,
         token_type: ContextTokenType = ContextTokenType.UNKNOWN,
@@ -379,32 +379,26 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
             tag_start = match_close.start(TAG_GROUP)
             tag_end = match_close.end(TAG_GROUP)
             if tag_start <= self._context.target_position.character <= tag_end:
-                self._context.is_closing_tag = True
-                self._context.token_type = ContextTokenType.TAG
-                self._context.token_name = tag
-                self._context.token_range = Range(
-                    Position(line=self._context.target_position.line, character=tag_start),
-                    Position(line=self._context.target_position.line, character=tag_end),
-                )
-                if tag not in self._context.node_stack:
-                    self._context.node_stack.append(tag)
-                raise ContextFoundException()
+                self._raise_close_context_found(tag, tag_start, tag_end)
         match_close = re.search(SELF_CLOSED_TAG_REGEX, self._context.document_line)
         if match_close:
             tag = match_close.group(TAG_GROUP)
             tag_start = match_close.start(END_SELF_TAG_GROUP)
             tag_end = match_close.end(END_SELF_TAG_GROUP)
             if tag_start < self._context.target_position.character < tag_end:
-                self._context.is_closing_tag = True
-                self._context.token_type = ContextTokenType.TAG
-                self._context.token_name = tag
-                self._context.token_range = Range(
-                    Position(line=self._context.target_position.line, character=tag_start),
-                    Position(line=self._context.target_position.line, character=tag_end),
-                )
-                if tag not in self._context.node_stack:
-                    self._context.node_stack.append(tag)
-                raise ContextFoundException()
+                self._raise_close_context_found(tag, tag_start, tag_end)
+
+    def _raise_close_context_found(self, tag, tag_start, tag_end):
+        self._context.is_closing_tag = True
+        self._context.token_type = ContextTokenType.TAG
+        self._context.token_name = tag
+        self._context.token_range = Range(
+            Position(line=self._context.target_position.line, character=tag_start),
+            Position(line=self._context.target_position.line, character=tag_end),
+        )
+        if tag not in self._context.node_stack:
+            self._context.node_stack.append(tag)
+        raise ContextFoundException()
 
     def _is_tag_closed_before_offset(self, tag: str, offset: int) -> bool:
         match_close = re.search(f"<[\\s]*/[\\s]*{tag}[\\s]*>", self._context.document_line)
