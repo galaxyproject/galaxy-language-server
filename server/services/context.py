@@ -42,7 +42,7 @@ class XmlContext:
     def __init__(
         self,
         document_line: str = "",
-        position: Position = Position(),
+        position: Position = None,
         is_empty: bool = False,
         token_name: str = None,
         token_type: ContextTokenType = ContextTokenType.UNKNOWN,
