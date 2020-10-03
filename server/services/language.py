@@ -35,7 +35,7 @@ class GalaxyToolLanguageService:
         """Validates the Galaxy tool and returns a list
         of diagnotics if there are any problems.
         """
-        return self.xsd_service.validate_xml(document)
+        return self.xsd_service.validate_document(document)
 
     def get_documentation(self, document: Document, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
