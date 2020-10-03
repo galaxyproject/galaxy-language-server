@@ -5,6 +5,7 @@ information from the XSD schema.
 from typing import List
 from lxml import etree
 
+from pygls.workspace import Document
 from pygls.types import Diagnostic, MarkupContent, MarkupKind
 
 from .constants import TOOL_XSD_FILE, MSG_NO_DOCUMENTATION_AVAILABLE
@@ -28,11 +29,11 @@ class GalaxyToolXsdService:
         self.xsd_parser = GalaxyToolXsdParser(self.xsd_doc.getroot())
         self.validator = GalaxyToolValidationService(server_name, self.xsd_schema)
 
-    def validate_xml(self, source: str) -> List[Diagnostic]:
+    def validate_xml(self, document: Document) -> List[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list
         of diagnotics if there are any problems.
         """
-        return self.validator.validate_xml(source)
+        return self.validator.validate_xml(document)
 
     def get_documentation_for(self, context: XmlContext) -> MarkupContent:
         """Gets the documentation annotated in the XSD about the
@@ -48,4 +49,3 @@ class GalaxyToolXsdService:
         if element is None:
             return MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
         return element.get_doc()
-

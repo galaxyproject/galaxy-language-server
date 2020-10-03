@@ -96,5 +96,5 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
     document = server.workspace.get_document(params.textDocument.uri)
-    diagnostics = server.service.get_diagnostics(document.source)
+    diagnostics = server.service.get_diagnostics(document)
     server.publish_diagnostics(document.uri, diagnostics)
