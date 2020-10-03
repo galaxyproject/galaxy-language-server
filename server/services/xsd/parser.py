@@ -99,6 +99,10 @@ class GalaxyToolXsdParser:
                 self._apply_named_type_to_node(element_type_name, node, depth + 1)
                 # minOccurs defaults to 1
                 node.min_occurs = int(element.attrib.get("minOccurs", 1))
+                max_occurs = element.attrib.get("maxOccurs", -1)
+                if max_occurs == "unbounded":
+                    max_occurs = -1
+                node.max_occurs = int(max_occurs)
                 self._build_tree_recursive(element, node, depth + 1)
             elif tag == XS_COMPLEX_TYPE:
                 if not element_name:

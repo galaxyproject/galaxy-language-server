@@ -6,7 +6,7 @@ from ...services.xsd.parser import GalaxyToolXsdParser
 from ...services.xsd.constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
 TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="testElement" type="CustomComplexType">
+  <xs:element name="testElement" type="CustomComplexType" minOccurs="1" maxOccurs="1">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         <![CDATA[Documentation ``example``.]]>
@@ -18,7 +18,7 @@ TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   </xs:element>
   <xs:complexType name="CustomComplexType">
     <xs:sequence>
-      <xs:element name="firstElement" type="CustomIntSimpleType">
+      <xs:element name="firstElement" type="CustomIntSimpleType" minOccurs="0" maxOccurs="unbounded">
         <xs:annotation>
           <xs:documentation xml:lang="en">
             <![CDATA[
@@ -266,3 +266,23 @@ class TestXsdParserClass:
         actual = attribute_with_restriction.enumeration
 
         assert actual == ["v1", "v2", "v3"]
+
+    def test_parser_returns_expected_occurs_restrictions(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
+        tree = xsd_parser.get_tree()
+
+        actual = tree.root
+
+        assert actual.min_occurs == 1
+        assert actual.max_occurs == 1
+
+    def test_parser_returns_expected_occurs_when_unbounded(
+        self, xsd_parser: GalaxyToolXsdParser
+    ) -> None:
+        tree = xsd_parser.get_tree()
+
+        actual = tree.root.children[0]
+
+        assert actual.min_occurs == 0
+        assert actual.max_occurs == -1

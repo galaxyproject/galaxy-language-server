@@ -55,7 +55,7 @@ class XmlCompletionService:
             result.append(self._build_node_completion_item(context.node))
         elif context.node:
             for child in context.node.children:
-                result.append(self._build_node_completion_item(child))
+                result.append(self._build_node_completion_item(child, len(result)))
         return CompletionList(items=result, is_incomplete=False)
 
     def get_attribute_completion(self, context: XmlContext) -> CompletionList:
@@ -129,27 +129,36 @@ class XmlCompletionService:
 
         return AutoCloseTagResult(snippet, replace_range)
 
-    def _build_node_completion_item(self, node: XsdNode) -> CompletionItem:
+    def _build_node_completion_item(self, node: XsdNode, order: int = 0) -> CompletionItem:
         """Generates a completion item with the information about the
         given node definition.
 
         Args:
             node (XsdNode): The node definition used to build the
             completion item.
+            order (int): The position for ordering this item.
 
         Returns:
             CompletionItem: The completion item with the basic information
             about the node.
         """
-        return CompletionItem(node.name, CompletionItemKind.Class, documentation=node.get_doc(),)
+        return CompletionItem(
+            node.name,
+            CompletionItemKind.Class,
+            documentation=node.get_doc(),
+            sort_text=str(order).zfill(2),
+        )
 
-    def _build_attribute_completion_item(self, attr: XsdAttribute, order: int) -> CompletionItem:
+    def _build_attribute_completion_item(
+        self, attr: XsdAttribute, order: int = 0
+    ) -> CompletionItem:
         """Generates a completion item with the information about the
         given attribute definition.
 
         Args:
             attr (XsdAttribute): The attribute definition used to build the
             completion item.
+            order (int): The position for ordering this item.
 
         Returns:
             CompletionItem: The completion item with the basic information
