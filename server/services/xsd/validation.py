@@ -26,12 +26,23 @@ class GalaxyToolValidationService:
         of diagnotics if there are any problems.
         """
         try:
+            if "macros" in document.filename:
+                return self._validate_syntax(document)
+
             xml_tree = etree.fromstring(document.source)
             return self._validate_tree(xml_tree)
         except ExpandMacrosFoundException:
-            return self._validate_with_macros(document)
+            return self._validate_tree_with_macros(document)
+        except BaseException as e:
+            print(e)
 
-    def _validate_with_macros(self, document: Document) -> List[Diagnostic]:
+    def _validate_syntax(self, document: Document) -> List[Diagnostic]:
+        try:
+            etree.fromstring(document.source)
+        except etree.XMLSyntaxError as e:
+            return self._build_diagnostics_from_XMLSyntaxError(e)
+
+    def _validate_tree_with_macros(self, document: Document) -> List[Diagnostic]:
         try:
             expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
             expanded_xml = self._remove_macros(expanded_tool_tree)
