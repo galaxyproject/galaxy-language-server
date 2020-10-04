@@ -1,5 +1,7 @@
+from pygls.workspace import Document
+
 TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="testElement" type="CustomComplexType" minOccurs="1" maxOccurs="1">
+  <xs:element name="testElement" type="CustomComplexType">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         <![CDATA[Documentation ``example``.]]>
@@ -25,7 +27,7 @@ TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="thirdElement">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="childElement" type="TestSimpleContent"/>
+            <xs:element name="childElement" type="TestSimpleContent" minOccurs="1" maxOccurs="1"/>
           </xs:sequence>
           <xs:attribute name="testDate" type="xs:date"/>
         </xs:complexType>
@@ -110,3 +112,28 @@ RECURSIVE_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   </xs:complexType>
 </xs:schema>
 """
+
+TEST_TOOL_01 = """<tool id="test" name="Test Tool 01" version="0.1.0">
+    <command detect_errors="exit_code"><![CDATA[
+        TODO: Fill in command template.
+    ]]></command>
+    <inputs>
+    </inputs>
+    <outputs>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>
+"""
+TEST_TOOL_01_DOCUMENT = Document("file://test01.xml", TEST_TOOL_01)
+
+TEST_TOOL_WITH_MACRO_01 = """<tool id="test_with_macro" name="Test with macro 01" version="@WRAPPER_VERSION@">
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="inputs" />
+</tool>"""
+TEST_TOOL_WITH_MACRO_01_DOCUMENT = Document(
+    "file://test_with_macro_01.xml", TEST_TOOL_WITH_MACRO_01
+)

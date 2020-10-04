@@ -161,7 +161,7 @@ class TestXsdParserClass:
     ) -> None:
         tree = xsd_parser.get_tree()
 
-        actual = tree.root
+        actual = tree.root.children[2].children[0]
 
         assert actual.min_occurs == 1
         assert actual.max_occurs == 1
