@@ -128,7 +128,8 @@ TEST_TOOL_01 = """<tool id="test" name="Test Tool 01" version="0.1.0">
 """
 TEST_TOOL_01_DOCUMENT = Document("file://test01.xml", TEST_TOOL_01)
 
-TEST_TOOL_WITH_MACRO_01 = """<tool id="test_with_macro" name="Test with macro 01" version="@WRAPPER_VERSION@">
+TEST_TOOL_WITH_MACRO_01 = """
+<tool id="test_with_macro" name="Test with macro 01" version="@WRAPPER_VERSION@">
     <macros>
         <import>macros.xml</import>
     </macros>
@@ -136,4 +137,23 @@ TEST_TOOL_WITH_MACRO_01 = """<tool id="test_with_macro" name="Test with macro 01
 </tool>"""
 TEST_TOOL_WITH_MACRO_01_DOCUMENT = Document(
     "file://test_with_macro_01.xml", TEST_TOOL_WITH_MACRO_01
+)
+
+TEST_MACRO_01 = """
+<macros>
+    <token name="@WRAPPER_VERSION@">0.1.0</token>
+    <macro name="inputs">
+        <inputs/>
+    </macro>
+</macros>
+"""
+TEST_MACRO_01_DOCUMENT = Document("file://macros.xml", TEST_MACRO_01)
+
+
+TEST_INVALID_TOOL_01_DOCUMENT = Document("file://test_invalid_01.xml", "<tool></tool>")
+
+TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT = Document("file://test_syntax_error_01.xml", "tool")
+
+TEST_SYNTAX_ERROR_MACRO_01_DOCUMENT = Document(
+    "file://test_syntax_error_macro_01.xml", "<macros>unclosed"
 )
