@@ -12,6 +12,8 @@ from pygls.types import (
     Range,
 )
 
+MACROS_TAG = "<macros>"
+
 
 class GalaxyToolValidationService:
     """Service providing diagnostics for errors in the XML validation."""
@@ -77,8 +79,7 @@ class GalaxyToolValidationService:
         Returns:
             bool: True if it is a macro definition file or False otherwise.
         """
-        # TODO: find a better way to check it
-        return "macros" in document.filename
+        return document.source.lstrip().startswith(MACROS_TAG)
 
     def _check_syntax(self, document: Document) -> List[Diagnostic]:
         """Check if the XML document contains any syntax error and returns it in a list.
