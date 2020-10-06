@@ -67,7 +67,7 @@ export function activate(context: ExtensionContext) {
       throw new Error("`python.pythonPath` is not set");
     }
 
-    client = startLangServer(pythonPath, ["-m", "server"], cwd);
+    client = startLangServer(pythonPath, ["-m", "galaxyls"], cwd);
   }
 
   context.subscriptions.push(client.start());

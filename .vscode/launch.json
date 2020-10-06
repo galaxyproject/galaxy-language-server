@@ -23,13 +23,13 @@
             "name": "Launch Server",
             "type": "python",
             "request": "launch",
-            "module": "server",
+            "module": "galaxyls",
             "args": [
                 "--tcp"
             ],
             "justMyCode": false,
             "pythonPath": "${command:python.interpreterPath}",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/server",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
