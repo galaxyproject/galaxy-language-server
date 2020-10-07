@@ -46,9 +46,7 @@ class GalaxyToolValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_XMLSyntaxError(e)
 
-    def _get_macros_range(
-        self, document: Document, xml_tree: etree.ElementTree
-    ) -> Optional[Range]:
+    def _get_macros_range(self, document: Document, xml_tree: etree.ElementTree) -> Optional[Range]:
         """Given a XML document and its corresponding ElementTree, finds
         the first macro import element and returns its Range position
         inside the document.
@@ -96,9 +94,7 @@ class GalaxyToolValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_XMLSyntaxError(e)
 
-    def _validate_tree_with_macros(
-        self, document: Document, xml_tree: etree.ElementTree
-    ) -> List[Diagnostic]:
+    def _validate_tree_with_macros(self, document: Document, xml_tree: etree.ElementTree) -> List[Diagnostic]:
         """Validates the document after loading all the macros referenced and expands them.
 
         Args:
@@ -108,28 +104,23 @@ class GalaxyToolValidationService:
         Returns:
             List[Diagnostic]: [description]
         """
+        error_range = None
         try:
             error_range = self._get_macros_range(document, xml_tree)
-            expanded_tool_tree, macros = xml_macros.load_with_references(document.path)
+            expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
             expanded_xml = self._remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
             self.xsd_schema.assertValid(root)
             return []
         except etree.DocumentInvalid as e:
             diagnostics = [
-                Diagnostic(
-                    error_range,
-                    f"Validation error on macro: {error.message}",
-                    source=self.server_name,
-                )
+                Diagnostic(error_range, f"Validation error on macro: {error.message}", source=self.server_name,)
                 for error in e.error_log.filter_from_errors()
             ]
             return diagnostics
 
         except etree.XMLSyntaxError as e:
-            result = Diagnostic(
-                error_range, f"Syntax error on macro: {e.msg}", source=self.server_name,
-            )
+            result = Diagnostic(error_range, f"Syntax error on macro: {e.msg}", source=self.server_name,)
             return [result]
 
     def _validate_tree(self, xml_tree: etree.ElementTree) -> List[Diagnostic]:
@@ -187,9 +178,7 @@ class GalaxyToolValidationService:
                 raise ExpandMacrosFoundException(xml_tree)
 
             result = Diagnostic(
-                Range(
-                    Position(error.line - 1, error.column), Position(error.line - 1, error.column),
-                ),
+                Range(Position(error.line - 1, error.column), Position(error.line - 1, error.column),),
                 error.message,
                 source=self.server_name,
             )
@@ -206,10 +195,7 @@ class GalaxyToolValidationService:
             Diagnostic: The converted Diagnostic item.
         """
         result = Diagnostic(
-            Range(
-                Position(error.lineno - 1, error.position[0] - 1),
-                Position(error.lineno - 1, error.position[1] - 1),
-            ),
+            Range(Position(error.lineno - 1, error.position[0] - 1), Position(error.lineno - 1, error.position[1] - 1),),
             error.msg,
             source=self.server_name,
         )

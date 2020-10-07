@@ -204,10 +204,7 @@ class ContextBuilderHandler(xml.sax.ContentHandler):
         elif current_position.line == self._context.target_position.line:
             match_close = re.search(f"<[\\s]*/[\\s]*{tag}[\\s]*>", self._context.document_line)
             tag_start = current_position.character
-            if (
-                match_close
-                and tag_start <= self._context.target_position.character <= match_close.end(0)
-            ):
+            if match_close and tag_start <= self._context.target_position.character <= match_close.end(0):
                 self._context.is_closing_tag = True
                 self._context.token_type = ContextTokenType.TAG
                 self._context.token_name = tag
@@ -408,9 +405,7 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
         return match_self_close and offset >= match_self_close.end(0)
 
     def _try_get_attribute_context_at_line_position(self, target_offset):
-        attribute_matches = re.finditer(
-            ATTR_KEY_VALUE_REGEX, self._context.document_line, re.DOTALL
-        )
+        attribute_matches = re.finditer(ATTR_KEY_VALUE_REGEX, self._context.document_line, re.DOTALL)
         self._context.attr_list = []
         for match in attribute_matches:
             self._context.attr_list.append(match.group(ATTR_KEY_GROUP))
@@ -418,14 +413,8 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 self._context.token_type = ContextTokenType.ATTRIBUTE_KEY
                 self._context.token_name = match.group(ATTR_KEY_GROUP)
                 self._context.token_range = Range(
-                    Position(
-                        line=self._context.target_position.line,
-                        character=match.start(ATTR_KEY_GROUP),
-                    ),
-                    Position(
-                        line=self._context.target_position.line,
-                        character=match.end(ATTR_KEY_GROUP),
-                    ),
+                    Position(line=self._context.target_position.line, character=match.start(ATTR_KEY_GROUP),),
+                    Position(line=self._context.target_position.line, character=match.end(ATTR_KEY_GROUP),),
                 )
                 raise ContextFoundException()
 
@@ -434,14 +423,8 @@ class ContextParseErrorHandler(xml.sax.ErrorHandler):
                 self._context.token_name = match.group(ATTR_VALUE_GROUP)
                 self._context.attr_name = match.group(ATTR_KEY_GROUP)
                 self._context.token_range = Range(
-                    Position(
-                        line=self._context.target_position.line,
-                        character=match.start(ATTR_VALUE_GROUP),
-                    ),
-                    Position(
-                        line=self._context.target_position.line,
-                        character=match.end(ATTR_VALUE_GROUP),
-                    ),
+                    Position(line=self._context.target_position.line, character=match.start(ATTR_VALUE_GROUP),),
+                    Position(line=self._context.target_position.line, character=match.end(ATTR_VALUE_GROUP),),
                 )
                 raise ContextFoundException()
 

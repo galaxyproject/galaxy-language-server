@@ -135,9 +135,7 @@ TEST_TOOL_WITH_MACRO_01 = """
     </macros>
     <expand macro="inputs" />
 </tool>"""
-TEST_TOOL_WITH_MACRO_01_DOCUMENT = Document(
-    "file://test_with_macro_01.xml", TEST_TOOL_WITH_MACRO_01
-)
+TEST_TOOL_WITH_MACRO_01_DOCUMENT = Document("file://test_with_macro_01.xml", TEST_TOOL_WITH_MACRO_01)
 
 TEST_MACRO_01 = """
 <macros>
@@ -154,6 +152,4 @@ TEST_INVALID_TOOL_01_DOCUMENT = Document("file://test_invalid_01.xml", "<tool></
 
 TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT = Document("file://test_syntax_error_01.xml", "tool")
 
-TEST_SYNTAX_ERROR_MACRO_01_DOCUMENT = Document(
-    "file://test_syntax_error_macro_01.xml", "<macros>unclosed"
-)
+TEST_SYNTAX_ERROR_MACRO_01_DOCUMENT = Document("file://test_syntax_error_macro_01.xml", "<macros>unclosed")

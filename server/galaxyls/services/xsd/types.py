@@ -40,9 +40,7 @@ class XsdBase:
         """
         try:
             doc = self.xsd_element.xpath(
-                "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()",
-                namespaces=self.xsd_element.nsmap,
-                lang=lang,
+                "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()", namespaces=self.xsd_element.nsmap, lang=lang,
             )
             return MarkupContent(MarkupKind.Markdown, doc[0].strip())
         except BaseException:
@@ -60,11 +58,7 @@ class XsdAttribute(XsdBase):
     """
 
     def __init__(
-        self,
-        name: str,
-        element: etree.Element,
-        type_name: Optional[str] = None,
-        is_required: bool = False,
+        self, name: str, element: etree.Element, type_name: Optional[str] = None, is_required: bool = False,
     ):
         super(XsdAttribute, self).__init__(name, element)
         self.type_name: str = type_name
@@ -96,9 +90,7 @@ class XsdNode(XsdBase, NodeMixin):
         Returns:
             str: An ascii representation of the node.
         """
-        return str(
-            RenderTree(self).by_attr(lambda node: f"[{node.name}] {' '.join(node.attributes)}")
-        )
+        return str(RenderTree(self).by_attr(lambda node: f"[{node.name}] {' '.join(node.attributes)}"))
 
 
 class XsdTree:
