@@ -44,7 +44,7 @@ class GalaxyToolValidationService:
             result = self._validate_tree_with_macros(document, e.xml_tree)
             return result
         except etree.XMLSyntaxError as e:
-            return self._build_diagnostics_from_XMLSyntaxError(e)
+            return self._build_diagnostics_from_syntax_error(e)
 
     def _get_macros_range(self, document: Document, xml_tree: etree.ElementTree) -> Optional[Range]:
         """Given a XML document and its corresponding ElementTree, finds
@@ -92,7 +92,7 @@ class GalaxyToolValidationService:
             etree.fromstring(document.source)
             return []
         except etree.XMLSyntaxError as e:
-            return self._build_diagnostics_from_XMLSyntaxError(e)
+            return self._build_diagnostics_from_syntax_error(e)
 
     def _validate_tree_with_macros(self, document: Document, xml_tree: etree.ElementTree) -> List[Diagnostic]:
         """Validates the document after loading all the macros referenced and expands them.
@@ -185,7 +185,7 @@ class GalaxyToolValidationService:
             diagnostics.append(result)
         return diagnostics
 
-    def _build_diagnostics_from_XMLSyntaxError(self, error: etree.XMLSyntaxError) -> Diagnostic:
+    def _build_diagnostics_from_syntax_error(self, error: etree.XMLSyntaxError) -> Diagnostic:
         """Builds a Diagnostic element from a XMLSyntaxError.
 
         Args:
