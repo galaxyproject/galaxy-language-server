@@ -1,12 +1,12 @@
 # Galaxy Language Server Changelog
 
-## [Unreleased]
+## [0.1.0]
 
 ### Added
 
-- XML tool validation when opening and saving file.
-- Basic macro validation
-- Auto-formatting when saving file.
-- Display tag and attribute documentation when hovering.
 - Basic tag and attribute auto-completion.
 - Auto-close tags feature.
+- XML tool validation when opening and saving file.
+- Basic validation of macros.
+- Auto-formatting document when saving file.
+- Display tag and attribute documentation when hovering.
