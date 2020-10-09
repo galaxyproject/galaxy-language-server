@@ -4,8 +4,8 @@
         "module": "commonjs",
         "sourceMap": true,
         "strict": true,
-        "rootDir": "client/src",
-        "outDir": "client/out",
+        "rootDir": "src",
+        "outDir": "out",
         "lib": [
             "es6"
         ],

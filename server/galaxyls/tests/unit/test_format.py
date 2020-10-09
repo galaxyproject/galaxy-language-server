@@ -23,8 +23,7 @@ class TestGalaxyToolFormatServiceClass:
     def test_format_should_return_whole_file_text_edit(self):
         service = GalaxyToolFormatService()
         params = DocumentFormattingParams(
-            TextDocumentIdentifier("test"),
-            options=FormattingOptions(tab_size=4, insert_spaces=True),
+            TextDocumentIdentifier("test"), options=FormattingOptions(tab_size=4, insert_spaces=True),
         )
 
         actual = service.format(FAKE_UNFORMATTED_DOCUMENT, params)

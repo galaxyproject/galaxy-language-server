@@ -11,6 +11,16 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-t
 
 ---
 
+## Release History
+
+Current version: **``Unreleased``**
+
+See the [change log](docs/CHANGELOG.md) for details.
+
+> Please note this is still an early work in progress and **bugs and issues are expected**.
+
+---
+
 ## Features
 ### Tag and attribute auto-completion 
 
@@ -55,14 +65,6 @@ Snippets can be really helpful to speed up your tool wrapper development. They a
 >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
 
 ---
-
-## Release History
-
-Current version: **``Unreleased``**
-
-See the [change log](docs/CHANGELOG.md) for details.
-
-> Please note this is still an early work in progress and **bugs and issues are expected**.
 
 
 # Getting Started

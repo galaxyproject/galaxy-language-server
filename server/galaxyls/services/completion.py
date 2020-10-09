@@ -24,9 +24,7 @@ class XmlCompletionService:
     def __init__(self, xsd_tree: XsdTree):
         self.xsd_tree: XsdTree = xsd_tree
 
-    def get_completion_at_context(
-        self, xml_context: XmlContext, completion_context: CompletionContext
-    ) -> CompletionList:
+    def get_completion_at_context(self, xml_context: XmlContext, completion_context: CompletionContext) -> CompletionList:
         triggerKind = completion_context.triggerKind
         if triggerKind == CompletionTriggerKind.TriggerCharacter:
             if completion_context.triggerCharacter == "<":
@@ -70,12 +68,7 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
-        if (
-            context.is_empty
-            or context.is_node_content
-            or context.is_attribute_value()
-            or context.is_closing_tag
-        ):
+        if context.is_empty or context.is_node_content or context.is_attribute_value() or context.is_closing_tag:
             return CompletionList(is_incomplete=False)
 
         result = []
@@ -99,14 +92,10 @@ class XmlCompletionService:
         """
         attribute: XsdAttribute = context.node.attributes.get(context.attr_name)
         if attribute and attribute.enumeration:
-            result = [
-                CompletionItem(item, CompletionItemKind.Value) for item in attribute.enumeration
-            ]
+            result = [CompletionItem(item, CompletionItemKind.Value) for item in attribute.enumeration]
             return CompletionList(items=result, is_incomplete=False)
 
-    def get_auto_close_tag(
-        self, context: XmlContext, trigger_character: str
-    ) -> AutoCloseTagResult:
+    def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> AutoCloseTagResult:
         """Gets the closing result for the currently opened tag in context."""
         tag = context.node.name
         snippet = f"$0</{tag}>"
@@ -115,10 +104,7 @@ class XmlCompletionService:
         if is_self_closing:
             start = Position(context.target_position.line, context.target_position.character)
             end_character = context.target_position.character + 1
-            if (
-                len(context.document_line) > end_character
-                and context.document_line[end_character] == ">"
-            ):
+            if len(context.document_line) > end_character and context.document_line[end_character] == ">":
                 end_character = end_character + 1
             end = Position(context.target_position.line, end_character)
             replace_range = Range(start=start, end=end)
@@ -143,15 +129,10 @@ class XmlCompletionService:
             about the node.
         """
         return CompletionItem(
-            node.name,
-            CompletionItemKind.Class,
-            documentation=node.get_doc(),
-            sort_text=str(order).zfill(2),
+            node.name, CompletionItemKind.Class, documentation=node.get_doc(), sort_text=str(order).zfill(2),
         )
 
-    def _build_attribute_completion_item(
-        self, attr: XsdAttribute, order: int = 0
-    ) -> CompletionItem:
+    def _build_attribute_completion_item(self, attr: XsdAttribute, order: int = 0) -> CompletionItem:
         """Generates a completion item with the information about the
         given attribute definition.
 

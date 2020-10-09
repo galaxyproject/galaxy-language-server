@@ -5,6 +5,10 @@
             "label": "compile:client",
             "type": "shell",
             "command": "tsc",
+            "args": [
+                "-p",
+                "client"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true

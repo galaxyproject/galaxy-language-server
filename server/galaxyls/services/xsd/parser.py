@@ -81,9 +81,7 @@ class GalaxyToolXsdParser:
             name = element.get("name")
             self._named_group_map[name] = element
 
-    def _build_tree_recursive(
-        self, parent_element: etree.Element, parent_node: XsdNode, depth: int = 0,
-    ) -> None:
+    def _build_tree_recursive(self, parent_element: etree.Element, parent_node: XsdNode, depth: int = 0) -> None:
         if depth > MAX_RECURSION_DEPTH:
             return None  # Stop recursion
 
@@ -119,9 +117,7 @@ class GalaxyToolXsdParser:
         if element_type is not None and element_type.tag == XS_COMPLEX_TYPE:
             self._apply_complex_type_to_node(element_type, node, depth + 1)
 
-    def _apply_complex_type_to_node(
-        self, complex_type: etree.Element, node: XsdNode, depth: int = 0,
-    ) -> None:
+    def _apply_complex_type_to_node(self, complex_type: etree.Element, node: XsdNode, depth: int = 0) -> None:
         for child_element in complex_type:
             tag = child_element.tag
             if tag in [XS_ALL, XS_SEQUENCE, XS_CHOICE]:
@@ -156,9 +152,7 @@ class GalaxyToolXsdParser:
                 for attr_elem in attributes:
                     self._add_attribute_to_node(attr_elem, node)
 
-    def _apply_complex_content_to_node(
-        self, complex_content: etree.Element, node: XsdNode, depth: int
-    ) -> None:
+    def _apply_complex_content_to_node(self, complex_content: etree.Element, node: XsdNode, depth: int) -> None:
         for child_elem in complex_content:
             if child_elem.tag == XS_EXTENSION:
                 attr_base = child_elem.attrib.get("base")

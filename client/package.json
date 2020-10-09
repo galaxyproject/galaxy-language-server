@@ -25,11 +25,11 @@
     "snippets": [
       {
         "language": "xml",
-        "path": "./client/src/snippets.json"
+        "path": "./src/snippets.json"
       }
     ]
   },
-  "main": "./client/out/extension",
+  "main": "./out/extension",
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
