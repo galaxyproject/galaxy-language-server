@@ -1,25 +1,15 @@
-# Galaxy Tools (Extension)
-
-> The idea is to provide realtime XML validation, code completion, help/documentation and other features to help in following best practices during the development process of XML tool wrappers for Galaxy.
+# Galaxy Language Server
 
 [![Actions Status](https://github.com/davelopez/galaxy-tools-extension/workflows/CI/badge.svg)](https://github.com/davelopez/galaxy-tools-extension/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The aim of this project is to implement the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) to assist in the development of [Galaxy tool wrappers](https://docs.galaxyproject.org/en/latest/dev/schema.html) inside modern code editors.
 
+> The idea is to provide realtime XML validation, code completion, help/documentation and other *smart* features to help in following best practices during the development process of XML tool wrappers for Galaxy.
+
 This repository contains both the [server](https://github.com/davelopez/galaxy-tools-extension/tree/master/server) implementation in [Python](https://www.python.org/) and the [client](https://github.com/davelopez/galaxy-tools-extension/tree/master/client) implementation of a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
 
----
-
-## Release History
-
-Current version: **``Unreleased``**
-
-See the [change log](docs/CHANGELOG.md) for details.
-
 > Please note this is still an early work in progress and **bugs and issues are expected**.
-
----
 
 ## Features
 ### Tag and attribute auto-completion 
@@ -66,6 +56,13 @@ Snippets can be really helpful to speed up your tool wrapper development. They a
 
 ---
 
+## Release History
+
+Current version: **``Unreleased``**
+
+See the [change log](docs/CHANGELOG.md) for details.
+
+---
 
 # Getting Started
 If you are considering contributing, please read the [contribution guide](docs/CONTRIBUTING.md).
