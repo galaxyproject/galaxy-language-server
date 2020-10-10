@@ -22,7 +22,7 @@
         {
             "name": "Launch Server",
             "type": "python",
-            "console": "internalConsole",
+            "console": "externalTerminal",
             "request": "launch",
             "module": "galaxyls",
             "args": [

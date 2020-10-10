@@ -11,7 +11,7 @@ This project, and everyone participating in it, are governed by the [Contributor
 Here are some ideas of how to contribute to this project:
 
 ### Reporting Bugs
-You can report bugs by creating a new [issue](https://github.com/davelopez/galaxy-tools-extension/issues). Please, before opening a new issue, make sure there is no duplicate by looking for the [bug](https://github.com/davelopez/galaxy-tools-extension/issues?q=is%3Aissue+is%3Aopen+label%3Abug) tag first.
+You can report bugs by creating a new [issue](https://github.com/davelopez/galaxy-language-server/issues). Please, before opening a new issue, make sure there is no duplicate by looking for the [bug](https://github.com/davelopez/galaxy-language-server/issues?q=is%3Aissue+is%3Aopen+label%3Abug) tag first.
 
 When creating the issue, explain the problem and include additional details to help maintainers reproduce the problem:
 
@@ -34,7 +34,7 @@ In general, when filing an issue, make sure to answer these five questions:
 ### Suggesting Features or Enhancements
 If you have an idea to add new features that can improve the utility and provide better experiences for the Galaxy tool development process, we are happy to hear it!
 
-Just create a new [issue](https://github.com/davelopez/galaxy-tools-extension/issues), but always making sure there is no duplicate by looking for the [enhancement](https://github.com/davelopez/galaxy-tools-extension/issues?q=label%3Aenhancement+) tag first. Then, provide the following information:
+Just create a new [issue](https://github.com/davelopez/galaxy-language-server/issues), but always making sure there is no duplicate by looking for the [enhancement](https://github.com/davelopez/galaxy-language-server/issues?q=label%3Aenhancement+) tag first. Then, provide the following information:
 * **Use a clear and descriptive title** for the issue to identify the suggestion.
 * **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
 * **Describe the current behavior** and **explain which behavior you expected to see instead** and why.
@@ -42,7 +42,7 @@ Just create a new [issue](https://github.com/davelopez/galaxy-tools-extension/is
 * **List some other entensions or Language Servers where this enhancement exists.**
 
 ### Fixing Bugs
-If you want to help improving the quality of the [extension](../client) or the [Language Server](../server), look for the [bug](https://github.com/davelopez/galaxy-tools-extension/issues?q=is%3Aissue+is%3Aopen+label%3Abug) tag in the project's issues and pick one to fix :)
+If you want to help improving the quality of the [extension](../client) or the [Language Server](../server), look for the [bug](https://github.com/davelopez/galaxy-language-server/issues?q=is%3Aissue+is%3Aopen+label%3Abug) tag in the project's issues and pick one to fix :)
 
 Just make sure you create a **new failing test case that your patch solves** and include it in your pull request.
 
@@ -77,7 +77,7 @@ After testing your snippet in your local environment, just make a pull request a
 # Your First Contribution
 If this is your first time... congratulations! :tada: You will learn lots of things! For example, you can find a great number of resources [here](https://github.com/freeCodeCamp/how-to-contribute-to-open-source).
 
-After you have some basic knowledge about how to contribute to open source projects we recommend to search for issues with the [good first issue](https://github.com/davelopez/galaxy-tools-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) tag, if there is none, maybe you can come up with some small improvement idea by examining the source code.
+After you have some basic knowledge about how to contribute to open source projects we recommend to search for issues with the [good first issue](https://github.com/davelopez/galaxy-language-server/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) tag, if there is none, maybe you can come up with some small improvement idea by examining the source code.
 
 At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:
 
