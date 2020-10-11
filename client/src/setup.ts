@@ -1,30 +1,76 @@
 import { join } from "path";
 import { existsSync } from "fs";
 import { ExtensionContext, ProgressLocation, window, workspace } from "vscode";
-import { IS_WIN, LS_VENV_NAME, LS_VENV_PATH, GALAXY_LS_PACKAGE } from "./constants";
+import { IS_WIN, LS_VENV_NAME, GALAXY_LS, GALAXY_LS_PACKAGE, PYTHON_UNIX, PYTHON_WIN } from "./constants";
 import { execAsync } from "./utils";
 
-export function getPythonFromVenvPath(venvPath: string = LS_VENV_PATH): string {
-    return IS_WIN ? join(venvPath, "Scripts", "python") : join(venvPath, "bin", "python");
+export async function installLanguageServer(context: ExtensionContext): Promise<string> {
+    // Check if the LS is already installed
+    let venvPath = getVirtualEnvironmentPath(context.extensionPath, LS_VENV_NAME)
+    let venvPython = getPythonFromVenvPath(venvPath);
+    const isInstalled = await isPythonModuleInstalled(venvPython, GALAXY_LS);
+    if (isInstalled) {
+        return Promise.resolve(venvPython);
+    }
+
+    // Install with progress bar
+    return window.withProgress({
+        location: ProgressLocation.Notification,
+    }, (progress): Promise<string> => {
+        return new Promise<string>(async (resolve, reject) => {
+            try {
+                progress.report({ message: "Installing Galaxy language server..." });
+
+                // Get python interpreter
+                const python = await getPython();
+
+                // Create virtual environment
+                venvPath = await createVirtualEnvironment(python, LS_VENV_NAME, context.extensionPath);
+
+                // Install language server package
+                venvPython = getPythonFromVenvPath(venvPath);
+                const isInstalled = await intallPythonPackage(venvPython, GALAXY_LS_PACKAGE)
+                if (!isInstalled) {
+                    const errorMessage = "There was a problem trying to install the Galaxy language server.";
+                    window.showErrorMessage(errorMessage);
+                    throw new Error(errorMessage);
+                }
+
+                window.showInformationMessage("Galaxy Tools extension is ready!");
+                resolve(venvPython);
+            } catch (err) {
+                window.showErrorMessage(err);
+                console.error(`[gls] installLSWithProgress err: ${err}`);
+                reject(err);
+            }
+        });
+    });
 }
 
-async function isPythonPackageInstalled(python: string, packageName: string): Promise<boolean> {
-    let listPipPackagesCmd = `"${python}" -m pip show ${packageName}`;
+function getPythonFromVenvPath(venvPath: string): string {
+    return IS_WIN ? join(venvPath, "Scripts", PYTHON_WIN) : join(venvPath, "bin", PYTHON_UNIX);
+}
 
-    console.log(`[gls] listPipPackagesCmd: ${listPipPackagesCmd}`);
+function getPythonCrossPlatform(): string {
+    return IS_WIN ? PYTHON_WIN : PYTHON_UNIX;
+}
 
+function getVirtualEnvironmentPath(extensionDirectory: string, envName: string): string {
+    const path = join(extensionDirectory, envName);
+    return path;
+}
+
+async function isPythonModuleInstalled(python: string, moduleName: string): Promise<boolean> {
+    if (!existsSync(python)) {
+        console.log(`[gls] Python not found in: ${python}`);
+        return false;
+    }
+    let checkPythonModuleInstalledCmd = `"${python}" -c "import sys, pkgutil; print('installed' if pkgutil.find_loader('${moduleName}') else 'not found')"`;
     try {
-        const packageInfo = await execAsync(listPipPackagesCmd);
-
-        console.log(`[gls] packageInfo: ${packageInfo}`);
-
-        const packageVersion = packageInfo.match(new RegExp(/Version: \d+\.\d+\.\d+/g));
-
-        console.log(`[gls] packageVersion: ${packageVersion}`);
-
-        return packageVersion !== null;
+        const result = await execAsync(checkPythonModuleInstalledCmd);
+        return result === "installed";
     } catch (err) {
-        console.log(`[gls] isPythonPackageInstalled err: ${err}`);
+        console.error(`[gls] isPythonModuleInstalled err: ${err}`);
         return false;
     }
 }
@@ -32,17 +78,12 @@ async function isPythonPackageInstalled(python: string, packageName: string): Pr
 async function intallPythonPackage(python: string, packageName: string): Promise<boolean> {
     const installPipPackageCmd = `"${python}" -m pip install ${packageName}`;
     try {
-        const packageInfo = await execAsync(installPipPackageCmd);
+        await execAsync(installPipPackageCmd);
         return true
     } catch (err) {
-        window.showErrorMessage(err);
-
+        console.error(`[gls] intallPythonPackage err: ${err}`);
         return false;
     }
-}
-
-function getPythonCrossPlatform(): string {
-    return IS_WIN ? "python" : "python3";
 }
 
 async function getPythonVersion(python: string): Promise<number[]> {
@@ -62,7 +103,7 @@ async function checkPythonVersion(python: string): Promise<boolean> {
     }
 }
 
-export async function getPython(): Promise<string> {
+async function getPython(): Promise<string> {
     let python = workspace.getConfiguration("python").get<string>("pythonPath", getPythonCrossPlatform());
     if (await checkPythonVersion(python)) {
         return python;
@@ -90,52 +131,10 @@ export async function getPython(): Promise<string> {
 }
 
 async function createVirtualEnvironment(python: string, name: string, cwd: string): Promise<string> {
-    const path = join(cwd, name);
+    const path = getVirtualEnvironmentPath(cwd, name);
     if (!existsSync(path)) {
         const createVenvCmd = `"${python}" -m venv ${name}`;
         await execAsync(createVenvCmd, { cwd });
     }
     return path;
-}
-
-export async function installLSWithProgress(context: ExtensionContext): Promise<string> {
-    // Check if LS is already installed
-    let venvPython = getPythonFromVenvPath();
-    const isServerPackageInstalled = await isPythonPackageInstalled(venvPython, GALAXY_LS_PACKAGE);
-
-    if (isServerPackageInstalled) {
-        return Promise.resolve(venvPython);
-    }
-
-    // Install with progress bar
-    return window.withProgress({
-        location: ProgressLocation.Notification,
-    }, (progress): Promise<string> => {
-        return new Promise<string>(async (resolve, reject) => {
-            try {
-                progress.report({ message: "Installing Galaxy language server..." });
-
-                // Get python interpreter
-                const python = await getPython();
-
-                // Create virtual environment
-                const venv = await createVirtualEnvironment(python, LS_VENV_NAME, context.extensionPath);
-
-                // Install language server package
-                venvPython = getPythonFromVenvPath(venv);
-                const isInstalled = await intallPythonPackage(venvPython, GALAXY_LS_PACKAGE)
-                if (!isInstalled) {
-                    const errorMessage = "There was a problem trying to install the Galaxy language server.";
-                    window.showErrorMessage(errorMessage);
-                    throw new Error(errorMessage);
-                }
-
-                window.showInformationMessage("Galaxy Tools extension is ready!");
-                resolve(venvPython);
-            } catch (err) {
-                window.showErrorMessage(err);
-                reject(err);
-            }
-        });
-    });
 }

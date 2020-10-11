@@ -4,7 +4,7 @@ import * as net from "net";
 import { ExtensionContext, window, TextDocument, Position } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
-import { installLSWithProgress } from './setup';
+import { installLanguageServer } from './setup';
 import { GALAXY_LS } from './constants';
 
 let client: LanguageClient;
@@ -62,7 +62,7 @@ export async function activate(context: ExtensionContext) {
   } else {
     // Production - Client is going to run the server (for use within `.vsix` package)
     try {
-      const python = await installLSWithProgress(context);
+      const python = await installLanguageServer(context);
       client = startLangServer(python, ["-m", GALAXY_LS], context.extensionPath);
     } catch (err) {
       window.showErrorMessage(err);
