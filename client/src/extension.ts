@@ -1,10 +1,11 @@
 "use strict";
 
 import * as net from "net";
-import * as path from "path";
-import { ExtensionContext, workspace, TextDocument, Position } from "vscode";
+import { ExtensionContext, window, TextDocument, Position } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
+import { installLSWithProgress } from './setup';
+import { GALAXY_LS } from './constants';
 
 let client: LanguageClient;
 
@@ -26,11 +27,11 @@ function isStartedInDebugMode(): boolean {
   return process.env.VSCODE_DEBUG_MODE === "true";
 }
 
-function startLangServerTCP(addr: number): LanguageClient {
+function startLangServerTCP(port: number): LanguageClient {
   const serverOptions: ServerOptions = () => {
     return new Promise((resolve, reject) => {
       const clientSocket = new net.Socket();
-      clientSocket.connect(addr, "127.0.0.1", () => {
+      clientSocket.connect(port, "127.0.0.1", () => {
         resolve({
           reader: clientSocket,
           writer: clientSocket,
@@ -39,7 +40,7 @@ function startLangServerTCP(addr: number): LanguageClient {
     });
   };
 
-  return new LanguageClient(`tcp lang server (port ${addr})`, serverOptions, getClientOptions());
+  return new LanguageClient(`galaxy language server tcp (port ${port})`, serverOptions, getClientOptions());
 }
 
 function startLangServer(
@@ -54,20 +55,18 @@ function startLangServer(
   return new LanguageClient(command, serverOptions, getClientOptions());
 }
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
   if (isStartedInDebugMode()) {
     // Development - Run the server manually
     client = startLangServerTCP(2087);
   } else {
     // Production - Client is going to run the server (for use within `.vsix` package)
-    const cwd = path.join(__dirname, "..", "..");
-    const pythonPath = workspace.getConfiguration("python").get<string>("pythonPath");
-
-    if (!pythonPath) {
-      throw new Error("`python.pythonPath` is not set");
+    try {
+      const python = await installLSWithProgress(context);
+      client = startLangServer(python, ["-m", GALAXY_LS], context.extensionPath);
+    } catch (err) {
+      window.showErrorMessage(err);
     }
-
-    client = startLangServer(pythonPath, ["-m", "galaxyls"], cwd);
   }
 
   context.subscriptions.push(client.start());
