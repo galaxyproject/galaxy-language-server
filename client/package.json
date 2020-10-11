@@ -1,7 +1,7 @@
 {
   "name": "galaxy-tools",
   "displayName": "Galaxy Tools",
-  "description": "Galaxy Tools for Visual Studio Code (powered by galaxy-language-server Python package). Provides XML completion, lints, snippets and other smart features to assist in the development of Galaxy (https://galaxyproject.org/) tool wrappers.",
+  "description": "Galaxy Tools for Visual Studio Code (unofficial) - provides XML completion, lints, snippets and other smart features to develop Galaxy (https://galaxyproject.org/) tool wrappers.",
   "author": "davelopez",
   "publisher": "davelopez",
   "license": "Apache-2.0",
