@@ -134,6 +134,7 @@ dmypy.json
 
 # Visual Studio
 .vs
+*.vsix
 
 # Node
 out
