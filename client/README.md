@@ -3,7 +3,10 @@ This extensions provides XML validation, tag and attribute completion, help/docu
 
 > Please note this is still an early work in progress so **bugs and issues are expected**.
 
-## Features
+# Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
+In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed in your system.
+
+# Features
 ### Tag and attribute auto-completion 
 
 ![Demo feature auto-completion](../assets/feature.autocompletion.gif)
