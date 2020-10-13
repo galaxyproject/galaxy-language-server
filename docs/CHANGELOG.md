@@ -1,19 +1,9 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+There are ``2`` projects in this repository, the [language server](../server/) and the [VS Code client](../client/).
+All notable changes to these project will be documented in their respective files:
+- [Language Server changelog](../server/CHANGELOG.md)
+- [VS Code Extension changelog](../client/CHANGELOG.md)
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-### Added
-
-- Basic VS Code Extension.
-- Basic Language Server implementation.
-- XML tool validation when opening and saving file.
-- Auto-formatting when saving file.
-- Display tag and attribute documentation when hovering.
-- Basic tag and attribute auto-completion.
-- Auto-close tags feature.
-- Snippets
