@@ -1,7 +1,9 @@
+name: Upload extension release to Open VSX Registry
+
 on:
     push:
       tags:
-        - "*"
+        - "v[0-9]+.[0-9]+.[0-9]+"
   
   name: Publish Extension
   jobs:
@@ -9,11 +11,34 @@ on:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
-        - uses: actions/setup-node@v1
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v1
           with:
             node-version: 12
-        - run: npm ci
+
+        - name: Clean install dependencies
+          run: |
+            cd client
+            npm ci
+
+        - id: get_version
+          uses: battila7/get-version-action@v2
+
+        - name: Update version in package.json
+          uses: onlyutkarsh/patch-files-action@v1.0.1
+          with:
+            files: '${{github.workspace}}/client/package.json'
+            patch-syntax: |
+              = /version => "${{steps.get_version.outputs.version-without-v}}"
+
         - name: Publish to Open VSX Registry
           uses: HaaLeo/publish-vscode-extension@v0
           with:
             pat: ${{ secrets.OPEN_VSX_TOKEN }}
+
+        - name: Upload vsix as artifact
+          uses: actions/upload-artifact@v1
+          with:
+            name: galaxy-tools-${{steps.get_version.outputs.version-without-v}}.vsix
+            path: ${{github.workspace}}/client/galaxy-tools-${{steps.get_version.outputs.version-without-v}}.vsix
