@@ -34,4 +34,10 @@ jobs:
         cd server/
         python setup.py sdist bdist_wheel
         twine upload dist/*
+
+    - name: Archive packages
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist
+        path: dist
         
