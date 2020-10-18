@@ -1,12 +1,11 @@
 name: Upload extension release to Open VSX Registry
 
 on:
-    push:
-      tags:
-        - "v[0-9]+.[0-9]+.[0-9]+"
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
   
-  name: Publish Extension
-  jobs:
+jobs:
     deploy:
       runs-on: ubuntu-latest
       steps:
