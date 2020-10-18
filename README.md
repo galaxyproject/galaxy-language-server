@@ -2,6 +2,8 @@
 
 [![Actions Status](https://github.com/davelopez/galaxy-language-server/workflows/CI/badge.svg)](https://github.com/davelopez/galaxy-language-server/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
+[![PyPI version](https://badge.fury.io/py/galaxy-language-server.svg)](https://badge.fury.io/py/galaxy-language-server)
 
 The aim of this project is to implement the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) to assist in the development of [Galaxy tool wrappers](https://docs.galaxyproject.org/en/latest/dev/schema.html) inside modern code editors.
 
@@ -53,14 +55,6 @@ Whenever you write a closing ``>`` the corresponding closing tag will be inserte
 
 Snippets can be really helpful to speed up your tool wrapper development. They allow to quickly create common blocks and let you enter just the important information by pressing ``tab`` and navigating to the next available value.
 >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
-
----
-
-## Release History
-
-Current version: **``Unreleased``**
-
-See the [change log](docs/CHANGELOG.md) for details.
 
 ---
 
