@@ -118,6 +118,6 @@ If you are considering contributing, please read the [contribution guide](docs/C
 
 ### Setup Visual Studio Code for debugging
 If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
-1. Open the `galaxy-tool-extension` directory in Visual Studio Code
+1. Open the `galaxy-language-server` directory in Visual Studio Code
 2. Open debug view (`ctrl + shift + D`)
 3. Select `Server + Client` and press `F5`
