@@ -66,7 +66,7 @@ If you are considering contributing, please read the [contribution guide](docs/C
 1. Fork this repo on Github
 2. Clone your fork locally:
     ````sh
-    git clone https://github.com/<your_github_name>/galaxy-tools-extension.git
+    git clone https://github.com/<your_github_name>/galaxy-language-server.git
     ````
 3. Create a virtual environment using conda and install the dependencies:
 
@@ -75,10 +75,12 @@ If you are considering contributing, please read the [contribution guide](docs/C
     conda activate <environment-name>
 
     # For the language server:
+    cd galaxy-language-server/server/
     pip install -r requirements-dev.txt
 
-    # For the client extension:
-    conda install nodejs typescript
+    # For the client vscode extension:
+    cd galaxy-language-server/client/
+    conda install -c conda-forge nodejs typescript
     npm install
     ```
 4. Run the tests locally
