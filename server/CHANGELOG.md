@@ -1,6 +1,17 @@
 # Galaxy Language Server Changelog
 
-## [0.1.0]
+## [Unreleased]
+
+### Added
+
+- Support autocompletion for ``<expand>`` element.
+
+### Fixed
+
+- Fix error when hovering ``<expand>`` elements or it's atributes.
+
+
+## [0.1.0] - 2020-10-14
 
 ### Added
 
