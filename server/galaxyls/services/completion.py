@@ -54,6 +54,7 @@ class XmlCompletionService:
         elif context.node:
             for child in context.node.children:
                 result.append(self._build_node_completion_item(child, len(result)))
+            result.append(self._build_node_completion_item(self.xsd_tree.expand_element, len(result)))
         return CompletionList(items=result, is_incomplete=False)
 
     def get_attribute_completion(self, context: XmlContext) -> CompletionList:

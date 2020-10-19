@@ -85,9 +85,11 @@ class TestXmlCompletionServiceClass:
         actual = service.get_completion_at_context(fake_context, fake_completion_context)
 
         assert actual
-        assert len(actual.items) == 1
+        assert len(actual.items) == 2
         assert actual.items[0].label == "child"
         assert actual.items[0].kind == CompletionItemKind.Class
+        assert actual.items[1].label == "expand"
+        assert actual.items[1].kind == CompletionItemKind.Class
 
     def test_get_completion_at_context_on_node_returns_expected_attributes(self, fake_tree: XsdTree) -> None:
         fake_context = XmlContext()
@@ -147,8 +149,9 @@ class TestXmlCompletionServiceClass:
 
         actual = service.get_node_completion(fake_context_on_root_node)
 
-        assert len(actual.items) == 1
+        assert len(actual.items) == 2
         assert actual.items[0].label == fake_tree.root.children[0].name
+        assert actual.items[1].label == "expand"
 
     def test_completion_return_root_node_when_empty_context(self, fake_tree: XsdTree, fake_empty_context) -> None:
         service = XmlCompletionService(fake_tree)
@@ -172,9 +175,7 @@ class TestXmlCompletionServiceClass:
 
         assert len(actual.items) > 0
 
-    def test_return_valid_attribute_value_completion_when_enum_context(
-        self, fake_tree: XsdTree, fake_context_on_root_node
-    ) -> None:
+    def test_return_valid_attribute_value_completion_when_enum_context(self, fake_tree: XsdTree) -> None:
         fake_context = XmlContext()
         fake_context.is_empty = False
         fake_context.token_type = ContextTokenType.ATTRIBUTE_VALUE

@@ -100,6 +100,23 @@ class TestXsdParserClass:
 
         assert node.name == expected
 
+    @pytest.mark.parametrize(
+        "stack, expected",
+        [
+            (["expand"], "expand",),
+            (["testElement", "expand"], "expand",),
+            (["testElement", "element_with_group", "expand"], "expand",),
+        ],
+    )
+    def test_tree_find_node_by_stack_ending_with_expand_returns_expand_node(
+        self, xsd_parser: GalaxyToolXsdParser, stack: List[str], expected: str
+    ) -> None:
+        tree = xsd_parser.get_tree()
+
+        node = tree.find_node_by_stack(stack)
+
+        assert node.name == expected
+
     def test_tree_find_node_by_name_returns_None_when_node_not_found(self, xsd_parser: GalaxyToolXsdParser) -> None:
         tree = xsd_parser.get_tree()
 
