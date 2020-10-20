@@ -13,6 +13,8 @@ from .parser import GalaxyToolXsdParser
 from .validation import GalaxyToolValidationService
 from ..context import XmlContext
 
+NO_DOC_MARKUP = MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
+
 
 class GalaxyToolXsdService:
     """Galaxy tool Xml Schema Definition service.
@@ -41,11 +43,13 @@ class GalaxyToolXsdService:
         """
         tree = self.xsd_parser.get_tree()
         node = tree.find_node_by_stack(context.node_stack)
+        if node is None:
+            return NO_DOC_MARKUP
         element = None
         if context.is_tag():
             element = node
         if context.is_attribute_key():
             element = node.attributes.get(context.token_name)
         if element is None:
-            return MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
+            return NO_DOC_MARKUP
         return element.get_doc()

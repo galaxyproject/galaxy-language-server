@@ -15,7 +15,7 @@ class XsdBase:
     XML nodes and attributes.
     """
 
-    def __init__(self, name: str, element):
+    def __init__(self, name: str, element: etree.Element):
         super(XsdBase, self).__init__()
         self.name: str = name
         self.xsd_element = element
@@ -101,6 +101,7 @@ class XsdTree:
     def __init__(self, root: XsdNode):
         self.root: XsdNode = root
         self.node_resolver = Resolver("name")
+        self.expand_element = self._build_expand_element()
 
     def find_node_by_name(self, name: str) -> Optional[XsdNode]:
         """Finds node in the tree that matches the given name.
@@ -132,6 +133,8 @@ class XsdTree:
         if node_stack:
             try:
                 path = self._get_path_from_stack(node_stack)
+                if path.endswith(self.expand_element.name):
+                    return self.expand_element
                 result_node = self.node_resolver.get(self.root, path)
             except ResolverError as e:
                 print(e)
@@ -149,3 +152,16 @@ class XsdTree:
         if node_stack[0] == self.root.name:
             node_stack[0] = "."
         return "/".join(node_stack)
+
+    def _build_expand_element(self) -> XsdNode:
+        """Creates a XsdNode representing the <expand> element and it's attributes.
+        The <expand> element is a special element that is not defined in the XSD schema but allows to use macros in the tool.
+
+        Returns:
+            XsdNode: The node with information about the special <expand> element.
+        """
+        expand_node = XsdNode("expand", None)
+        attr_name = "macro"
+        attr = XsdAttribute(attr_name, None, type_name=None, is_required=True)
+        expand_node.attributes[attr_name] = attr
+        return expand_node
