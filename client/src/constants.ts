@@ -12,3 +12,4 @@ export const GALAXY_LS_VERSION = EXTENSION_VERSION; // The Extension and Languag
 
 export const PYTHON_UNIX = "python3";
 export const PYTHON_WIN = "python.exe";
+export const REQUIRED_PYTHON_VERSION = "3.8+";
