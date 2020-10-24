@@ -1,5 +1,14 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.1.1]
+
+### Changed
+
+- Updated Galaxy Language Server [v0.1.1](./server/CHANGELOG.md#011)
+- Improved language server installation
+- Updated some dependencies
+
+
 ## [0.1.0]
 
 ### Added

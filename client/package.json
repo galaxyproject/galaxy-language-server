@@ -5,7 +5,7 @@
   "author": "davelopez",
   "publisher": "davelopez",
   "license": "Apache-2.0",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "preview": true,
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
     "commands": [],
     "configuration": {
       "type": "object",
-      "title": "Galaxy Tools Extension Configuration",
+      "title": "Galaxy Tools Configuration",
       "properties": {}
     },
     "snippets": [

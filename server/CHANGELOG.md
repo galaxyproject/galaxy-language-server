@@ -1,10 +1,14 @@
 # Galaxy Language Server Changelog
 
-## [Unreleased]
+## [0.1.1]
 
 ### Added
 
 - Support autocompletion for ``<expand>`` element.
+
+### Changed
+
+- Updated dependencies to latest versions.
 
 ### Fixed
 

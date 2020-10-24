@@ -1,5 +1,5 @@
 # Galaxy Language Server
-[![Actions Status](https://github.com/davelopez/galaxy-language-server/workflows/CI/badge.svg)](https://github.com/davelopez/galaxy-language-server/actions)
+[![Actions Status](https://github.com/davelopez/galaxy-language-server/workflows/Language%20Server%20CI/badge.svg)](https://github.com/davelopez/galaxy-language-server/actions)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
 [![PyPI version](https://badge.fury.io/py/galaxy-language-server.svg)](https://badge.fury.io/py/galaxy-language-server)
 
