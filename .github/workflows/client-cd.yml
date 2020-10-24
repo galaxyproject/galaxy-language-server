@@ -38,6 +38,7 @@ jobs:
 
       - name: Publish to Open VSX Registry
         uses: HaaLeo/publish-vscode-extension@v0
+        id: publishToOpenVSX
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
 
@@ -46,9 +47,11 @@ jobs:
         with:
           pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
           registryUrl: https://marketplace.visualstudio.com
+          extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+          packagePath: ""
 
       - name: Upload vsix as artifact
         uses: actions/upload-artifact@v1
         with:
           name: galaxy-tools-${{steps.get_version.outputs.version-without-v}}.vsix
-          path: ${{github.workspace}}/client/galaxy-tools-${{steps.get_version.outputs.version-without-v}}.vsix
+          path: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
