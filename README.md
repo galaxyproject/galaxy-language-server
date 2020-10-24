@@ -1,6 +1,6 @@
 # Galaxy Language Server
 
-[![Actions Status](https://github.com/davelopez/galaxy-language-server/workflows/CI/badge.svg)](https://github.com/davelopez/galaxy-language-server/actions)
+[![Actions Status](https://github.com/davelopez/galaxy-language-server/workflows/Language%20Server%20CI/badge.svg)](https://github.com/davelopez/galaxy-language-server/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
 [![PyPI version](https://badge.fury.io/py/galaxy-language-server.svg)](https://badge.fury.io/py/galaxy-language-server)
