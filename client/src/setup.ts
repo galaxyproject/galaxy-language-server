@@ -81,7 +81,7 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
     }
 
     const pattern = /Version: (?<version>\d+.\d+.\d+)/m;
-    const getPacakgeInfoCmd = `"${python}" -m pip show ${packageName}"`;
+    const getPacakgeInfoCmd = `"${python}" -m pip show ${packageName}`;
     try {
         const packageInfo = await execAsync(getPacakgeInfoCmd);
         const match = packageInfo.match(new RegExp(pattern));
