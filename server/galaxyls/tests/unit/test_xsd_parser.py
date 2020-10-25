@@ -73,14 +73,6 @@ class TestXsdParserClass:
 
         assert len(tree.root.descendants) > 0
 
-    def test_tree_find_node_by_name_returns_expected_node(self, xsd_parser: GalaxyToolXsdParser) -> None:
-        tree = xsd_parser.get_tree()
-        expected = "childElement"
-
-        node = tree.find_node_by_name(expected)
-
-        assert node.name == expected
-
     @pytest.mark.parametrize(
         "stack, expected",
         [
@@ -116,13 +108,6 @@ class TestXsdParserClass:
         node = tree.find_node_by_stack(stack)
 
         assert node.name == expected
-
-    def test_tree_find_node_by_name_returns_None_when_node_not_found(self, xsd_parser: GalaxyToolXsdParser) -> None:
-        tree = xsd_parser.get_tree()
-
-        node = tree.find_node_by_name("unknown")
-
-        assert node is None
 
     def test_get_documentation_returns_valid_when_exists(self, xsd_parser: GalaxyToolXsdParser) -> None:
         tree = xsd_parser.get_tree()

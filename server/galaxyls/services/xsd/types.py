@@ -2,7 +2,7 @@
 """
 
 from lxml import etree
-from anytree import NodeMixin, RenderTree, findall, Resolver, ResolverError
+from anytree import NodeMixin, RenderTree, Resolver, ResolverError
 from typing import List, Dict, Optional
 from pygls.types import MarkupContent, MarkupKind
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
@@ -102,21 +102,6 @@ class XsdTree:
         self.root: XsdNode = root
         self.node_resolver = Resolver("name")
         self.expand_element = self._build_expand_element()
-
-    def find_node_by_name(self, name: str) -> Optional[XsdNode]:
-        """Finds node in the tree that matches the given name.
-
-        Args:
-            name (str): The name of the node to find.
-
-        Returns:
-            XsdNode: The node that matches the name or None if
-            not found.
-        """
-        nodes = findall(self.root, lambda node: node.name == name)
-        if len(nodes) == 0:
-            return None
-        return nodes[0]
 
     def find_node_by_stack(self, node_stack: List[str]) -> Optional[XsdNode]:
         """Finds the node definition in the tree that matches the given stack of tags.

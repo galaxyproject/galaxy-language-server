@@ -1,6 +1,12 @@
 # Galaxy Language Server Changelog
 
-## [0.1.1]
+## [0.1.2] - 2020-10-25
+
+### Removed
+
+- Removed unused function ``XsdTree.find_node_by_name()``.
+
+## [0.1.1] - 2020-10-24
 
 ### Added
 
@@ -12,7 +18,7 @@
 
 ### Fixed
 
-- Fix error when hovering ``<expand>`` elements or it's atributes.
+- Fix error when hovering ``<expand>`` elements or it's atributes (#41).
 
 
 ## [0.1.0] - 2020-10-14
