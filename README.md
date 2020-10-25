@@ -118,6 +118,7 @@ If you are considering contributing, please read the [contribution guide](docs/C
 
 ### Setup Visual Studio Code for debugging
 If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
-1. Open the `galaxy-language-server` directory in Visual Studio Code
-2. Open debug view (`ctrl + shift + D`)
-3. Select `Server + Client` and press `F5`
+1. Select or activate your ``<environment-name>`` in Visual Studio Code as explained [here](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment).
+2. Open the `galaxy-language-server` directory in Visual Studio Code.
+3. Open debug view (`ctrl + shift + D`).
+4. Select `Server + Client` and click ``RUN`` (or press `F5`).
