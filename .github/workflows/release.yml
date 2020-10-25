@@ -59,7 +59,7 @@ jobs:
         working-directory: server
     steps:
       - name: Checkout code
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
@@ -90,7 +90,7 @@ jobs:
         working-directory: client
     steps:
       - name: Checkout code
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v1
