@@ -1,0 +1,141 @@
+# Creates a release from a tag with the name "v[mayor].[minor].[patch]" and then publishes the language server to PyPI
+# and the extension to Open-VSX and VSCode Marketplace.
+
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  prepare_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get version from tag
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            This release contains the [Galaxy Language Server](https://github.com/davelopez/galaxy-language-server/tree/master/server) and the [Galaxy Tools Visual Studio Code Extension](https://github.com/davelopez/galaxy-language-server/tree/master/client).
+            You can view the list of changes in the respective changelogs:
+            - Galaxy Language Server [changelog](https://github.com/davelopez/galaxy-language-server/blob/master/server/CHANGELOG.md)
+            - Galaxy Tools Visual Studio Extension [changelog](https://github.com/davelopez/galaxy-language-server/blob/master/client/CHANGELOG.md#)
+
+            This version of the language server is available as a PyPI package and can be installed using:
+            ```
+            python3 -m pip install galaxy-language-server==${{ steps.get_version.outputs.version-without-v }}
+            ```
+
+            The Galaxy Tools Extension is available at [Open VSX Registry](https://open-vsx.org/extension/davelopez/galaxy-tools) and [Visual Studio Marketplace](https://marketplace.visualstudio.com/).
+            You can also install the extension manually by downloading the VSIX package and using:
+            ```
+            code --install-extension galaxy-tools-${{ steps.get_version.outputs.version-without-v }}.vsix
+            ```
+          draft: false
+          prerelease: false
+    outputs:
+      release_version: ${{ steps.get_version.outputs.version-without-v }}
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+  publish-server:
+    name: Publish Language Server to PyPI
+    needs: prepare_release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - name: Checkout code
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine
+
+      - name: Package and Upload to PyPI
+        env:
+          # This env variable will be used to set the version in setup.py
+          GALAXYLS_VERSION: ${{ needs.prepare_release.outputs.release_version }}
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          python setup.py sdist bdist_wheel
+          twine upload dist/*
+
+  publish-client:
+    name: Publish extension to Open-VSX and VSCode Marketplace
+    needs: prepare_release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - name: Checkout code
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Clean install dependencies
+        run: |
+          npm ci
+
+      - name: Update version in package.json
+        uses: onlyutkarsh/patch-files-action@v1.0.1
+        with:
+          files: "${{github.workspace}}/client/package.json"
+          patch-syntax: |
+            = /version => "${{needs.prepare_release.outputs.release_version}}"
+
+      - name: Publish to Open VSX Registry
+        uses: HaaLeo/publish-vscode-extension@v0
+        id: publishToOpenVSX
+        with:
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          packagePath: "./client/"
+
+      - name: Publish to Visual Studio Marketplace
+        uses: HaaLeo/publish-vscode-extension@v0
+        with:
+          pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
+          registryUrl: https://marketplace.visualstudio.com
+          extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+          packagePath: ""
+
+      - name: Upload vsix as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: galaxy-tools-${{needs.prepare_release.outputs.release_version}}.vsix
+          path: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release.outputs.release_upload_url }}
+          asset_path: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+          asset_name: galaxy-tools-${{needs.prepare_release.outputs.release_version}}.vsix
+          asset_content_type: application/vsix
