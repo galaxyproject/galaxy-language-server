@@ -1,7 +1,7 @@
 "use strict";
 
 import * as net from "net";
-import { ExtensionContext, window, TextDocument, Position } from "vscode";
+import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
@@ -26,6 +26,9 @@ export async function activate(context: ExtensionContext) {
       window.showErrorMessage(err);
     }
   }
+
+  // Configure auto-indentation
+  languages.setLanguageConfiguration('xml', getIndentationRules());
 
   context.subscriptions.push(client.start());
 
@@ -100,4 +103,28 @@ function startLanguageServer(
   };
 
   return new LanguageClient(command, serverOptions, getClientOptions());
+}
+
+/**
+ * Defines the rules for auto-indentation.
+ * From: https://github.com/redhat-developer/vscode-xml/blob/027c492f8c137682a2432a2f27046ccd260e63a3/src/extension.ts#L458
+ */
+function getIndentationRules(): LanguageConfiguration {
+  return {
+    indentationRules: {
+      increaseIndentPattern: /<(?!\?|[^>]*\/>)([-_\.A-Za-z0-9]+)(?=\s|>)\b[^>]*>(?!.*<\/\1>)|<!--(?!.*-->)|\{[^}"']*$/,
+      decreaseIndentPattern: /^\s*(<\/[-_\.A-Za-z0-9]+\b[^>]*>|-->|\})/
+    },
+    onEnterRules: [
+      {
+        beforeText: new RegExp(`<([_:\\w][_:\\w-.\\d]*)([^/>]*(?!/)>)[^<]*$`, 'i'),
+        afterText: /^<\/([_:\w][_:\w-.\d]*)\s*>/i,
+        action: { indentAction: IndentAction.IndentOutdent }
+      },
+      {
+        beforeText: new RegExp(`<(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$`, 'i'),
+        action: { indentAction: IndentAction.Indent }
+      }
+    ]
+  };
 }
