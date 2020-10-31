@@ -1,6 +1,6 @@
 import re
-from typing import List
-from .constants import WHITESPACE_CHARS
+from typing import Callable, List
+from .constants import WHITESPACE_CHARS, _LAN
 
 
 class MultiLineStream:
@@ -99,6 +99,19 @@ class MultiLineStream:
     def advance_while_char_in(self, list: List[int]) -> int:
         pos_now = self._position
         while self._position < self._len and ord(self._source[self._position]) in list:
+            self._position = self._position + 1
+        return self._position - pos_now
+
+    def advance_until_char_or_new_tag(self, ch: int) -> bool:
+        while self._position < self._len:
+            if self.peek_char() == ch or self.peek_char() == _LAN:
+                return True
+            self.advance(1)
+        return False
+
+    def advance_while_char(self, predicate: Callable[[str], bool]) -> int:
+        pos_now = self._position
+        while self._position < self._len and predicate(self._source[self._position]):
             self._position = self._position + 1
         return self._position - pos_now
 
