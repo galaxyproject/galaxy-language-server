@@ -1,0 +1,15 @@
+_BNG = ord("!")
+_MIN = ord("-")
+_LAN = ord("<")
+_RAN = ord(">")
+_FSL = ord("/")
+_EQS = ord("=")
+_DQO = ord('"')
+_SQO = ord("'")
+_NWL = ord("\n")
+_CAR = ord("\r")
+_LFD = ord("\f")
+_WSP = ord(" ")
+_TAB = ord("\t")
+
+WHITESPACE_CHARS = [_WSP, _TAB, _NWL, _LFD, _CAR]

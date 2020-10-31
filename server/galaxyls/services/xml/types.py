@@ -1,4 +1,15 @@
 from enum import Enum, unique
+from pygls.workspace import Document
+from typing import Optional
+from .tokens import XmlElement
+
+
+@unique
+class DocumentType(Enum):
+
+    UNKNOWN = 1
+    TOOL = 2
+    MACROS = 3
 
 
 @unique
@@ -46,3 +57,13 @@ class ScannerState(Enum):
     WithinCDATA = 9
     AfterClosingCDATATag = 10
     StartCDATATag = 11
+
+
+class XmlDocument:
+    def __init__(self, document: Document, root: Optional[XmlElement] = None):
+        self.document = document
+        self.root = root
+        self.type = DocumentType.UNKNOWN
+
+    def find_node_at(self, offset: int) -> XmlElement:
+        raise NotImplementedError
