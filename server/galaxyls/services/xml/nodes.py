@@ -8,7 +8,7 @@ class XmlSyntaxNode(NodeMixin):
     def __init__(self):
         self.start: int = -1
         self.end: int = -1
-        self._closed = False
+        self._closed: bool = False
 
     @property
     def is_closed(self) -> bool:
@@ -23,7 +23,7 @@ class XmlSyntaxNode(NodeMixin):
         return False
 
     def get_node_type(self) -> NodeType:
-        raise NotImplementedError
+        return NodeType.UNKNOWN
 
 
 class XmlContent(XmlSyntaxNode):
@@ -129,5 +129,17 @@ class XmlComment(XmlSyntaxNode):
 
 class XmlDocument(XmlSyntaxNode):
     def __init__(self, document: Document):
+        super().__init__()
         self.document = document
-        self.type = DocumentType.UNKNOWN
+
+    @property
+    def document_type(self) -> DocumentType:
+        try:
+            first_child = self.children[0]
+            if first_child.name == "tool":
+                return DocumentType.TOOL
+            if first_child.name == "macros":
+                return DocumentType.MACROS
+        except BaseException:
+            pass
+        return DocumentType.UNKNOWN

@@ -78,7 +78,7 @@ class XmlScanner:
             self.stream.advance_until_chars(COMMENT_END_CHAR_SEQ)
             return self._finish_token(offset, TokenType.Comment)
 
-        if self.state == ScannerState.WithinContent:
+        elif self.state == ScannerState.WithinContent:
             if self.stream.advance_if_char(_LAN):
                 if not self.stream.eos() and self.stream.peek_char() == _EXL:
                     if self.stream.advance_if_chars(COMMENT_START_CHAR_SEQ):
@@ -95,14 +95,14 @@ class XmlScanner:
             self.stream.advance_until_char(_LAN)
             return self._finish_token(offset, TokenType.Content)
 
-        if self.state == ScannerState.WithinCDATA:
+        elif self.state == ScannerState.WithinCDATA:
             if self.stream.advance_if_chars(CDATA_END_CHAR_SEQ):
                 self.state = ScannerState.WithinContent
                 return self._finish_token(offset, TokenType.CDATATagClose)
             self.stream.advance_until_chars(CDATA_END_CHAR_SEQ)
             return self._finish_token(offset, TokenType.CDATAContent)
 
-        if self.state == ScannerState.AfterOpeningEndTag:
+        elif self.state == ScannerState.AfterOpeningEndTag:
             if self._has_next_element_name():
                 self.state = ScannerState.WithinEndTag
                 return self._finish_token(offset, TokenType.EndTag)
@@ -119,7 +119,7 @@ class XmlScanner:
                 return self._internal_scan()
             return self._finish_token(offset, TokenType.Unknown)
 
-        if self.state == ScannerState.WithinEndTag:
+        elif self.state == ScannerState.WithinEndTag:
             if self.stream.skip_whitespace():
                 return self._finish_token(offset, TokenType.Whitespace)
             if self.stream.advance_if_char(_RAN):
@@ -130,7 +130,7 @@ class XmlScanner:
                 return self._internal_scan()
             return self._finish_token(offset, TokenType.Whitespace)
 
-        if self.state == ScannerState.AfterOpeningStartTag:
+        elif self.state == ScannerState.AfterOpeningStartTag:
             if self._has_next_element_name():
                 self.state = ScannerState.WithinTag
                 return self._finish_token(offset, TokenType.StartTag)
@@ -147,7 +147,7 @@ class XmlScanner:
                 return self._internal_scan()
             return self._finish_token(offset, TokenType.Unknown)
 
-        if self.state == ScannerState.WithinTag:
+        elif self.state == ScannerState.WithinTag:
             if self.stream.skip_whitespace():
                 return self._finish_token(offset, TokenType.Whitespace)
             if self._has_next_attribute_name():
@@ -171,7 +171,7 @@ class XmlScanner:
                 return self._internal_scan()
             return self._finish_token(offset, TokenType.Unknown)
 
-        if self.state == ScannerState.AfterAttributeName:
+        elif self.state == ScannerState.AfterAttributeName:
             if self.stream.skip_whitespace():
                 return self._finish_token(offset, TokenType.Whitespace)
             if self.stream.advance_if_char(_EQS):
@@ -180,7 +180,7 @@ class XmlScanner:
             self.state = ScannerState.WithinTag
             return self._internal_scan()
 
-        if self.state == ScannerState.BeforeAttributeValue:
+        elif self.state == ScannerState.BeforeAttributeValue:
             if self.stream.skip_whitespace():
                 return self._finish_token(offset, TokenType.Whitespace)
             if self._has_next_attribute_value():
@@ -195,7 +195,7 @@ class XmlScanner:
 
     def _has_next_element_name(self) -> bool:
         first = self.stream.peek_char()
-        if not self._is_valid_start_name_character(str(first)):
+        if not self._is_valid_start_name_character(chr(first)):
             return False
         self.stream.advance(1)
         self.stream.advance_while_char(self._is_valid_name_character)

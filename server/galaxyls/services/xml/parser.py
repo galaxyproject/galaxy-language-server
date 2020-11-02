@@ -6,7 +6,7 @@ Only the minimum subset of the XML dialect used by Galaxy tool wrappers is suppo
 
 from pygls.workspace import Document
 from typing import Optional, cast
-from .tokens import XmlAttribute, XmlCDATASection, XmlComment, XmlContent, XmlDocument, XmlElement, XmlSyntaxNode
+from .nodes import XmlAttribute, XmlCDATASection, XmlComment, XmlContent, XmlDocument, XmlElement, XmlSyntaxNode
 from .types import TokenType
 from .scanner import XmlScanner
 
@@ -48,12 +48,12 @@ class XmlDocumentParser:
                 child.parent = current
                 current = child
 
-            if token == TokenType.StartTag:
+            elif token == TokenType.StartTag:
                 element = cast(XmlElement, current)
                 element.name = scanner.get_token_text()
                 current.end = scanner.get_token_end()
 
-            if token == TokenType.StartTagClose:
+            elif token == TokenType.StartTagClose:
                 if current.is_element:
                     current.end = scanner.get_token_end()
                     element = cast(XmlElement, current)
@@ -63,14 +63,14 @@ class XmlDocumentParser:
                     current = current.parent
                 current.end = scanner.get_token_end()
 
-            if token == TokenType.EndTagOpen:
+            elif token == TokenType.EndTagOpen:
                 if tmp_white_space_content is not None:
                     cast(XmlSyntaxNode, tmp_white_space_content).parent = current
                 end_tag_open_offset = scanner.get_token_offset()
                 current.end = scanner.get_token_offset()
                 previous_token_was_end_tag_open = True
 
-            if token == TokenType.EndTag:
+            elif token == TokenType.EndTag:
                 close_tag = scanner.get_token_text()
                 node = current
                 # eg: <a><b><c></d> will set a,b,c end position to the start of |</d>
@@ -93,7 +93,7 @@ class XmlDocumentParser:
                     element.parent = node
                     current = element
 
-            if token == TokenType.StartTagSelfClose:
+            elif token == TokenType.StartTagSelfClose:
                 if current.parent is not None:
                     current._closed = True
                     cast(XmlElement, current).is_self_closed = True
@@ -101,7 +101,7 @@ class XmlDocumentParser:
                     last_closed = current
                     current = current.parent
 
-            if token == TokenType.EndTagClose:
+            elif token == TokenType.EndTagClose:
                 if current.parent is not None:
                     current.end = scanner.get_token_end()
                     last_closed = current
@@ -109,7 +109,7 @@ class XmlDocumentParser:
                         cast(XmlElement, last_closed).end_tag_close_offset = scanner.get_token_offset()
                     current = current.parent
 
-            if token == TokenType.AttributeName:
+            elif token == TokenType.AttributeName:
                 pending_attribute = scanner.get_token_text()
                 element = cast(XmlElement, current)
                 attr = XmlAttribute(
@@ -121,13 +121,13 @@ class XmlDocumentParser:
                 element.attributes[pending_attribute] = attr
                 current.end = scanner.get_token_end()
 
-            if token == TokenType.DelimiterAssign:
+            elif token == TokenType.DelimiterAssign:
                 if attr is not None:
                     # Sets the value to the '=' position in case there is no AttributeValue
                     attr.set_value(None, scanner.get_token_offset(), scanner.get_token_end())
                     attr.has_delimiter = True
 
-            if token == TokenType.AttributeValue:
+            elif token == TokenType.AttributeValue:
                 value = scanner.get_token_text()
                 if current.has_attributes and attr is not None:
                     attr.set_value(value, scanner.get_token_offset(), scanner.get_token_offset() + len(value))
@@ -135,23 +135,23 @@ class XmlDocumentParser:
                 attr = None
                 current.end = scanner.get_token_end()
 
-            if token == TokenType.CDATATagOpen:
+            elif token == TokenType.CDATATagOpen:
                 cdata = XmlCDATASection(scanner.get_token_offset(), len(text))
                 cdata.parent = current
                 current = cdata
 
-            if token == TokenType.CDATAContent:
+            elif token == TokenType.CDATAContent:
                 cdata = cast(XmlCDATASection, current)
                 cdata.start_content = scanner.get_token_offset()
                 cdata.end_content = scanner.get_token_end()
                 current.end = scanner.get_token_end()
 
-            if token == TokenType.CDATATagClose:
+            elif token == TokenType.CDATATagClose:
                 current.end = scanner.get_token_end()
                 current._closed = True
                 current = cast(XmlSyntaxNode, current.parent)
 
-            if token == TokenType.StartCommentTag:
+            elif token == TokenType.StartCommentTag:
                 # In case the tag before the comment tag (current) was not properly
                 # closed, current should be set to the root node
                 if current.is_closed:
@@ -160,20 +160,22 @@ class XmlDocumentParser:
                 comment.parent = current
                 current = comment
 
-            if token == TokenType.Comment:
+            elif token == TokenType.Comment:
                 comment = cast(XmlComment, current)
                 comment.start_content = scanner.get_token_offset()
                 comment.end_content = scanner.get_token_end()
 
-            if token == TokenType.EndCommentTag:
+            elif token == TokenType.EndCommentTag:
                 current.end = scanner.get_token_end()
                 current._closed = True
                 current = cast(XmlSyntaxNode, current.parent)
 
-            if token == TokenType.Content:
+            elif token == TokenType.Content:
                 content = XmlContent(scanner.get_token_offset(), scanner.get_token_end())
                 content._closed = True
                 content.parent = current
+
+            token = scanner.scan()
 
         if previous_token_was_end_tag_open:
             previous_token_was_end_tag_open = False

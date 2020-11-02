@@ -44,7 +44,7 @@ class MultiLineStream:
             return 0
 
     def advance_if_char(self, ch: int) -> bool:
-        if ch == self._source[self._position]:
+        if ch == ord(self._source[self._position]):
             self._position = self._position + 1
             return True
         return False
@@ -79,7 +79,7 @@ class MultiLineStream:
 
     def advance_until_char(self, ch: int) -> bool:
         while self._position < self._len:
-            if self._source[self._position] == ch:
+            if ord(self._source[self._position]) == ch:
                 return True
             self.advance(1)
         return False
