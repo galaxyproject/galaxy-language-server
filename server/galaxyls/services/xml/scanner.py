@@ -81,12 +81,12 @@ class XmlScanner:
         elif self.state == ScannerState.WithinContent:
             if self.stream.advance_if_char(_LAN):
                 if not self.stream.eos() and self.stream.peek_char() == _EXL:
-                    if self.stream.advance_if_chars(COMMENT_START_CHAR_SEQ):
-                        self.state = ScannerState.WithinComment
-                        return self._finish_token(offset, TokenType.StartCommentTag)
                     if self.stream.advance_if_chars(CDATA_START_CHAR_SEQ):
                         self.state = ScannerState.WithinCDATA
                         return self._finish_token(offset, TokenType.CDATATagOpen)
+                    if self.stream.advance_if_chars(COMMENT_START_CHAR_SEQ):
+                        self.state = ScannerState.WithinComment
+                        return self._finish_token(offset, TokenType.StartCommentTag)
                 if self.stream.advance_if_char(_FSL):
                     self.state = ScannerState.AfterOpeningEndTag
                     return self._finish_token(offset, TokenType.EndTagOpen)
@@ -214,7 +214,7 @@ class XmlScanner:
         return False
 
     def _is_valid_name_character(self, ch: str) -> bool:
-        return ch.isalnum() or ch == _UDS
+        return ord(ch) == _UDS or ch.isalnum()
 
     def _is_valid_start_name_character(self, ch: str) -> bool:
-        return ch.isalpha() or ch == _UDS  # No numbers allowed as first character
+        return ord(ch) == _UDS or ch.isalpha()  # No numbers allowed as first character

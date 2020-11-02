@@ -54,7 +54,7 @@ class MultiLineStream:
             return False
         i = 0
         for i in range(len(ch)):
-            if self._source[self._position + i] != ch[i]:
+            if self._source[self._position + i] != chr(ch[i]):
                 return False
         self.advance(i)
         return True
@@ -87,12 +87,11 @@ class MultiLineStream:
     def advance_until_chars(self, ch: List[int]) -> bool:
         while self._position + len(ch) <= self._len:
             i = 0
-            for i in range(len(ch)):
-                if self._source[self._position + i] == ch[i]:
-                    continue
+            while i < len(ch) and self._source[self._position + i] == chr(ch[i]):
+                i = i + 1
             if i == len(ch):
                 return True
-            self.advance(i)
+            self.advance(i or 1)
         self.go_to_end()
         return False
 

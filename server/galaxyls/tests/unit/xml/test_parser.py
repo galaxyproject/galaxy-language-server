@@ -1,8 +1,12 @@
 from typing import Optional
+from pygls.workspace import Document
+
+import pytest
+
 from ....services.xml.nodes import XmlCDATASection, XmlElement
 from ....services.xml.parser import XmlDocumentParser
 from ....services.xml.types import DocumentType
-from ..sample_data import TEST_TOOL_01_DOCUMENT
+from ..sample_data import TEST_MACRO_01_DOCUMENT, TEST_TOOL_01_DOCUMENT
 
 
 def element_has_attribute(element: Optional[XmlElement], key: str, value: str) -> bool:
@@ -14,6 +18,26 @@ def element_has_offsets(element: Optional[XmlElement], start: int, end: int) -> 
 
 
 class TestXmlDocumentParserClass:
+    @pytest.mark.parametrize(
+        "document, expected",
+        [
+            (
+                TEST_TOOL_01_DOCUMENT,
+                DocumentType.TOOL,
+            ),
+            (
+                TEST_MACRO_01_DOCUMENT,
+                DocumentType.MACROS,
+            ),
+        ],
+    )
+    def test_parse_returns_expected_document_type(self, document: Document, expected: DocumentType):
+        parser = XmlDocumentParser()
+
+        xml_document = parser.parse(document)
+
+        assert xml_document.document_type == expected
+
     def test_parse_returns_expected_elements(self):
         test_document = TEST_TOOL_01_DOCUMENT
         parser = XmlDocumentParser()

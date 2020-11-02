@@ -4,11 +4,13 @@ https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
 """
 
-from pygls.workspace import Document
 from typing import Optional, cast
+
+from pygls.workspace import Document
+
 from .nodes import XmlAttribute, XmlCDATASection, XmlComment, XmlContent, XmlDocument, XmlElement, XmlSyntaxNode
-from .types import TokenType
 from .scanner import XmlScanner
+from .types import TokenType
 
 
 class XmlDocumentParser:
@@ -21,13 +23,9 @@ class XmlDocumentParser:
         pending_attribute: Optional[str] = None
         last_closed = current
         end_tag_open_offset = -1
-        tmp_white_space_content: Optional[XmlSyntaxNode] = None
         previous_token_was_end_tag_open = False
         token = scanner.scan()
         while token != TokenType.EOS:
-            if tmp_white_space_content and token != TokenType.EndTagOpen:
-                tmp_white_space_content = None
-
             if previous_token_was_end_tag_open:
                 previous_token_was_end_tag_open = False
                 if token != TokenType.EndTag:
@@ -35,7 +33,7 @@ class XmlDocumentParser:
                     self._create_fake_end_tag(end_tag_open_offset, current)
 
             if token == TokenType.StartTagOpen:
-                if not current.is_closed and current.parent is not None:
+                if not current.is_closed and current.parent:
                     # The next node's parent (current) is not closed at this point
                     # so the node's parent (current) will have its end position updated
                     current.end = scanner.get_token_offset()
@@ -58,14 +56,9 @@ class XmlDocumentParser:
                     current.end = scanner.get_token_end()
                     element = cast(XmlElement, current)
                     element.start_tag_close_offset = scanner.get_token_offset()
-                if current.parent:
-                    current._closed = True
-                    current = current.parent
                 current.end = scanner.get_token_end()
 
             elif token == TokenType.EndTagOpen:
-                if tmp_white_space_content is not None:
-                    cast(XmlSyntaxNode, tmp_white_space_content).parent = current
                 end_tag_open_offset = scanner.get_token_offset()
                 current.end = scanner.get_token_offset()
                 previous_token_was_end_tag_open = True
@@ -74,10 +67,7 @@ class XmlDocumentParser:
                 close_tag = scanner.get_token_text()
                 node = current
                 # eg: <a><b><c></d> will set a,b,c end position to the start of |</d>
-                while (
-                    not (current.is_element and cast(XmlElement, current).is_same_tag(close_tag))
-                    and current.parent is not None
-                ):
+                while not (current.is_element and cast(XmlElement, current).is_same_tag(close_tag)) and current.parent:
                     current.end = end_tag_open_offset
                     current = current.parent
                 if current != xml_document:
@@ -94,7 +84,7 @@ class XmlDocumentParser:
                     current = element
 
             elif token == TokenType.StartTagSelfClose:
-                if current.parent is not None:
+                if current.parent:
                     current._closed = True
                     cast(XmlElement, current).is_self_closed = True
                     current.end = scanner.get_token_end()
@@ -102,7 +92,7 @@ class XmlDocumentParser:
                     current = current.parent
 
             elif token == TokenType.EndTagClose:
-                if current.parent is not None:
+                if current.parent:
                     current.end = scanner.get_token_end()
                     last_closed = current
                     if last_closed.is_element:
@@ -122,14 +112,14 @@ class XmlDocumentParser:
                 current.end = scanner.get_token_end()
 
             elif token == TokenType.DelimiterAssign:
-                if attr is not None:
+                if attr:
                     # Sets the value to the '=' position in case there is no AttributeValue
                     attr.set_value(None, scanner.get_token_offset(), scanner.get_token_end())
                     attr.has_delimiter = True
 
             elif token == TokenType.AttributeValue:
                 value = scanner.get_token_text()
-                if current.has_attributes and attr is not None:
+                if current.has_attributes and attr:
                     attr.set_value(value, scanner.get_token_offset(), scanner.get_token_offset() + len(value))
                 pending_attribute = None
                 attr = None
@@ -160,6 +150,11 @@ class XmlDocumentParser:
                 comment.parent = current
                 current = comment
 
+            elif token == TokenType.Content:
+                content = XmlContent(scanner.get_token_offset(), scanner.get_token_end())
+                content._closed = True
+                content.parent = current
+
             elif token == TokenType.Comment:
                 comment = cast(XmlComment, current)
                 comment.start_content = scanner.get_token_offset()
@@ -170,11 +165,6 @@ class XmlDocumentParser:
                 current._closed = True
                 current = cast(XmlSyntaxNode, current.parent)
 
-            elif token == TokenType.Content:
-                content = XmlContent(scanner.get_token_offset(), scanner.get_token_end())
-                content._closed = True
-                content.parent = current
-
             token = scanner.scan()
 
         if previous_token_was_end_tag_open:
@@ -183,7 +173,7 @@ class XmlDocumentParser:
                 # The expected token is not an EndTag, create a fake end tag element
                 self._create_fake_end_tag(end_tag_open_offset, current)
 
-        while current.parent is not None:
+        while current.parent:
             current.end = len(text)
             current = current.parent
 
