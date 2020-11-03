@@ -14,9 +14,6 @@ class XmlSyntaxNode(NodeMixin):
         self.end: int = UNDEFINED_OFFSET
         self._closed: bool = False
 
-    def __str__(self) -> str:
-        return f"{self.node_type} ({self.name})"
-
     @property
     def is_closed(self) -> bool:
         return self._closed
@@ -62,6 +59,7 @@ class XmlAttribute(XmlSyntaxNode):
 
     def set_value(self, value: Optional[str], start: int, end: int) -> None:
         self.value = XmlAttributeValue(value, start, end)
+        self.end = end
 
 
 class XmlAttributeKey(XmlSyntaxNode):
