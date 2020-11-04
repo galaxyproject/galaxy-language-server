@@ -1,12 +1,17 @@
 from typing import Optional
-from pygls.workspace import Document
 
 import pytest
+from pygls.workspace import Document
 
 from ....services.xml.nodes import XmlAttribute, XmlCDATASection, XmlElement
 from ....services.xml.parser import XmlDocumentParser
 from ....services.xml.types import DocumentType
-from ..sample_data import TEST_MACRO_01_DOCUMENT, TEST_TOOL_01_DOCUMENT, TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT
+from ..sample_data import (
+    TEST_MACRO_01_DOCUMENT,
+    TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT,
+    TEST_TOOL_01_DOCUMENT,
+    TEST_TOOL_WITH_PROLOG_DOCUMENT,
+)
 
 
 def assert_element_has_attribute(element: Optional[XmlElement], key: str, value: str) -> None:
@@ -63,7 +68,6 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
-        assert xml_document.document_type == DocumentType.TOOL
         assert xml_document.root.name == "tool"
         assert len(xml_document.root.elements) == 4
         assert xml_document.root.elements[0].name == "command"
@@ -125,3 +129,38 @@ class TestXmlDocumentParserClass:
 
         assert type(xml_document.root.elements[0].children[0]) is XmlCDATASection
         assert type(xml_document.root.elements[3].children[0]) is XmlCDATASection
+
+    def test_parse_returns_expected_elements_when_macro(self):
+        test_document = TEST_MACRO_01_DOCUMENT
+        parser = XmlDocumentParser()
+
+        xml_document = parser.parse(test_document)
+
+        assert xml_document.root.name == "macros"
+        assert len(xml_document.root.elements) == 2
+        assert xml_document.root.elements[0].name == "token"
+        assert xml_document.root.elements[1].name == "macro"
+        assert_element_has_attribute(xml_document.root.elements[1], "name", "inputs")
+        assert xml_document.root.elements[1].elements[0].name == "inputs"
+        assert xml_document.root.elements[1].elements[0].is_self_closed
+
+    def test_parse_returns_expected_elements_when_has_prolog(self):
+        test_document = TEST_TOOL_WITH_PROLOG_DOCUMENT
+        parser = XmlDocumentParser()
+
+        xml_document = parser.parse(test_document)
+
+        assert xml_document.root.name == "tool"
+        assert len(xml_document.root.elements) == 2
+        assert xml_document.root.elements[0].name == "inputs"
+        assert xml_document.root.elements[1].name == "outputs"
+
+    def test_parse_returns_expected_element_offsets_when_has_prolog(self):
+        test_document = TEST_TOOL_WITH_PROLOG_DOCUMENT
+        parser = XmlDocumentParser()
+
+        xml_document = parser.parse(test_document)
+
+        assert_element_has_offsets(xml_document.root, 39, 125)
+        assert_element_has_offsets(xml_document.root.elements[0], 93, 102)
+        assert_element_has_offsets(xml_document.root.elements[1], 107, 117)
