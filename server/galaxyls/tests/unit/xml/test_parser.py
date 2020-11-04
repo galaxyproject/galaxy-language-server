@@ -12,6 +12,7 @@ from ..sample_data import (
     TEST_TOOL_01_DOCUMENT,
     TEST_TOOL_WITH_PROLOG_DOCUMENT,
 )
+from ..utils import get_fake_document
 
 
 def assert_element_has_attribute(element: Optional[XmlElement], key: str, value: str) -> None:
@@ -164,3 +165,26 @@ class TestXmlDocumentParserClass:
         assert_element_has_offsets(xml_document.root, 39, 125)
         assert_element_has_offsets(xml_document.root.elements[0], 93, 102)
         assert_element_has_offsets(xml_document.root.elements[1], 107, 117)
+
+    @pytest.mark.parametrize(
+        "document, expected",
+        [
+            (get_fake_document(""), True),
+            (get_fake_document(" "), True),
+            (get_fake_document("\n"), True),
+            (get_fake_document(" \n "), True),
+            (get_fake_document(" \n text"), True),
+            (get_fake_document('<?xml version="1.0" encoding="UTF-8"?>'), True),
+            (get_fake_document("<"), False),
+            (get_fake_document("<tool"), False),
+            (get_fake_document("<tool "), False),
+            (get_fake_document("<tool>"), False),
+            (get_fake_document('<?xml version="1.0" encoding="UTF-8"?><tool>'), False),
+        ],
+    )
+    def test_parse_empty_document_returns_is_empty(self, document: Document, expected: bool) -> None:
+        parser = XmlDocumentParser()
+
+        xml_document = parser.parse(document)
+
+        assert xml_document.is_empty == expected

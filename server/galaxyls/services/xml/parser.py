@@ -13,11 +13,11 @@ from .nodes import (
     XmlCDATASection,
     XmlComment,
     XmlContent,
-    XmlDocument,
     XmlElement,
     XmlProcessingInstruction,
     XmlSyntaxNode,
 )
+from .document import XmlDocument
 from .scanner import XmlScanner
 from .types import TokenType
 

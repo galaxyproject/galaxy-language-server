@@ -1,10 +1,9 @@
 from typing import Dict, List, Optional
 
 from anytree import NodeMixin
-from pygls.workspace import Document
 
 from .constants import UNDEFINED_OFFSET
-from .types import DocumentType, NodeType
+from .types import NodeType
 
 
 class XmlSyntaxNode(NodeMixin):
@@ -158,30 +157,3 @@ class XmlProcessingInstruction(XmlSyntaxNode):
     @property
     def node_type(self) -> NodeType:
         return NodeType.PROCESSING_INSTRUCTION
-
-
-class XmlDocument(XmlSyntaxNode):
-    def __init__(self, document: Document):
-        super().__init__()
-        self.document: Document = document
-
-    @property
-    def node_type(self) -> NodeType:
-        return NodeType.DOCUMENT
-
-    @property
-    def root(self) -> Optional[XmlElement]:
-        if len(self.children) == 0:
-            return None
-        return next(child for child in self.children if type(child) == XmlElement)
-
-    @property
-    def document_type(self) -> DocumentType:
-        try:
-            if self.root.name == "tool":
-                return DocumentType.TOOL
-            if self.root.name == "macros":
-                return DocumentType.MACROS
-        except BaseException:
-            pass
-        return DocumentType.UNKNOWN

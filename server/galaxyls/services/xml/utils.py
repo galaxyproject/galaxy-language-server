@@ -28,10 +28,10 @@ class MultiLineStream:
         try:
             return ord(self._source[self._position + n])
         except IndexError:
-            return 0
+            return -1
 
     def advance_if_char(self, ch: int) -> bool:
-        if ch == ord(self._source[self._position]):
+        if ch == self.peek_char():
             self._position = self._position + 1
             return True
         return False
