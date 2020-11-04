@@ -5,21 +5,24 @@ Only the minimum subset of the XML dialect used by Galaxy tool wrappers is suppo
 """
 
 from typing import Optional
-from .utils import MultiLineStream
-from .types import ScannerState, TokenType
+
 from .constants import (
-    _RAN,
-    _LAN,
+    _EQS,
     _EXL,
     _FSL,
-    _EQS,
+    _LAN,
+    _QMA,
+    _RAN,
     _UDS,
-    QUOTE_CHARS,
-    CDATA_START_CHAR_SEQ,
     CDATA_END_CHAR_SEQ,
-    COMMENT_START_CHAR_SEQ,
+    CDATA_START_CHAR_SEQ,
     COMMENT_END_CHAR_SEQ,
+    COMMENT_START_CHAR_SEQ,
+    PI_END_CHAR_SEQ,
+    QUOTE_CHARS,
 )
+from .types import ScannerState, TokenType
+from .utils import MultiLineStream
 
 ERROR_UNEXPECTED_WHITESPACE = "Unexpected whitespace. Tag name must directly follow the open angle bracket."
 
@@ -55,6 +58,9 @@ class XmlScanner:
     def get_token_text(self) -> str:
         return self.stream.get_source()[self.token_offset : self.stream.pos()]
 
+    def get_token_text_from_offset(self, offset: int) -> str:
+        return self.stream.get_source()[offset : self.stream.pos()]
+
     def get_token_error(self) -> Optional[str]:
         return self.token_error
 
@@ -78,6 +84,28 @@ class XmlScanner:
             self.stream.advance_until_chars(COMMENT_END_CHAR_SEQ)
             return self._finish_token(offset, TokenType.Comment)
 
+        elif self.state == ScannerState.PrologOrPI:
+            if self.stream.advance_if_chars(PI_END_CHAR_SEQ):
+                self.state = ScannerState.WithinContent
+                return self._finish_token(offset, TokenType.PIEnd)
+            self.stream.advance_until_chars_or_new_tag(PI_END_CHAR_SEQ)
+            if self.stream.peek_char() == _LAN:
+                self.state = ScannerState.WithinContent
+            return self._internal_scan()
+
+        elif self.state == ScannerState.WithinPI:
+            if self.stream.skip_whitespace():
+                return self._finish_token(offset, TokenType.Whitespace)
+            if self.stream.advance_if_chars(PI_END_CHAR_SEQ):
+                self.state = ScannerState.WithinContent
+                return self._finish_token(offset, TokenType.PIEnd)
+            if self.stream.advance_until_chars_or_new_tag(PI_END_CHAR_SEQ):
+                if self.stream.peek_char() == _LAN:
+                    self.state = ScannerState.WithinContent
+                if len(self.get_token_text_from_offset(offset)) == 0:
+                    return self._finish_token(offset, TokenType.PIEnd)
+            return self._finish_token(offset, TokenType.PIContent)
+
         elif self.state == ScannerState.WithinContent:
             if self.stream.advance_if_char(_LAN):
                 if not self.stream.eos() and self.stream.peek_char() == _EXL:
@@ -87,6 +115,9 @@ class XmlScanner:
                     if self.stream.advance_if_chars(COMMENT_START_CHAR_SEQ):
                         self.state = ScannerState.WithinComment
                         return self._finish_token(offset, TokenType.StartCommentTag)
+                elif not self.stream.eos() and self.stream.peek_char() == _QMA:
+                    self.state = ScannerState.PrologOrPI
+                    return self._finish_token(offset, TokenType.StartPrologOrPI)
                 if self.stream.advance_if_char(_FSL):
                     self.state = ScannerState.AfterOpeningEndTag
                     return self._finish_token(offset, TokenType.EndTagOpen)
@@ -150,6 +181,9 @@ class XmlScanner:
         elif self.state == ScannerState.WithinTag:
             if self.stream.skip_whitespace():
                 return self._finish_token(offset, TokenType.Whitespace)
+            if self.stream.advance_if_chars(PI_END_CHAR_SEQ):
+                self.state = ScannerState.WithinContent
+                return self._finish_token(offset, TokenType.PIEnd)
             if self._has_next_attribute_name():
                 self.state = ScannerState.AfterAttributeName
                 return self._finish_token(offset, TokenType.AttributeName)

@@ -20,6 +20,8 @@ class NodeType(Enum):
     CDATA_SECTION = 6
     COMMENT = 7
     CONTENT = 8
+    PROCESSING_INSTRUCTION = 9
+    DOCUMENT = 10
 
 
 @unique
@@ -67,3 +69,6 @@ class ScannerState(Enum):
     WithinCDATA = 9
     AfterClosingCDATATag = 10
     StartCDATATag = 11
+    AfterPrologOpen = 12
+    PrologOrPI = 13
+    WithinPI = 14

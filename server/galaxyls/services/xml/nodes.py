@@ -129,6 +129,7 @@ class XmlCDATASection(XmlSyntaxNode):
         self.start_content: int = UNDEFINED_OFFSET
         self.end_content: int = UNDEFINED_OFFSET
 
+    @property
     def node_type(self) -> NodeType:
         return NodeType.CDATA_SECTION
 
@@ -141,14 +142,32 @@ class XmlComment(XmlSyntaxNode):
         self.start_content: int = UNDEFINED_OFFSET
         self.end_content: int = UNDEFINED_OFFSET
 
+    @property
     def node_type(self) -> NodeType:
         return NodeType.COMMENT
+
+
+class XmlProcessingInstruction(XmlSyntaxNode):
+    def __init__(self, start: int, end: int):
+        super().__init__()
+        self.start = start
+        self.end = end
+        self.start_content: int = UNDEFINED_OFFSET
+        self.end_content: int = UNDEFINED_OFFSET
+
+    @property
+    def node_type(self) -> NodeType:
+        return NodeType.PROCESSING_INSTRUCTION
 
 
 class XmlDocument(XmlSyntaxNode):
     def __init__(self, document: Document):
         super().__init__()
         self.document: Document = document
+
+    @property
+    def node_type(self) -> NodeType:
+        return NodeType.DOCUMENT
 
     @property
     def root(self) -> Optional[XmlElement]:

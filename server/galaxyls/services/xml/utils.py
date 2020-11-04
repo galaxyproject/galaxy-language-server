@@ -108,6 +108,19 @@ class MultiLineStream:
             self.advance(1)
         return False
 
+    def advance_until_chars_or_new_tag(self, ch: List[int]) -> bool:
+        while self._position + len(ch) <= self._len:
+            i = 0
+            if self.peek_char() == _LAN:
+                return True
+            while i < len(ch) and self._source[self._position + i] == chr(ch[i]):
+                i = i + 1
+            if i == len(ch):
+                return True
+            self.advance(i or 1)
+        self.go_to_end()
+        return False
+
     def advance_while_char(self, predicate: Callable[[str], bool]) -> int:
         pos_now = self._position
         while self._position < self._len and predicate(self._source[self._position]):

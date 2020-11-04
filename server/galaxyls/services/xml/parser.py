@@ -8,7 +8,16 @@ from typing import Optional, cast
 
 from pygls.workspace import Document
 
-from .nodes import XmlAttribute, XmlCDATASection, XmlComment, XmlContent, XmlDocument, XmlElement, XmlSyntaxNode
+from .nodes import (
+    XmlAttribute,
+    XmlCDATASection,
+    XmlComment,
+    XmlContent,
+    XmlDocument,
+    XmlElement,
+    XmlProcessingInstruction,
+    XmlSyntaxNode,
+)
 from .scanner import XmlScanner
 from .types import TokenType
 
@@ -161,6 +170,21 @@ class XmlDocumentParser:
                 comment.end_content = scanner.get_token_end()
 
             elif token == TokenType.EndCommentTag:
+                current.end = scanner.get_token_end()
+                current._closed = True
+                current = cast(XmlSyntaxNode, current.parent)
+
+            elif token == TokenType.StartPrologOrPI:
+                pi = XmlProcessingInstruction(scanner.get_token_offset(), len(text))
+                pi.parent = current
+                current = pi
+
+            elif token == TokenType.PIContent:
+                pi = cast(XmlProcessingInstruction, current)
+                pi.start_content = scanner.get_token_offset()
+                pi.end_content = scanner.get_token_end()
+
+            elif token == TokenType.PIEnd:
                 current.end = scanner.get_token_end()
                 current._closed = True
                 current = cast(XmlSyntaxNode, current.parent)
