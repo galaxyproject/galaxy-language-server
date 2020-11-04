@@ -1,6 +1,6 @@
-import re
 from typing import Callable, List
-from .constants import WHITESPACE_CHARS, _LAN
+
+from .constants import _LAN, WHITESPACE_CHARS
 
 
 class MultiLineStream:
@@ -18,24 +18,11 @@ class MultiLineStream:
     def pos(self) -> int:
         return self._position
 
-    def go_back_to(self, pos: int) -> None:
-        self._position = pos
-
-    def go_back(self, n: int) -> None:
-        self._position -= n
-
     def advance(self, n: int) -> None:
         self._position = self._position + n
 
     def go_to_end(self) -> None:
         self._position = self._len
-
-    def next_char(self) -> int:
-        try:
-            self._position = self._position + 1
-            return ord(self._source[self._position])
-        except IndexError:
-            return 0
 
     def peek_char(self, n: int = 0) -> int:
         try:
@@ -58,24 +45,6 @@ class MultiLineStream:
                 return False
         self.advance(i)
         return True
-
-    def advance_if_regex(self, regex: str) -> str:
-        string = self._source[self._position :]
-        match = re.match(regex, string)
-        if match:
-            self._position = self._position + match.end(0)
-            return match[0]
-        return ""
-
-    def advance_until_regex(self, regex: str) -> str:
-        string = self._source[self._position :]
-        match = re.match(regex, string)
-        if match:
-            self._position = self._position + match.start(0)
-            return match[0]
-        else:
-            self.go_to_end()
-        return ""
 
     def advance_until_char(self, ch: int) -> bool:
         while self._position < self._len:
