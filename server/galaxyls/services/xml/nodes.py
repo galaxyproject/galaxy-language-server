@@ -29,6 +29,29 @@ class XmlSyntaxNode(NodeMixin):
     def node_type(self) -> NodeType:
         return NodeType.UNKNOWN
 
+    def is_in(self, offset: int) -> bool:
+        return self.start <= offset <= self.end
+
+    def get_attribute_nodes(self) -> List["XmlSyntaxNode"]:
+        return []
+
+    def find_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
+        try:
+            child = next(child for child in self.children if child.is_in(offset))
+            return child.find_node_at(offset)
+        except StopIteration:
+            if self.is_in(offset):
+                return self.find_attr_node_at(offset)
+            return self
+
+    def find_attr_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
+        if self.has_attributes:
+            attr_nodes = self.get_attribute_nodes()
+            for attr in attr_nodes:
+                if attr.is_in(offset):
+                    return attr
+        return self
+
 
 class XmlContent(XmlSyntaxNode):
     def __init__(self, start: int, end: int):
@@ -42,13 +65,13 @@ class XmlContent(XmlSyntaxNode):
 
 
 class XmlAttribute(XmlSyntaxNode):
-    def __init__(self, name: str, start: int, end: int, owner_element: "XmlElement"):
+    def __init__(self, name: str, start: int, end: int, owner: "XmlElement"):
         super().__init__()
         self.name = name
         self.start = start
         self.end = end
-        self.owner_element = owner_element
-        self.key = XmlAttributeKey(name, start, end)
+        self.owner = owner
+        self.key = XmlAttributeKey(name, start, end, owner)
         self.has_delimiter: bool = False
         self.value: Optional[XmlAttributeValue] = None
 
@@ -57,16 +80,23 @@ class XmlAttribute(XmlSyntaxNode):
         return NodeType.ATTRIBUTE
 
     def set_value(self, value: Optional[str], start: int, end: int) -> None:
-        self.value = XmlAttributeValue(value, start, end)
+        self.value = XmlAttributeValue(value, start, end, self.owner)
         self.end = end
+
+    def get_attribute_nodes(self) -> List["XmlSyntaxNode"]:
+        result: List["XmlSyntaxNode"] = [self.key]
+        if self.value:
+            result.append(self.value)
+        return result
 
 
 class XmlAttributeKey(XmlSyntaxNode):
-    def __init__(self, name: str, start: int, end: int):
+    def __init__(self, name: str, start: int, end: int, owner: "XmlElement"):
         super().__init__()
         self.name = name
         self.start = start
         self.end = end
+        self.owner = owner
 
     @property
     def node_type(self) -> NodeType:
@@ -74,11 +104,12 @@ class XmlAttributeKey(XmlSyntaxNode):
 
 
 class XmlAttributeValue(XmlSyntaxNode):
-    def __init__(self, value: Optional[str], start: int, end: int):
+    def __init__(self, value: Optional[str], start: int, end: int, owner: "XmlElement"):
         super().__init__()
         self.quoted = value
         self.start = start
         self.end = end
+        self.owner = owner
 
     @property
     def node_type(self) -> NodeType:
@@ -118,6 +149,12 @@ class XmlElement(XmlSyntaxNode):
 
     def is_same_tag(self, tag: str) -> bool:
         return self.name == tag
+
+    def get_attribute_nodes(self) -> List[XmlSyntaxNode]:
+        result: List[XmlSyntaxNode] = []
+        for attr in self.attributes.values():
+            result.extend(attr.get_attribute_nodes())
+        return result
 
 
 class XmlCDATASection(XmlSyntaxNode):

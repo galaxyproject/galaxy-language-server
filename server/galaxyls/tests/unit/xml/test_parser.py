@@ -1,11 +1,12 @@
 from typing import Optional
+from pygls.types import Position
 
 import pytest
 from pygls.workspace import Document
 
 from ....services.xml.nodes import XmlAttribute, XmlCDATASection, XmlElement
 from ....services.xml.parser import XmlDocumentParser
-from ....services.xml.types import DocumentType
+from ....services.xml.types import DocumentType, NodeType
 from ..sample_data import (
     TEST_MACRO_01_DOCUMENT,
     TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT,
@@ -56,14 +57,14 @@ class TestXmlDocumentParserClass:
             (TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT, DocumentType.UNKNOWN),
         ],
     )
-    def test_parse_returns_expected_document_type(self, document: Document, expected: DocumentType):
+    def test_parse_returns_expected_document_type(self, document: Document, expected: DocumentType) -> None:
         parser = XmlDocumentParser()
 
         xml_document = parser.parse(document)
 
         assert xml_document.document_type == expected
 
-    def test_parse_returns_expected_elements(self):
+    def test_parse_returns_expected_elements(self) -> None:
         test_document = TEST_TOOL_01_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -76,7 +77,7 @@ class TestXmlDocumentParserClass:
         assert xml_document.root.elements[2].name == "outputs"
         assert xml_document.root.elements[3].name == "help"
 
-    def test_parse_returns_expected_attributes(self):
+    def test_parse_returns_expected_attributes(self) -> None:
         test_document = TEST_TOOL_01_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -94,7 +95,7 @@ class TestXmlDocumentParserClass:
         assert not xml_document.root.elements[2].has_attributes
         assert not xml_document.root.elements[3].has_attributes
 
-    def test_parse_returns_expected_attribute_offsets(self):
+    def test_parse_returns_expected_attribute_offsets(self) -> None:
         test_document = TEST_TOOL_01_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -110,7 +111,7 @@ class TestXmlDocumentParserClass:
         assert_attribute_has_key_offsets(xml_document.root.attributes["version"], 36, 43)
         assert_attribute_has_value_offsets(xml_document.root.attributes["version"], 44, 51)
 
-    def test_parse_returns_expected_element_offsets(self):
+    def test_parse_returns_expected_element_offsets(self) -> None:
         test_document = TEST_TOOL_01_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -122,7 +123,7 @@ class TestXmlDocumentParserClass:
         assert_element_has_offsets(xml_document.root.elements[2], 191, 215)
         assert_element_has_offsets(xml_document.root.elements[3], 220, 278)
 
-    def test_parse_returns_expected_cdata_sections(self):
+    def test_parse_returns_expected_cdata_sections(self) -> None:
         test_document = TEST_TOOL_01_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -131,7 +132,7 @@ class TestXmlDocumentParserClass:
         assert type(xml_document.root.elements[0].children[0]) is XmlCDATASection
         assert type(xml_document.root.elements[3].children[0]) is XmlCDATASection
 
-    def test_parse_returns_expected_elements_when_macro(self):
+    def test_parse_returns_expected_elements_when_macro(self) -> None:
         test_document = TEST_MACRO_01_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -145,7 +146,7 @@ class TestXmlDocumentParserClass:
         assert xml_document.root.elements[1].elements[0].name == "inputs"
         assert xml_document.root.elements[1].elements[0].is_self_closed
 
-    def test_parse_returns_expected_elements_when_has_prolog(self):
+    def test_parse_returns_expected_elements_when_has_prolog(self) -> None:
         test_document = TEST_TOOL_WITH_PROLOG_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -156,7 +157,7 @@ class TestXmlDocumentParserClass:
         assert xml_document.root.elements[0].name == "inputs"
         assert xml_document.root.elements[1].name == "outputs"
 
-    def test_parse_returns_expected_element_offsets_when_has_prolog(self):
+    def test_parse_returns_expected_element_offsets_when_has_prolog(self) -> None:
         test_document = TEST_TOOL_WITH_PROLOG_DOCUMENT
         parser = XmlDocumentParser()
 
@@ -188,3 +189,27 @@ class TestXmlDocumentParserClass:
         xml_document = parser.parse(document)
 
         assert xml_document.is_empty == expected
+
+    @pytest.mark.parametrize(
+        "document, position, expected",
+        [
+            (TEST_TOOL_01_DOCUMENT, Position(0, 1), NodeType.ELEMENT),
+            (TEST_TOOL_01_DOCUMENT, Position(0, 7), NodeType.ATTRIBUTE_KEY),
+            (TEST_TOOL_01_DOCUMENT, Position(0, 8), NodeType.ATTRIBUTE_KEY),
+            (TEST_TOOL_01_DOCUMENT, Position(0, 9), NodeType.ATTRIBUTE_VALUE),
+            (TEST_TOOL_01_DOCUMENT, Position(0, 27), NodeType.ATTRIBUTE_VALUE),
+            (TEST_TOOL_01_DOCUMENT, Position(1, 1), NodeType.CONTENT),
+            (TEST_TOOL_01_DOCUMENT, Position(1, 44), NodeType.CDATA_SECTION),
+            (TEST_TOOL_01_DOCUMENT, Position(2, 0), NodeType.CDATA_SECTION),
+            (TEST_TOOL_01_DOCUMENT, Position(3, 6), NodeType.CDATA_SECTION),
+            (TEST_TOOL_01_DOCUMENT, Position(3, 7), NodeType.CONTENT),
+            (TEST_TOOL_01_DOCUMENT, Position(3, 8), NodeType.ELEMENT),
+        ],
+    )
+    def test_get_node_at_returns_expected_type(self, document: Document, position: Position, expected: NodeType) -> None:
+        parser = XmlDocumentParser()
+        xml_document = parser.parse(document)
+
+        actual = xml_document.get_node_at(position)
+
+        assert actual.node_type == expected

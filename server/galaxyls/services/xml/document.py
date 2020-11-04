@@ -1,4 +1,5 @@
 from typing import Optional
+from pygls.types import Position
 
 from pygls.workspace import Document
 
@@ -38,3 +39,7 @@ class XmlDocument(XmlSyntaxNode):
         except BaseException:
             pass
         return DocumentType.UNKNOWN
+
+    def get_node_at(self, position: Position) -> Optional[XmlSyntaxNode]:
+        offset = self.document.offset_at_position(position)
+        return self.root.find_node_at(offset)
