@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, cast
 
 from anytree import NodeMixin
 
@@ -29,7 +29,11 @@ class XmlSyntaxNode(NodeMixin):
     def node_type(self) -> NodeType:
         return NodeType.UNKNOWN
 
-    def is_in(self, offset: int) -> bool:
+    @property
+    def stack(self) -> List[str]:
+        return [element.name for element in self.ancestors if element.name]
+
+    def is_at(self, offset: int) -> bool:
         return self.start <= offset <= self.end
 
     def get_attribute_nodes(self) -> List["XmlSyntaxNode"]:
@@ -37,10 +41,10 @@ class XmlSyntaxNode(NodeMixin):
 
     def find_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
         try:
-            child = next(child for child in self.children if child.is_in(offset))
+            child = next(child for child in self.children if child.is_at(offset))
             return child.find_node_at(offset)
         except StopIteration:
-            if self.is_in(offset):
+            if self.is_at(offset):
                 return self.find_attr_node_at(offset)
             return self
 
@@ -48,7 +52,7 @@ class XmlSyntaxNode(NodeMixin):
         if self.has_attributes:
             attr_nodes = self.get_attribute_nodes()
             for attr in attr_nodes:
-                if attr.is_in(offset):
+                if attr.is_at(offset):
                     return attr
         return self
 
@@ -72,6 +76,7 @@ class XmlAttribute(XmlSyntaxNode):
         self.end = end
         self.owner = owner
         self.key = XmlAttributeKey(name, start, end, owner)
+        self.key.parent = self
         self.has_delimiter: bool = False
         self.value: Optional[XmlAttributeValue] = None
 
@@ -82,12 +87,10 @@ class XmlAttribute(XmlSyntaxNode):
     def set_value(self, value: Optional[str], start: int, end: int) -> None:
         self.value = XmlAttributeValue(value, start, end, self.owner)
         self.end = end
+        self.value.parent = self
 
     def get_attribute_nodes(self) -> List["XmlSyntaxNode"]:
-        result: List["XmlSyntaxNode"] = [self.key]
-        if self.value:
-            result.append(self.value)
-        return result
+        return cast(List[XmlSyntaxNode], self.children)
 
 
 class XmlAttributeKey(XmlSyntaxNode):
