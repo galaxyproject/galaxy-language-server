@@ -76,11 +76,11 @@ class TestXsdParserClass:
     @pytest.mark.parametrize(
         "stack, expected",
         [
-            (["testElement"], "testElement",),
-            (["testElement", "firstElement"], "firstElement",),
-            (["testElement", "secondElement"], "secondElement",),
-            (["testElement", "secondElement", "group_elem1"], "group_elem1",),
-            (["testElement", "element_with_group", "group_elem1"], "group_elem1",),
+            (["testElement"], "testElement"),
+            (["testElement", "firstElement"], "firstElement"),
+            (["testElement", "secondElement"], "secondElement"),
+            (["testElement", "secondElement", "group_elem1"], "group_elem1"),
+            (["testElement", "element_with_group", "group_elem1"], "group_elem1"),
         ],
     )
     def test_tree_find_node_by_stack_returns_expected_node(
@@ -95,9 +95,9 @@ class TestXsdParserClass:
     @pytest.mark.parametrize(
         "stack, expected",
         [
-            (["expand"], "expand",),
-            (["testElement", "expand"], "expand",),
-            (["testElement", "element_with_group", "expand"], "expand",),
+            (["expand"], "expand"),
+            (["testElement", "expand"], "expand"),
+            (["testElement", "element_with_group", "expand"], "expand"),
         ],
     )
     def test_tree_find_node_by_stack_ending_with_expand_returns_expand_node(

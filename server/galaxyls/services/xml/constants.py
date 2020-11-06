@@ -1,3 +1,5 @@
+NEW_LINE = "\n"
+
 _EXL = ord("!")
 _MIN = ord("-")
 _UDS = ord("_")
@@ -7,7 +9,7 @@ _FSL = ord("/")
 _EQS = ord("=")
 _DQO = ord('"')
 _SQO = ord("'")
-_NWL = ord("\n")
+_NWL = ord(NEW_LINE)
 _CAR = ord("\r")
 _LFD = ord("\f")
 _WSP = ord(" ")

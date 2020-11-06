@@ -36,7 +36,13 @@ class XmlSyntaxNode(NodeMixin):
     def is_at(self, offset: int) -> bool:
         return self.start <= offset <= self.end
 
+    def is_at_closing_tag(self, offset: int) -> bool:
+        return False
+
     def get_attribute_nodes(self) -> List["XmlSyntaxNode"]:
+        return []
+
+    def get_attribute_names(self) -> List[str]:
         return []
 
     def find_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
@@ -153,11 +159,17 @@ class XmlElement(XmlSyntaxNode):
     def is_same_tag(self, tag: str) -> bool:
         return self.name == tag
 
+    def is_at_closing_tag(self, offset: int) -> bool:
+        return self.end_tag_open_offset <= offset <= self.end_tag_close_offset
+
     def get_attribute_nodes(self) -> List[XmlSyntaxNode]:
         result: List[XmlSyntaxNode] = []
         for attr in self.attributes.values():
             result.extend(attr.get_attribute_nodes())
         return result
+
+    def get_attribute_names(self) -> List[str]:
+        return [*self.attributes]
 
 
 class XmlCDATASection(XmlSyntaxNode):

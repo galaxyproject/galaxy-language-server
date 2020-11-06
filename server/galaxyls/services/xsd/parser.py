@@ -32,19 +32,19 @@ class GalaxyToolXsdParser:
     supported by the XSD specification.
     """
 
-    def __init__(self, xsd_root: etree.Element):
+    def __init__(self, xsd_root: etree._Element):
         """Initializes the parser with the given etree root element.
 
         Args:
-            xsd_root (etree.Element): The root element of the XSD.
+            xsd_root (etree._Element): The root element of the XSD.
         """
-        self._root: etree.Element = xsd_root
+        self._root: etree._Element = xsd_root
         self._tree: Optional[XsdTree] = None
-        self._named_type_map: Dict[str, etree.Element] = {}
-        self._named_group_map: Dict[str, etree.Element] = {}
+        self._named_type_map: Dict[str, etree._Element] = {}
+        self._named_group_map: Dict[str, etree._Element] = {}
 
     def get_tree(self) -> XsdTree:
-        """Builds the tree structure from the root etree.Element if
+        """Builds the tree structure from the root etree._Element if
         it does not exists, or returns it if exists.
 
         Returns:
@@ -81,7 +81,7 @@ class GalaxyToolXsdParser:
             name = element.get("name")
             self._named_group_map[name] = element
 
-    def _build_tree_recursive(self, parent_element: etree.Element, parent_node: XsdNode, depth: int = 0) -> None:
+    def _build_tree_recursive(self, parent_element: etree._Element, parent_node: XsdNode, depth: int = 0) -> None:
         if depth > MAX_RECURSION_DEPTH:
             return None  # Stop recursion
 
@@ -117,7 +117,7 @@ class GalaxyToolXsdParser:
         if element_type is not None and element_type.tag == XS_COMPLEX_TYPE:
             self._apply_complex_type_to_node(element_type, node, depth + 1)
 
-    def _apply_complex_type_to_node(self, complex_type: etree.Element, node: XsdNode, depth: int = 0) -> None:
+    def _apply_complex_type_to_node(self, complex_type: etree._Element, node: XsdNode, depth: int = 0) -> None:
         for child_element in complex_type:
             tag = child_element.tag
             if tag in [XS_ALL, XS_SEQUENCE, XS_CHOICE]:
@@ -139,20 +139,25 @@ class GalaxyToolXsdParser:
             for child_element in group:
                 self._add_attribute_to_node(child_element, node)
 
-    def _apply_group_to_node(self, group_name: str, node: XsdNode, depth: int,) -> None:
+    def _apply_group_to_node(
+        self,
+        group_name: str,
+        node: XsdNode,
+        depth: int,
+    ) -> None:
         group = self._named_group_map.get(group_name)
         if group is not None:
             for child_element in group:
                 self._build_tree_recursive(child_element, node, depth + 1)
 
-    def _apply_simple_content_to_node(self, simple_content: etree.Element, node: XsdNode) -> None:
+    def _apply_simple_content_to_node(self, simple_content: etree._Element, node: XsdNode) -> None:
         for child_elem in simple_content:
             if child_elem.tag == XS_EXTENSION:
                 attributes = child_elem.findall(XS_ATTRIBUTE)
                 for attr_elem in attributes:
                     self._add_attribute_to_node(attr_elem, node)
 
-    def _apply_complex_content_to_node(self, complex_content: etree.Element, node: XsdNode, depth: int) -> None:
+    def _apply_complex_content_to_node(self, complex_content: etree._Element, node: XsdNode, depth: int) -> None:
         for child_elem in complex_content:
             if child_elem.tag == XS_EXTENSION:
                 attr_base = child_elem.attrib.get("base")
@@ -160,7 +165,7 @@ class GalaxyToolXsdParser:
                     self._apply_named_type_to_node(attr_base, node, depth)
                 self._apply_complex_type_to_node(child_elem, node, depth)
 
-    def _add_attribute_to_node(self, attribute_element: etree.Element, node: XsdNode) -> None:
+    def _add_attribute_to_node(self, attribute_element: etree._Element, node: XsdNode) -> None:
         attr_name = attribute_element.attrib.get("name")
         attr_type = attribute_element.attrib.get("type")
         attr_use = attribute_element.attrib.get("use")

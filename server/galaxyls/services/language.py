@@ -40,10 +40,11 @@ class GalaxyToolLanguageService:
     def get_documentation(self, document: Document, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
         context = self.xml_context_service.get_xml_context(document, position)
-        if context.is_node_content or context.is_attribute_value():
+        if context.is_content or context.is_attribute_value:
             return None
         documentation = self.xsd_service.get_documentation_for(context)
-        return Hover(documentation, context.token_range)
+        node_range = self.xml_context_service.get_range_from_offsets(document, context.token.start, context.token.end)
+        return Hover(documentation, node_range)
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
         """Given the document contents returns the list of TextEdits
@@ -56,7 +57,7 @@ class GalaxyToolLanguageService:
         context = self.xml_context_service.get_xml_context(document, params.position)
         return self.completion_service.get_completion_at_context(context, params.context)
 
-    def get_auto_close_tag(self, document: Document, params: TextDocumentPositionParams) -> AutoCloseTagResult:
+    def get_auto_close_tag(self, document: Document, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
         trigger_character = document.lines[params.position.line][params.position.character - 1]
         position_before_trigger = Position(params.position.line, params.position.character - 1)

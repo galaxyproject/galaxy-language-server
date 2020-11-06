@@ -13,7 +13,7 @@ from ..sample_data import (
     TEST_TOOL_01_DOCUMENT,
     TEST_TOOL_WITH_PROLOG_DOCUMENT,
 )
-from ..utils import get_fake_document
+from ..utils import TestUtils
 
 
 def assert_element_has_attribute(element: Optional[XmlElement], key: str, value: str) -> None:
@@ -170,17 +170,17 @@ class TestXmlDocumentParserClass:
     @pytest.mark.parametrize(
         "document, expected",
         [
-            (get_fake_document(""), True),
-            (get_fake_document(" "), True),
-            (get_fake_document("\n"), True),
-            (get_fake_document(" \n "), True),
-            (get_fake_document(" \n text"), True),
-            (get_fake_document('<?xml version="1.0" encoding="UTF-8"?>'), True),
-            (get_fake_document("<"), False),
-            (get_fake_document("<tool"), False),
-            (get_fake_document("<tool "), False),
-            (get_fake_document("<tool>"), False),
-            (get_fake_document('<?xml version="1.0" encoding="UTF-8"?><tool>'), False),
+            (TestUtils.to_document(""), True),
+            (TestUtils.to_document(" "), True),
+            (TestUtils.to_document("\n"), True),
+            (TestUtils.to_document(" \n "), True),
+            (TestUtils.to_document(" \n text"), True),
+            (TestUtils.to_document('<?xml version="1.0" encoding="UTF-8"?>'), True),
+            (TestUtils.to_document("<"), False),
+            (TestUtils.to_document("<tool"), False),
+            (TestUtils.to_document("<tool "), False),
+            (TestUtils.to_document("<tool>"), False),
+            (TestUtils.to_document('<?xml version="1.0" encoding="UTF-8"?><tool>'), False),
         ],
     )
     def test_parse_empty_document_returns_is_empty(self, document: Document, expected: bool) -> None:
@@ -209,7 +209,8 @@ class TestXmlDocumentParserClass:
     def test_get_node_at_returns_expected_type(self, document: Document, position: Position, expected: NodeType) -> None:
         parser = XmlDocumentParser()
         xml_document = parser.parse(document)
+        offset = document.offset_at_position(position)
 
-        actual = xml_document.get_node_at(position)
+        actual = xml_document.get_node_at(offset)
 
         assert actual.node_type == expected
