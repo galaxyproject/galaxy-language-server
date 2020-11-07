@@ -129,7 +129,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
-        assert type(xml_document.root.elements[0].children[0]) is XmlCDATASection
+        assert type(xml_document.root.elements[0].children[1]) is XmlCDATASection
         assert type(xml_document.root.elements[3].children[0]) is XmlCDATASection
 
     def test_parse_returns_expected_elements_when_macro(self) -> None:
@@ -168,24 +168,24 @@ class TestXmlDocumentParserClass:
         assert_element_has_offsets(xml_document.root.elements[1], 107, 117)
 
     @pytest.mark.parametrize(
-        "document, expected",
+        "source, expected",
         [
-            (TestUtils.to_document(""), True),
-            (TestUtils.to_document(" "), True),
-            (TestUtils.to_document("\n"), True),
-            (TestUtils.to_document(" \n "), True),
-            (TestUtils.to_document(" \n text"), True),
-            (TestUtils.to_document('<?xml version="1.0" encoding="UTF-8"?>'), True),
-            (TestUtils.to_document("<"), False),
-            (TestUtils.to_document("<tool"), False),
-            (TestUtils.to_document("<tool "), False),
-            (TestUtils.to_document("<tool>"), False),
-            (TestUtils.to_document('<?xml version="1.0" encoding="UTF-8"?><tool>'), False),
+            ("", True),
+            (" ", True),
+            ("\n", True),
+            (" \n ", True),
+            (" \n text", True),
+            ('<?xml version="1.0" encoding="UTF-8"?>', True),
+            ("<", False),
+            ("<tool", False),
+            ("<tool ", False),
+            ("<tool>", False),
+            ('<?xml version="1.0" encoding="UTF-8"?><tool>', False),
         ],
     )
-    def test_parse_empty_document_returns_is_empty(self, document: Document, expected: bool) -> None:
+    def test_parse_empty_document_returns_is_empty(self, source: str, expected: bool) -> None:
         parser = XmlDocumentParser()
-
+        document = TestUtils.to_document(source)
         xml_document = parser.parse(document)
 
         assert xml_document.is_empty == expected

@@ -22,7 +22,7 @@ class TestUtils:
         return Document(uri, source, version)
 
     @staticmethod
-    def locate_mark_source(mark: str, source_with_mark: str) -> Tuple[Position, str]:
+    def extract_mark_from_source(mark: str, source_with_mark: str) -> Tuple[Position, str]:
         """Gets a tuple with the position of the mark inside the text and the source text without the mark.
 
         This is to visually place a mark where the context should be determined in some tests.

@@ -93,8 +93,8 @@ class XmlCompletionService:
             CompletionList: The list of possible values of the attribute if it has an enumeration
             restriction.
         """
-        if context.token.name:
-            attribute: Optional[XsdAttribute] = context.xsd_element.attributes.get(context.token.name)
+        if context.attribute_name:
+            attribute: Optional[XsdAttribute] = context.xsd_element.attributes.get(context.attribute_name)
             if attribute and attribute.enumeration:
                 result = [CompletionItem(item, CompletionItemKind.Value) for item in attribute.enumeration]
                 return CompletionList(items=result, is_incomplete=False)
@@ -102,7 +102,7 @@ class XmlCompletionService:
 
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
-        tag = context.token.name
+        tag = context.xsd_element.name
         snippet = f"$0</{tag}>"
         replace_range = None
         is_self_closing = trigger_character == "/"

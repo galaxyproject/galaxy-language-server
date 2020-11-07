@@ -50,7 +50,7 @@ class XmlContext:
 
     @property
     def xsd_element(self) -> XsdNode:
-        """Gets the XSD element associated with the token in context."""
+        """The XSD element associated with the token in context."""
         return self._xsd_node
 
     @property
@@ -72,6 +72,11 @@ class XmlContext:
     def is_attribute_value(self) -> bool:
         """Indicates if the token in context is an attribute value."""
         return self._node is not None and self._node.node_type == NodeType.ATTRIBUTE_VALUE
+
+    @property
+    def attribute_name(self) -> Optional[str]:
+        """The name of the attribute if the context is an attribute or None."""
+        return self._node is not None and self._node.get_attribute_name()
 
     @property
     def is_content(self) -> bool:
