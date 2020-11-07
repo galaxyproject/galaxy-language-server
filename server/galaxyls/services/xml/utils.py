@@ -52,7 +52,8 @@ class MultiLineStream:
         return False
 
     def advance_if_chars(self, ch: List[int]) -> bool:
-        """If the next characters in the stream matches the given sequence of characters, the stream advances the length of the sequence."""
+        """If the next characters in the stream matches the given sequence of characters, the stream advances
+        the length of the sequence."""
         if self._position + len(ch) > self._len:
             return False
         i = 0

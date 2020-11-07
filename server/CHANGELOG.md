@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## Unreleased
+
+### Changed
+
+- The XML parser has been replaced for a better implementation.
+
 ## [0.1.2] - 2020-10-25
 
 ### Removed
