@@ -9,6 +9,7 @@ from ...services.xml.nodes import XmlAttribute, XmlAttributeKey, XmlAttributeVal
 from ...services.xml.types import NodeType
 from .utils import TestUtils
 
+
 # [root]
 # ├── [child]
 # │   └── [subchild]
@@ -93,6 +94,7 @@ class TestXmlContextServiceClass:
             ("<root><child^", "child", NodeType.ELEMENT, "child", ["root", "child"]),
             ("<root><child ^", "child", NodeType.ELEMENT, "child", ["root", "child"]),
             ('<root ^ attr="4"><child ', "root", NodeType.ELEMENT, "root", ["root"]),
+            ('<root ^attr="4"><child ', "attr", NodeType.ATTRIBUTE_KEY, "root", ["root"]),
             ('<root attr^="4"><child ', "attr", NodeType.ATTRIBUTE_KEY, "root", ["root"]),
             ('<root attr=^"4"><child ', None, NodeType.ATTRIBUTE_VALUE, "root", ["root"]),
             ('<root attr="4"^><child ', None, NodeType.ATTRIBUTE_VALUE, "root", ["root"]),
@@ -104,6 +106,7 @@ class TestXmlContextServiceClass:
             ('<root attr="4">\n<child/><^sibling', "sibling", NodeType.ELEMENT, "sibling", ["root", "sibling"]),
             ('<root attr="4">\n    <^ \n<child', None, NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4">\n    < \n<^child', "child", NodeType.ELEMENT, "child", ["root", "child"]),
+            ("<root><child></child>^", "root", NodeType.ELEMENT, "root", ["root"]),
         ],
     )
     def test_get_xml_context_returns_context_with_expected_node(

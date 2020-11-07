@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 from anytree import NodeMixin
 
@@ -68,6 +68,11 @@ class XmlSyntaxNode(NodeMixin):
                     return attr
         return self
 
+    def get_offsets(self, offset: int) -> Tuple[int, int]:
+        if self.name:
+            return self.start, self.start + len(self.name)
+        return self.start, self.end
+
 
 class XmlContent(XmlSyntaxNode):
     def __init__(self, start: int, end: int):
@@ -124,6 +129,14 @@ class XmlAttributeKey(XmlSyntaxNode):
     def get_attribute_name(self) -> Optional[str]:
         return self.name
 
+    def get_offsets(self, offset: int) -> Tuple[int, int]:
+        if self.name:
+            end = self.start + len(self.name)
+            if self.owner.has_delimiter:
+                end = end - 1
+            return self.start - 1, end
+        return self.start, self.end
+
 
 class XmlAttributeValue(XmlSyntaxNode):
     def __init__(self, value: Optional[str], start: int, end: int, owner: XmlAttribute):
@@ -175,6 +188,11 @@ class XmlElement(XmlSyntaxNode):
     def is_same_tag(self, tag: str) -> bool:
         return self.name == tag
 
+    def is_at(self, offset: int) -> bool:
+        if self.end_tag_close_offset != UNDEFINED_OFFSET:
+            return self.start <= offset <= self.end_tag_close_offset
+        return self.start <= offset <= self.end
+
     def is_at_closing_tag(self, offset: int) -> bool:
         return self.end_tag_open_offset <= offset <= self.end_tag_close_offset
 
@@ -186,6 +204,16 @@ class XmlElement(XmlSyntaxNode):
 
     def get_attribute_names(self) -> List[str]:
         return [*self.attributes]
+
+    def get_offsets(self, offset: int) -> Tuple[int, int]:
+        if self.name:
+            start = self.start
+            end = self.start + len(self.name)
+            if self.is_at_closing_tag(offset):
+                start = self.end_tag_open_offset
+                end = self.end_tag_close_offset
+            return start, end
+        return self.start, self.end
 
 
 class XmlCDATASection(XmlSyntaxNode):

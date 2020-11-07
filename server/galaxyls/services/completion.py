@@ -25,16 +25,18 @@ class XmlCompletionService:
     def __init__(self, xsd_tree: XsdTree):
         self.xsd_tree: XsdTree = xsd_tree
 
-    def get_completion_at_context(self, xml_context: XmlContext, completion_context: CompletionContext) -> CompletionList:
+    def get_completion_at_context(self, context: XmlContext, completion_context: CompletionContext) -> CompletionList:
         triggerKind = completion_context.triggerKind
         if triggerKind == CompletionTriggerKind.TriggerCharacter:
             if completion_context.triggerCharacter == "<":
-                return self.get_node_completion(xml_context)
+                return self.get_node_completion(context)
             if completion_context.triggerCharacter == " ":
-                return self.get_attribute_completion(xml_context)
+                return self.get_attribute_completion(context)
         elif triggerKind == CompletionTriggerKind.Invoked:
-            if xml_context.is_attribute_value:
-                return self.get_attribute_value_completion(xml_context)
+            if context.is_attribute_value:
+                return self.get_attribute_value_completion(context)
+            if context.is_tag:
+                return self.get_attribute_completion(context)
         return CompletionList(items=[], is_incomplete=False)
 
     def get_node_completion(self, context: XmlContext) -> CompletionList:
@@ -50,7 +52,7 @@ class XmlCompletionService:
             that can be placed under the current node.
         """
         result = []
-        if context.is_empty:
+        if context.is_empty or context.is_root:
             result.append(self._build_node_completion_item(context.xsd_element))
         elif context.xsd_element:
             for child in context.xsd_element.children:

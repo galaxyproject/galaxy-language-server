@@ -40,11 +40,11 @@ class GalaxyToolLanguageService:
     def get_documentation(self, document: Document, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
         context = self.xml_context_service.get_xml_context(document, position)
-        if context.is_content or context.is_attribute_value:
-            return None
-        documentation = self.xsd_service.get_documentation_for(context)
-        node_range = self.xml_context_service.get_range_from_offsets(document, context.token.start, context.token.end)
-        return Hover(documentation, node_range)
+        if context.token and (context.is_tag or context.is_attribute_key):
+            documentation = self.xsd_service.get_documentation_for(context)
+            context_range = self.xml_context_service.get_range_for_context(document, context)
+            return Hover(documentation, context_range)
+        return None
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
         """Given the document contents returns the list of TextEdits

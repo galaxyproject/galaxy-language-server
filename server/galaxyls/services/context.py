@@ -40,8 +40,13 @@ class XmlContext:
 
     @property
     def position(self) -> Optional[Position]:
-        """The context position inside de Document."""
+        """The context position (line and character) inside de Document."""
         return self._position
+
+    @property
+    def offset(self) -> int:
+        """The character offset inside de Document."""
+        return self._offset
 
     @property
     def line_text(self) -> str:
@@ -57,6 +62,11 @@ class XmlContext:
     def is_empty(self) -> bool:
         """Indicates if the document is empty and no context can be determined."""
         return not self._node
+
+    @property
+    def is_root(self) -> bool:
+        """Indicates if the element at context is the root element."""
+        return self._node and len(self._node.ancestors) == 1
 
     @property
     def is_tag(self) -> bool:
@@ -127,7 +137,7 @@ class XmlContextService:
         node = xml_document.get_node_at(offset)
         xsd_node = self.find_matching_xsd_element(node, self.xsd_tree)
         line_text = document.lines[position.line]
-        context = XmlContext(xsd_node, node, line_text, position)
+        context = XmlContext(xsd_node, node, line_text, position, offset)
         return context
 
     def find_matching_xsd_element(self, node: Optional[XmlSyntaxNode], xsd_tree: XsdTree) -> XsdNode:
@@ -147,11 +157,13 @@ class XmlContextService:
                 return xsd_node
         return xsd_tree.root
 
-    def get_range_from_offsets(self, document: Document, start_offset: int, end_offset: int) -> Range:
+    def get_range_for_context(self, document: Document, context: XmlContext) -> Range:
+        start_offset, end_offset = context.token.get_offsets(context.offset)
         start_line = max(document.source.count(NEW_LINE, 0, start_offset), 0)
         start_character = start_offset - document.source.rfind(NEW_LINE, 0, start_offset)
         end_line = max(document.source.count(NEW_LINE, 0, end_offset), 0)
         end_character = end_offset - document.source.rfind(NEW_LINE, 0, end_offset)
+
         return Range(
             Position(start_line, start_character),
             Position(end_line, end_character),
