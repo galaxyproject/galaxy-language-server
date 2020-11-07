@@ -28,6 +28,9 @@ ERROR_UNEXPECTED_WHITESPACE = "Unexpected whitespace. Tag name must directly fol
 
 
 class XmlScanner:
+    """This class allows to sequentially scan a XML document to find and extract the exact positions of every
+    token inside the document."""
+
     def __init__(self, source: str, initial_offset: int = 0, initial_state: ScannerState = ScannerState.WithinContent) -> None:
         self.stream = MultiLineStream(source, initial_offset)
         self.state = initial_state
@@ -36,6 +39,7 @@ class XmlScanner:
         self.token_error: Optional[str] = None
 
     def scan(self) -> TokenType:
+        """Scans the document to sequentially find the next token."""
         ofsset = self.stream.pos()
         token = self._internal_scan()
         if token != TokenType.EOS and ofsset == self.stream.pos():
@@ -43,29 +47,21 @@ class XmlScanner:
             return self._finish_token(ofsset, TokenType.Unknown)
         return token
 
-    def get_token_type(self) -> TokenType:
-        return self.token_type
-
     def get_token_offset(self) -> int:
+        """Gets the current token offset inside the document."""
         return self.token_offset
 
-    def get_token_lenth(self) -> int:
-        return self.stream.pos() - self.token_offset
-
     def get_token_end(self) -> int:
+        """Gets the last position/offset of the token."""
         return self.stream.pos()
 
     def get_token_text(self) -> str:
+        """Gets the text of this token from its offset to the current position."""
         return self.stream.get_source()[self.token_offset : self.stream.pos()]
 
     def get_token_text_from_offset(self, offset: int) -> str:
+        """Gets the text of this token from the given offset to the current position."""
         return self.stream.get_source()[offset : self.stream.pos()]
-
-    def get_token_error(self) -> Optional[str]:
-        return self.token_error
-
-    def get_scanner_state(self) -> ScannerState:
-        return self.state
 
     def _finish_token(self, offset: int, type: TokenType, error_message: Optional[str] = None) -> TokenType:
         self.token_type = type
@@ -73,7 +69,16 @@ class XmlScanner:
         self.token_error = error_message
         return type
 
+    # flake8: noqa: C901
     def _internal_scan(self) -> TokenType:
+        """Scans the document for the next token.
+
+        This method is a bit too complex, but, since it is a Python translation
+        from the Java Eclipse/Lemminx parser, it could be easier to maintain it this way.
+
+        Returns:
+            TokenType: The token found.
+        """
         offset = self.stream.pos()
         if self.stream.eos():
             return self._finish_token(offset, TokenType.EOS)

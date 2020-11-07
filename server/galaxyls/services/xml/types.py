@@ -3,6 +3,7 @@ from enum import Enum, unique
 
 @unique
 class DocumentType(Enum):
+    """Supported types of XML documents."""
 
     UNKNOWN = 1
     TOOL = 2
@@ -11,6 +12,7 @@ class DocumentType(Enum):
 
 @unique
 class NodeType(Enum):
+    """Supported types of document nodes."""
 
     UNKNOWN = 1
     ELEMENT = 2
@@ -26,6 +28,7 @@ class NodeType(Enum):
 
 @unique
 class TokenType(Enum):
+    """Types of tokens in a XML document."""
 
     StartCommentTag = 1
     Comment = 2
@@ -57,6 +60,7 @@ class TokenType(Enum):
 
 @unique
 class ScannerState(Enum):
+    """Possible states of the XML scanner."""
 
     WithinContent = 1
     AfterOpeningStartTag = 2

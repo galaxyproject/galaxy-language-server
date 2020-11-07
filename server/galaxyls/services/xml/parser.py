@@ -23,7 +23,25 @@ from .types import TokenType
 
 
 class XmlDocumentParser:
+    """Parses a XML document and creates a syntax tree with all the nodes found.
+
+    If the document is incomplete or malformed, the parser will try to recover
+    the syntax tree in those cases without altering the original offsets of the nodes."""
+
+    # flake8: noqa: C901
     def parse(self, document: Document) -> XmlDocument:
+        """Parses the given text document and returns the resulting syntax tree as
+        a XmlDocument.
+
+        This method is a bit too complex, but, since it is a Python translation
+        from the Java Eclipse/Lemminx parser, it could be easier to maintain it this way.
+
+        Args:
+            document (Document): The XML text document.
+
+        Returns:
+            XmlDocument: The resulting syntax tree.
+        """
         text = document.source
         scanner = XmlScanner(text)
         xml_document = XmlDocument(document)
