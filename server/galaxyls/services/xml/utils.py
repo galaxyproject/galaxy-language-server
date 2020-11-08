@@ -31,7 +31,7 @@ class MultiLineStream:
 
     def advance(self, n: int) -> None:
         """Advances the stream given number of positions."""
-        self._position = self._position + n
+        self._position += n
 
     def go_to_end(self) -> None:
         """Sets the stream position to the end of the stream."""
@@ -47,17 +47,18 @@ class MultiLineStream:
     def advance_if_char(self, ch: int) -> bool:
         """If the next character in the stream matches the given character, the stream advances one position."""
         if ch == self.peek_char():
-            self._position = self._position + 1
+            self._position += 1
             return True
         return False
 
     def advance_if_chars(self, ch: List[int]) -> bool:
         """If the next characters in the stream matches the given sequence of characters, the stream advances
         the length of the sequence."""
-        if self._position + len(ch) > self._len:
+        ch_length = len(ch)
+        if self._position + ch_length > self._len:
             return False
         i = 0
-        for i in range(len(ch)):
+        for i in range(ch_length):
             if self._source[self._position + i] != chr(ch[i]):
                 return False
         self.advance(i)
@@ -73,11 +74,12 @@ class MultiLineStream:
 
     def advance_until_chars(self, ch: List[int]) -> bool:
         """Advances the stream until it founds a list of character matching the given."""
-        while self._position + len(ch) <= self._len:
+        ch_length = len(ch)
+        while self._position + ch_length <= self._len:
             i = 0
-            while i < len(ch) and self._source[self._position + i] == chr(ch[i]):
-                i = i + 1
-            if i == len(ch):
+            while i < ch_length and self._source[self._position + i] == chr(ch[i]):
+                i += 1
+            if i == ch_length:
                 return True
             self.advance(i or 1)
         self.go_to_end()
@@ -87,26 +89,27 @@ class MultiLineStream:
         """Advances the stream if the characters are like any of the characters in the given list."""
         pos_now = self._position
         while self._position < self._len and ord(self._source[self._position]) in list:
-            self._position = self._position + 1
+            self._position += 1
         return self._position - pos_now
 
     def advance_until_char_or_new_tag(self, ch: int) -> bool:
         """Advances the stream until it finds the given character or the '<' (new tag character)."""
         while self._position < self._len:
-            if self.peek_char() == ch or self.peek_char() == _LAN:
+            if self.peek_char() in [ch, _LAN]:
                 return True
             self.advance(1)
         return False
 
     def advance_until_chars_or_new_tag(self, ch: List[int]) -> bool:
         """Advances the stream until it finds the given sequence of characters or the '<' (new tag character)."""
-        while self._position + len(ch) <= self._len:
+        ch_length = len(ch)
+        while self._position + ch_length <= self._len:
             i = 0
             if self.peek_char() == _LAN:
                 return True
-            while i < len(ch) and self._source[self._position + i] == chr(ch[i]):
-                i = i + 1
-            if i == len(ch):
+            while i < ch_length and self._source[self._position + i] == chr(ch[i]):
+                i += 1
+            if i == ch_length:
                 return True
             self.advance(i or 1)
         self.go_to_end()
@@ -116,7 +119,7 @@ class MultiLineStream:
         """Advances the stream while the given condition is True."""
         pos_now = self._position
         while self._position < self._len and predicate(self._source[self._position]):
-            self._position = self._position + 1
+            self._position += 1
         return self._position - pos_now
 
     def skip_whitespace(self) -> bool:

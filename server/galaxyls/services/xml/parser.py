@@ -43,6 +43,7 @@ class XmlDocumentParser:
             XmlDocument: The resulting syntax tree.
         """
         text = document.source
+        text_length = len(text)
         scanner = XmlScanner(text)
         xml_document = XmlDocument(document)
         current: XmlSyntaxNode = xml_document
@@ -153,7 +154,7 @@ class XmlDocumentParser:
                 current.end = scanner.get_token_end()
 
             elif token == TokenType.CDATATagOpen:
-                cdata = XmlCDATASection(scanner.get_token_offset(), len(text))
+                cdata = XmlCDATASection(scanner.get_token_offset(), text_length)
                 cdata.parent = current
                 current = cdata
 
@@ -173,7 +174,7 @@ class XmlDocumentParser:
                 # closed, current should be set to the root node
                 if current.is_closed:
                     current = cast(XmlSyntaxNode, current.parent)
-                comment = XmlComment(scanner.get_token_offset(), len(text))
+                comment = XmlComment(scanner.get_token_offset(), text_length)
                 comment.parent = current
                 current = comment
 
@@ -193,7 +194,7 @@ class XmlDocumentParser:
                 current = cast(XmlSyntaxNode, current.parent)
 
             elif token == TokenType.StartPrologOrPI:
-                pi = XmlProcessingInstruction(scanner.get_token_offset(), len(text))
+                pi = XmlProcessingInstruction(scanner.get_token_offset(), text_length)
                 pi.parent = current
                 current = pi
 
@@ -216,7 +217,7 @@ class XmlDocumentParser:
                 self._create_fake_end_tag(end_tag_open_offset, current)
 
         while current.parent:
-            current.end = len(text)
+            current.end = text_length
             current = current.parent
 
         return xml_document
