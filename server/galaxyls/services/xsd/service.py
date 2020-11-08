@@ -23,10 +23,10 @@ class GalaxyToolXsdService:
     the XSD schema and validate XML files against it.
     """
 
-    def __init__(self, server_name: str):
+    def __init__(self, server_name: str) -> None:
         """Initializes the validator by loading the XSD."""
         self.server_name = server_name
-        self.xsd_doc = etree.parse(str(TOOL_XSD_FILE))
+        self.xsd_doc: etree._ElementTree = etree.parse(str(TOOL_XSD_FILE))
         self.xsd_schema = etree.XMLSchema(self.xsd_doc)
         self.xsd_parser = GalaxyToolXsdParser(self.xsd_doc.getroot())
         self.validator = GalaxyToolValidationService(server_name, self.xsd_schema)
@@ -42,14 +42,13 @@ class GalaxyToolXsdService:
         given element name (node or attribute).
         """
         tree = self.xsd_parser.get_tree()
-        node = tree.find_node_by_stack(context.node_stack)
-        if node is None:
-            return NO_DOC_MARKUP
-        element = None
-        if context.is_tag():
-            element = node
-        if context.is_attribute_key():
-            element = node.attributes.get(context.token_name)
-        if element is None:
-            return NO_DOC_MARKUP
-        return element.get_doc()
+        node = tree.find_node_by_stack(context.stack)
+        if node:
+            element = None
+            if context.is_tag:
+                element = node
+            if context.is_attribute_key and context.token.name:
+                element = node.attributes.get(context.token.name)
+            if element:
+                return element.get_doc()
+        return NO_DOC_MARKUP

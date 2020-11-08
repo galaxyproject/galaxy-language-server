@@ -1,5 +1,6 @@
 """Module in charge of the auto-completion feature."""
 
+from typing import Optional
 from pygls.types import (
     CompletionContext,
     CompletionItem,
@@ -24,16 +25,18 @@ class XmlCompletionService:
     def __init__(self, xsd_tree: XsdTree):
         self.xsd_tree: XsdTree = xsd_tree
 
-    def get_completion_at_context(self, xml_context: XmlContext, completion_context: CompletionContext) -> CompletionList:
+    def get_completion_at_context(self, context: XmlContext, completion_context: CompletionContext) -> CompletionList:
         triggerKind = completion_context.triggerKind
         if triggerKind == CompletionTriggerKind.TriggerCharacter:
             if completion_context.triggerCharacter == "<":
-                return self.get_node_completion(xml_context)
+                return self.get_node_completion(context)
             if completion_context.triggerCharacter == " ":
-                return self.get_attribute_completion(xml_context)
+                return self.get_attribute_completion(context)
         elif triggerKind == CompletionTriggerKind.Invoked:
-            if xml_context.is_attribute_value():
-                return self.get_attribute_value_completion(xml_context)
+            if context.is_attribute_value:
+                return self.get_attribute_value_completion(context)
+            if context.is_tag:
+                return self.get_attribute_completion(context)
         return CompletionList(items=[], is_incomplete=False)
 
     def get_node_completion(self, context: XmlContext) -> CompletionList:
@@ -49,10 +52,10 @@ class XmlCompletionService:
             that can be placed under the current node.
         """
         result = []
-        if context.is_empty:
-            result.append(self._build_node_completion_item(context.node))
-        elif context.node:
-            for child in context.node.children:
+        if context.is_empty or context.is_root:
+            result.append(self._build_node_completion_item(context.xsd_element))
+        elif context.xsd_element:
+            for child in context.xsd_element.children:
                 result.append(self._build_node_completion_item(child, len(result)))
             result.append(self._build_node_completion_item(self.xsd_tree.expand_element, len(result)))
         return CompletionList(items=result, is_incomplete=False)
@@ -69,15 +72,16 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
-        if context.is_empty or context.is_node_content or context.is_attribute_value() or context.is_closing_tag:
+        if context.is_empty or context.is_content or context.is_attribute_value or context.is_closing_tag:
             return CompletionList(is_incomplete=False)
 
         result = []
-        if context.node:
-            for attr_name in context.node.attributes:
-                if attr_name in context.attr_list:
+        if context.xsd_element:
+            existing_attr_names = context.token.get_attribute_names()
+            for attr_name in context.xsd_element.attributes:
+                if attr_name in existing_attr_names:
                     continue
-                attr = context.node.attributes[attr_name]
+                attr = context.xsd_element.attributes[attr_name]
                 result.append(self._build_attribute_completion_item(attr, len(result)))
         return CompletionList(items=result, is_incomplete=False)
 
@@ -91,27 +95,29 @@ class XmlCompletionService:
             CompletionList: The list of possible values of the attribute if it has an enumeration
             restriction.
         """
-        attribute: XsdAttribute = context.node.attributes.get(context.attr_name)
-        if attribute and attribute.enumeration:
-            result = [CompletionItem(item, CompletionItemKind.Value) for item in attribute.enumeration]
-            return CompletionList(items=result, is_incomplete=False)
+        if context.attribute_name:
+            attribute: Optional[XsdAttribute] = context.xsd_element.attributes.get(context.attribute_name)
+            if attribute and attribute.enumeration:
+                result = [CompletionItem(item, CompletionItemKind.Value) for item in attribute.enumeration]
+                return CompletionList(items=result, is_incomplete=False)
+        return CompletionList(False)
 
-    def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> AutoCloseTagResult:
+    def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
-        tag = context.node.name
+        tag = context.xsd_element.name
         snippet = f"$0</{tag}>"
         replace_range = None
         is_self_closing = trigger_character == "/"
         if is_self_closing:
-            start = Position(context.target_position.line, context.target_position.character)
-            end_character = context.target_position.character + 1
-            if len(context.document_line) > end_character and context.document_line[end_character] == ">":
+            start = Position(context.position.line, context.position.character)
+            end_character = context.position.character + 1
+            if len(context.line_text) > end_character and context.line_text[end_character] == ">":
                 end_character = end_character + 1
-            end = Position(context.target_position.line, end_character)
+            end = Position(context.position.line, end_character)
             replace_range = Range(start=start, end=end)
-            if not context.is_node_content:
+            if not context.is_content:
                 snippet = "/>$0"
-        elif context.is_node_content:
+        elif context.is_content:
             return None
 
         return AutoCloseTagResult(snippet, replace_range)
@@ -130,7 +136,10 @@ class XmlCompletionService:
             about the node.
         """
         return CompletionItem(
-            node.name, CompletionItemKind.Class, documentation=node.get_doc(), sort_text=str(order).zfill(2),
+            node.name,
+            CompletionItemKind.Class,
+            documentation=node.get_doc(),
+            sort_text=str(order).zfill(2),
         )
 
     def _build_attribute_completion_item(self, attr: XsdAttribute, order: int = 0) -> CompletionItem:
