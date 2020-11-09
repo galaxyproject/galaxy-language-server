@@ -5,7 +5,7 @@
   "author": "davelopez",
   "publisher": "davelopez",
   "license": "Apache-2.0",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "preview": true,
   "repository": {
     "type": "git",
@@ -32,8 +32,25 @@
     "commands": [],
     "configuration": {
       "type": "object",
-      "title": "Galaxy Tools Configuration",
-      "properties": {}
+      "title": "Galaxy Tools",
+      "properties": {
+        "galaxyTools.completion.mode": {
+          "scope": "resource",
+          "type": "string",
+          "description": "Controls the auto-completion suggestions.",
+          "enum": [
+            "auto",
+            "invoke",
+            "disabled"
+          ],
+          "markdownEnumDescriptions": [
+            "The appropriate name of elements and attributes, depending on the context, will be automatically suggested as you type.",
+            "The suggestions will appear only if you explicitly invoke them using the `trigger suggest shortcut` (usually `Ctrl + space`).",
+            "No suggestions will be shown."
+          ],
+          "default": "auto"
+        }
+      }
     },
     "snippets": [
       {
