@@ -1,7 +1,7 @@
 "use strict";
 
 import * as net from "net";
-import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages } from "vscode";
+import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages, ExtensionMode } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
@@ -14,7 +14,7 @@ let client: LanguageClient;
  * @param context The extension context
  */
 export async function activate(context: ExtensionContext) {
-  if (isDebugMode()) {
+  if (context.extensionMode === ExtensionMode.Development) {
     // Development - Connect to language server (already running) using TCP
     client = connectToLanguageServerTCP(2087);
   } else {
@@ -61,10 +61,6 @@ function getClientOptions(): LanguageClientOptions {
 
     },
   };
-}
-
-function isDebugMode(): boolean {
-  return process.env.VSCODE_DEBUG_MODE === "true";
 }
 
 /**
