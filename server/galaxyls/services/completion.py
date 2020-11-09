@@ -1,6 +1,7 @@
 """Module in charge of the auto-completion feature."""
 
 from typing import Optional
+
 from pygls.types import (
     CompletionContext,
     CompletionItem,
@@ -12,9 +13,10 @@ from pygls.types import (
     Range,
 )
 
-from .xsd.parser import XsdTree, XsdNode, XsdAttribute
-from .context import XmlContext
+from ..config import CompletionMode
 from ..types import AutoCloseTagResult
+from .context import XmlContext
+from .xsd.parser import XsdAttribute, XsdNode, XsdTree
 
 
 class XmlCompletionService:
@@ -25,9 +27,11 @@ class XmlCompletionService:
     def __init__(self, xsd_tree: XsdTree):
         self.xsd_tree: XsdTree = xsd_tree
 
-    def get_completion_at_context(self, context: XmlContext, completion_context: CompletionContext) -> CompletionList:
+    def get_completion_at_context(
+        self, context: XmlContext, completion_context: CompletionContext, mode: CompletionMode
+    ) -> CompletionList:
         triggerKind = completion_context.triggerKind
-        if triggerKind == CompletionTriggerKind.TriggerCharacter:
+        if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter:
             if completion_context.triggerCharacter == "<":
                 return self.get_node_completion(context)
             if completion_context.triggerCharacter == " ":

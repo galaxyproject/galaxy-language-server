@@ -31,7 +31,7 @@ from pygls.types import (
     TextEdit,
 )
 
-from .config import GalaxyToolsConfiguration
+from .config import CompletionMode, GalaxyToolsConfiguration
 from .features import AUTO_CLOSE_TAGS
 from .services.language import GalaxyToolLanguageService
 from .types import AutoCloseTagResult
@@ -76,17 +76,19 @@ async def initialized(server: GalaxyToolsLanguageServer, params: InitializeParam
 
 
 @language_server.feature(WORKSPACE_DID_CHANGE_CONFIGURATION)
-def did_change_configuration(server: GalaxyToolsLanguageServer, params: DidChangeConfigurationParams):
+async def did_change_configuration(server: GalaxyToolsLanguageServer, params: DidChangeConfigurationParams) -> None:
     """Loads the client configuration after a change."""
-    server.show_message("did_change_configuration")
-    _load_client_config_async(server)
+    await _load_client_config_async(server)
+    server.show_message("Settings updated")
 
 
 @language_server.feature(COMPLETION, trigger_characters=["<", " "])
-def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> CompletionList:
+def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> Optional[CompletionList]:
     """Returns completion items depending on the current document context."""
+    if server.configuration.completion_mode == CompletionMode.DISABLED:
+        return None
     document = server.workspace.get_document(params.textDocument.uri)
-    return server.service.get_completion(document, params)
+    return server.service.get_completion(document, params, server.configuration.completion_mode)
 
 
 @language_server.feature(AUTO_CLOSE_TAGS)
