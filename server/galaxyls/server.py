@@ -1,30 +1,40 @@
 """Galaxy Tools Language Server implementation
 """
 
-from .services.language import GalaxyToolLanguageService
-from .features import AUTO_CLOSE_TAGS
-from .types import AutoCloseTagResult
-from typing import Optional, List
-from pygls.server import LanguageServer
+from typing import List, Optional
+
 from pygls.features import (
     COMPLETION,
     FORMATTING,
     HOVER,
+    INITIALIZED,
     TEXT_DOCUMENT_DID_CLOSE,
     TEXT_DOCUMENT_DID_OPEN,
     TEXT_DOCUMENT_DID_SAVE,
+    WORKSPACE_DID_CHANGE_CONFIGURATION,
 )
+from pygls.server import LanguageServer
 from pygls.types import (
     CompletionList,
     CompletionParams,
+    ConfigurationItem,
+    ConfigurationParams,
+    DidChangeConfigurationParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DidSaveTextDocumentParams,
     DocumentFormattingParams,
     Hover,
+    InitializeParams,
+    MessageType,
     TextDocumentPositionParams,
     TextEdit,
 )
+
+from .config import GalaxyToolsConfiguration
+from .features import AUTO_CLOSE_TAGS
+from .services.language import GalaxyToolLanguageService
+from .types import AutoCloseTagResult
 
 SERVER_NAME = "Galaxy Tools LS"
 
@@ -35,9 +45,41 @@ class GalaxyToolsLanguageServer(LanguageServer):
     def __init__(self):
         super().__init__()
         self.service = GalaxyToolLanguageService(SERVER_NAME)
+        self.configuration: GalaxyToolsConfiguration
 
 
 language_server = GalaxyToolsLanguageServer()
+
+
+async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
+    """Loads the client configuration from user or workspace settings and updates
+    the language server configuration.
+
+    Args:
+        server (GalaxyToolsLanguageServer): The language server instance.
+    """
+    try:
+        config = await server.get_configuration_async(
+            ConfigurationParams([ConfigurationItem(section=GalaxyToolsConfiguration.SECTION)])
+        )
+        server.configuration = GalaxyToolsConfiguration(config[0])
+    except BaseException as err:
+        server.configuration = GalaxyToolsConfiguration()
+        server.show_message_log(f"Error loading configuration: {err}")
+        server.show_message("Error loading configuration. Using default settings.", MessageType.Error)
+
+
+@language_server.feature(INITIALIZED)
+async def initialized(server: GalaxyToolsLanguageServer, params: InitializeParams) -> None:
+    """Loads the client configuration after initialization."""
+    await _load_client_config_async(server)
+
+
+@language_server.feature(WORKSPACE_DID_CHANGE_CONFIGURATION)
+def did_change_configuration(server: GalaxyToolsLanguageServer, params: DidChangeConfigurationParams):
+    """Loads the client configuration after a change."""
+    server.show_message("did_change_configuration")
+    _load_client_config_async(server)
 
 
 @language_server.feature(COMPLETION, trigger_characters=["<", " "])
@@ -48,27 +90,21 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
 
 
 @language_server.feature(AUTO_CLOSE_TAGS)
-def auto_close_tag(
-    server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
-) -> AutoCloseTagResult:
+def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
     """Responds to a close tag request to close the currently opened node."""
     document = server.workspace.get_document(params.textDocument.uri)
     return server.service.get_auto_close_tag(document, params)
 
 
 @language_server.feature(HOVER)
-def hover(
-    server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
-) -> Optional[Hover]:
+def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
     document = server.workspace.get_document(params.textDocument.uri)
     return server.service.get_documentation(document, params.position)
 
 
 @language_server.feature(FORMATTING)
-def formatting(
-    server: GalaxyToolsLanguageServer, params: DocumentFormattingParams
-) -> List[TextEdit]:
+def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> List[TextEdit]:
     """Formats the whole document using the provided parameters"""
     document = server.workspace.get_document(params.textDocument.uri)
     content = document.source
