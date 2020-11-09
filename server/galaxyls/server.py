@@ -94,8 +94,9 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
 @language_server.feature(AUTO_CLOSE_TAGS)
 def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
     """Responds to a close tag request to close the currently opened node."""
-    document = server.workspace.get_document(params.textDocument.uri)
-    return server.service.get_auto_close_tag(document, params)
+    if server.configuration.auto_close_tags:
+        document = server.workspace.get_document(params.textDocument.uri)
+        return server.service.get_auto_close_tag(document, params)
 
 
 @language_server.feature(HOVER)

@@ -49,6 +49,12 @@
             "No suggestions will be shown."
           ],
           "default": "auto"
+        },
+        "galaxyTools.completion.autoCloseTags": {
+          "scope": "resource",
+          "type": "boolean",
+          "markdownDescription": "Controls whether to auto-insert the closing tag after typing `>` or `/`.",
+          "default": "true"
         }
       }
     },
