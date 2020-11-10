@@ -1,5 +1,3 @@
-from typing import Any, NamedTuple
-
 from pytest_mock.plugin import MockerFixture
 
 from ...config import CompletionMode, GalaxyToolsConfiguration

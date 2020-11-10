@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+
+- Client settings loading on initialization.
+- Using settings to control completion features.
+
 ### Changed
 
 - The XML parser has been replaced for a better implementation.
