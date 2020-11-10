@@ -18,7 +18,7 @@ class GalaxyToolsConfiguration:
     def __init__(self, config: Optional[Any] = None) -> None:
         self._config = config
         self._completion_mode = self._to_completion_mode(self._config.completion.mode)
-        self._auto_close_tags = self._config.completion.autoCloseTags == "true"
+        self._auto_close_tags: bool = self._config.completion.autoCloseTags == "true"
 
     @property
     def completion_mode(self) -> CompletionMode:
@@ -26,7 +26,7 @@ class GalaxyToolsConfiguration:
 
     @property
     def auto_close_tags(self) -> bool:
-        return self._config.completion.autoCloseTags
+        return self._auto_close_tags
 
     def _to_completion_mode(self, setting: str) -> CompletionMode:
         try:

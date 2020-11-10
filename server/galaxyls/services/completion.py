@@ -28,7 +28,7 @@ class XmlCompletionService:
         self.xsd_tree: XsdTree = xsd_tree
 
     def get_completion_at_context(
-        self, context: XmlContext, completion_context: CompletionContext, mode: CompletionMode
+        self, context: XmlContext, completion_context: CompletionContext, mode: CompletionMode = CompletionMode.AUTO
     ) -> CompletionList:
         triggerKind = completion_context.triggerKind
         if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter:
@@ -40,7 +40,9 @@ class XmlCompletionService:
             if context.is_attribute_value:
                 return self.get_attribute_value_completion(context)
             if context.is_tag:
-                return self.get_attribute_completion(context)
+                if context.token.name:
+                    return self.get_attribute_completion(context)
+                return self.get_node_completion(context)
         return CompletionList(items=[], is_incomplete=False)
 
     def get_node_completion(self, context: XmlContext) -> CompletionList:

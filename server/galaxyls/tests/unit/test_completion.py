@@ -71,11 +71,24 @@ class TestXmlCompletionServiceClass:
 
         assert service.xsd_tree
 
-    def test_get_completion_at_context_with_open_tag_trigger_returns_expected_node(
-        self, fake_tree: XsdTree, mocker: MockerFixture
-    ) -> None:
+    def test_get_completion_at_context_with_open_tag_trigger_returns_expected_node(self, fake_tree: XsdTree) -> None:
         fake_context = XmlContext(fake_tree.root, XmlElement())
         fake_completion_context = CompletionContext(CompletionTriggerKind.TriggerCharacter, trigger_character="<")
+        service = XmlCompletionService(fake_tree)
+
+        actual = service.get_completion_at_context(fake_context, fake_completion_context)
+
+        assert actual
+        assert len(actual.items) == 2
+        assert actual.items[0].label == "child"
+        assert actual.items[0].kind == CompletionItemKind.Class
+        assert actual.items[1].label == "expand"
+        assert actual.items[1].kind == CompletionItemKind.Class
+
+    def test_get_completion_at_context_with_open_tag_invoke_returns_expected_node(self, fake_tree: XsdTree) -> None:
+        fake_element = XmlElement()
+        fake_context = XmlContext(fake_tree.root, fake_element)
+        fake_completion_context = CompletionContext(CompletionTriggerKind.Invoked)
         service = XmlCompletionService(fake_tree)
 
         actual = service.get_completion_at_context(fake_context, fake_completion_context)
