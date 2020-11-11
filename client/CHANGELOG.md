@@ -1,5 +1,11 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## Unreleased
+
+### Added
+
+- Settings to control completion features.
+
 ## [0.1.2] - 2020-10-25
 
 ### Changed

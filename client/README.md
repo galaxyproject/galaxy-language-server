@@ -48,3 +48,28 @@ Whenever you write a closing ``>`` the corresponding closing tag will be inserte
 
 Snippets can be really helpful to speed up your tool wrapper development. They allow to quickly create common blocks and let you enter just the important information by pressing ``tab`` and navigating to the next available value.
 >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
+
+
+# Configuration
+You can customize some of the features with various settings either placing them in the settings.json file in your workspace or editing them through the Settings Editor UI.
+
+## Completion: mode
+This setting controls the auto-completion of tags and attributes. You can choose between three different options:
+- `auto`: shows suggestions as you type. This is the default option.
+- `invoke`: shows suggestions only when you request them using the key shortcut (`Ctrl + space`)
+- `disabled`: completely disables the auto-completion feature.
+
+````json
+{
+    "galaxyTools.completion.mode": "invoke",
+}
+````
+
+## Completion: auto close tags
+This setting ontrols whether to auto-insert the closing tag after typing `>` or `/`.
+
+````json
+{
+    "galaxyTools.completion.autoCloseTags": false
+}
+````

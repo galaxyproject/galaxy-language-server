@@ -1,10 +1,5 @@
-from .xsd.service import GalaxyToolXsdService
-from .format import GalaxyToolFormatService
-from .completion import XmlCompletionService, AutoCloseTagResult
-from .context import XmlContextService
-
 from typing import List, Optional
-from pygls.workspace import Document
+
 from pygls.types import (
     CompletionList,
     CompletionParams,
@@ -15,6 +10,13 @@ from pygls.types import (
     TextDocumentPositionParams,
     TextEdit,
 )
+from pygls.workspace import Document
+
+from ..config import CompletionMode
+from .completion import AutoCloseTagResult, XmlCompletionService
+from .context import XmlContextService
+from .format import GalaxyToolFormatService
+from .xsd.service import GalaxyToolXsdService
 
 
 class GalaxyToolLanguageService:
@@ -52,10 +54,10 @@ class GalaxyToolLanguageService:
         """
         return self.format_service.format(content, params)
 
-    def get_completion(self, document: Document, params: CompletionParams) -> CompletionList:
+    def get_completion(self, document: Document, params: CompletionParams, mode: CompletionMode) -> CompletionList:
         """Gets completion items depending on the current document context."""
         context = self.xml_context_service.get_xml_context(document, params.position)
-        return self.completion_service.get_completion_at_context(context, params.context)
+        return self.completion_service.get_completion_at_context(context, params.context, mode)
 
     def get_auto_close_tag(self, document: Document, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
