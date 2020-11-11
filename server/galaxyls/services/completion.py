@@ -39,7 +39,7 @@ class XmlCompletionService:
         elif triggerKind == CompletionTriggerKind.Invoked:
             if context.is_attribute_value:
                 return self.get_attribute_value_completion(context)
-            if context.is_tag:
+            if context.is_tag and not context.is_closing_tag:
                 if context.token.name:
                     return self.get_attribute_completion(context)
                 return self.get_node_completion(context)
@@ -62,7 +62,8 @@ class XmlCompletionService:
             result.append(self._build_node_completion_item(context.xsd_element))
         elif context.xsd_element:
             for child in context.xsd_element.children:
-                result.append(self._build_node_completion_item(child, len(result)))
+                if not context.has_reached_max_occurs(child):
+                    result.append(self._build_node_completion_item(child, len(result)))
             result.append(self._build_node_completion_item(self.xsd_tree.expand_element, len(result)))
         return CompletionList(items=result, is_incomplete=False)
 
@@ -78,7 +79,13 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
-        if context.is_empty or context.is_content or context.is_attribute_value or context.is_closing_tag:
+        if (
+            context.is_empty
+            or context.is_content
+            or context.is_attribute_value
+            or context.is_closing_tag
+            or not context.token.name
+        ):
             return CompletionList(is_incomplete=False)
 
         result = []

@@ -107,6 +107,25 @@ class XmlContext:
             return []
         return self._node.stack
 
+    def has_reached_max_occurs(self, node: XsdNode) -> bool:
+        """Checks if the given node has reached the maximum number
+        of ocurrences.
+
+        Args:
+            child (XsdNode): The node to check.
+
+        Returns:
+            bool: True if the node has reached the maximum number
+            of ocurrences permitted.
+        """
+        if node.max_occurs < 0:
+            return False
+        parent = self._node.parent
+        if parent:
+            existing_count = sum(1 for child_node in parent.children if child_node.name == node.name)
+            return existing_count >= node.max_occurs
+        return False
+
 
 class XmlContextService:
     """This service provides information about the XML context at
