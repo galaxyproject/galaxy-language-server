@@ -66,7 +66,7 @@ class XmlContext:
     @property
     def is_root(self) -> bool:
         """Indicates if the element at context is the root element."""
-        return self._node and len(self._node.ancestors) == 1
+        return self._node is not None and len(self._node.ancestors) == 1
 
     @property
     def is_tag(self) -> bool:
@@ -86,7 +86,7 @@ class XmlContext:
     @property
     def attribute_name(self) -> Optional[str]:
         """The name of the attribute if the context is an attribute or None."""
-        return self._node is not None and self._node.get_attribute_name()
+        return self._node and self._node.get_attribute_name()
 
     @property
     def is_content(self) -> bool:
@@ -120,9 +120,9 @@ class XmlContext:
         """
         if node.max_occurs < 0:
             return False
-        parent = self._node.parent
-        if parent:
-            existing_count = sum(1 for child_node in parent.children if child_node.name == node.name)
+        target = self._node.parent or self._node
+        if target:
+            existing_count = sum(1 for child_node in target.children if child_node.name == node.name)
             return existing_count >= node.max_occurs
         return False
 
