@@ -66,7 +66,7 @@ class XmlContext:
     @property
     def is_root(self) -> bool:
         """Indicates if the element at context is the root element."""
-        return self._node and len(self._node.ancestors) == 1
+        return self._node is not None and len(self._node.ancestors) == 1
 
     @property
     def is_tag(self) -> bool:
@@ -86,7 +86,7 @@ class XmlContext:
     @property
     def attribute_name(self) -> Optional[str]:
         """The name of the attribute if the context is an attribute or None."""
-        return self._node is not None and self._node.get_attribute_name()
+        return self._node and self._node.get_attribute_name()
 
     @property
     def is_content(self) -> bool:
@@ -106,6 +106,25 @@ class XmlContext:
         if not self._node:
             return []
         return self._node.stack
+
+    def has_reached_max_occurs(self, node: XsdNode) -> bool:
+        """Checks if the given node has reached the maximum number
+        of ocurrences.
+
+        Args:
+            child (XsdNode): The node to check.
+
+        Returns:
+            bool: True if the node has reached the maximum number
+            of ocurrences permitted.
+        """
+        if node.max_occurs < 0:
+            return False
+        target = self._node.parent or self._node
+        if target:
+            existing_count = sum(1 for child_node in target.children if child_node.name == node.name)
+            return existing_count >= node.max_occurs
+        return False
 
 
 class XmlContextService:

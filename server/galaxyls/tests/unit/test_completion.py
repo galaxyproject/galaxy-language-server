@@ -26,7 +26,8 @@ def fake_tree(mocker: MockerFixture) -> XsdTree:
     fake_attr = XsdAttribute("attr", element=mocker.Mock())
     fake_attr.enumeration = ["v1", "v2"]
     fake_root.attributes[fake_attr.name] = fake_attr
-    XsdNode("child", element=mocker.Mock(), parent=fake_root)
+    child = XsdNode("child", element=mocker.Mock(), parent=fake_root)
+    child.max_occurs = 1
     return XsdTree(fake_root)
 
 
@@ -85,7 +86,7 @@ class TestXmlCompletionServiceClass:
         assert actual.items[1].label == "expand"
         assert actual.items[1].kind == CompletionItemKind.Class
 
-    def test_get_completion_at_context_with_open_tag_invoke_returns_expected_node(self, fake_tree: XsdTree) -> None:
+    def test_get_completion_at_context_with_closing_tag_invoke_returns_empty(self, fake_tree: XsdTree) -> None:
         fake_element = XmlElement()
         fake_context = XmlContext(fake_tree.root, fake_element)
         fake_completion_context = CompletionContext(CompletionTriggerKind.Invoked)
@@ -94,14 +95,11 @@ class TestXmlCompletionServiceClass:
         actual = service.get_completion_at_context(fake_context, fake_completion_context)
 
         assert actual
-        assert len(actual.items) == 2
-        assert actual.items[0].label == "child"
-        assert actual.items[0].kind == CompletionItemKind.Class
-        assert actual.items[1].label == "expand"
-        assert actual.items[1].kind == CompletionItemKind.Class
+        assert len(actual.items) == 0
 
     def test_get_completion_at_context_on_node_returns_expected_attributes(self, fake_tree: XsdTree) -> None:
         fake_node = XmlElement()
+        fake_node.name = "root"
         fake_node.end_tag_open_offset = 10
         fake_node.end_tag_close_offset = 12
         fake_context = XmlContext(fake_tree.root, fake_node)
@@ -119,6 +117,7 @@ class TestXmlCompletionServiceClass:
         self, fake_tree_with_attrs: XsdTree
     ) -> None:
         fake_node = XmlElement()
+        fake_node.name = "root"
         fake_node.end_tag_open_offset = 10
         fake_node.end_tag_close_offset = 12
         fake_node.attributes["one"] = XmlAttribute("one", 0, 0, fake_node)
@@ -159,6 +158,24 @@ class TestXmlCompletionServiceClass:
         assert len(actual.items) == 2
         assert actual.items[0].label == fake_tree.root.children[0].name
         assert actual.items[1].label == "expand"
+
+    def test_completion_node_reached_max_occurs_return_expected(self, fake_tree: XsdTree, mocker: MockerFixture) -> None:
+        fake_root = XmlElement()
+        fake_root.name = fake_tree.root.name
+        fake_root.end_tag_open_offset = 10
+        fake_root.end_tag_close_offset = 15
+        fake_child = XmlElement()
+        fake_child.name = "child"
+        fake_child.parent = fake_root
+        fake_child = XmlElement()
+        fake_child.parent = fake_root
+        fake_context = XmlContext(fake_tree.root, fake_root)
+        service = XmlCompletionService(fake_tree)
+
+        actual = service.get_node_completion(fake_context)
+
+        assert len(actual.items) == 1
+        assert actual.items[0].label == "expand"
 
     def test_completion_return_root_node_when_empty_context(self, fake_tree: XsdTree, fake_empty_context) -> None:
         service = XmlCompletionService(fake_tree)
