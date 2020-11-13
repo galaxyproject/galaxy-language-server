@@ -1,15 +1,14 @@
 # Galaxy Language Server Changelog
 
-## Unreleased
+## [0.2.0] - 2020-11-13
 
 ### Added
 
-- Client settings loading on initialization.
-- Using settings to control completion features.
+- Client settings to control completion features ([#56](https://github.com/galaxyproject/galaxy-language-server/pull/56)).
 
 ### Changed
 
-- The XML parser has been replaced for a better implementation.
+- The XML parser has been replaced with a better implementation ([#55](https://github.com/galaxyproject/galaxy-language-server/pull/55)).
 
 ## [0.1.2] - 2020-10-25
 

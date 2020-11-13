@@ -1,18 +1,18 @@
 {
   "name": "galaxy-tools",
   "displayName": "Galaxy Tools",
-  "description": "Galaxy Tools for Visual Studio Code (unofficial) - provides XML completion, lints, snippets and other smart features to develop Galaxy (https://galaxyproject.org/) tool wrappers.",
+  "description": "Galaxy Tools for Visual Studio Code - provides XML completion, lints, snippets and other smart features to develop Galaxy (https://galaxyproject.org/) tool wrappers.",
   "author": "davelopez",
   "publisher": "davelopez",
   "license": "Apache-2.0",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "preview": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/davelopez/galaxy-language-server"
+    "url": "https://github.com/galaxyproject/galaxy-language-server"
   },
   "bugs": {
-    "url": "https://github.com/davelopez/galaxy-language-server/issues"
+    "url": "https://github.com/galaxyproject/galaxy-language-server/issues"
   },
   "categories": [
     "Programming Languages",

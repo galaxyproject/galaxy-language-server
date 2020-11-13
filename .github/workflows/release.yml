@@ -39,7 +39,7 @@ jobs:
             python3 -m pip install galaxy-language-server==${{ steps.get_version.outputs.version-without-v }}
             ```
 
-            The Galaxy Tools Extension is available at [Open VSX Registry](https://open-vsx.org/extension/davelopez/galaxy-tools) and [Visual Studio Marketplace](https://marketplace.visualstudio.com/).
+            The Galaxy Tools Extension is available at [Open VSX Registry](https://open-vsx.org/extension/davelopez/galaxy-tools) and [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools).
             You can also install the extension manually by downloading the VSIX package and using:
             ```
             code --install-extension galaxy-tools-${{ steps.get_version.outputs.version-without-v }}.vsix
