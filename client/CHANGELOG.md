@@ -1,10 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
-## Unreleased
+## [0.2.0] - 2020-11-13
 
 ### Added
 
-- Settings to control completion features.
+- Settings to control completion features ([#56](https://github.com/galaxyproject/galaxy-language-server/pull/56)).
+- Auto indent on new line ([#52](https://github.com/galaxyproject/galaxy-language-server/pull/52))
+
+### Changed
+
+- Updated Galaxy Language Server [v0.2.0](./server/CHANGELOG.md#020)
 
 ## [0.1.2] - 2020-10-25
 
@@ -15,7 +20,7 @@
 
 ### Fixed
 
-- Fix error preventing the language server to start or install in Unix systems (#48).
+- Fix error preventing the language server to start or install in Unix systems ([#49](https://github.com/galaxyproject/galaxy-language-server/pull/49)).
 
 ## [0.1.1] - 2020-10-24 [YANKED]
 
