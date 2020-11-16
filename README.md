@@ -137,13 +137,13 @@ python3 -m pip install -r ./requirements.txt
 python3 -m galaxyls
 ````
 
-By default, the server uses IO pipes to communicate with the client, if you want to use TCP you can pass additional parameters, for example:
+By default, the server uses IO pipes to communicate with the client. If you want to use TCP, you can pass additional parameters, for example:
 
 ````sh
 python3 -m galaxyls --tcp --host=127.0.0.1 --port=2087
 ````
 
-To see if everything went ok you can check if the server log file, ``galaxy-language-server.log``, was created and the contents show something like this:
+To check if everything went ok, you can look at the content of the server log file (``galaxy-language-server.log``) that should contain the following lines:
 ````
 INFO:pygls.server:Starting server on 127.0.0.1:2087
 INFO:pygls.server:Shutting down the server
