@@ -122,3 +122,30 @@ If you want to debug the [extension](../client) and the [Language Server](../ser
 2. Open the `galaxy-language-server` directory in Visual Studio Code.
 3. Open debug view (`ctrl + shift + D`).
 4. Select `Server + Client` and click ``RUN`` (or press `F5`).
+
+
+## How to manually run the server
+Usually, the [client](../client) will be in charge of running the server when it is needed, but, in case you want to run it manually for some reason, you can use the following (let's assume a clean start):
+
+````sh
+git clone https://github.com/galaxyproject/galaxy-language-server.git
+cd galaxy-language-server/server
+python3 -m venv myenv
+source ./myenv/bin/activate
+python3 -m pip install -r ./requirements.txt
+
+python3 -m galaxyls
+````
+
+By default, the server uses IO pipes to communicate with the client. If you want to use TCP, you can pass additional parameters, for example:
+
+````sh
+python3 -m galaxyls --tcp --host=127.0.0.1 --port=2087
+````
+
+To check if everything went ok, you can look at the content of the server log file (``galaxy-language-server.log``) that should contain the following lines:
+````
+INFO:pygls.server:Starting server on 127.0.0.1:2087
+INFO:pygls.server:Shutting down the server
+INFO:pygls.server:Closing the event loop.
+````
