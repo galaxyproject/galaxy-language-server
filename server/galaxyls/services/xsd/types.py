@@ -15,10 +15,10 @@ class XsdBase:
     XML nodes and attributes.
     """
 
-    def __init__(self, name: str, element: etree.Element):
+    def __init__(self, name: str, element: Optional[etree._Element]):
         super(XsdBase, self).__init__()
         self.name: str = name
-        self.xsd_element = element
+        self.xsd_element: Optional[etree._Element] = element
 
     def __repr__(self) -> str:
         return self.name
@@ -40,7 +40,9 @@ class XsdBase:
         """
         try:
             doc = self.xsd_element.xpath(
-                "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()", namespaces=self.xsd_element.nsmap, lang=lang,
+                "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()",
+                namespaces=self.xsd_element.nsmap,
+                lang=lang,
             )
             return MarkupContent(MarkupKind.Markdown, doc[0].strip())
         except BaseException:
@@ -58,10 +60,14 @@ class XsdAttribute(XsdBase):
     """
 
     def __init__(
-        self, name: str, element: etree.Element, type_name: Optional[str] = None, is_required: bool = False,
+        self,
+        name: str,
+        element: Optional[etree._Element],
+        type_name: Optional[str] = None,
+        is_required: bool = False,
     ):
         super(XsdAttribute, self).__init__(name, element)
-        self.type_name: str = type_name
+        self.type_name: Optional[str] = type_name
         self.is_required: bool = is_required
         self.enumeration: List[str] = []
 
@@ -77,9 +83,9 @@ class XsdNode(XsdBase, NodeMixin):
         NodeMixin: Inherits tree node functionality from NodeMixin.
     """
 
-    def __init__(self, name: str, element: etree.Element, parent: NodeMixin = None):
+    def __init__(self, name: str, element: Optional[etree._Element], parent: Optional[NodeMixin] = None):
         super(XsdNode, self).__init__(name, element)
-        self.parent: NodeMixin = parent
+        self.parent: Optional[NodeMixin] = parent
         self.attributes: Dict[str, XsdAttribute] = {}
         self.min_occurs: int = 1  # required by default
         self.max_occurs: int = -1  # unbounded by default
