@@ -105,15 +105,24 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
     conda activate <environment-name>
 
     # For the language server:
+    # Make sure you are in the server directory:
+    cd galaxy-language-server/server/
+    # And install:
     pip install -r requirements-dev.txt
 
     # For the client extension:
+    # Make sure you are in the client directory:
+    cd ../client/
+    # And install:
     conda install nodejs typescript
     npm install
     ```
 4. Run the tests locally
     ```sh
     # For the language server:
+    # Go back to the repo root:
+    cd ..
+    # And run the tests:
     pytest
     # Additionally you can check the coverage:
     pytest --cov=server
