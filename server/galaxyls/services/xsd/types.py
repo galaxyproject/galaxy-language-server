@@ -3,7 +3,7 @@
 
 from lxml import etree
 from anytree import NodeMixin, RenderTree, Resolver, ResolverError
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, cast
 from pygls.types import MarkupContent, MarkupKind
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
@@ -19,6 +19,7 @@ class XsdBase:
         super(XsdBase, self).__init__()
         self.name: str = name
         self.xsd_element: Optional[etree._Element] = element
+        self.xsd_type: Optional[etree._Element] = None
 
     def __repr__(self) -> str:
         return self.name
@@ -38,15 +39,21 @@ class XsdBase:
             [str]: The documentation text or a message indicating
             there is no documentation.
         """
+        doc = self._get_doc_text_of_element(self.xsd_element, lang) or self._get_doc_text_of_element(self.xsd_type, lang)
+        if doc:
+            return MarkupContent(MarkupKind.Markdown, doc)
+        return MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
+
+    def _get_doc_text_of_element(self, element: Optional[etree._Element], lang: str = "en") -> str:
         try:
-            doc = self.xsd_element.xpath(
+            doc_annotation = element.xpath(
                 "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()",
-                namespaces=self.xsd_element.nsmap,
+                namespaces=element.nsmap,
                 lang=lang,
             )
-            return MarkupContent(MarkupKind.Markdown, doc[0].strip())
+            return cast(List[str], doc_annotation)[0].strip()
         except BaseException:
-            return MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
+            return ""
 
 
 class XsdAttribute(XsdBase):
