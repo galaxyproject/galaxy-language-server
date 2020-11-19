@@ -43,7 +43,7 @@ class GalaxyToolXsdParser:
         self._named_type_map: Dict[str, etree._Element] = {}
         self._named_group_map: Dict[str, etree._Element] = {}
 
-    def get_tree(self) -> XsdTree:
+    def get_tree(self) -> Optional[XsdTree]:
         """Builds the tree structure from the root etree._Element if
         it does not exists, or returns it if exists.
 
@@ -93,7 +93,7 @@ class GalaxyToolXsdParser:
                 node = XsdNode(element_name, element, parent_node)
                 if not parent_node:  # Is root element
                     self._tree = XsdTree(node)
-                node.type_name = element_type_name
+                node.xsd_type = self._named_type_map.get(element_type_name)
                 self._apply_named_type_to_node(element_type_name, node, depth + 1)
                 # minOccurs defaults to 1
                 node.min_occurs = int(element.attrib.get("minOccurs", 1))
