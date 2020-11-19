@@ -29,7 +29,7 @@
                 "--tcp"
             ],
             "justMyCode": false,
-            "pythonPath": "${command:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "cwd": "${workspaceFolder}/server",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
