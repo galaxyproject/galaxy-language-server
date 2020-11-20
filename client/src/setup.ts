@@ -6,10 +6,11 @@ import { execAsync } from "./utils";
 
 /**
  * Ensures that the Language server is installed in the extension's virtual environment
- * and returns the Python path of the virtual environment.
+ * and returns the Python path of the virtual environment or undefined if there was
+ * a problem or the user cancelled the installation.
  * @param context The extension context
  */
-export async function installLanguageServer(context: ExtensionContext): Promise<string> {
+export async function installLanguageServer(context: ExtensionContext): Promise<string | undefined> {
     // Check if the LS is already installed
     let venvPath = getVirtualEnvironmentPath(context.extensionPath, LS_VENV_NAME)
     if (existsSync(venvPath)) {
@@ -21,21 +22,27 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
         }
     }
 
+    const result = await window.showInformationMessage(`Galaxy Tools needs to install the Galaxy Language Server Python package to continue. This will be installed in a virtual environment inside the extension and will require Python ${REQUIRED_PYTHON_VERSION}`, ...['Install']);
+
+    if (result === undefined) {
+        console.log(`[gls] Language server installation cancelled by the user.`);
+        return undefined;
+    }
+
     // Install with progress
     return window.withProgress({
-        location: ProgressLocation.Notification,
+        location: ProgressLocation.Window,
+        title: "Installing Galaxy language server..."
     }, (progress): Promise<string> => {
         return new Promise<string>(async (resolve, reject) => {
             try {
-                progress.report({ message: "Installing Galaxy language server..." });
 
                 if (!existsSync(venvPath)) {
                     console.log(`[gls] Checking Python version...`);
                     let python = await getPython();
 
                     if (python === undefined) {
-                        progress.report({ message: `Please enter your Python ${REQUIRED_PYTHON_VERSION} path in the input above to continue...`, increment: 0 });
-
+                        await window.showInformationMessage(`Please select your Python ${REQUIRED_PYTHON_VERSION} path to continue the installation...`, ...['Select']);
                         python = await selectPython();
                         // User canceled the input
                         if (python === undefined) {
@@ -44,8 +51,6 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
                             throw new Error(message);
                         }
                     }
-
-                    progress.report({ message: "Installing Galaxy language server...", increment: undefined });
 
                     console.log(`[gls] Creating virtual environment...`);
                     venvPath = await createVirtualEnvironment(python, LS_VENV_NAME, context.extensionPath);
