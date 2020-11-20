@@ -31,14 +31,28 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
 
                 if (!existsSync(venvPath)) {
                     console.log(`[gls] Checking Python version...`);
-                    const python = await getPython();
+                    let python = await getPython();
+
+                    if (python === undefined) {
+                        progress.report({ message: `Please enter your Python ${REQUIRED_PYTHON_VERSION} path in the input above to continue...`, increment: 0 });
+
+                        python = await selectPython();
+                        // User canceled the input
+                        if (python === undefined) {
+                            const message = `Python ${REQUIRED_PYTHON_VERSION} is required in order to use the language server features.`;
+                            window.showErrorMessage(message);
+                            throw new Error(message);
+                        }
+                    }
+
+                    progress.report({ message: "Installing Galaxy language server...", increment: undefined });
 
                     console.log(`[gls] Creating virtual environment...`);
                     venvPath = await createVirtualEnvironment(python, LS_VENV_NAME, context.extensionPath);
                 }
 
                 const venvPython = getPythonFromVenvPath(venvPath);
-                console.log(`[gls] Using Python form: ${venvPython}`);
+                console.log(`[gls] Using Python from: ${venvPython}`);
 
                 console.log(`[gls] Installing ${GALAXY_LS_PACKAGE}...`);
                 const isInstalled = await intallPythonPackage(venvPython, GALAXY_LS_PACKAGE, GALAXY_LS_VERSION)
@@ -121,12 +135,16 @@ async function checkPythonVersion(python: string): Promise<boolean> {
     }
 }
 
-async function getPython(): Promise<string> {
+async function getPython(): Promise<string | undefined> {
     let python = workspace.getConfiguration("python").get<string>("pythonPath", getPythonCrossPlatform());
     if (await checkPythonVersion(python)) {
         return python;
     }
 
+    return undefined;
+}
+
+async function selectPython(): Promise<string | undefined> {
     let result = await window.showInputBox({
         ignoreFocusOut: true,
         placeHolder: `Enter the path to Python ${REQUIRED_PYTHON_VERSION} binary:`,
@@ -140,12 +158,7 @@ async function getPython(): Promise<string> {
         },
     });
 
-    // User canceled the input
-    if (result === "undefined") {
-        throw new Error(`Python ${REQUIRED_PYTHON_VERSION} is required!`);
-    }
-
-    return result as string;
+    return result;
 }
 
 async function createVirtualEnvironment(python: string, name: string, cwd: string): Promise<string> {
