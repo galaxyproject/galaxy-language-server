@@ -20,8 +20,15 @@ export async function activate(context: ExtensionContext) {
   } else {
     // Production - Install (first time only), launch and connect to language server.
     try {
+
       const python = await installLanguageServer(context);
+      if (python === undefined) {
+        // The language server could not be installed
+        return;
+      }
+
       client = startLanguageServer(python, ["-m", GALAXY_LS], context.extensionPath);
+
     } catch (err) {
       window.showErrorMessage(err);
     }
