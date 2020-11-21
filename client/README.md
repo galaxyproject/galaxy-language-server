@@ -56,6 +56,12 @@ The installation process will try to use the default Python version of your syst
 
 This Python is used to create the virtual environment in which the language server will be installed.
 
+## Troubleshooting
+If you encounter any problem during the language server installation open the Visual Studio Code `Console log` and then find any error message with the `[gsl]` prefix. You can access this log from the menu `Help > Toggle Developer Tools > Console`. Then, search the issues [here](https://github.com/galaxyproject/galaxy-language-server/issues) to see if the problem is already has a solution or feel free to open a new issue with the error message you found in the console log.
+
+Some possible errors:
+- ``The selected file is not a valid Python <version> path!``. If you select a python binary that is not compatible with the required version this message will appear. You can reload the extension to try and select the correct version the next time it asks for it.
+
 # Configuration
 You can customize some of the features with various settings either placing them in the settings.json file in your workspace or editing them through the Settings Editor UI.
 
