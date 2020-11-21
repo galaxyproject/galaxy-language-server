@@ -50,17 +50,17 @@ Snippets can be really helpful to speed up your tool wrapper development. They a
 >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
 
 # Installation
-When the extension activates for the first time, a notification will pop up informing that the `Galaxy Language Server` [Python package](https://pypi.org/project/galaxy-language-server/) must be installed.
+When the extension is activated for the first time, a notification will pop up informing that the `Galaxy Language Server` [Python package](https://pypi.org/project/galaxy-language-server/) must be installed.
 
-The installation process will try to use the default Python version of your system, but, if the version is not compatible, it will ask to enter the path to a compatible version. Just click `Select` in the notification message and you will be able to type the Python path in the input shown at the top of the window.
+The installation process will try to use the default Python version in your system. If the version is not compatible, it will ask you to enter the path to a compatible version. Just click `Select` in the notification message and you will be able to type the Python path at the top of the window.
 
 This Python is used to create the virtual environment in which the language server will be installed.
 
 ## Troubleshooting
-If you encounter any problem during the language server installation open the Visual Studio Code `Console log` and then find any error message with the `[gsl]` prefix. You can access this log from the menu `Help > Toggle Developer Tools > Console`. Then, search the issues [here](https://github.com/galaxyproject/galaxy-language-server/issues) to see if the problem is already has a solution or feel free to open a new issue with the error message you found in the console log.
+If you encounter any problem during the language server installation, open the Visual Studio Code `Console log` and then find any error message with the `[gls]` prefix. You can access this log from the menu `Help > Toggle Developer Tools > Console`. Then, search the issues [here](https://github.com/galaxyproject/galaxy-language-server/issues) to check whether the problem already has a solution. If not, please feel free to open a new issue including the error message from the console log.
 
 Some possible errors:
-- ``The selected file is not a valid Python <version> path!``. If you select a python binary that is not compatible with the required version this message will appear. You can reload the extension to try and select the correct version the next time it asks for it.
+- ``The selected file is not a valid Python <version> path!``. This message will appear if you select a Python binary that is not compatible with the required version. You will be given a chance to select the correct version the next time the extension gets activated. You can force it by reloading the extension or restarting VScode.
 
 # Configuration
 You can customize some of the features with various settings either placing them in the settings.json file in your workspace or editing them through the Settings Editor UI.
