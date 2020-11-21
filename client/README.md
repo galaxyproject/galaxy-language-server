@@ -6,6 +6,13 @@ This extensions provides XML validation, tag and attribute completion, help/docu
 # Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
 In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed in your system.
 
+# Installation
+When the extension activates for the first time, a notification will pop up informing that the `Galaxy Language Server` [Python package](https://pypi.org/project/galaxy-language-server/) must be installed.
+
+The installation process will try to use the default Python version of your system, but, if the version is not compatible, it will prompt for the path to a compatible version. Just click `Select` in the notification message and you will be able to enter the Python path in the input shown at the top of the window. 
+
+This Python is used to create the virtual environment in which the language server will be installed.
+
 # Features
 ### Tag and attribute auto-completion 
 

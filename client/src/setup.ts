@@ -1,6 +1,6 @@
 import { join } from "path";
 import { existsSync } from "fs";
-import { ExtensionContext, ProgressLocation, window, workspace } from "vscode";
+import { commands, ExtensionContext, ProgressLocation, Uri, window, workspace } from "vscode";
 import { IS_WIN, LS_VENV_NAME, GALAXY_LS_PACKAGE, PYTHON_UNIX, PYTHON_WIN, GALAXY_LS_VERSION, REQUIRED_PYTHON_VERSION } from "./constants";
 import { execAsync } from "./utils";
 
@@ -22,11 +22,13 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
         }
     }
 
-    const result = await window.showInformationMessage(`Galaxy Tools needs to install the Galaxy Language Server Python package to continue. This will be installed in a virtual environment inside the extension and will require Python ${REQUIRED_PYTHON_VERSION}`, ...['Install']);
+    const result = await window.showInformationMessage(`Galaxy Tools needs to install the Galaxy Language Server Python package to continue. This will be installed in a virtual environment inside the extension and will require Python ${REQUIRED_PYTHON_VERSION}`, ...['Install', 'More Info']);
 
     if (result === undefined) {
         console.log(`[gls] Language server installation cancelled by the user.`);
         return undefined;
+    } else if (result === "More Info") {
+        commands.executeCommand('vscode.open', Uri.parse('https://github.com/galaxyproject/galaxy-language-server/blob/master/client/README.md#installation'));
     }
 
     // Install with progress
