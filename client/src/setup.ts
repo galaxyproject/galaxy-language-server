@@ -44,8 +44,10 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
                     let python = await getPython();
 
                     if (python === undefined) {
-                        await window.showInformationMessage(`Please select your Python ${REQUIRED_PYTHON_VERSION} path to continue the installation...`, ...['Select']);
-                        python = await selectPython();
+                        await window.showInformationMessage(
+                            `Please select your Python ${REQUIRED_PYTHON_VERSION} path to continue the installation. This python will be used to create a virtual environment inside the extension directory.`,
+                            ...['Select']);
+                        python = await selectPythonUsingFileDialog();
                         // User canceled the input
                         if (python === undefined) {
                             const message = `Python ${REQUIRED_PYTHON_VERSION} is required in order to use the language server features.`;
@@ -151,21 +153,23 @@ async function getPython(): Promise<string | undefined> {
     return undefined;
 }
 
-async function selectPython(): Promise<string | undefined> {
-    let result = await window.showInputBox({
-        ignoreFocusOut: true,
-        placeHolder: `Enter the path to Python ${REQUIRED_PYTHON_VERSION} binary:`,
-        prompt: "This python will be used to create a virtual environment inside the extension directory.",
-        validateInput: async (value: string) => {
-            if (await checkPythonVersion(value)) {
-                return null;
-            } else {
-                return `Not a valid ${REQUIRED_PYTHON_VERSION} path!`;
-            }
-        },
+async function selectPythonUsingFileDialog(): Promise<string | undefined> {
+    let result = await window.showOpenDialog({
+        openLabel: "Select", canSelectMany: false,
+        title: `Select the Python ${REQUIRED_PYTHON_VERSION} binary:`
     });
 
-    return result;
+    if (result !== undefined) {
+        console.log(`Selected file: ${result[0].fsPath}`);
+        const pythonPath = result[0].fsPath;
+        if (await checkPythonVersion(pythonPath)) {
+            return pythonPath;
+        } else {
+            window.showErrorMessage(`The selected file is not a valid Python ${REQUIRED_PYTHON_VERSION} path!`);
+        }
+    }
+
+    return undefined;
 }
 
 async function createVirtualEnvironment(python: string, name: string, cwd: string): Promise<string> {
