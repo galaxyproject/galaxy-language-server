@@ -1,5 +1,12 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.2.1] - 2020-11-22
+
+### Changed
+
+- The installation process of the language server now provides more feedback to the user ([#65](https://github.com/galaxyproject/galaxy-language-server/pull/65)).
+- Updated Galaxy Language Server [v0.2.1](./server/CHANGELOG.md#021)
+
 ## [0.2.0] - 2020-11-13
 
 ### Added
