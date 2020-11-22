@@ -1,4 +1,9 @@
 # Galaxy Language Server Changelog
+## [0.2.1] - 2020-11-22
+
+### Fixed
+
+- The documentation displayed when hovering an element now shows the correct documentation instead of `No documentation available` ([#64](https://github.com/galaxyproject/galaxy-language-server/pull/64)).
 
 ## [0.2.0] - 2020-11-13
 
