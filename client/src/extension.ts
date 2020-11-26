@@ -1,11 +1,12 @@
 "use strict";
 
 import * as net from "net";
-import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages, ExtensionMode } from "vscode";
+import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages, ExtensionMode, commands, SnippetString, Range } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
 import { GALAXY_LS } from './constants';
+import { Commands, GeneratedTestRequest } from './commands';
 
 let client: LanguageClient;
 
@@ -46,6 +47,28 @@ export async function activate(context: ExtensionContext) {
     return text;
   };
   context.subscriptions.push(activateTagClosing(tagProvider));
+
+  // Setup generate test command
+  const generateTest = async () => {
+    let activeEditor = window.activeTextEditor;
+    if (!activeEditor) return;
+
+    let document = activeEditor.document;
+
+    let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    let result = await client.sendRequest(GeneratedTestRequest.type, param);
+    if (!result || !result.snippet) return;
+
+    try {
+      const snippet = new SnippetString(result.snippet);
+      const position = new Position(result.position.line, result.position.character)
+      activeEditor.insertSnippet(snippet, position);
+    } catch (err) {
+      window.showErrorMessage(err);
+    }
+  };
+
+  context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST, generateTest));
 }
 
 /**
