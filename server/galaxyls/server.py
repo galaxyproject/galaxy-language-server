@@ -27,14 +27,15 @@ from pygls.types import (
     Hover,
     InitializeParams,
     MessageType,
+    TextDocumentIdentifier,
     TextDocumentPositionParams,
     TextEdit,
 )
 
 from .config import CompletionMode, GalaxyToolsConfiguration
-from .features import AUTO_CLOSE_TAGS
+from .features import AUTO_CLOSE_TAGS, CMD_GENERATE_TEST
 from .services.language import GalaxyToolLanguageService
-from .types import AutoCloseTagResult
+from .types import AutoCloseTagResult, GeneratedTestResult
 
 SERVER_NAME = "Galaxy Tools LS"
 
@@ -130,6 +131,14 @@ def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParam
 def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams) -> None:
     """Occurs when the xml document is closed."""
     # server.show_message("Xml Document Closed")
+
+
+@language_server.feature(CMD_GENERATE_TEST)
+async def cmd_generate_test(
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
+) -> Optional[GeneratedTestResult]:
+    document = server.workspace.get_document(params.uri)
+    return server.service.generate_test(document)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
