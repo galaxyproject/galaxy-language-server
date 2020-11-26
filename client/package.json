@@ -29,7 +29,13 @@
     "onLanguage:xml"
   ],
   "contributes": {
-    "commands": [],
+    "commands": [
+      {
+        "command": "galaxytools.generate.test",
+        "title": "Generate test case for current tool",
+        "category": "Galaxy Tools"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Galaxy Tools",
