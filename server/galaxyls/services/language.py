@@ -13,6 +13,7 @@ from pygls.types import (
 from pygls.workspace import Document
 
 from ..config import CompletionMode
+from ..types import GeneratedTestResult
 from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
@@ -65,3 +66,6 @@ class GalaxyToolLanguageService:
         position_before_trigger = Position(params.position.line, params.position.character - 1)
         context = self.xml_context_service.get_xml_context(document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
+
+    def generate_test(self, document: Document) -> Optional[GeneratedTestResult]:
+        return None
