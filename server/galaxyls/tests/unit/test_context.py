@@ -107,6 +107,14 @@ class TestXmlContextServiceClass:
             ('<root attr="4">\n    <^ \n<child', None, NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4">\n    < \n<^child', "child", NodeType.ELEMENT, "child", ["root", "child"]),
             ("<root><child></child>^", "root", NodeType.ELEMENT, "root", ["root"]),
+            ("<root><child><!--^Comment sample--></child>", None, NodeType.COMMENT, "child", ["root", "child"]),
+            (
+                "<root><child><!--Comment--></child><child><!--^Second comment--></child>",
+                None,
+                NodeType.COMMENT,
+                "child",
+                ["root", "child"],
+            ),
         ],
     )
     def test_get_xml_context_returns_context_with_expected_node(
