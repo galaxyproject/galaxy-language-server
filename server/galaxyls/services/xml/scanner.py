@@ -85,6 +85,7 @@ class XmlScanner:
 
         if self.state == ScannerState.WithinComment:
             if self.stream.advance_if_chars(COMMENT_END_CHAR_SEQ):
+                self.state = ScannerState.WithinContent
                 return self._finish_token(offset, TokenType.EndCommentTag)
             self.stream.advance_until_chars(COMMENT_END_CHAR_SEQ)
             return self._finish_token(offset, TokenType.Comment)
