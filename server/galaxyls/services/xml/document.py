@@ -1,4 +1,5 @@
 from typing import Dict, Optional
+from anytree.search import find
 
 from pygls.types import Range
 from pygls.workspace import Document
@@ -44,6 +45,18 @@ class XmlDocument(XmlSyntaxNode):
             return next(child for child in self.children if type(child) == XmlElement)
         except StopIteration:
             return None
+
+    @property
+    def uses_macros(self) -> bool:
+        """Indicates if this XML document contains any <expand> element.
+
+        Returns:
+            bool: True if the tool contains at least one <expand> elements.
+        """
+        if self.root is None:
+            return False
+        node = find(self.root, filter_=lambda node: node.name == "expand")
+        return node is not None
 
     @property
     def document_type(self) -> DocumentType:
