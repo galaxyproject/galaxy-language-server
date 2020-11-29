@@ -264,23 +264,31 @@ class XmlElement(XmlSyntaxNode):
         return [*self.attributes]
 
     def get_offsets(self, offset: int) -> Tuple[int, int]:
-        """Get the starting and ending offsets of this syntax node as a tuple.
+        """Get the starting and ending offsets of this element's name as a tuple.
 
         Args:
             offset (int): The current document offset. Used to determine if the
             offset is currently over the starting or closing tag.
 
         Returns:
-            Tuple[int, int]: The start and end offsets of this tag.
+            Tuple[int, int]: The start and end offsets of this tag name whitout the
+            opening and ending tokens ('<', '>' '</').
         """
         if self.name:
             start = self.start
             end = self.start + len(self.name)
             if self.is_at_closing_tag(offset):
-                start = self.end_tag_open_offset
-                end = self.end_tag_close_offset
+                start = self.end_tag_open_offset + 2  # +1 for '</'
+                end = self.end_tag_close_offset - 1  # -1 for '>'
             return start, end
         return self.start, self.end
+
+    def get_content_offsets(self) -> Tuple[int, int]:
+        start = self.start_tag_close_offset
+        end = self.end_tag_open_offset
+        if self.is_self_closed:
+            end = start
+        return start, end
 
 
 class XmlCDATASection(XmlSyntaxNode):

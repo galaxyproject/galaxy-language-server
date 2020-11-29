@@ -1,9 +1,11 @@
 from typing import Dict, Optional
 
+from pygls.types import Range
 from pygls.workspace import Document
 
-from .nodes import XmlSyntaxNode, XmlElement
+from .nodes import XmlElement, XmlSyntaxNode
 from .types import DocumentType, NodeType
+from .utils import convert_document_offsets_to_range
 
 
 class XmlDocument(XmlSyntaxNode):
@@ -53,3 +55,17 @@ class XmlDocument(XmlSyntaxNode):
     def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
         """Gets the syntax node a the given offset."""
         return self.root.find_node_at(offset)
+
+    def get_element_content_range(self, element: XmlElement) -> Optional[Range]:
+        """Gets the Range positions for the given XML element's content in the document.
+
+        Args:
+            element (XmlElement): The XML element to determine it's content range positions.
+
+        Returns:
+            Optional[Range]: The range positions for the content of the given XML element.
+        """
+        start_offset, end_offset = element.get_content_offsets()
+        if start_offset < 0 or end_offset < 0:
+            return None
+        return convert_document_offsets_to_range(self.document, start_offset, end_offset)
