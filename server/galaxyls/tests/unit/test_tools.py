@@ -71,3 +71,22 @@ class TestGalaxyToolXmlDocumentClass:
         actual = tool.get_element_content_range(node)
 
         assert actual == expected
+
+    @pytest.mark.parametrize(
+        "source, expected",
+        [
+            ("", False),
+            ("<macros>", False),
+            ("<macros></macros>", False),
+            ("<tool></tool>", False),
+            ("<tool><macros></macros></tool>", False),
+            ("<tool><expand/></tool>", True),
+            ("<tool><expand></tool>", True),
+            ("<tool><expand></expand></tool>", True),
+        ],
+    )
+    def test_uses_macros_returns_expected(self, source: str, expected: bool) -> None:
+        document = TestUtils.to_document(source)
+        tool = GalaxyToolXmlDocument(document)
+
+        assert tool.uses_macros == expected

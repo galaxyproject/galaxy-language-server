@@ -1,6 +1,7 @@
-from typing import AnyStr, Optional, cast
+from typing import Optional, cast
 
 from anytree import find
+from galaxy.util import xml_macros
 from lxml import etree
 from pygls.types import Range
 from pygls.workspace import Document
@@ -22,6 +23,15 @@ class GalaxyToolXmlDocument:
         XML document."""
         return self.xml_document.document_type == DocumentType.TOOL
 
+    @property
+    def uses_macros(self) -> bool:
+        """Indicates if this tool document *uses* macro definitions.
+
+        Returns:
+            bool: True if the tool contains <expand> elements.
+        """
+        return self.xml_document.uses_macros
+
     def find_element(self, name: str, maxlevel: int = 3) -> Optional[XmlElement]:
         node = find(self.xml_document, filter_=lambda node: node.name == name, maxlevel=maxlevel)
         return cast(XmlElement, node)
@@ -38,7 +48,7 @@ class GalaxyToolTestSnippetGenerator:
     """
 
     def __init__(self, tool_document: GalaxyToolXmlDocument) -> None:
-        self.tool_document: GalaxyToolXmlDocument = tool_document
+        self.tool_document: GalaxyToolXmlDocument = self._get_expanded_tool_document(tool_document)
         self.tabstop_count: int = 0
 
     def generate_snippet(self) -> Optional[str]:
@@ -93,3 +103,15 @@ class GalaxyToolTestSnippetGenerator:
     def _get_next_tabstop(self) -> str:
         self.tabstop_count += 1
         return f"${self.tabstop_count}"
+
+    def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
+        if tool_document.uses_macros:
+            try:
+                document = tool_document.document
+                expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
+                expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
+                expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
+                return GalaxyToolXmlDocument(expanded_document)
+            except BaseException:
+                return tool_document
+        return tool_document
