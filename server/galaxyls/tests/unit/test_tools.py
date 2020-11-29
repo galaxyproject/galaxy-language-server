@@ -83,6 +83,7 @@ class TestGalaxyToolXmlDocumentClass:
             ("<tool><expand/></tool>", True),
             ("<tool><expand></tool>", True),
             ("<tool><expand></expand></tool>", True),
+            ("<tool><expand/><expand/></tool>", True),
         ],
     )
     def test_uses_macros_returns_expected(self, source: str, expected: bool) -> None:
