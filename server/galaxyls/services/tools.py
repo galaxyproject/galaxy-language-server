@@ -1,12 +1,13 @@
-from .xml.parser import XmlDocumentParser
-from typing import Optional, cast
+from typing import AnyStr, Optional, cast
 
 from anytree import find
+from lxml import etree
 from pygls.types import Range
 from pygls.workspace import Document
 
 from .xml.document import XmlDocument
 from .xml.nodes import XmlElement
+from .xml.parser import XmlDocumentParser
 from .xml.types import DocumentType
 
 
@@ -38,7 +39,57 @@ class GalaxyToolTestSnippetGenerator:
 
     def __init__(self, tool_document: GalaxyToolXmlDocument) -> None:
         self.tool_document: GalaxyToolXmlDocument = tool_document
+        self.tabstop_count: int = 0
 
     def generate_snippet(self) -> Optional[str]:
-        # TODO implement based on current tool definitions
-        return "    <test>$0</test>\n"
+        try:
+            test_node = etree.Element("test")
+            test_node.append(etree.Comment("Auto-generated test case, please fill in the required values"))
+
+            inputs_node = self.tool_document.find_element("inputs")
+            for input_node in inputs_node.elements:
+                self._add_input_to_test(input_node, test_node)
+
+            snippet = etree.tostring(test_node, pretty_print=True, encoding=str)
+            return cast(str, snippet)
+        except BaseException as e:
+            print(e)
+            return None
+
+    def _add_input_to_test(self, input_node: XmlElement, test_node: etree._Element):
+        switcher = {
+            "param": lambda: self._add_param_to_test(input_node, test_node),
+            "repeat": lambda: self._add_repeat_to_test(input_node, test_node),
+            "conditional": lambda: self._add_conditional_to_test(input_node, test_node),
+            "section": lambda: self._add_section_to_test(input_node, test_node),
+        }
+        if input_node.name:
+            add_input = switcher.get(input_node.name, lambda: None)
+            return add_input()
+
+    def _add_param_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
+        param_node = etree.Element("param")
+        name_attr = input_node.attributes.get("name")
+        if name_attr and name_attr.value:
+            param_node.attrib["name"] = name_attr.value.unquoted
+        type_attr = input_node.attributes.get("type")
+        if type_attr and type_attr.value:
+            if type_attr.value.unquoted == "boolean":
+                param_node.attrib["truevalue"] = self._get_next_tabstop()
+                param_node.attrib["falsevalue"] = self._get_next_tabstop()
+            else:
+                param_node.attrib["value"] = self._get_next_tabstop()
+        test_node.append(param_node)
+
+    def _add_repeat_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
+        pass
+
+    def _add_conditional_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
+        pass
+
+    def _add_section_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
+        pass
+
+    def _get_next_tabstop(self) -> str:
+        self.tabstop_count += 1
+        return f"${self.tabstop_count}"
