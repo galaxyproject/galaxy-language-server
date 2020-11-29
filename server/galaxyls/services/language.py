@@ -17,6 +17,7 @@ from ..types import GeneratedTestResult
 from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
+from .tools import GalaxyToolTestSnippetGenerator, GalaxyToolXmlDocument
 from .xsd.service import GalaxyToolXsdService
 
 
@@ -68,4 +69,12 @@ class GalaxyToolLanguageService:
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
     def generate_test(self, document: Document) -> Optional[GeneratedTestResult]:
+        tool = GalaxyToolXmlDocument(document)
+        tests_element = tool.find_element("tests")
+        if tests_element:
+            snippet = GalaxyToolTestSnippetGenerator(tool).generate_snippet()
+            if snippet:
+                content_range = tool.get_element_content_range(tests_element)
+                insert_position = content_range.end
+                return GeneratedTestResult(snippet, insert_position)
         return None

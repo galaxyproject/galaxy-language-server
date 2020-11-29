@@ -19,6 +19,6 @@ class GeneratedTestResult:
     where it should be inserted.
     """
 
-    def __init__(self, snippet: str, position: Position):
+    def __init__(self, snippet: str, insert_position: Position):
         self.snippet = snippet
-        self.position = position
+        self.position = insert_position
