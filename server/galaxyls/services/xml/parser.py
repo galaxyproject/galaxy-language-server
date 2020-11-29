@@ -87,7 +87,7 @@ class XmlDocumentParser:
                 current.end = scanner.get_token_end()
 
             elif token == TokenType.EndTagOpen:
-                end_tag_open_offset = scanner.get_token_offset()
+                end_tag_open_offset = scanner.get_token_offset() - 1
                 current.end = scanner.get_token_offset()
                 previous_token_was_end_tag_open = True
 
