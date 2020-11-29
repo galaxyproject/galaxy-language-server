@@ -1,5 +1,5 @@
 from typing import Dict, Optional
-from anytree.search import find
+from anytree.search import findall
 
 from pygls.types import Range
 from pygls.workspace import Document
@@ -53,10 +53,11 @@ class XmlDocument(XmlSyntaxNode):
         Returns:
             bool: True if the tool contains at least one <expand> elements.
         """
-        if self.root is None:
+        try:
+            found = findall(self.root, filter_=lambda node: node.name == "expand", mincount=1)
+            return len(found) > 0
+        except BaseException:
             return False
-        node = find(self.root, filter_=lambda node: node.name == "expand")
-        return node is not None
 
     @property
     def document_type(self) -> DocumentType:
