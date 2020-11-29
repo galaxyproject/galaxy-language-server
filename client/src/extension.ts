@@ -53,6 +53,10 @@ export async function activate(context: ExtensionContext) {
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
+    if (activeEditor.document.isDirty) {
+      window.showErrorMessage("Please save the document before executing this action.");
+      return;
+    }
     let document = activeEditor.document;
 
     let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
