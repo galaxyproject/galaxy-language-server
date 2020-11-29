@@ -29,3 +29,16 @@ class GalaxyToolXmlDocument:
         if not element:
             return None
         return self.xml_document.get_element_content_range(element)
+
+
+class GalaxyToolTestSnippetGenerator:
+    """This class tries to generate the XML code for a test case using the information
+    already defined in the inputs and outputs of the tool XML wrapper.
+    """
+
+    def __init__(self, tool_document: GalaxyToolXmlDocument) -> None:
+        self.tool_document: GalaxyToolXmlDocument = tool_document
+
+    def generate_snippet(self) -> Optional[str]:
+        # TODO implement based on current tool definitions
+        return "    <test>$0</test>\n"
