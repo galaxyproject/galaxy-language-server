@@ -85,8 +85,7 @@ class GalaxyToolTestSnippetGenerator:
         type_attr = input_node.attributes.get("type")
         if type_attr and type_attr.value:
             if type_attr.value.unquoted == "boolean":
-                param_node.attrib["truevalue"] = self._get_next_tabstop()
-                param_node.attrib["falsevalue"] = self._get_next_tabstop()
+                param_node.attrib["value"] = self._get_next_tabstop_with_options(["true", "false"])
             elif type_attr.value.unquoted == "select":
                 option_elements = input_node.elements
                 options = [o.attributes.get("value").value.unquoted for o in option_elements]
