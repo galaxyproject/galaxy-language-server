@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import List, Optional, cast
 
 from anytree import find
 from galaxy.util import xml_macros
@@ -87,6 +87,10 @@ class GalaxyToolTestSnippetGenerator:
             if type_attr.value.unquoted == "boolean":
                 param_node.attrib["truevalue"] = self._get_next_tabstop()
                 param_node.attrib["falsevalue"] = self._get_next_tabstop()
+            elif type_attr.value.unquoted == "select":
+                option_elements = input_node.elements
+                options = [o.attributes.get("value").value.unquoted for o in option_elements]
+                param_node.attrib["value"] = self._get_next_tabstop_with_options(options)
             else:
                 param_node.attrib["value"] = self._get_next_tabstop()
         test_node.append(param_node)
@@ -103,6 +107,10 @@ class GalaxyToolTestSnippetGenerator:
     def _get_next_tabstop(self) -> str:
         self.tabstop_count += 1
         return f"${self.tabstop_count}"
+
+    def _get_next_tabstop_with_options(self, options: List[str]) -> str:
+        self.tabstop_count += 1
+        return f"${{{self.tabstop_count}|{','.join(options)}|}}"
 
     def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
         if tool_document.uses_macros:
