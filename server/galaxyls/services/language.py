@@ -72,7 +72,7 @@ class GalaxyToolLanguageService:
         tool = GalaxyToolXmlDocument(document)
         tests_element = tool.find_element("tests")
         if tests_element:
-            snippet = GalaxyToolTestSnippetGenerator(tool).generate_snippet()
+            snippet = GalaxyToolTestSnippetGenerator(tool).generate_test_suite_snippet()
             if snippet:
                 content_range = tool.get_element_content_range(tests_element)
                 insert_position = content_range.end

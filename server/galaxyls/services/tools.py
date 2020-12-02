@@ -1,6 +1,7 @@
 from typing import List, Optional, cast
 
 from anytree import find
+from anytree import NodeMixin
 from galaxy.util import xml_macros
 from lxml import etree
 from pygls.types import Range
@@ -10,6 +11,58 @@ from .xml.document import XmlDocument
 from .xml.nodes import XmlElement
 from .xml.parser import XmlDocumentParser
 from .xml.types import DocumentType
+
+
+class InputNode(NodeMixin):
+    def __init__(self, name: str, element: Optional[XmlElement] = None, parent: NodeMixin = None):
+        self.name: str = name
+        self.element: Optional[XmlElement] = element
+        self.parent = parent
+        self.params: List[XmlElement] = []
+
+    def __repr__(self) -> str:
+        return self.name
+
+
+class ConditionalInputNode(InputNode):
+    def __init__(self, name: str, option: str, element: Optional[XmlElement] = None, parent: NodeMixin = None):
+        self.option_param: XmlElement = element.elements[0]
+        self.option: str = option
+        super().__init__(name, element, parent)
+
+
+class GalaxyToolInputTree:
+    def __init__(self, inputs: Optional[XmlElement] = None) -> None:
+        self._root: InputNode = InputNode("inputs", inputs)
+        if inputs:
+            self._root.params = inputs.get_children_with_name("param")
+            self._build_input_tree(inputs, self._root)
+
+    @property
+    def leaves(self) -> List[InputNode]:
+        return list(self._root.leaves)
+
+    def _build_input_tree(self, inputs: XmlElement, parent: InputNode) -> None:
+        conditionals = inputs.get_children_with_name("conditional")
+        for conditional in conditionals:
+            self._build_conditional_input_tree(conditional, parent)
+
+    def _build_conditional_input_tree(self, conditional: XmlElement, parent: InputNode) -> None:
+        param = conditional.elements[0]  # first child must be select or boolean
+        name = conditional.get_attribute("name")
+        if name and param.get_attribute("type") == "select":
+            options = param.get_children_with_name("option")
+            for option in options:
+                option_value = option.get_attribute("value")
+                if option_value:
+                    conditional_node = ConditionalInputNode(name, option_value, element=conditional, parent=parent)
+                    when = find(
+                        conditional, filter_=lambda el: el.name == "when" and el.get_attribute("value") == option_value
+                    )
+                    when = cast(XmlElement, when)
+                    if when:
+                        conditional_node.params = when.get_children_with_name("param")
+                        self._build_input_tree(when, conditional_node)
 
 
 class GalaxyToolXmlDocument:
@@ -41,6 +94,10 @@ class GalaxyToolXmlDocument:
             return None
         return self.xml_document.get_element_content_range(element)
 
+    def analyze_inputs(self) -> GalaxyToolInputTree:
+        inputs = self.find_element("inputs")
+        return GalaxyToolInputTree(inputs)
+
 
 class GalaxyToolTestSnippetGenerator:
     """This class tries to generate the XML code for a test case using the information
@@ -51,57 +108,84 @@ class GalaxyToolTestSnippetGenerator:
         self.tool_document: GalaxyToolXmlDocument = self._get_expanded_tool_document(tool_document)
         self.tabstop_count: int = 0
 
-    def generate_snippet(self) -> Optional[str]:
+    def generate_test_suite_snippet(self) -> Optional[str]:
+        input_tree = self.tool_document.analyze_inputs()
+        result_snippet = "\n".join((self._generate_test_case_snippet(input_case) for input_case in input_tree.leaves))
+        return result_snippet
+
+    def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
+        """If the given tool document uses macros, a new tool document with the expanded macros is returned,
+        otherwise, the same document is returned.
+        """
+        if tool_document.uses_macros:
+            try:
+                document = tool_document.document
+                expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
+                expanded_tool_tree = cast(etree._ElementTree, expanded_tool_tree)
+                expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
+                expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
+                return GalaxyToolXmlDocument(expanded_document)
+            except BaseException:
+                return tool_document
+        return tool_document
+
+    def _generate_test_case_snippet(self, input_node: InputNode, tabSize: int = 4) -> str:
         try:
             test_node = etree.Element("test")
             test_node.append(etree.Comment("Auto-generated test case, please fill in the required values"))
 
-            inputs_node = self.tool_document.find_element("inputs")
-            for input_node in inputs_node.elements:
-                self._add_input_to_test(input_node, test_node)
-
+            input_path = list(input_node.path)
+            for node in input_path:
+                node = cast(InputNode, node)
+                if type(node) is ConditionalInputNode:
+                    node = cast(ConditionalInputNode, node)
+                    self._add_conditional_to_test(node, test_node)
+                else:
+                    for param in node.params:
+                        self._add_param_to_node(param, test_node)
+            spaces = " " * tabSize
+            etree.indent(test_node, space=spaces)
             snippet = etree.tostring(test_node, pretty_print=True, encoding=str)
             return cast(str, snippet)
         except BaseException as e:
             print(e)
-            return None
+            return ""
 
-    def _add_input_to_test(self, input_node: XmlElement, test_node: etree._Element):
-        switcher = {
-            "param": lambda: self._add_param_to_test(input_node, test_node),
-            "repeat": lambda: self._add_repeat_to_test(input_node, test_node),
-            "conditional": lambda: self._add_conditional_to_test(input_node, test_node),
-            "section": lambda: self._add_section_to_test(input_node, test_node),
-        }
-        if input_node.name:
-            add_input = switcher.get(input_node.name, lambda: None)
-            return add_input()
-
-    def _add_param_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
+    def _add_param_to_node(self, input_node: XmlElement, test_node: etree._Element, value: Optional[str] = None) -> None:
         param_node = etree.Element("param")
-        name_attr = input_node.attributes.get("name")
-        if name_attr and name_attr.value:
-            param_node.attrib["name"] = name_attr.value.unquoted
-        type_attr = input_node.attributes.get("type")
-        if type_attr and type_attr.value:
-            if type_attr.value.unquoted == "boolean":
-                param_node.attrib["value"] = self._get_next_tabstop_with_options(["true", "false"])
-            elif type_attr.value.unquoted == "select":
-                option_elements = input_node.elements
-                options = [o.attributes.get("value").value.unquoted for o in option_elements]
-                param_node.attrib["value"] = self._get_next_tabstop_with_options(options)
-            else:
-                param_node.attrib["value"] = self._get_next_tabstop()
+        name_attr = input_node.get_attribute("name")
+        if name_attr:
+            param_node.attrib["name"] = name_attr
+        if value:
+            param_node.attrib["value"] = value
+        else:
+            type_attr = input_node.get_attribute("type")
+            if type_attr:
+                if type_attr == "boolean":
+                    param_node.attrib["value"] = self._get_next_tabstop_with_options(["true", "false"])
+                elif type_attr == "select":
+                    try:
+                        option_elements = input_node.elements
+                        options = [o.get_attribute("value") for o in option_elements]
+                        param_node.attrib["value"] = self._get_next_tabstop_with_options(options)
+                    except BaseException:
+                        param_node.attrib["value"] = self._get_next_tabstop()
+                else:
+                    param_node.attrib["value"] = self._get_next_tabstop()
         test_node.append(param_node)
 
-    def _add_repeat_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
-        pass
-
-    def _add_conditional_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
-        pass
-
-    def _add_section_to_test(self, input_node: XmlElement, test_node: etree._Element) -> None:
-        pass
+    def _add_conditional_to_test(self, node: ConditionalInputNode, test_node: etree._Element) -> None:
+        conditional_node = etree.Element("conditional")
+        conditional_node.attrib["name"] = node.name
+        # add the option param
+        self._add_param_to_node(node.option_param, conditional_node, node.option)
+        # add the rest of params in the corresponding when element
+        for param in node.params:
+            self._add_param_to_node(param, conditional_node)
+        test_node.append(conditional_node)
+        child_conditionals = [child for child in node.children if type(node) is ConditionalInputNode]
+        for cond in child_conditionals:
+            self._add_conditional_to_test(cond, conditional_node)
 
     def _get_next_tabstop(self) -> str:
         self.tabstop_count += 1
@@ -110,15 +194,3 @@ class GalaxyToolTestSnippetGenerator:
     def _get_next_tabstop_with_options(self, options: List[str]) -> str:
         self.tabstop_count += 1
         return f"${{{self.tabstop_count}|{','.join(options)}|}}"
-
-    def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
-        if tool_document.uses_macros:
-            try:
-                document = tool_document.document
-                expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
-                expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
-                expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
-                return GalaxyToolXmlDocument(expanded_document)
-            except BaseException:
-                return tool_document
-        return tool_document
