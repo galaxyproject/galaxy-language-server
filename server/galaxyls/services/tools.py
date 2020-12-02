@@ -131,15 +131,14 @@ class GalaxyToolTestSnippetGenerator:
 
     def _generate_test_case_snippet(self, input_node: InputNode, tabSize: int = 4) -> str:
         try:
-            test_node = etree.Element("test")
-            test_node.append(etree.Comment("Auto-generated test case, please fill in the required values"))
-
+            test_node = self._create_test_node()
+            current_node = test_node
             input_path = list(input_node.path)
             for node in input_path:
                 node = cast(InputNode, node)
                 if type(node) is ConditionalInputNode:
                     node = cast(ConditionalInputNode, node)
-                    self._add_conditional_to_test(node, test_node)
+                    current_node = self._add_conditional_to_test(node, current_node)
                 else:
                     for param in node.params:
                         self._add_param_to_node(param, test_node)
@@ -147,9 +146,14 @@ class GalaxyToolTestSnippetGenerator:
             etree.indent(test_node, space=spaces)
             snippet = etree.tostring(test_node, pretty_print=True, encoding=str)
             return cast(str, snippet)
-        except BaseException as e:
-            print(e)
+        except BaseException:
             return ""
+
+    def _create_test_node(self) -> etree._Element:
+        node = etree.Element("test")
+        node.append(etree.Comment("Auto-generated test case, please fill in the required values"))
+        node.attrib["expect_num_outputs"] = self._get_next_tabstop()
+        return node
 
     def _add_param_to_node(self, input_node: XmlElement, test_node: etree._Element, value: Optional[str] = None) -> None:
         param_node = etree.Element("param")
@@ -163,10 +167,9 @@ class GalaxyToolTestSnippetGenerator:
             if type_attr:
                 if type_attr == "boolean":
                     param_node.attrib["value"] = self._get_next_tabstop_with_options(["true", "false"])
-                elif type_attr == "select":
+                elif type_attr == "select" or type_attr == "text":
                     try:
-                        option_elements = input_node.elements
-                        options = [o.get_attribute("value") for o in option_elements]
+                        options = self._get_options_from_param(input_node)
                         param_node.attrib["value"] = self._get_next_tabstop_with_options(options)
                     except BaseException:
                         param_node.attrib["value"] = self._get_next_tabstop()
@@ -174,7 +177,7 @@ class GalaxyToolTestSnippetGenerator:
                     param_node.attrib["value"] = self._get_next_tabstop()
         test_node.append(param_node)
 
-    def _add_conditional_to_test(self, node: ConditionalInputNode, test_node: etree._Element) -> None:
+    def _add_conditional_to_test(self, node: ConditionalInputNode, test_node: etree._Element) -> etree._Element:
         conditional_node = etree.Element("conditional")
         conditional_node.attrib["name"] = node.name
         # add the option param
@@ -183,14 +186,19 @@ class GalaxyToolTestSnippetGenerator:
         for param in node.params:
             self._add_param_to_node(param, conditional_node)
         test_node.append(conditional_node)
-        child_conditionals = [child for child in node.children if type(node) is ConditionalInputNode]
-        for cond in child_conditionals:
-            self._add_conditional_to_test(cond, conditional_node)
+        return conditional_node
+
+    def _get_options_from_param(self, param: XmlElement) -> List[str]:
+        option_elements = param.get_children_with_name("option")
+        options = [o.get_attribute("value") for o in option_elements]
+        return list(filter(None, options))
 
     def _get_next_tabstop(self) -> str:
         self.tabstop_count += 1
         return f"${self.tabstop_count}"
 
     def _get_next_tabstop_with_options(self, options: List[str]) -> str:
-        self.tabstop_count += 1
-        return f"${{{self.tabstop_count}|{','.join(options)}|}}"
+        if options:
+            self.tabstop_count += 1
+            return f"${{{self.tabstop_count}|{','.join(options)}|}}"
+        return self._get_next_tabstop()
