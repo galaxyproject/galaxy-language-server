@@ -161,3 +161,40 @@ TEST_TOOL_WITH_PROLOG = """<?xml version="1.0" encoding="UTF-8"?>
 </tool>
 """
 TEST_TOOL_WITH_PROLOG_DOCUMENT = Document("file://test_prolog.xml", TEST_TOOL_WITH_PROLOG)
+
+TEST_TOOL_WITH_INPUTS = """
+<tool id="test" name="Test Tool" version="0.1.0">
+    <inputs>
+      <param name="param-01" type="text"/>
+      <param name="param-02" type="boolean"/>
+      <conditional name="c1">
+          <param name="action" type="select">
+              <option value="a1" selected="True">A 1</option>
+              <option value="a2">A 2</option>
+          </param>
+          <when value="a1">
+              <param name="p_c1_a1_1" type="text" />
+              <param name="p_c1_a1_2" type="boolean" />
+              <param name="p_c1_a1_hidden" type="hidden" value="False" />
+          </when>
+          <when value="a2">
+              <param name="p_c1_a2" type="text" />
+              <conditional name="c2">
+                <param name="action" type="select">
+                    <option value="b1" selected="True">B 1</option>
+                    <option value="b2">B 2</option>
+                </param>
+                <when value="b1">
+                    <param name="p_c2_b1_1" type="text" />
+                </when>
+                <when value="b2">
+                    <param name="p_c2_b2" type="text" />
+                </when>
+            </conditional>
+          </when>
+      </conditional>
+    </inputs>
+    <outputs/>
+</tool>
+"""
+TEST_TOOL_WITH_INPUTS_DOCUMENT = Document("file://test_prolog.xml", TEST_TOOL_WITH_INPUTS)
