@@ -13,6 +13,23 @@ from .xml.parser import XmlDocumentParser
 from .xml.types import DocumentType
 
 
+INPUTS = "inputs"
+PARAM = "param"
+CONDITIONAL = "conditional"
+NAME = "name"
+TYPE = "type"
+SELECT = "select"
+OPTION = "option"
+VALUE = "value"
+WHEN = "when"
+TEST = "test"
+TEXT = "text"
+BOOLEAN = "boolean"
+BOOLEAN_OPTIONS = ["true", "false"]
+EXPECT_NUM_OUTPUTS = "expect_num_outputs"
+AUTO_GEN_TEST_COMMENT = "Auto-generated test case, please fill in the required values"
+
+
 class InputNode(NodeMixin):
     def __init__(self, name: str, element: Optional[XmlElement] = None, parent: NodeMixin = None):
         self.name: str = name
@@ -33,9 +50,9 @@ class ConditionalInputNode(InputNode):
 
 class GalaxyToolInputTree:
     def __init__(self, inputs: Optional[XmlElement] = None) -> None:
-        self._root: InputNode = InputNode("inputs", inputs)
+        self._root: InputNode = InputNode(INPUTS, inputs)
         if inputs:
-            self._root.params = inputs.get_children_with_name("param")
+            self._root.params = inputs.get_children_with_name(PARAM)
             self._build_input_tree(inputs, self._root)
 
     @property
@@ -43,25 +60,23 @@ class GalaxyToolInputTree:
         return list(self._root.leaves)
 
     def _build_input_tree(self, inputs: XmlElement, parent: InputNode) -> None:
-        conditionals = inputs.get_children_with_name("conditional")
+        conditionals = inputs.get_children_with_name(CONDITIONAL)
         for conditional in conditionals:
             self._build_conditional_input_tree(conditional, parent)
 
     def _build_conditional_input_tree(self, conditional: XmlElement, parent: InputNode) -> None:
         param = conditional.elements[0]  # first child must be select or boolean
-        name = conditional.get_attribute("name")
-        if name and param.get_attribute("type") == "select":
-            options = param.get_children_with_name("option")
+        name = conditional.get_attribute(NAME)
+        if name and param.get_attribute(TYPE) == SELECT:
+            options = param.get_children_with_name(OPTION)
             for option in options:
-                option_value = option.get_attribute("value")
+                option_value = option.get_attribute(VALUE)
                 if option_value:
                     conditional_node = ConditionalInputNode(name, option_value, element=conditional, parent=parent)
-                    when = find(
-                        conditional, filter_=lambda el: el.name == "when" and el.get_attribute("value") == option_value
-                    )
+                    when = find(conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value)
                     when = cast(XmlElement, when)
                     if when:
-                        conditional_node.params = when.get_children_with_name("param")
+                        conditional_node.params = when.get_children_with_name(PARAM)
                         self._build_input_tree(when, conditional_node)
 
 
@@ -95,7 +110,7 @@ class GalaxyToolXmlDocument:
         return self.xml_document.get_element_content_range(element)
 
     def analyze_inputs(self) -> GalaxyToolInputTree:
-        inputs = self.find_element("inputs")
+        inputs = self.find_element(INPUTS)
         return GalaxyToolInputTree(inputs)
 
 
@@ -108,9 +123,10 @@ class GalaxyToolTestSnippetGenerator:
         self.tool_document: GalaxyToolXmlDocument = self._get_expanded_tool_document(tool_document)
         self.tabstop_count: int = 0
 
-    def generate_test_suite_snippet(self) -> Optional[str]:
+    def generate_test_suite_snippet(self, tabSize: int = 4) -> Optional[str]:
+        spaces = " " * tabSize
         input_tree = self.tool_document.analyze_inputs()
-        result_snippet = "\n".join((self._generate_test_case_snippet(input_case) for input_case in input_tree.leaves))
+        result_snippet = "\n".join((self._generate_test_case_snippet(input_case, spaces) for input_case in input_tree.leaves))
         return result_snippet
 
     def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
@@ -129,7 +145,7 @@ class GalaxyToolTestSnippetGenerator:
                 return tool_document
         return tool_document
 
-    def _generate_test_case_snippet(self, input_node: InputNode, tabSize: int = 4) -> str:
+    def _generate_test_case_snippet(self, input_node: InputNode, spaces: str = "  ") -> str:
         try:
             test_node = self._create_test_node()
             current_node = test_node
@@ -142,7 +158,6 @@ class GalaxyToolTestSnippetGenerator:
                 else:
                     for param in node.params:
                         self._add_param_to_node(param, test_node)
-            spaces = " " * tabSize
             etree.indent(test_node, space=spaces)
             snippet = etree.tostring(test_node, pretty_print=True, encoding=str)
             return cast(str, snippet)
@@ -150,36 +165,36 @@ class GalaxyToolTestSnippetGenerator:
             return ""
 
     def _create_test_node(self) -> etree._Element:
-        node = etree.Element("test")
-        node.append(etree.Comment("Auto-generated test case, please fill in the required values"))
-        node.attrib["expect_num_outputs"] = self._get_next_tabstop()
+        node = etree.Element(TEST)
+        node.append(etree.Comment(AUTO_GEN_TEST_COMMENT))
+        node.attrib[EXPECT_NUM_OUTPUTS] = self._get_next_tabstop()
         return node
 
     def _add_param_to_node(self, input_node: XmlElement, test_node: etree._Element, value: Optional[str] = None) -> None:
-        param_node = etree.Element("param")
-        name_attr = input_node.get_attribute("name")
+        param_node = etree.Element(PARAM)
+        name_attr = input_node.get_attribute(NAME)
         if name_attr:
-            param_node.attrib["name"] = name_attr
+            param_node.attrib[NAME] = name_attr
         if value:
-            param_node.attrib["value"] = value
+            param_node.attrib[VALUE] = value
         else:
-            type_attr = input_node.get_attribute("type")
+            type_attr = input_node.get_attribute(TYPE)
             if type_attr:
-                if type_attr == "boolean":
-                    param_node.attrib["value"] = self._get_next_tabstop_with_options(["true", "false"])
-                elif type_attr == "select" or type_attr == "text":
+                if type_attr == BOOLEAN:
+                    param_node.attrib[VALUE] = self._get_next_tabstop_with_options(BOOLEAN_OPTIONS)
+                elif type_attr == SELECT or type_attr == TEXT:
                     try:
                         options = self._get_options_from_param(input_node)
-                        param_node.attrib["value"] = self._get_next_tabstop_with_options(options)
+                        param_node.attrib[VALUE] = self._get_next_tabstop_with_options(options)
                     except BaseException:
-                        param_node.attrib["value"] = self._get_next_tabstop()
+                        param_node.attrib[VALUE] = self._get_next_tabstop()
                 else:
-                    param_node.attrib["value"] = self._get_next_tabstop()
+                    param_node.attrib[VALUE] = self._get_next_tabstop()
         test_node.append(param_node)
 
     def _add_conditional_to_test(self, node: ConditionalInputNode, test_node: etree._Element) -> etree._Element:
-        conditional_node = etree.Element("conditional")
-        conditional_node.attrib["name"] = node.name
+        conditional_node = etree.Element(CONDITIONAL)
+        conditional_node.attrib[NAME] = node.name
         # add the option param
         self._add_param_to_node(node.option_param, conditional_node, node.option)
         # add the rest of params in the corresponding when element
@@ -189,8 +204,8 @@ class GalaxyToolTestSnippetGenerator:
         return conditional_node
 
     def _get_options_from_param(self, param: XmlElement) -> List[str]:
-        option_elements = param.get_children_with_name("option")
-        options = [o.get_attribute("value") for o in option_elements]
+        option_elements = param.get_children_with_name(OPTION)
+        options = [o.get_attribute(VALUE) for o in option_elements]
         return list(filter(None, options))
 
     def _get_next_tabstop(self) -> str:
