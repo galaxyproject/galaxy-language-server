@@ -36,6 +36,13 @@
         "category": "Galaxy Tools"
       }
     ],
+    "keybindings": [
+      {
+        "command": "galaxytools.generate.test",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Galaxy Tools",
