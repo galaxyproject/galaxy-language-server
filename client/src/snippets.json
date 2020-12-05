@@ -5,7 +5,7 @@
             "<tool id=\"$1\" name=\"$2\" version=\"0.1.0\" profile=\"20.01\" license=\"TODO_license_in_spdx_format\">",
             "    <description></description>",
             "    <xrefs>",
-	        "        <xref type=\"bio.tools\"></xref>",
+            "        <xref type=\"bio.tools\"></xref>",
             "    </xrefs>",
             "    <requirements>",
             "        $0",
@@ -58,7 +58,7 @@
             "    <option value=\"$4\">TODO: option $4</option>",
             "    <option value=\"$5\">TODO: option $5</option>",
             "    <option value=\"$6\">TODO: option $6</option>",
-            "</param>",
+            "</param>"
         ],
         "description": "Select parameter with 3 options"
     },
@@ -71,14 +71,14 @@
             "    <option value=\"$6\">TODO: option $6</option>",
             "    <option value=\"$7\">TODO: option $7</option>",
             "    <option value=\"$8\">TODO: option $8</option>",
-            "</param>",
+            "</param>"
         ],
         "description": "Select parameter with 5 options"
     },
     "Boolean parameter": {
         "prefix": "gx-boolean-param",
         "body": [
-            "<param argument=\"$1\" type=\"boolean\" truevalue=\"$2\" falsevalue="" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"$1\" type=\"boolean\" truevalue=\"$2\" falsevalue=\"\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Boolean parameter"
     },
@@ -99,14 +99,14 @@
     "Data parameter with single required dataset": {
         "prefix": "gx-data-single-param",
         "body": [
-             "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Data parameter with single required dataset"
     },
     "Data parameter with multiple required datasets": {
         "prefix": "gx-data-multiple-param",
         "body": [
-             "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" multiple=\"true\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" multiple=\"true\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Data parameter with multiple required datasets"
     },
@@ -114,10 +114,10 @@
         "prefix": "gx-text-param",
         "body": [
             "<param argument=\"$1\" type=\"text\" value=\"\" label=\"$2\" help=\"$3\">",
-            "    <sanitizer invalid_char="">",
+            "    <sanitizer invalid_char=\"\">",
             "        <valid initial=\"string.letters,string.digits\">",
             "            <add value=\"_\" />",
-            "        </valid>,"
+            "        </valid>",
             "    </sanitizer>",
             "</param>"
         ],
@@ -145,7 +145,7 @@
             "        <param argument=\"--ref\" type=\"data\" format=\"fasta\" label=\"Reference\" help=\"Reference sequence\" />",
             "    </when>",
             "</conditional>"
-            ],
+        ],
         "description": "Reference source selector for FASTA files"
     }
 }
