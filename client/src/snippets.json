@@ -71,5 +71,18 @@
             "<param argument=\"$1\" type=\"float\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
         ],
         "description": "Float parameter"
-    }
+    },
+    "Text parameter": {
+        "prefix": "gx-text-param",
+        "body": [
+            "<param argument=\"$1\" type=\"text\" value=\"\" label=\"$2\" help=\"$3\">",
+            "    <sanitizer invalid_char="">",
+            "        <valid initial=\"string.letters,string.digits\">",
+            "            <add value=\"_\" />",
+            "        </valid>,"
+            "    </sanitizer>",
+            "</param>"
+        ],
+        "description": "Text parameter with sanitizer"
+    }	
 }
