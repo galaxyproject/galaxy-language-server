@@ -99,14 +99,14 @@
     "Data parameter with single required dataset": {
         "prefix": "gx-data-single-param",
         "body": [
-	    "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" label=\"$3\" help=\"$4\" />"
+             "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Data parameter with single required dataset"
     },
     "Data parameter with multiple required datasets": {
         "prefix": "gx-data-multiple-param",
         "body": [
-	    "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" multiple=\"true\" label=\"$3\" help=\"$4\" />"
+             "<param argument=\"$1\" name==\"$1\" type=\"data\" format==\"$2\" multiple=\"true\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Data parameter with multiple required datasets"
     },
@@ -122,5 +122,30 @@
             "</param>"
         ],
         "description": "Text parameter with sanitizer"
-    }	
+    },
+    "Reference source selector for FASTA files": {
+        "prefix": "gx-reference-source-selector-fasta",
+        "body": [
+            "<conditional name=\"reference_source\">",
+            "    <param name=\"ref_selector\" type=\"select\"",
+            "        label=\"Choose the source for the reference genome\">",
+            "        <option value=\"cached\">Locally cached</option>",
+            "        <option value=\"history\">History</option>",
+            "    </param>",
+            "    <when value=\"cached\">",
+            "        <param argument=\"--ref\" type=\"select\"",
+            "            label=\"Reference genome\">",
+            "            <options from_data_table=\"fasta_indexes\">",
+            "                <filter type=\"data_meta\" column=\"dbkey\" key=\"dbkey\" ref=\"reads\" />",
+            "                <validator type=\"no_options\" message=\"A built-in reference genome is not available for the build associated with the selected input file\" />",
+            "            </options>",
+            "        </param>",
+            "    </when>",
+            "    <when value=\"history\">",
+            "        <param argument=\"--ref\" type=\"data\" format=\"fasta\" label=\"Reference\" help=\"Reference sequence\" />",
+            "    </when>",
+            "</conditional>"
+            ],
+        "description": "Reference source selector for FASTA files"
+    }
 }
