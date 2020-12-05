@@ -11,7 +11,7 @@
             "        $0",
             "    </requirements>",
             "    <edam_topics>",
-            "        <edam_topic></edam_topic>",
+            "        <!-- TODO: please annotate this tool with topics from http://edamontology.org -->",
             "        <edam_topic></edam_topic>",
             "    </edam_topics>",
             "    <edam_operations>",
