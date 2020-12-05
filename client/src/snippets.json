@@ -4,6 +4,9 @@
         "body": [
             "<tool id=\"$1\" name=\"$2\" version=\"0.1.0\" profile=\"20.01\" license=\"TODO_license_in_spdx_format\">",
             "    <description></description>",
+            "    <xrefs>",
+	        "        <xref type=\"bio.tools\"></xref>",
+            "    </xrefs>",
             "    <requirements>",
             "        $0",
             "    </requirements>",
@@ -55,4 +58,18 @@
         ],
         "description": "Boolean parameter"
     },
+    "Integer parameter": {
+        "prefix": "gx-integer-param",
+        "body": [
+            "<param argument=\"$1\" type=\"integer\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
+        ],
+        "description": "Integer parameter"
+    },
+    "Float parameter": {
+        "prefix": "gx-float-param",
+        "body": [
+            "<param argument=\"$1\" type=\"float\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
+        ],
+        "description": "Float parameter"
+    }
 }
