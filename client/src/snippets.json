@@ -2,10 +2,18 @@
     "Basic Galaxy tool": {
         "prefix": "gx-tool",
         "body": [
-            "<tool id=\"$1\" name=\"$2\" version=\"0.1.0\">",
+            "<tool id=\"$1\" name=\"$2\" version=\"0.1.0\" profile=\"20.01\" license=\"TODO_license_in_spdx_format\">",
+            "    <description></description>",
             "    <requirements>",
             "        $0",
             "    </requirements>",
+            "    <edam_topics>",
+            "        <edam_topic></edam_topic>",
+            "        <edam_topic></edam_topic>",
+            "    </edam_topics>",
+            "    <edam_operations>",
+            "        <edam_operation></edam_operation>",
+            "    </edam_operations>",
             "    <command detect_errors=\"exit_code\"><![CDATA[",
             "        TODO: Fill in command template.",
             "    ]]></command>",
@@ -14,8 +22,11 @@
             "    <outputs>",
             "    </outputs>",
             "    <help><![CDATA[",
-            "        TODO: Fill in help.",
+            "        TODO: Fill in help in reStructuredText (https://en.wikipedia.org/wiki/ReStructuredText)",
             "    ]]></help>",
+            "    <citations>",
+            "        <citation type=\"doi\"></citation>",
+            "    </citations>",
             "</tool>"
         ],
         "description": "Creates a basic Galaxy tool structure"
@@ -36,5 +47,12 @@
             "</conditional>"
         ],
         "description": "Conditional parameter select with two options"
-    }
+    },
+    "Boolean parameter": {
+        "prefix": "gx-boolean-param",
+        "body": [
+            "<param argument=\"$1\" type=\"boolean\" truevalue=\"$2\" falsevalue="" label=\"$3\" help=\"$4\" />"
+        ],
+        "description": "Boolean parameter"
+    },
 }
