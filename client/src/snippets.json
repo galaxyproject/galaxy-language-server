@@ -115,7 +115,7 @@
     "Text parameter": {
         "prefix": "gx-text-param",
         "body": [
-            "<param argument=\"$1\" type=\"text\" value=\"\" label=\"$2\" help=\"$3\">",
+            "<param argument=\"$1\" type=\"text\" value=\"$2\" label=\"$3\" help=\"$4\">",
             "    <sanitizer invalid_char=\"\">",
             "        <valid initial=\"string.letters,string.digits\">",
             "            <add value=\"_\" />",
