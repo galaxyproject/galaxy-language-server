@@ -24,6 +24,8 @@
             "    </inputs>",
             "    <outputs>",
             "    </outputs>",
+            "    <tests>",
+            "    </tests>",
             "    <help><![CDATA[",
             "        TODO: Fill in help in reStructuredText (https://en.wikipedia.org/wiki/ReStructuredText)",
             "    ]]></help>",
@@ -78,7 +80,7 @@
     "Boolean parameter": {
         "prefix": "gx-boolean-param",
         "body": [
-            "<param argument=\"$1\" type=\"boolean\" truevalue=\"$2\" falsevalue=\"\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"$1\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Boolean parameter"
     },
