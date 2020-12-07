@@ -1,7 +1,6 @@
 from typing import List, Optional, cast
 
-from anytree import find
-from anytree import NodeMixin
+from anytree import NodeMixin, RenderTree, find
 from galaxy.util import xml_macros
 from lxml import etree
 from pygls.types import Range
@@ -12,10 +11,10 @@ from .xml.nodes import XmlElement
 from .xml.parser import XmlDocumentParser
 from .xml.types import DocumentType
 
-
 INPUTS = "inputs"
 PARAM = "param"
 CONDITIONAL = "conditional"
+REPEAT = "repeat"
 NAME = "name"
 TYPE = "type"
 SELECT = "select"
@@ -24,6 +23,7 @@ VALUE = "value"
 WHEN = "when"
 TEST = "test"
 TEXT = "text"
+MIN = "min"
 BOOLEAN = "boolean"
 BOOLEAN_OPTIONS = ["true", "false"]
 EXPECT_NUM_OUTPUTS = "expect_num_outputs"
@@ -41,6 +41,7 @@ class InputNode(NodeMixin):
         self.element: Optional[XmlElement] = element
         self.parent = parent
         self.params: List[XmlElement] = []
+        self.repeats: List[RepeatInputNode] = []
 
     def __repr__(self) -> str:
         return self.name
@@ -53,11 +54,17 @@ class ConditionalInputNode(InputNode):
         super().__init__(name, element, parent)
 
 
+class RepeatInputNode(InputNode):
+    def __init__(self, name: str, min: int, element: Optional[XmlElement] = None, parent: NodeMixin = None):
+        self.option_param: XmlElement = element.elements[0]
+        self.min: int = min
+        super().__init__(name, element, parent)
+
+
 class GalaxyToolInputTree:
     def __init__(self, inputs: Optional[XmlElement] = None) -> None:
         self._root: InputNode = InputNode(INPUTS, inputs)
         if inputs:
-            self._root.params = inputs.get_children_with_name(PARAM)
             self._build_input_tree(inputs, self._root)
 
     @property
@@ -65,9 +72,15 @@ class GalaxyToolInputTree:
         return list(self._root.leaves)
 
     def _build_input_tree(self, inputs: XmlElement, parent: InputNode) -> None:
+        parent.params = inputs.get_children_with_name(PARAM)
         conditionals = inputs.get_children_with_name(CONDITIONAL)
         for conditional in conditionals:
             self._build_conditional_input_tree(conditional, parent)
+        repeats = inputs.get_children_with_name(REPEAT)
+        for repeat in repeats:
+            repeat_node = self._build_repeat_input_tree(repeat, parent)
+            if repeat_node:
+                parent.repeats.append(repeat_node)
 
     def _build_conditional_input_tree(self, conditional: XmlElement, parent: InputNode) -> None:
         param = conditional.elements[0]  # first child must be select or boolean
@@ -81,8 +94,19 @@ class GalaxyToolInputTree:
                     when = find(conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value)
                     when = cast(XmlElement, when)
                     if when:
-                        conditional_node.params = when.get_children_with_name(PARAM)
                         self._build_input_tree(when, conditional_node)
+
+    def _build_repeat_input_tree(self, repeat: XmlElement, parent: InputNode) -> Optional[RepeatInputNode]:
+        name = repeat.get_attribute(NAME)
+        if name:
+            min = 1
+            min_attr = repeat.get_attribute(MIN)
+            if min_attr and min_attr.isdigit:
+                min = int(min_attr)
+            repeat_node = RepeatInputNode(name, min, repeat, parent)
+            self._build_input_tree(repeat, repeat_node)
+            return repeat_node
+        return None
 
 
 class GalaxyToolXmlDocument:
@@ -137,6 +161,7 @@ class GalaxyToolTestSnippetGenerator:
     def generate_test_suite_snippet(self, tabSize: int = 4) -> Optional[str]:
         spaces = " " * tabSize
         input_tree = self.tool_document.analyze_inputs()
+        print(RenderTree(input_tree._root))
         outputs = self.tool_document.get_outputs()
         result_snippet = "\n".join(
             (self._generate_test_case_snippet(input_node, outputs, spaces) for input_node in input_tree.leaves)
@@ -177,11 +202,12 @@ class GalaxyToolTestSnippetGenerator:
         for node in input_path:
             node = cast(InputNode, node)
             if type(node) is ConditionalInputNode:
-                node = cast(ConditionalInputNode, node)
                 current_element = self._add_conditional_to_test(node, current_element)
             else:
                 for param in node.params:
-                    self._add_param_to_test(param, test_element)
+                    self._add_param_to_test(param, current_element)
+                for repeat in node.repeats:
+                    self._add_repeat_to_test(repeat, current_element)
 
     def _add_outputs_to_test_element(self, outputs: List[XmlElement], test_element: etree._Element) -> None:
         for output in outputs:
@@ -228,6 +254,14 @@ class GalaxyToolTestSnippetGenerator:
             self._add_param_to_test(param, conditional_node)
         test_element.append(conditional_node)
         return conditional_node
+
+    def _add_repeat_to_test(self, node: RepeatInputNode, test_element: etree._Element) -> None:
+        for _ in range(node.min):
+            repeat_node = etree.Element(REPEAT)
+            repeat_node.attrib[NAME] = node.name
+            for param in node.params:
+                self._add_param_to_test(param, repeat_node)
+            test_element.append(repeat_node)
 
     def _add_output_to_test(self, output: XmlElement, test_element: etree._Element) -> None:
         name = output.get_attribute(NAME)
