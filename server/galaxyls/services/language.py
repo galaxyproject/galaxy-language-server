@@ -70,11 +70,8 @@ class GalaxyToolLanguageService:
 
     def generate_test(self, document: Document) -> Optional[GeneratedTestResult]:
         tool = GalaxyToolXmlDocument(document)
-        tests_element = tool.find_element("tests")
-        if tests_element:
-            snippet = GalaxyToolTestSnippetGenerator(tool).generate_test_suite_snippet()
-            if snippet:
-                content_range = tool.get_element_content_range(tests_element)
-                insert_position = content_range.end
-                return GeneratedTestResult(snippet, insert_position)
+        snippet = GalaxyToolTestSnippetGenerator(tool).generate_test_suite_snippet()
+        if snippet:
+            insert_position = tool.find_tests_insert_position()
+            return GeneratedTestResult(snippet, insert_position)
         return None

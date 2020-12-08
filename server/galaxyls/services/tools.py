@@ -3,7 +3,7 @@ from typing import List, Optional, cast
 from anytree import NodeMixin, RenderTree, find
 from galaxy.util import xml_macros
 from lxml import etree
-from pygls.types import Range
+from pygls.types import Position, Range
 from pygls.workspace import Document
 
 from .xml.document import XmlDocument
@@ -23,6 +23,7 @@ OPTION = "option"
 VALUE = "value"
 WHEN = "when"
 TEST = "test"
+TESTS = "tests"
 TEXT = "text"
 MIN = "min"
 BOOLEAN = "boolean"
@@ -164,6 +165,27 @@ class GalaxyToolXmlDocument:
         """
         return self.xml_document.uses_macros
 
+    def find_tests_insert_position(self) -> Position:
+        section = self.find_element(TESTS)
+        if section:
+            content_range = self.get_element_content_range(section)
+            if content_range:
+                return content_range.end
+            else:  # is self closed <tests/>
+                return self.get_position_before(section)
+        else:
+            section = self.find_element(OUTPUTS)
+            if section:
+                return self.get_position_after(section)
+            section = self.find_element(INPUTS)
+            if section:
+                return self.get_position_after(section)
+            return Position()
+
+    def has_section_content(self, section_name: str) -> bool:
+        section = self.find_element(section_name)
+        return section is not None and not section.is_self_closed
+
     def find_element(self, name: str, maxlevel: int = 3) -> Optional[XmlElement]:
         node = find(self.xml_document, filter_=lambda node: node.name == name, maxlevel=maxlevel)
         return cast(XmlElement, node)
@@ -172,6 +194,12 @@ class GalaxyToolXmlDocument:
         if not element:
             return None
         return self.xml_document.get_element_content_range(element)
+
+    def get_position_before(self, element: XmlElement) -> Position:
+        return self.xml_document.get_position_before(element)
+
+    def get_position_after(self, element: XmlElement) -> Position:
+        return self.xml_document.get_position_after(element)
 
     def analyze_inputs(self) -> GalaxyToolInputTree:
         inputs = self.find_element(INPUTS)
@@ -193,7 +221,7 @@ class GalaxyToolTestSnippetGenerator:
         self.tool_document: GalaxyToolXmlDocument = self._get_expanded_tool_document(tool_document)
         self.tabstop_count: int = 0
 
-    def generate_test_suite_snippet(self, tabSize: int = 4) -> Optional[str]:
+    def generate_test_suite_snippet(self, create_tests_section: bool = False, tabSize: int = 4) -> Optional[str]:
         spaces = " " * tabSize
         input_tree = self.tool_document.analyze_inputs()
         print(RenderTree(input_tree._root))
@@ -201,6 +229,9 @@ class GalaxyToolTestSnippetGenerator:
         result_snippet = "\n".join(
             (self._generate_test_case_snippet(input_node, outputs, spaces) for input_node in input_tree.leaves)
         )
+        create_tests_section = not self.tool_document.has_section_content(TESTS)
+        if create_tests_section:
+            return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
         return result_snippet
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement], spaces: str = "  ") -> str:

@@ -1,12 +1,12 @@
 from typing import Dict, Optional
 from anytree.search import findall
 
-from pygls.types import Range
+from pygls.types import Position, Range
 from pygls.workspace import Document
 
 from .nodes import XmlElement, XmlSyntaxNode
 from .types import DocumentType, NodeType
-from .utils import convert_document_offsets_to_range
+from .utils import convert_document_offset_to_position, convert_document_offsets_to_range
 
 
 class XmlDocument(XmlSyntaxNode):
@@ -83,3 +83,27 @@ class XmlDocument(XmlSyntaxNode):
         if start_offset < 0 or end_offset < 0:
             return None
         return convert_document_offsets_to_range(self.document, start_offset, end_offset)
+
+    def get_position_before(self, element: XmlElement) -> Position:
+        """Return the position in the document before the given element.
+
+        Args:
+            element (XmlElement): The element used to find the position.
+
+        Returns:
+            Position: The position just before the element declaration.
+        """
+        return convert_document_offset_to_position(self.document, element.start - 1)
+
+    def get_position_after(self, element: XmlElement) -> Position:
+        """Return the position in the document after the given element.
+
+        Args:
+            element (XmlElement): The element used to find the position.
+
+        Returns:
+            Position: The position just after the element declaration.
+        """
+        if element.is_self_closed:
+            return convert_document_offset_to_position(self.document, element.end)
+        return convert_document_offset_to_position(self.document, element.end_tag_close_offset)
