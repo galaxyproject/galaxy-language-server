@@ -12,6 +12,21 @@ from pygls.workspace import Document
 from .constants import NEW_LINE, _LAN, WHITESPACE_CHARS
 
 
+def convert_document_offset_to_position(document: Document, offset: int) -> Position:
+    """Converts the given offset in the document to a line/character based Position.
+
+    Args:
+        document (Document): The source document.
+        offset (int): The character offset inside the document.
+
+    Returns:
+        Position: The resulting Position with line and character offset.
+    """
+    line = max(document.source.count(NEW_LINE, 0, offset + 1), 0)
+    character = offset - document.source.rfind(NEW_LINE, 0, offset + 1)
+    return Position(line, character)
+
+
 def convert_document_offsets_to_range(document: Document, start_offset: int, end_offset: int) -> Range:
     """Converts the given start and end offset positions in the document to a
     position Range based on line numbers.
@@ -23,14 +38,9 @@ def convert_document_offsets_to_range(document: Document, start_offset: int, end
     Returns:
         Range: The resulting Range with the correct line number and character offset
     """
-    start_line = max(document.source.count(NEW_LINE, 0, start_offset + 1), 0)
-    start_character = start_offset - document.source.rfind(NEW_LINE, 0, start_offset + 1)
-    end_line = max(document.source.count(NEW_LINE, 0, end_offset + 1), 0)
-    end_character = end_offset - document.source.rfind(NEW_LINE, 0, end_offset + 1)
-
     return Range(
-        Position(start_line, start_character),
-        Position(end_line, end_character),
+        convert_document_offset_to_position(document, start_offset),
+        convert_document_offset_to_position(document, end_offset),
     )
 
 
