@@ -77,7 +77,7 @@ class GalaxyToolInputTree:
             self._build_conditional_input_tree(conditional, parent)
         repeats = inputs.get_children_with_name(REPEAT)
         for repeat in repeats:
-            repeat_node = self._build_repeat_input_tree(repeat, parent)
+            repeat_node = self._build_repeat_input_tree(repeat)
             if repeat_node:
                 parent.repeats.append(repeat_node)
 
@@ -94,15 +94,16 @@ class GalaxyToolInputTree:
                     when = cast(XmlElement, when)
                     if when:
                         self._build_input_tree(when, conditional_node)
+        # TODO: support boolean
 
-    def _build_repeat_input_tree(self, repeat: XmlElement, parent: InputNode) -> Optional[RepeatInputNode]:
+    def _build_repeat_input_tree(self, repeat: XmlElement) -> Optional[RepeatInputNode]:
         name = repeat.get_attribute(NAME)
         if name:
             min = 1
             min_attr = repeat.get_attribute(MIN)
             if min_attr and min_attr.isdigit:
                 min = int(min_attr)
-            repeat_node = RepeatInputNode(name, min, repeat, parent)
+            repeat_node = RepeatInputNode(name, min, repeat)
             self._build_input_tree(repeat, repeat_node)
             return repeat_node
         return None
@@ -194,14 +195,14 @@ class GalaxyToolTestSnippetGenerator:
                 conditional_element = self._build_conditional_test_element(node)
                 current_parent.append(conditional_element)
                 current_parent = conditional_element
-            elif type(node) is RepeatInputNode:
-                repeat_elements = self._build_repeat_test_elements(node)
-                for repeat_element in repeat_elements:
-                    current_parent.append(repeat_element)
             else:
                 for param in node.params:
                     param_element = self._build_param_test_element(param)
                     current_parent.append(param_element)
+                for repeat in node.repeats:
+                    repeats = self._build_min_repeat_test_elements(repeat)
+                    for r in repeats:
+                        current_parent.append(r)
 
     def _add_outputs_to_test_element(self, outputs: List[XmlElement], parent: etree._Element) -> None:
         for output in outputs:
@@ -244,7 +245,7 @@ class GalaxyToolTestSnippetGenerator:
             conditional.append(param_element)
         return conditional
 
-    def _build_repeat_test_elements(self, input_repeat: RepeatInputNode) -> List[etree._Element]:
+    def _build_min_repeat_test_elements(self, input_repeat: RepeatInputNode) -> List[etree._Element]:
         repeats: List[etree._Element] = []
         for _ in range(input_repeat.min):
             repeat_node = etree.Element(REPEAT)
@@ -252,6 +253,10 @@ class GalaxyToolTestSnippetGenerator:
             for param in input_repeat.params:
                 param_element = self._build_param_test_element(param)
                 repeat_node.append(param_element)
+            for repeat in input_repeat.repeats:
+                repeat_elements = self._build_min_repeat_test_elements(repeat)
+                for re in repeat_elements:
+                    repeat_node.append(re)
             repeats.append(repeat_node)
         return repeats
 
