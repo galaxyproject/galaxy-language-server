@@ -15,6 +15,7 @@ INPUTS = "inputs"
 PARAM = "param"
 CONDITIONAL = "conditional"
 REPEAT = "repeat"
+SECTION = "section"
 NAME = "name"
 TYPE = "type"
 SELECT = "select"
@@ -54,6 +55,7 @@ class InputNode(NodeMixin):
         self.parent = parent
         self.params: List[XmlElement] = []
         self.repeats: List[RepeatInputNode] = []
+        self.sections: List[SectionInputNode] = []
 
     def __repr__(self) -> str:
         return self.name
@@ -67,9 +69,14 @@ class ConditionalInputNode(InputNode):
 
 
 class RepeatInputNode(InputNode):
-    def __init__(self, name: str, min: int, element: Optional[XmlElement] = None, parent: InputNode = None):
-        super().__init__(name, element, parent)
+    def __init__(self, name: str, min: int, element: Optional[XmlElement] = None):
+        super().__init__(name, element, parent=None)
         self.min: int = min
+
+
+class SectionInputNode(InputNode):
+    def __init__(self, name: str, element: Optional[XmlElement] = None):
+        super().__init__(name, element, parent=None)
 
 
 class GalaxyToolInputTree:
@@ -84,14 +91,22 @@ class GalaxyToolInputTree:
 
     def _build_input_tree(self, inputs: XmlElement, parent: InputNode) -> None:
         parent.params = inputs.get_children_with_name(PARAM)
+
         conditionals = inputs.get_children_with_name(CONDITIONAL)
         for conditional in conditionals:
             self._build_conditional_input_tree(conditional, parent)
+
         repeats = inputs.get_children_with_name(REPEAT)
         for repeat in repeats:
             repeat_node = self._build_repeat_input_tree(repeat)
             if repeat_node:
                 parent.repeats.append(repeat_node)
+
+        sections = inputs.get_children_with_name(SECTION)
+        for section in sections:
+            section_node = self._build_section_input_tree(section)
+            if section_node:
+                parent.sections.append(section_node)
 
     def _build_conditional_input_tree(self, conditional: XmlElement, parent: InputNode) -> None:
         param = conditional.elements[0]  # first child must be select or boolean
@@ -118,6 +133,14 @@ class GalaxyToolInputTree:
             repeat_node = RepeatInputNode(name, min, repeat)
             self._build_input_tree(repeat, repeat_node)
             return repeat_node
+        return None
+
+    def _build_section_input_tree(self, section: XmlElement) -> Optional[SectionInputNode]:
+        name = section.get_attribute(NAME)
+        if name:
+            section_node = SectionInputNode(name, section)
+            self._build_input_tree(section, section_node)
+            return section_node
         return None
 
 
@@ -215,6 +238,9 @@ class GalaxyToolTestSnippetGenerator:
                     repeats = self._build_min_repeat_test_elements(repeat)
                     for r in repeats:
                         current_parent.append(r)
+                for section in node.sections:
+                    section_element = self._build_section_test_element(section)
+                    current_parent.append(section_element)
 
     def _add_outputs_to_test_element(self, outputs: List[XmlElement], parent: etree._Element) -> None:
         for output in outputs:
@@ -255,9 +281,7 @@ class GalaxyToolTestSnippetGenerator:
         param_element = self._build_param_test_element(input_conditional.option_param, input_conditional.option)
         conditional.append(param_element)
         # add the rest of params in the corresponding when element
-        for input_param in input_conditional.params:
-            param_element = self._build_param_test_element(input_param)
-            conditional.append(param_element)
+        self._build_test_tree(input_conditional, conditional)
         return conditional
 
     def _build_min_repeat_test_elements(self, input_repeat: RepeatInputNode) -> List[etree._Element]:
@@ -265,15 +289,27 @@ class GalaxyToolTestSnippetGenerator:
         for _ in range(input_repeat.min):
             repeat_node = etree.Element(REPEAT)
             repeat_node.attrib[NAME] = input_repeat.name
-            for param in input_repeat.params:
-                param_element = self._build_param_test_element(param)
-                repeat_node.append(param_element)
-            for repeat in input_repeat.repeats:
-                repeat_elements = self._build_min_repeat_test_elements(repeat)
-                for re in repeat_elements:
-                    repeat_node.append(re)
+            self._build_test_tree(input_repeat, repeat_node)
             repeats.append(repeat_node)
         return repeats
+
+    def _build_section_test_element(self, input_section: SectionInputNode) -> etree._Element:
+        section_node = etree.Element(SECTION)
+        section_node.attrib[NAME] = input_section.name
+        self._build_test_tree(input_section, section_node)
+        return section_node
+
+    def _build_test_tree(self, input: InputNode, parent: etree._Element):
+        for param in input.params:
+            param_element = self._build_param_test_element(param)
+            parent.append(param_element)
+        for repeat in input.repeats:
+            repeat_elements = self._build_min_repeat_test_elements(repeat)
+            for re in repeat_elements:
+                parent.append(re)
+        for section in input.sections:
+            section_element = self._build_section_test_element(section)
+            parent.append(section_element)
 
     def _add_output_to_test(self, output: XmlElement, test_element: etree._Element) -> None:
         name = output.get_attribute(NAME)
