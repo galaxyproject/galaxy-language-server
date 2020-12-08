@@ -231,16 +231,7 @@ class GalaxyToolTestSnippetGenerator:
                 current_parent.append(conditional_element)
                 current_parent = conditional_element
             else:
-                for param in node.params:
-                    param_element = self._build_param_test_element(param)
-                    current_parent.append(param_element)
-                for repeat in node.repeats:
-                    repeats = self._build_min_repeat_test_elements(repeat)
-                    for r in repeats:
-                        current_parent.append(r)
-                for section in node.sections:
-                    section_element = self._build_section_test_element(section)
-                    current_parent.append(section_element)
+                self._build_test_tree(node, current_parent)
 
     def _add_outputs_to_test_element(self, outputs: List[XmlElement], parent: etree._Element) -> None:
         for output in outputs:
@@ -305,8 +296,8 @@ class GalaxyToolTestSnippetGenerator:
             parent.append(param_element)
         for repeat in input.repeats:
             repeat_elements = self._build_min_repeat_test_elements(repeat)
-            for re in repeat_elements:
-                parent.append(re)
+            for rep in repeat_elements:
+                parent.append(rep)
         for section in input.sections:
             section_element = self._build_section_test_element(section)
             parent.append(section_element)
