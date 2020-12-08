@@ -33,6 +33,17 @@ DATA = "data"
 COLLECTION = "collection"
 OUTPUT = "output"
 OUTPUT_COLLECTION = "output_collection"
+ASSERT_CONTENTS = "assert_contents"
+HAS_TEXT = "has_text"
+HAS_LINE = "has_line"
+HAS_LINE_MATCHING = "has_line_matching"
+HAS_N_COLUMNS = "has_n_columns"
+HAS_SIZE = "has_size"
+LINE = "line"
+EXPRESSION = "expression"
+N = "n"
+DELTA = "delta"
+ELEMENT = "element"
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 
 
@@ -269,7 +280,7 @@ class GalaxyToolTestSnippetGenerator:
         if name:
             output_element = etree.Element(OUTPUT)
             output_element.attrib[NAME] = name
-            output_element.text = self._get_next_tabstop()
+            self._add_default_asserts_to_output(output_element)
             test_element.append(output_element)
 
     def _add_output_collection_to_test(self, output_collection: XmlElement, test_element: etree._Element) -> None:
@@ -280,8 +291,37 @@ class GalaxyToolTestSnippetGenerator:
             type_attr = output_collection.get_attribute(TYPE)
             if type_attr:
                 output_element.attrib[TYPE] = type_attr
-            output_element.text = self._get_next_tabstop()
+            element = etree.Element(ELEMENT)
+            element.attrib[NAME] = self._get_next_tabstop()
+            self._add_default_asserts_to_output(element)
+            output_element.append(element)
             test_element.append(output_element)
+
+    def _add_default_asserts_to_output(self, output: etree._Element) -> None:
+        assert_contents = etree.Element(ASSERT_CONTENTS)
+
+        has_text = etree.Element(HAS_TEXT)
+        has_text.attrib[TEXT] = self._get_next_tabstop()
+        assert_contents.append(has_text)
+
+        has_line = etree.Element(HAS_LINE)
+        has_line.attrib[LINE] = self._get_next_tabstop()
+        assert_contents.append(has_line)
+
+        has_line_matching = etree.Element(HAS_LINE_MATCHING)
+        has_line_matching.attrib[EXPRESSION] = self._get_next_tabstop()
+        assert_contents.append(has_line_matching)
+
+        has_n_columns = etree.Element(HAS_N_COLUMNS)
+        has_n_columns.attrib[N] = self._get_next_tabstop()
+        assert_contents.append(has_n_columns)
+
+        has_size = etree.Element(HAS_SIZE)
+        has_size.attrib[VALUE] = self._get_next_tabstop()
+        has_size.attrib[DELTA] = self._get_next_tabstop()
+        assert_contents.append(has_size)
+
+        output.append(assert_contents)
 
     def _get_options_from_param(self, param: XmlElement) -> List[str]:
         option_elements = param.get_children_with_name(OPTION)
