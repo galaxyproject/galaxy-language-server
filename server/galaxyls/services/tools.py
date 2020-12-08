@@ -25,6 +25,7 @@ TEST = "test"
 TEXT = "text"
 MIN = "min"
 BOOLEAN = "boolean"
+ARGUMENT = "argument"
 BOOLEAN_OPTIONS = ["true", "false"]
 EXPECT_NUM_OUTPUTS = "expect_num_outputs"
 OUTPUTS = "outputs"
@@ -213,7 +214,10 @@ class GalaxyToolTestSnippetGenerator:
 
     def _build_param_test_element(self, input_param: XmlElement, value: Optional[str] = None) -> etree._Element:
         param = etree.Element(PARAM)
+        argument_attr = input_param.get_attribute(ARGUMENT)
         name_attr = input_param.get_attribute(NAME)
+        if not name_attr and argument_attr:
+            name_attr = argument_attr.lstrip("-")
         if name_attr:
             param.attrib[NAME] = name_attr
         if value:
