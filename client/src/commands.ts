@@ -6,7 +6,7 @@ import { RequestType, TextDocumentIdentifier } from "vscode-languageclient";
 export namespace Commands {
 
     export const AUTO_CLOSE_TAGS = 'galaxytools.completion.autoCloseTags';
-    export const GENERATE_TEST = 'galaxytools.generate.test';
+    export const GENERATE_TEST = 'galaxytools.generate.tests';
 }
 
 

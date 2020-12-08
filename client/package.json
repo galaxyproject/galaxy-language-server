@@ -31,14 +31,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "galaxytools.generate.test",
-        "title": "Generate test case for current tool",
+        "command": "galaxytools.generate.tests",
+        "title": "Generate tests cases for current tool",
         "category": "Galaxy Tools"
       }
     ],
     "keybindings": [
       {
-        "command": "galaxytools.generate.test",
+        "command": "galaxytools.generate.tests",
         "key": "ctrl+alt+t",
         "mac": "cmd+alt+t"
       }

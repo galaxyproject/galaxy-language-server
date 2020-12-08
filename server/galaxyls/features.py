@@ -2,4 +2,4 @@
    by the Galaxy Tools Language Server."""
 
 AUTO_CLOSE_TAGS = "galaxytools.completion.autoCloseTags"
-CMD_GENERATE_TEST = "galaxytools.generate.test"
+CMD_GENERATE_TEST = "galaxytools.generate.tests"
