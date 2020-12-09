@@ -103,7 +103,7 @@ class TestGalaxyToolXmlDocumentClass:
     @pytest.mark.parametrize(
         "tool_file, expected_snippet_file",
         [
-            ("test01.xml", "test01snippet.xml"),
+            ("simple_conditional_01.xml", "simple_conditional_01_test.xml"),
         ],
     )
     def test_generate_test_suite_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
@@ -113,7 +113,5 @@ class TestGalaxyToolXmlDocumentClass:
         generator = GalaxyToolTestSnippetGenerator(tool)
 
         actual_snippet = generator.generate_test_suite_snippet()
-
-        print(actual_snippet)
 
         assert actual_snippet == expected_snippet
