@@ -1,5 +1,5 @@
 from typing import Tuple
-
+from pathlib import Path
 from pygls.types import Position
 from pygls.workspace import Document
 
@@ -41,3 +41,18 @@ class TestUtils:
         mark_position = Position(start_line, start_character)
         source = source_with_mark.replace(mark, "")
         return (mark_position, source)
+
+    @staticmethod
+    def get_test_document_from_file(filename: str) -> Document:
+        """Gets a Document object from the tests/files directory with the given
+        filename.
+
+        Args:
+            filename (str): The filename, including the extension.
+
+        Returns:
+            Document: The Document object of the test file.
+        """
+        path = Path(__file__).parent.parent / "files" / filename
+        uri = path.as_uri()
+        return Document(uri)
