@@ -1,6 +1,8 @@
-from pygls.types import Position, Range
 import pytest
-from ...services.tools import GalaxyToolXmlDocument
+from pygls.types import Position, Range
+
+from ...services.tools import GalaxyToolTestSnippetGenerator, GalaxyToolXmlDocument
+from .sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
 from .utils import TestUtils
 
 
@@ -91,3 +93,27 @@ class TestGalaxyToolXmlDocumentClass:
         tool = GalaxyToolXmlDocument(document)
 
         assert tool.uses_macros == expected
+
+    def test_analyze_inputs_returns_expected_number_of_leaves(self) -> None:
+        tool = GalaxyToolXmlDocument(TEST_TOOL_WITH_INPUTS_DOCUMENT)
+        result = tool.analyze_inputs()
+
+        assert len(result.leaves) == 3
+
+    @pytest.mark.parametrize(
+        "tool_file, expected_snippet_file",
+        [
+            ("test01.xml", "test01snippet.xml"),
+        ],
+    )
+    def test_generate_test_suite_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
+        document = TestUtils.get_test_document_from_file(tool_file)
+        expected_snippet = TestUtils.get_test_file_contents(expected_snippet_file)
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolTestSnippetGenerator(tool)
+
+        actual_snippet = generator.generate_test_suite_snippet()
+
+        print(actual_snippet)
+
+        assert actual_snippet == expected_snippet

@@ -1,0 +1,22 @@
+<tool id="test01" name="Sample Test Generation">
+    <inputs>
+        <param name="param-01" type="boolean"/>
+        <conditional name="c1">
+            <param name="c1.action" type="select">
+                <option value="a1" selected="True">A 1</option>
+                <option value="a2">A 2</option>
+            </param>
+            <when value="a1">
+                <param name="c1.a1.p1" type="text"/>
+            </when>
+            <when value="a2">
+                <param name="c1.a2.p1" type="text"/>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data format="tabular" name="sample"/>
+    </outputs>
+    <tests>
+    </tests>
+</tool>
