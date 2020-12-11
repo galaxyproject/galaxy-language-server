@@ -1,0 +1,15 @@
+<tool id="test01" name="Sample Test Generation">
+    <inputs>
+        <param name="param-01" type="text"/>
+        <param name="param-02" type="boolean"/>
+        <param name="param-03" type="float"/>
+        <param name="param-04" type="integer"/>
+        <param argument="--arg-01" type="integer"/>
+        <param argument="-arg-02" type="text"/>
+    </inputs>
+    <outputs>
+        <data format="tabular" name="sample"/>
+    </outputs>
+    <tests>
+    </tests>
+</tool>
