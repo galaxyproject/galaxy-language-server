@@ -1,18 +1,9 @@
 <test expect_num_outputs="$1">
     <!--TODO: auto-generated test case. Please fill in the required values-->
-    <param name="param-01" value="$2"/>
-    <param name="param-02" value="${3|true,false|}"/>
-    <param name="param-03" value="$4"/>
-    <param name="param-04" value="$5"/>
-    <param name="arg-01" value="$6"/>
-    <param name="arg-02" value="$7"/>
-    <output name="sample">
-        <assert_contents>
-            <has_text text="$8"/>
-            <has_line line="$9"/>
-            <has_line_matching expression="$10"/>
-            <has_n_columns n="$11"/>
-            <has_size value="$12" delta="$13"/>
-        </assert_contents>
-    </output>
+    <param name="arg-01" value="$2"/>
+    <param name="arg-02" value="$3"/>
+    <param name="param-01" value="$4"/>
+    <param name="param-02" value="${5|true,false|}"/>
+    <param name="param-03" value="$6"/>
+    <param name="param-04" value="${7|op-A,op-B|}"/>
 </test>

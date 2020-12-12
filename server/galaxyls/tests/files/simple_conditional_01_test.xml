@@ -1,35 +1,15 @@
 <test expect_num_outputs="$1">
     <!--TODO: auto-generated test case. Please fill in the required values-->
-    <param name="param-01" value="${2|true,false|}"/>
     <conditional name="c1">
         <param name="c1.action" value="a1"/>
-        <param name="c1.a1.p1" value="$3"/>
+        <param name="c1.a1.p1" value="$2"/>
     </conditional>
-    <output name="sample">
-        <assert_contents>
-            <has_text text="$4"/>
-            <has_line line="$5"/>
-            <has_line_matching expression="$6"/>
-            <has_n_columns n="$7"/>
-            <has_size value="$8" delta="$9"/>
-        </assert_contents>
-    </output>
 </test>
 
-<test expect_num_outputs="$10">
+<test expect_num_outputs="$3">
     <!--TODO: auto-generated test case. Please fill in the required values-->
-    <param name="param-01" value="${11|true,false|}"/>
     <conditional name="c1">
         <param name="c1.action" value="a2"/>
-        <param name="c1.a2.p1" value="$12"/>
+        <param name="c1.a2.p1" value="$4"/>
     </conditional>
-    <output name="sample">
-        <assert_contents>
-            <has_text text="$13"/>
-            <has_line line="$14"/>
-            <has_line_matching expression="$15"/>
-            <has_n_columns n="$16"/>
-            <has_size value="$17" delta="$18"/>
-        </assert_contents>
-    </output>
 </test>

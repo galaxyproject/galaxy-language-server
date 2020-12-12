@@ -1,6 +1,5 @@
-<tool id="test01" name="Sample Test Generation">
+<tool id="simple_conditional_01" name="Simple conditional input">
     <inputs>
-        <param name="param-01" type="boolean"/>
         <conditional name="c1">
             <param name="c1.action" type="select">
                 <option value="a1" selected="True">A 1</option>
@@ -14,9 +13,6 @@
             </when>
         </conditional>
     </inputs>
-    <outputs>
-        <data format="tabular" name="sample"/>
-    </outputs>
     <tests>
     </tests>
 </tool>
