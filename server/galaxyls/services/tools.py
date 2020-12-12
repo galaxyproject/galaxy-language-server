@@ -279,8 +279,11 @@ class GalaxyToolTestSnippetGenerator:
             name_attr = argument_attr.lstrip("-")
         if name_attr:
             param.attrib[NAME] = name_attr
+        default_value = input_param.get_attribute(VALUE)
         if value:
             param.attrib[VALUE] = value
+        elif default_value:
+            param.attrib[VALUE] = self._get_next_tabstop_with_placeholder(default_value)
         else:
             type_attr = input_param.get_attribute(TYPE)
             if type_attr:
@@ -389,6 +392,10 @@ class GalaxyToolTestSnippetGenerator:
     def _get_next_tabstop(self) -> str:
         self.tabstop_count += 1
         return f"${self.tabstop_count}"
+
+    def _get_next_tabstop_with_placeholder(self, placeholder: str) -> str:
+        self.tabstop_count += 1
+        return f"${{{self.tabstop_count}:{placeholder}}}"
 
     def _get_next_tabstop_with_options(self, options: List[str]) -> str:
         if options:
