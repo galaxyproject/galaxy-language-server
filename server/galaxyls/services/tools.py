@@ -47,6 +47,8 @@ N = "n"
 DELTA = "delta"
 ELEMENT = "element"
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
+DASH = "-"
+UNDERSCORE = "_"
 
 
 class InputNode(NodeMixin):
@@ -276,7 +278,7 @@ class GalaxyToolTestSnippetGenerator:
         argument_attr = input_param.get_attribute(ARGUMENT)
         name_attr = input_param.get_attribute(NAME)
         if not name_attr and argument_attr:
-            name_attr = argument_attr.lstrip("-")
+            name_attr = argument_attr.lstrip(DASH).replace(DASH, UNDERSCORE)
         if name_attr:
             param.attrib[NAME] = name_attr
         default_value = input_param.get_attribute(VALUE)
