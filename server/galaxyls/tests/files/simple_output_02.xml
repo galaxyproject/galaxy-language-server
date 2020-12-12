@@ -1,0 +1,9 @@
+<tool id="simple_output_02" name="Simple data output">
+    <outputs>
+        <collection name="out_collection" type="list">
+            <discover_datasets pattern="__name_and_ext__" directory="outputs"/>
+        </collection>
+    </outputs>
+    <tests>
+    </tests>
+</tool>

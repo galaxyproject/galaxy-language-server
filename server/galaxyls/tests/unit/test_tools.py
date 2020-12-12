@@ -107,6 +107,8 @@ class TestGalaxyToolXmlDocumentClass:
             ("simple_params_01.xml", "simple_params_01_test.xml"),
             ("simple_repeat_01.xml", "simple_repeat_01_test.xml"),
             ("simple_section_01.xml", "simple_section_01_test.xml"),
+            ("simple_output_01.xml", "simple_output_01_test.xml"),
+            ("simple_output_02.xml", "simple_output_02_test.xml"),
         ],
     )
     def test_generate_test_suite_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
@@ -116,7 +118,5 @@ class TestGalaxyToolXmlDocumentClass:
         generator = GalaxyToolTestSnippetGenerator(tool)
 
         actual_snippet = generator.generate_test_suite_snippet()
-
-        print(actual_snippet)
 
         assert actual_snippet == expected_snippet
