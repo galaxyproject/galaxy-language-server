@@ -1,10 +1,10 @@
 <tool id="simple_repeat_01" name="Simple repeat inputs">
     <inputs>
         <repeat name="rep1" title="Sample repeat">
-            <param name="rep1.p1" type="text"/>
+            <param name="rep1_p1" type="text"/>
         </repeat>
         <repeat name="rep2" title="Sample repeat" min="3">
-            <param name="rep2.p1" type="text"/>
+            <param name="rep2_p1" type="text"/>
         </repeat>
     </inputs>
     <tests>

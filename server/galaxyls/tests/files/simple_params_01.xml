@@ -2,10 +2,10 @@
     <inputs>
         <param argument="--arg-01" type="integer"/>
         <param argument="-arg-02" type="float"/>
-        <param name="param-01" type="text"/>
-        <param name="param-02" type="boolean"/>
-        <param name="param-03" format="tabular" type="data"/>
-        <param name="param-04" type="select" >
+        <param name="param_01" type="text"/>
+        <param name="param_02" type="boolean"/>
+        <param name="param_03" format="tabular" type="data"/>
+        <param name="param_04" type="select" >
             <option value="op-A">Option A</option>
             <option value="op-B">Option B</option>
         </param>

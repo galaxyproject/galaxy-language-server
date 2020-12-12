@@ -1,15 +1,15 @@
 <test expect_num_outputs="$1">
     <!--TODO: auto-generated test case. Please fill in the required values-->
     <repeat name="rep1">
-        <param name="rep1.p1" value="$2"/>
+        <param name="rep1_p1" value="$2"/>
     </repeat>
     <repeat name="rep2">
-        <param name="rep2.p1" value="$3"/>
+        <param name="rep2_p1" value="$3"/>
     </repeat>
     <repeat name="rep2">
-        <param name="rep2.p1" value="$4"/>
+        <param name="rep2_p1" value="$4"/>
     </repeat>
     <repeat name="rep2">
-        <param name="rep2.p1" value="$5"/>
+        <param name="rep2_p1" value="$5"/>
     </repeat>
 </test>
