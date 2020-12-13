@@ -1,0 +1,182 @@
+<test expect_num_outputs="$1">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="c1">
+        <param name="c1_action" value="a1"/>
+        <param name="c1_a1_p1" value="$2"/>
+        <section name="sec1">
+            <param name="number" value="${3:1}"/>
+        </section>
+    </conditional>
+    <output name="sample">
+        <assert_contents>
+            <has_text text="$4"/>
+            <has_line line="$5"/>
+            <has_line_matching expression="$6"/>
+            <has_n_columns n="$7"/>
+            <has_size value="$8" delta="$9"/>
+        </assert_contents>
+    </output>
+    <output_collection name="out_collection" type="list">
+        <element name="$10">
+            <assert_contents>
+                <has_text text="$11"/>
+                <has_line line="$12"/>
+                <has_line_matching expression="$13"/>
+                <has_n_columns n="$14"/>
+                <has_size value="$15" delta="$16"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+    <output_collection name="out_paired" type="paired">
+        <element name="$17">
+            <assert_contents>
+                <has_text text="$18"/>
+                <has_line line="$19"/>
+                <has_line_matching expression="$20"/>
+                <has_n_columns n="$21"/>
+                <has_size value="$22" delta="$23"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+</test>
+
+<test expect_num_outputs="$24">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="c1">
+        <param name="c1_action" value="a2"/>
+        <param name="c1_a2_p1" value="$25"/>
+        <conditional name="c2">
+            <param name="c2_action" value="c2a1"/>
+            <param name="c2_a1_p1" value="$26"/>
+            <section name="sec_c2a1">
+                <section name="sub_sec_c2a1">
+                    <param name="sub_p" value="${27:3.2}"/>
+                </section>
+            </section>
+        </conditional>
+    </conditional>
+    <output name="sample">
+        <assert_contents>
+            <has_text text="$28"/>
+            <has_line line="$29"/>
+            <has_line_matching expression="$30"/>
+            <has_n_columns n="$31"/>
+            <has_size value="$32" delta="$33"/>
+        </assert_contents>
+    </output>
+    <output_collection name="out_collection" type="list">
+        <element name="$34">
+            <assert_contents>
+                <has_text text="$35"/>
+                <has_line line="$36"/>
+                <has_line_matching expression="$37"/>
+                <has_n_columns n="$38"/>
+                <has_size value="$39" delta="$40"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+    <output_collection name="out_paired" type="paired">
+        <element name="$41">
+            <assert_contents>
+                <has_text text="$42"/>
+                <has_line line="$43"/>
+                <has_line_matching expression="$44"/>
+                <has_n_columns n="$45"/>
+                <has_size value="$46" delta="$47"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+</test>
+
+<test expect_num_outputs="$48">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="c1">
+        <param name="c1_action" value="a2"/>
+        <param name="c1_a2_p1" value="$49"/>
+        <conditional name="c2">
+            <param name="c2_action" value="c2a2"/>
+            <param name="c2_a2_p1" value="$50"/>
+            <repeat name="rep">
+                <param name="rep_p1" value="$51"/>
+                <repeat name="sub_rep">
+                    <param name="sub_rep_p1" value="$52"/>
+                </repeat>
+                <repeat name="sub_rep">
+                    <param name="sub_rep_p1" value="$53"/>
+                </repeat>
+                <repeat name="sub_rep">
+                    <param name="sub_rep_p1" value="$54"/>
+                </repeat>
+            </repeat>
+        </conditional>
+    </conditional>
+    <output name="sample">
+        <assert_contents>
+            <has_text text="$55"/>
+            <has_line line="$56"/>
+            <has_line_matching expression="$57"/>
+            <has_n_columns n="$58"/>
+            <has_size value="$59" delta="$60"/>
+        </assert_contents>
+    </output>
+    <output_collection name="out_collection" type="list">
+        <element name="$61">
+            <assert_contents>
+                <has_text text="$62"/>
+                <has_line line="$63"/>
+                <has_line_matching expression="$64"/>
+                <has_n_columns n="$65"/>
+                <has_size value="$66" delta="$67"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+    <output_collection name="out_paired" type="paired">
+        <element name="$68">
+            <assert_contents>
+                <has_text text="$69"/>
+                <has_line line="$70"/>
+                <has_line_matching expression="$71"/>
+                <has_n_columns n="$72"/>
+                <has_size value="$73" delta="$74"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+</test>
+
+<test expect_num_outputs="$75">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="c1">
+        <param name="c1_action" value="a3"/>
+    </conditional>
+    <output name="sample">
+        <assert_contents>
+            <has_text text="$76"/>
+            <has_line line="$77"/>
+            <has_line_matching expression="$78"/>
+            <has_n_columns n="$79"/>
+            <has_size value="$80" delta="$81"/>
+        </assert_contents>
+    </output>
+    <output_collection name="out_collection" type="list">
+        <element name="$82">
+            <assert_contents>
+                <has_text text="$83"/>
+                <has_line line="$84"/>
+                <has_line_matching expression="$85"/>
+                <has_n_columns n="$86"/>
+                <has_size value="$87" delta="$88"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+    <output_collection name="out_paired" type="paired">
+        <element name="$89">
+            <assert_contents>
+                <has_text text="$90"/>
+                <has_line line="$91"/>
+                <has_line_matching expression="$92"/>
+                <has_n_columns n="$93"/>
+                <has_size value="$94" delta="$95"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+</test>

@@ -109,6 +109,7 @@ class TestGalaxyToolXmlDocumentClass:
             ("simple_section_01.xml", "simple_section_01_test.xml"),
             ("simple_output_01.xml", "simple_output_01_test.xml"),
             ("simple_output_02.xml", "simple_output_02_test.xml"),
+            ("complex_inputs_01.xml", "complex_inputs_01_test.xml"),
         ],
     )
     def test_generate_test_suite_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
