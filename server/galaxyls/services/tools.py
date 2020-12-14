@@ -27,6 +27,8 @@ TESTS = "tests"
 TEXT = "text"
 MIN = "min"
 BOOLEAN = "boolean"
+TRUEVALUE = "truevalue"
+FALSEVALUE = "falsevalue"
 ARGUMENT = "argument"
 BOOLEAN_OPTIONS = ["true", "false"]
 EXPECT_NUM_OUTPUTS = "expect_num_outputs"
@@ -139,18 +141,35 @@ class GalaxyToolInputTree:
             parent (InputNode): The InputNode that will hold the conditional branches and it's elements.
         """
         param = conditional.elements[0]  # first child must be select or boolean
-        name = conditional.get_attribute(NAME)
-        if name and param.get_attribute(TYPE) == SELECT:
+        if param.get_attribute(TYPE) == SELECT:
             options = param.get_children_with_name(OPTION)
             for option in options:
                 option_value = option.get_attribute(VALUE)
-                if option_value:
-                    conditional_node = ConditionalInputNode(name, option_value, element=conditional, parent=parent)
-                    when = find(conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value)
-                    when = cast(XmlElement, when)
-                    if when:
-                        self._build_input_tree(when, conditional_node)
-        # TODO: support boolean
+                self._build_conditional_option_branch(conditional, parent, option_value)
+        elif param.get_attribute(TYPE) == BOOLEAN:
+            true_value = param.get_attribute(TRUEVALUE)
+            if true_value:
+                self._build_conditional_option_branch(conditional, parent, true_value)
+            false_value = param.get_attribute(FALSEVALUE)
+            if false_value:
+                self._build_conditional_option_branch(conditional, parent, false_value)
+
+    def _build_conditional_option_branch(self, conditional: XmlElement, parent:InputNode, option_value:str) -> None:
+        """Builds a conditional branch in the input tree with the given 'option_value'.
+
+        Args:
+            conditional (XmlElement): The <conditional> XML element.
+            parent (InputNode): The input node that will contain this branch.
+            option_value (str): The value of the option selected in this conditional branch.
+        """
+        name = conditional.get_attribute(NAME)
+        if name and option_value:
+            conditional_node = ConditionalInputNode(name, option_value, element=conditional, parent=parent)
+            when = find(conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value)
+            when = cast(XmlElement, when)
+            if when:
+                self._build_input_tree(when, conditional_node)
+
 
     def _build_repeat_input_tree(self, repeat: XmlElement) -> Optional[RepeatInputNode]:
         """Builds and returns a RepeatInputNode from a 'repeat' XML tag with the minimum number

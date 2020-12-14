@@ -104,6 +104,7 @@ class TestGalaxyToolXmlDocumentClass:
         "tool_file, expected_snippet_file",
         [
             ("simple_conditional_01.xml", "simple_conditional_01_test.xml"),
+            ("simple_conditional_02.xml", "simple_conditional_02_test.xml"),
             ("simple_params_01.xml", "simple_params_01_test.xml"),
             ("simple_repeat_01.xml", "simple_repeat_01_test.xml"),
             ("simple_section_01.xml", "simple_section_01_test.xml"),
