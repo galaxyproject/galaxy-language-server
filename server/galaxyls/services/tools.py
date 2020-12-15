@@ -49,6 +49,7 @@ N = "n"
 DELTA = "delta"
 ELEMENT = "element"
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
+BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = "Warning: the use of boolean as a conditional parameter is not recommended. Please consider using a select instead."
 DASH = "-"
 UNDERSCORE = "_"
 
@@ -154,7 +155,7 @@ class GalaxyToolInputTree:
             if false_value:
                 self._build_conditional_option_branch(conditional, parent, false_value)
 
-    def _build_conditional_option_branch(self, conditional: XmlElement, parent:InputNode, option_value:str) -> None:
+    def _build_conditional_option_branch(self, conditional: XmlElement, parent: InputNode, option_value: Optional[str] = None) -> None:
         """Builds a conditional branch in the input tree with the given 'option_value'.
 
         Args:
@@ -488,6 +489,8 @@ class GalaxyToolTestSnippetGenerator:
         conditional.attrib[NAME] = input_conditional.name
         # add the option param
         param_element = self._build_param_test_element(input_conditional.option_param, input_conditional.option)
+        if input_conditional.option_param.get_attribute(TYPE) == BOOLEAN:
+            conditional.append(etree.Comment(BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT))
         conditional.append(param_element)
         # add the rest of params in the corresponding when element
         self._build_test_tree(input_conditional, conditional)

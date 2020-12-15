@@ -1,6 +1,7 @@
 <test expect_num_outputs="$1">
     <!--TODO: auto-generated test case. Please fill in the required values-->
     <conditional name="bool_conditional">
+        <!--Warning: the use of boolean as a conditional parameter is not recommended. Please consider using a select instead.-->
         <param name="option" value="yes"/>
         <param name="param_yes" value="$2"/>
     </conditional>
@@ -9,6 +10,7 @@
 <test expect_num_outputs="$3">
     <!--TODO: auto-generated test case. Please fill in the required values-->
     <conditional name="bool_conditional">
+        <!--Warning: the use of boolean as a conditional parameter is not recommended. Please consider using a select instead.-->
         <param name="option" value="no"/>
         <param name="param_no" value="$4"/>
     </conditional>
