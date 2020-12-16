@@ -29,6 +29,7 @@ MIN = "min"
 BOOLEAN = "boolean"
 TRUEVALUE = "truevalue"
 FALSEVALUE = "falsevalue"
+CHECKED = "checked"
 ARGUMENT = "argument"
 BOOLEAN_OPTIONS = ["true", "false"]
 EXPECT_NUM_OUTPUTS = "expect_num_outputs"
@@ -49,15 +50,18 @@ N = "n"
 DELTA = "delta"
 ELEMENT = "element"
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
-BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = "Warning: the use of boolean as a conditional parameter is not recommended. Please consider using a select instead."
+BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
+    "Warning: the use of boolean as a conditional parameter is not recommended. Please consider using a select instead."
+)
 DASH = "-"
 UNDERSCORE = "_"
 
 
 class InputNode(NodeMixin):
     """Represents a logical input node in the tool wrapper file.
-    
+
     Each node contains references to direct children classified by their type."""
+
     def __init__(self, name: str, element: Optional[XmlElement] = None, parent: NodeMixin = None):
         self.name: str = name
         self.element: Optional[XmlElement] = element
@@ -72,10 +76,11 @@ class InputNode(NodeMixin):
 
 class ConditionalInputNode(InputNode):
     """Represents a conditional input branch node in the tool wrapper file.
-    
+
     The 'option_param' field contains the first select or boolean param and it's
     value is set to the 'option' field of one of the possible 'when' definitions.
     """
+
     def __init__(self, name: str, option: str, element: Optional[XmlElement] = None, parent: InputNode = None):
         super().__init__(name, element, parent)
         self.option_param: XmlElement = element.elements[0]
@@ -84,6 +89,7 @@ class ConditionalInputNode(InputNode):
 
 class RepeatInputNode(InputNode):
     """Represents an input node that will be repeated 'min' times."""
+
     def __init__(self, name: str, min: int, element: Optional[XmlElement] = None):
         super().__init__(name, element, parent=None)
         self.min: int = min
@@ -91,12 +97,14 @@ class RepeatInputNode(InputNode):
 
 class SectionInputNode(InputNode):
     """Represents a section input node which is used to group other nodes."""
+
     def __init__(self, name: str, element: Optional[XmlElement] = None):
         super().__init__(name, element, parent=None)
 
 
 class GalaxyToolInputTree:
     """The branches of this tree contains all the inputs within a conditional path for a specific option."""
+
     def __init__(self, inputs: Optional[XmlElement] = None) -> None:
         self._root: InputNode = InputNode(INPUTS, inputs)
         if inputs:
@@ -155,7 +163,9 @@ class GalaxyToolInputTree:
             if false_value:
                 self._build_conditional_option_branch(conditional, parent, false_value)
 
-    def _build_conditional_option_branch(self, conditional: XmlElement, parent: InputNode, option_value: Optional[str] = None) -> None:
+    def _build_conditional_option_branch(
+        self, conditional: XmlElement, parent: InputNode, option_value: Optional[str] = None
+    ) -> None:
         """Builds a conditional branch in the input tree with the given 'option_value'.
 
         Args:
@@ -170,7 +180,6 @@ class GalaxyToolInputTree:
             when = cast(XmlElement, when)
             if when:
                 self._build_input_tree(when, conditional_node)
-
 
     def _build_repeat_input_tree(self, repeat: XmlElement) -> Optional[RepeatInputNode]:
         """Builds and returns a RepeatInputNode from a 'repeat' XML tag with the minimum number
@@ -212,10 +221,11 @@ class GalaxyToolInputTree:
 
 class GalaxyToolXmlDocument:
     """Represents a Galaxy tool XML wrapper.
-    
+
     This class provides access to the tool definitions and some utilities to extract
     information from the document.
     """
+
     def __init__(self, document: Document) -> None:
         self.document: Document = document
         self.xml_document: XmlDocument = XmlDocumentParser().parse(document)
@@ -472,11 +482,12 @@ class GalaxyToolTestSnippetGenerator:
             type_attr = input_param.get_attribute(TYPE)
             if type_attr:
                 if type_attr == BOOLEAN:
-                    param.attrib[VALUE] = self._get_next_tabstop_with_options(BOOLEAN_OPTIONS)
+                    default_value = input_param.get_attribute(CHECKED)
+                    param.attrib[VALUE] = self._get_next_tabstop_with_options(BOOLEAN_OPTIONS, default_value)
                 elif type_attr == SELECT or type_attr == TEXT:
                     try:
                         options = self._get_options_from_param(input_param)
-                        param.attrib[VALUE] = self._get_next_tabstop_with_options(options)
+                        param.attrib[VALUE] = self._get_next_tabstop_with_options(options, default_value)
                     except BaseException:
                         param.attrib[VALUE] = self._get_next_tabstop()
                 else:
@@ -536,7 +547,7 @@ class GalaxyToolTestSnippetGenerator:
         to the given <test> element.
 
         Args:
-            output (XmlElement): The 
+            output (XmlElement): The
             test_element (etree._Element): [description]
         """
         name = data.get_attribute(NAME)
@@ -634,7 +645,7 @@ class GalaxyToolTestSnippetGenerator:
         self.tabstop_count += 1
         return f"${{{self.tabstop_count}:{placeholder}}}"
 
-    def _get_next_tabstop_with_options(self, options: List[str]) -> str:
+    def _get_next_tabstop_with_options(self, options: List[str], default_option: Optional[str] = None) -> str:
         """Gets the current tabstop with a list of possible options.
 
         If the list is empty, a normal tabstop is returned.
@@ -646,6 +657,9 @@ class GalaxyToolTestSnippetGenerator:
             str: The current tabstop with all the available options.
         """
         if options:
+            if default_option:
+                options.remove(default_option)
+                options.insert(0, default_option)
             self.tabstop_count += 1
             return f"${{{self.tabstop_count}|{','.join(options)}|}}"
         return self._get_next_tabstop()
