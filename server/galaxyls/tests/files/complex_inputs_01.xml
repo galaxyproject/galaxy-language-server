@@ -25,8 +25,8 @@
                             <section name="sub_sec_c2a1" title="C2 A1 Section" expanded="true">
                                 <param name="sub_p01" value="3.2" type="float"/>
                                 <param name="sub_p02" value="4" type="integer"/>
-                                <param name="sub_p03" value="true" type="boolean"/>
-                                <param name="sub_p04" type="data"/>
+                                <param name="sub_p03" type="boolean" truevalue="--sub_p03" falsevalue="" checked="false" />
+                                <param name="sub_p04" type="data" format="bam" />
                             </section>
                         </section>
                     </when>
