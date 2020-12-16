@@ -52,7 +52,7 @@
                 <section name="sub_sec_c2a1">
                     <param name="sub_p01" value="${27:3.2}"/>
                     <param name="sub_p02" value="${28:4}"/>
-                    <param name="sub_p03" value="${29:true}"/>
+                    <param name="sub_p03" value="${29|false,true|}"/>
                     <param name="sub_p04" value="$30"/>
                 </section>
             </section>
