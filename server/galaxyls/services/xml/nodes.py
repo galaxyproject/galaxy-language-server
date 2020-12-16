@@ -1,7 +1,8 @@
-from typing import Dict, List, Optional, Tuple, cast
 from abc import ABC
+from typing import Dict, List, Optional, Tuple, cast
 
 from anytree import NodeMixin
+from anytree.search import findall
 
 from .constants import UNDEFINED_OFFSET
 from .types import NodeType
@@ -127,6 +128,9 @@ class XmlAttribute(XmlSyntaxNode):
         self.value: Optional[XmlAttributeValue] = None
         self.parent = owner
 
+    def __repr__(self) -> str:
+        return f"[{self.name}={self.get_value()}]"
+
     @property
     def node_type(self) -> NodeType:
         """The type of this node."""
@@ -137,6 +141,13 @@ class XmlAttribute(XmlSyntaxNode):
         self.value = XmlAttributeValue(value, start, end, self)
         self.end = end
         self.value.parent = self
+
+    def get_value(self) -> str:
+        """Gets the value of this attribute (unquoted) or an empty str."""
+        try:
+            return self.value.unquoted
+        except BaseException:
+            return ""
 
     def get_attribute_nodes(self) -> List["XmlAttribute"]:
         """Gets the lists of attributes of this node if it has any."""
@@ -223,6 +234,9 @@ class XmlElement(XmlSyntaxNode):
         self.is_self_closed: bool = False
         self.attributes: Dict[str, XmlAttribute] = {}
 
+    def __repr__(self) -> str:
+        return f"XmlElement[{self.name}]-Attrs[{','.join(self.get_attribute_names())}]"
+
     @property
     def node_type(self) -> NodeType:
         """The type of this node."""
@@ -263,24 +277,50 @@ class XmlElement(XmlSyntaxNode):
         """Gets the list of attribute names of this node if it has any."""
         return [*self.attributes]
 
+    def get_attribute(self, name: str) -> Optional[str]:
+        """Gets the value of the attribute with the given name if it exists.
+
+        Args:
+            name (str): The name of the attribute which value will be returned.
+
+        Returns:
+            Optional[str]: The value of the attribute or None if it does not exists.
+        """
+        try:
+            return self.attributes[name].get_value()
+        except BaseException:
+            return None
+
     def get_offsets(self, offset: int) -> Tuple[int, int]:
-        """Get the starting and ending offsets of this syntax node as a tuple.
+        """Get the starting and ending offsets of this element's name as a tuple.
 
         Args:
             offset (int): The current document offset. Used to determine if the
             offset is currently over the starting or closing tag.
 
         Returns:
-            Tuple[int, int]: The start and end offsets of this tag.
+            Tuple[int, int]: The start and end offsets of this tag name whitout the
+            opening and ending tokens ('<', '>' '</').
         """
         if self.name:
             start = self.start
             end = self.start + len(self.name)
             if self.is_at_closing_tag(offset):
-                start = self.end_tag_open_offset
-                end = self.end_tag_close_offset
+                start = self.end_tag_open_offset + 2  # +1 for '</'
+                end = self.end_tag_close_offset - 1  # -1 for '>'
             return start, end
         return self.start, self.end
+
+    def get_content_offsets(self) -> Tuple[int, int]:
+        start = self.start_tag_close_offset
+        end = self.end_tag_open_offset
+        if self.is_self_closed:
+            end = start
+        return start, end
+
+    def get_children_with_name(self, name: str) -> List["XmlElement"]:
+        children = [child for child in self.children if child.name == name]
+        return list(children)
 
 
 class XmlCDATASection(XmlSyntaxNode):

@@ -1,0 +1,15 @@
+<tool id="simple_conditional_02" name="Simple conditional input with boolean">
+    <inputs>
+        <conditional name="bool_conditional" >
+            <param name="option" type="boolean" truevalue="yes" falsevalue="no" checked="false" />
+            <when value="yes">
+                <param name="param_yes" type="text"/>
+            </when>
+            <when value="no">
+                <param name="param_no" type="text"/>
+            </when>
+        </conditional>
+    </inputs>
+    <tests>
+    </tests>
+</tool>

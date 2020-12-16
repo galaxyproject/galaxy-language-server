@@ -1,0 +1,59 @@
+<tool id="complex_inputs_01" name="Complex inputs">
+    <inputs>
+        <conditional name="c1">
+            <param name="c1_action" type="select">
+                <option value="a1" selected="True">A 1</option>
+                <option value="a2">A 2</option>
+                <option value="a3">A 3</option>
+            </param>
+            <when value="a1">
+                <param name="c1_a1_p1" type="text"/>
+                <section name="sec1" title="C1 A1 Section" expanded="true">
+                    <param name="number" value="1" type="integer"/>
+                </section>
+            </when>
+            <when value="a2">
+                <param name="c1_a2_p1" type="text"/>
+                <conditional name="c2">
+                    <param name="c2_action" type="select">
+                        <option value="c2a1" selected="True">A 1</option>
+                        <option value="c2a2">A 2</option>
+                    </param>
+                    <when value="c2a1">
+                        <param name="c2_a1_p1" type="text"/>
+                        <section name="sec_c2a1" title="C2 A1 Section" expanded="true">
+                            <section name="sub_sec_c2a1" title="C2 A1 Section" expanded="true">
+                                <param name="sub_p01" value="3.2" type="float"/>
+                                <param name="sub_p02" value="4" type="integer"/>
+                                <param name="sub_p03" type="boolean" truevalue="--sub_p03" falsevalue="" checked="false" />
+                                <param name="sub_p04" type="data" format="bam" />
+                            </section>
+                        </section>
+                    </when>
+                    <when value="c2a2">
+                        <param name="c2_a2_p1" type="text"/>
+                        <repeat name="rep" title="Sample repeat">
+                            <param name="rep_p1" type="text"/>
+                            <repeat name="sub_rep" title="Sample repeat x 3" min="3">
+                                <param name="sub_rep_p1" type="text"/>
+                            </repeat>
+                        </repeat>
+                    </when>
+                </conditional>
+            </when>
+            <when value="a3">
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data format="tabular" name="sample"/>
+        <collection name="out_collection" type="list">
+            <discover_datasets pattern="__name_and_ext__" directory="outputs"/>
+        </collection>
+        <collection name="out_paired" type="paired">
+            <filter>sample == 'paired'</filter>
+        </collection>
+    </outputs>
+    <tests>
+    </tests>
+</tool>

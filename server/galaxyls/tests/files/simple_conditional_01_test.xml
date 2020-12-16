@@ -1,0 +1,15 @@
+<test expect_num_outputs="$1">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="c1">
+        <param name="c1_action" value="a1"/>
+        <param name="c1_a1_p1" value="$2"/>
+    </conditional>
+</test>
+
+<test expect_num_outputs="$3">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="c1">
+        <param name="c1_action" value="a2"/>
+        <param name="c1_a2_p1" value="$4"/>
+    </conditional>
+</test>

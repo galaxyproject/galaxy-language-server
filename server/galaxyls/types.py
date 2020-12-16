@@ -1,7 +1,7 @@
 """This module contains shared types across all modules.
 """
 
-from pygls.types import Range
+from pygls.types import Position, Range
 
 
 class AutoCloseTagResult:
@@ -12,3 +12,13 @@ class AutoCloseTagResult:
     def __init__(self, snippet: str, replace_range: Range = None):
         self.snippet = snippet
         self.range = replace_range
+
+
+class GeneratedTestResult:
+    """Contains the auto-generated code snippet and the position in the text document
+    where it should be inserted.
+    """
+
+    def __init__(self, snippet: str, insert_position: Position):
+        self.snippet = snippet
+        self.position = insert_position

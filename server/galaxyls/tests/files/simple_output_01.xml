@@ -1,0 +1,7 @@
+<tool id="simple_output_01" name="Simple data output">
+    <outputs>
+        <data format="tabular" name="sample"/>
+    </outputs>
+    <tests>
+    </tests>
+</tool>

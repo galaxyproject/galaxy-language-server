@@ -1,0 +1,12 @@
+<tool id="simple_params_01" name="Simple section inputs">
+    <inputs>
+        <section name="int" title="Integer Section" expanded="true">
+            <param name="inttest" value="1" type="integer"/>
+        </section>
+        <section name="float" title="Float Section" expanded="false">
+            <param name="floattest" value="1.0" type="float"/>
+        </section>
+    </inputs>
+    <tests>
+    </tests>
+</tool>

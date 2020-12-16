@@ -5,10 +5,11 @@ from typing import List, Optional
 from pygls.types import Range
 from pygls.workspace import Document, Position
 
-from .xml.constants import UNDEFINED_OFFSET, NEW_LINE
+from .xml.constants import UNDEFINED_OFFSET
 from .xml.nodes import XmlSyntaxNode
 from .xml.parser import XmlDocumentParser
 from .xml.types import NodeType
+from .xml.utils import convert_document_offsets_to_range
 from .xsd.types import XsdNode, XsdTree
 
 
@@ -178,12 +179,4 @@ class XmlContextService:
 
     def get_range_for_context(self, document: Document, context: XmlContext) -> Range:
         start_offset, end_offset = context.token.get_offsets(context.offset)
-        start_line = max(document.source.count(NEW_LINE, 0, start_offset), 0)
-        start_character = start_offset - document.source.rfind(NEW_LINE, 0, start_offset)
-        end_line = max(document.source.count(NEW_LINE, 0, end_offset), 0)
-        end_character = end_offset - document.source.rfind(NEW_LINE, 0, end_offset)
-
-        return Range(
-            Position(start_line, start_character),
-            Position(end_line, end_character),
-        )
+        return convert_document_offsets_to_range(document, start_offset, end_offset)

@@ -6,7 +6,42 @@ Only the minimum subset of the XML dialect used by Galaxy tool wrappers is suppo
 
 from typing import Callable, List
 
-from .constants import _LAN, WHITESPACE_CHARS
+from pygls.types import Position, Range
+from pygls.workspace import Document
+
+from .constants import NEW_LINE, _LAN, WHITESPACE_CHARS
+
+
+def convert_document_offset_to_position(document: Document, offset: int) -> Position:
+    """Converts the given offset in the document to a line/character based Position.
+
+    Args:
+        document (Document): The source document.
+        offset (int): The character offset inside the document.
+
+    Returns:
+        Position: The resulting Position with line and character offset.
+    """
+    line = max(document.source.count(NEW_LINE, 0, offset + 1), 0)
+    character = offset - document.source.rfind(NEW_LINE, 0, offset + 1)
+    return Position(line, character)
+
+
+def convert_document_offsets_to_range(document: Document, start_offset: int, end_offset: int) -> Range:
+    """Converts the given start and end offset positions in the document to a
+    position Range based on line numbers.
+
+    Args:
+        start_offset (int): The start offset of the range
+        end_offset (int): The end offset of the range
+
+    Returns:
+        Range: The resulting Range with the correct line number and character offset
+    """
+    return Range(
+        convert_document_offset_to_position(document, start_offset),
+        convert_document_offset_to_position(document, end_offset),
+    )
 
 
 class MultiLineStream:

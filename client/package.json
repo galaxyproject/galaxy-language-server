@@ -29,7 +29,20 @@
     "onLanguage:xml"
   ],
   "contributes": {
-    "commands": [],
+    "commands": [
+      {
+        "command": "galaxytools.generate.tests",
+        "title": "Generate tests cases for current tool",
+        "category": "Galaxy Tools"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "galaxytools.generate.tests",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Galaxy Tools",

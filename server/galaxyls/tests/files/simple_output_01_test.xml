@@ -1,0 +1,12 @@
+<test expect_num_outputs="$1">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <output name="sample">
+        <assert_contents>
+            <has_text text="$2"/>
+            <has_line line="$3"/>
+            <has_line_matching expression="$4"/>
+            <has_n_columns n="$5"/>
+            <has_size value="$6" delta="$7"/>
+        </assert_contents>
+    </output>
+</test>

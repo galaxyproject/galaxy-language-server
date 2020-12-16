@@ -1,0 +1,14 @@
+<test expect_num_outputs="$1">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <output_collection name="out_collection" type="list">
+        <element name="$2">
+            <assert_contents>
+                <has_text text="$3"/>
+                <has_line line="$4"/>
+                <has_line_matching expression="$5"/>
+                <has_n_columns n="$6"/>
+                <has_size value="$7" delta="$8"/>
+            </assert_contents>
+        </element>
+    </output_collection>
+</test>

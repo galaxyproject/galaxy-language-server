@@ -1,0 +1,9 @@
+<test expect_num_outputs="$1">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <param name="arg_01" value="$2"/>
+    <param name="arg_02" value="$3"/>
+    <param name="param_01" value="$4"/>
+    <param name="param_02" value="${5|true,false|}"/>
+    <param name="param_03" value="$6"/>
+    <param name="param_04" value="${7|op-A,op-B|}"/>
+</test>
