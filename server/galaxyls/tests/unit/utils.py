@@ -25,7 +25,7 @@ class TestUtils:
         return Document(uri, source, version)
 
     @staticmethod
-    def to_xml_document(source: str, uri: str = "file://fake_doc.xml", version: int = 0) -> XmlDocument:
+    def from_source_to_xml_document(source: str, uri: str = "file://fake_doc.xml", version: int = 0) -> XmlDocument:
         """Converts the given string into a parsed XML document.
 
         Args:
@@ -37,6 +37,18 @@ class TestUtils:
             XmlDocument: The resulting XML document.
         """
         document = Document(uri, source, version)
+        return TestUtils.from_document_to_xml_document(document)
+
+    @staticmethod
+    def from_document_to_xml_document(document: Document) -> XmlDocument:
+        """Converts the given document into a parsed XML document.
+
+        Args:
+            - document (Document): The input string to be converted to XmlDocument.
+
+        Returns:
+            XmlDocument: The resulting XML document.
+        """
         xml_document = XmlDocumentParser().parse(document)
         return xml_document
 
