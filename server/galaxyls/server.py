@@ -93,6 +93,8 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
         return None
     document = server.workspace.get_document(params.textDocument.uri)
     xml_document = _get_xml_document(document)
+    if xml_document.is_unknown:
+        return None
     return server.service.get_completion(xml_document, params, server.configuration.completion_mode)
 
 
@@ -102,6 +104,8 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositi
     if server.configuration.auto_close_tags:
         document = server.workspace.get_document(params.textDocument.uri)
         xml_document = _get_xml_document(document)
+        if xml_document.is_unknown:
+            return None
         return server.service.get_auto_close_tag(xml_document, params)
 
 
@@ -110,6 +114,8 @@ def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams)
     """Displays Markdown documentation for the element under the cursor."""
     document = server.workspace.get_document(params.textDocument.uri)
     xml_document = _get_xml_document(document)
+    if xml_document.is_unknown:
+        return None
     return server.service.get_documentation(xml_document, params.position)
 
 
@@ -150,7 +156,10 @@ async def cmd_generate_test(
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
     document = server.workspace.get_document(params.textDocument.uri)
-    diagnostics = server.service.get_diagnostics(document)
+    xml_document = _get_xml_document(document)
+    if xml_document.is_unknown:
+        return None
+    diagnostics = server.service.get_diagnostics(xml_document)
     server.publish_diagnostics(document.uri, diagnostics)
 
 

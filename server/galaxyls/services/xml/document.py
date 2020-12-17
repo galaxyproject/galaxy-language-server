@@ -67,6 +67,11 @@ class XmlDocument(XmlSyntaxNode):
         return DocumentType.UNKNOWN
 
     @property
+    def is_unknown(self) -> bool:
+        """Indicates if the document is of unknown type."""
+        return self.document_type == DocumentType.UNKNOWN
+
+    @property
     def is_macros_file(self) -> bool:
         """Indicates if the document is a macro definition file."""
         return self.document_type == DocumentType.MACROS
