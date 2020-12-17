@@ -214,3 +214,58 @@ class TestXmlDocumentParserClass:
         actual = xml_document.get_node_at(offset)
 
         assert actual.node_type == expected
+
+    @pytest.mark.parametrize(
+        "source, expected",
+        [
+            ("", True),
+            (" ", True),
+            ("\n", True),
+            (" \n ", True),
+            (" \n text", True),
+            ('<?xml version="1.0" encoding="UTF-8"?>', True),
+            ("<", True),
+            ("<tool", False),
+            ("<macros", False),
+            ("<tool ", False),
+            ("<macros ", False),
+            ("<tool>", False),
+            ("<macros>", False),
+            ('<?xml version="1.0" encoding="UTF-8"?><tool>', False),
+            ('<?xml version="1.0" encoding="UTF-8"?><macros>', False),
+        ],
+    )
+    def test_parse_document_returns_expected_is_unknown(self, source: str, expected: bool) -> None:
+        parser = XmlDocumentParser()
+        document = TestUtils.to_document(source)
+        xml_document = parser.parse(document)
+
+        assert xml_document.is_unknown == expected
+
+    @pytest.mark.parametrize(
+        "source, expected",
+        [
+            ("", False),
+            (" ", False),
+            ("\n", False),
+            (" \n ", False),
+            (" \n text", False),
+            ('<?xml version="1.0" encoding="UTF-8"?>', False),
+            ("<", False),
+            ("<tool", False),
+            ("<macro", False),
+            ("<macros", True),
+            ("<tool ", False),
+            ("<macros ", True),
+            ("<tool>", False),
+            ("<macros>", True),
+            ('<?xml version="1.0" encoding="UTF-8"?><tool>', False),
+            ('<?xml version="1.0" encoding="UTF-8"?><macros>', True),
+        ],
+    )
+    def test_parse_document_returns_expected_is_macros_file(self, source: str, expected: bool) -> None:
+        parser = XmlDocumentParser()
+        document = TestUtils.to_document(source)
+        xml_document = parser.parse(document)
+
+        assert xml_document.is_macros_file == expected
