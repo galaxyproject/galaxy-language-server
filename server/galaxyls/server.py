@@ -151,6 +151,7 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[GeneratedTestResult]:
+    """Generates some test snippets based on the inputs and outputs of the document."""
     document = server.workspace.get_document(params.uri)
     return server.service.generate_test(document)
 
@@ -171,5 +172,5 @@ def _get_xml_document(document: Document) -> XmlDocument:
 
 
 def _is_document_supported(document: Document) -> bool:
-    """Returns True if the given document is not supported by the server."""
+    """Returns True if the given document is supported by the server."""
     return XmlDocument.has_valid_root(document)

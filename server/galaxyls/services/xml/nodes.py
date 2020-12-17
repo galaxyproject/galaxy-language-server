@@ -2,7 +2,6 @@ from abc import ABC
 from typing import Dict, List, Optional, Tuple, cast
 
 from anytree import NodeMixin
-from anytree.search import findall
 
 from .constants import UNDEFINED_OFFSET
 from .types import NodeType
