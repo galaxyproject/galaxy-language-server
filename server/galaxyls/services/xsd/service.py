@@ -3,15 +3,15 @@ information from the XSD schema.
 """
 
 from typing import List
-from lxml import etree
 
-from pygls.workspace import Document
+from lxml import etree
 from pygls.types import Diagnostic, MarkupContent, MarkupKind
 
-from .constants import TOOL_XSD_FILE, MSG_NO_DOCUMENTATION_AVAILABLE
+from ..context import XmlContext
+from ..xml.document import XmlDocument
+from .constants import MSG_NO_DOCUMENTATION_AVAILABLE, TOOL_XSD_FILE
 from .parser import GalaxyToolXsdParser
 from .validation import GalaxyToolValidationService
-from ..context import XmlContext
 
 NO_DOC_MARKUP = MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
 
@@ -31,11 +31,11 @@ class GalaxyToolXsdService:
         self.xsd_parser = GalaxyToolXsdParser(self.xsd_doc.getroot())
         self.validator = GalaxyToolValidationService(server_name, self.xsd_schema)
 
-    def validate_document(self, document: Document) -> List[Diagnostic]:
+    def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list
         of diagnotics if there are any problems.
         """
-        return self.validator.validate_document(document)
+        return self.validator.validate_document(xml_document)
 
     def get_documentation_for(self, context: XmlContext) -> MarkupContent:
         """Gets the documentation annotated in the XSD about the

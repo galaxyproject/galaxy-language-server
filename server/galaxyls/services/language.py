@@ -36,11 +36,11 @@ class GalaxyToolLanguageService:
         self.completion_service = XmlCompletionService(tree)
         self.xml_context_service = XmlContextService(tree)
 
-    def get_diagnostics(self, document: Document) -> List[Diagnostic]:
-        """Validates the Galaxy tool and returns a list
+    def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
+        """Validates the Galaxy tool XML document and returns a list
         of diagnotics if there are any problems.
         """
-        return self.xsd_service.validate_document(document)
+        return self.xsd_service.validate_document(xml_document)
 
     def get_documentation(self, xml_document: XmlDocument, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
