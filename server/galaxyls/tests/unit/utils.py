@@ -1,9 +1,12 @@
-from typing import Tuple
 from pathlib import Path
+from typing import Tuple
+
 from pygls.types import Position
 from pygls.workspace import Document
 
 from ...services.xml.constants import NEW_LINE
+from ...services.xml.document import XmlDocument
+from ...services.xml.parser import XmlDocumentParser
 
 
 class TestUtils:
@@ -20,6 +23,22 @@ class TestUtils:
             Document: The resulting Document.
         """
         return Document(uri, source, version)
+
+    @staticmethod
+    def to_xml_document(source: str, uri: str = "file://fake_doc.xml", version: int = 0) -> XmlDocument:
+        """Converts the given string into a parsed XML document.
+
+        Args:
+            - source (str): The input string to be converted to XmlDocument.
+            - uri (str, optional): The uri of the document. Defaults to "file://fake_doc.xml".
+            - version (int, optional): The version of the document. Defaults to 0.
+
+        Returns:
+            XmlDocument: The resulting XML document.
+        """
+        document = Document(uri, source, version)
+        xml_document = XmlDocumentParser().parse(document)
+        return xml_document
 
     @staticmethod
     def extract_mark_from_source(mark: str, source_with_mark: str) -> Tuple[Position, str]:

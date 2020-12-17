@@ -78,7 +78,7 @@ class TestXmlContextServiceClass:
         xsd_tree_mock = mocker.Mock()
         service = XmlContextService(xsd_tree_mock)
 
-        context = service.get_xml_context(TestUtils.to_document(empty_xml_content), position)
+        context = service.get_xml_context(TestUtils.to_xml_document(empty_xml_content), position)
 
         assert context.is_empty
 
@@ -128,12 +128,12 @@ class TestXmlContextServiceClass:
     ) -> None:
         service = XmlContextService(fake_xsd_tree)
         position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
-        document = TestUtils.to_document(source)
+        xml_document = TestUtils.to_xml_document(source)
         print(fake_xsd_tree.render())
         print(f"Test context at position [line={position.line}, char={position.character}]")
-        print(f"Document:\n{document.source}")
+        print(f"Document:\n{xml_document.document.source}")
 
-        context = service.get_xml_context(document, position)
+        context = service.get_xml_context(xml_document, position)
 
         assert context
         assert context.token
