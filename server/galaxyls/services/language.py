@@ -18,6 +18,7 @@ from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
 from .tools import GalaxyToolTestSnippetGenerator, GalaxyToolXmlDocument
+from .xml.document import XmlDocument
 from .xsd.service import GalaxyToolXsdService
 
 
@@ -41,12 +42,12 @@ class GalaxyToolLanguageService:
         """
         return self.xsd_service.validate_document(document)
 
-    def get_documentation(self, document: Document, position: Position) -> Optional[Hover]:
+    def get_documentation(self, xml_document: XmlDocument, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
-        context = self.xml_context_service.get_xml_context(document, position)
+        context = self.xml_context_service.get_xml_context(xml_document, position)
         if context.token and (context.is_tag or context.is_attribute_key):
             documentation = self.xsd_service.get_documentation_for(context)
-            context_range = self.xml_context_service.get_range_for_context(document, context)
+            context_range = self.xml_context_service.get_range_for_context(xml_document, context)
             return Hover(documentation, context_range)
         return None
 
@@ -56,16 +57,18 @@ class GalaxyToolLanguageService:
         """
         return self.format_service.format(content, params)
 
-    def get_completion(self, document: Document, params: CompletionParams, mode: CompletionMode) -> CompletionList:
+    def get_completion(self, xml_document: XmlDocument, params: CompletionParams, mode: CompletionMode) -> CompletionList:
         """Gets completion items depending on the current document context."""
-        context = self.xml_context_service.get_xml_context(document, params.position)
+        context = self.xml_context_service.get_xml_context(xml_document, params.position)
         return self.completion_service.get_completion_at_context(context, params.context, mode)
 
-    def get_auto_close_tag(self, document: Document, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
+    def get_auto_close_tag(
+        self, xml_document: XmlDocument, params: TextDocumentPositionParams
+    ) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
-        trigger_character = document.lines[params.position.line][params.position.character - 1]
+        trigger_character = xml_document.document.lines[params.position.line][params.position.character - 1]
         position_before_trigger = Position(params.position.line, params.position.character - 1)
-        context = self.xml_context_service.get_xml_context(document, position_before_trigger)
+        context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
     def generate_test(self, document: Document) -> Optional[GeneratedTestResult]:

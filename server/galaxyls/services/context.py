@@ -3,11 +3,11 @@
 from typing import List, Optional
 
 from pygls.types import Range
-from pygls.workspace import Document, Position
+from pygls.workspace import Position
 
 from .xml.constants import UNDEFINED_OFFSET
+from .xml.document import XmlDocument
 from .xml.nodes import XmlSyntaxNode
-from .xml.parser import XmlDocumentParser
 from .xml.types import NodeType
 from .xml.utils import convert_document_offsets_to_range
 from .xsd.types import XsdNode, XsdTree
@@ -136,7 +136,7 @@ class XmlContextService:
     def __init__(self, xsd_tree: XsdTree):
         self.xsd_tree = xsd_tree
 
-    def get_xml_context(self, document: Document, position: Position) -> XmlContext:
+    def get_xml_context(self, xml_document: XmlDocument, position: Position) -> XmlContext:
         """Gets the XML context at a given position inside the document.
 
         Args:
@@ -148,15 +148,13 @@ class XmlContextService:
             definition and other information. If the context can not be
             determined, the default context with no information is returned.
         """
-        offset = document.offset_at_position(position)
+        offset = xml_document.document.offset_at_position(position)
 
-        parser = XmlDocumentParser()
-        xml_document = parser.parse(document)
         if xml_document.is_empty:
             return XmlContext(self.xsd_tree.root, node=None)
         node = xml_document.get_node_at(offset)
         xsd_node = self.find_matching_xsd_element(node, self.xsd_tree)
-        line_text = document.lines[position.line]
+        line_text = xml_document.document.lines[position.line]
         context = XmlContext(xsd_node, node, line_text, position, offset)
         return context
 
@@ -177,6 +175,6 @@ class XmlContextService:
                 return xsd_node
         return xsd_tree.root
 
-    def get_range_for_context(self, document: Document, context: XmlContext) -> Range:
+    def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range:
         start_offset, end_offset = context.token.get_offsets(context.offset)
-        return convert_document_offsets_to_range(document, start_offset, end_offset)
+        return convert_document_offsets_to_range(xml_document.document, start_offset, end_offset)
