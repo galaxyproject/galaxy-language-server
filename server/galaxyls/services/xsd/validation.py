@@ -2,17 +2,13 @@
 """
 
 from typing import List, Optional
-from lxml import etree
+
 from galaxy.util import xml_macros
-
+from lxml import etree
+from pygls.types import Diagnostic, Position, Range
 from pygls.workspace import Document
-from pygls.types import (
-    Diagnostic,
-    Position,
-    Range,
-)
 
-MACROS_TAG = "<macros>"
+from ..xml.document import XmlDocument
 
 
 class GalaxyToolValidationService:
@@ -23,25 +19,25 @@ class GalaxyToolValidationService:
         self.server_name = server_name
         self.xsd_schema = xsd_schema
 
-    def validate_document(self, document: Document) -> List[Diagnostic]:
+    def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the XML document and returns a list of diagnotics
         if there are any problems.
 
         Args:
-            document (Document): The XML document. Can be a tool wrapper or macro
+            xml_document (XmlDocument): The XML document. Can be a tool wrapper or macro
             definition file.
 
         Returns:
             List[Diagnostic]: The list of issues found in the document.
         """
         try:
-            if self._is_macro_definition_file(document):
-                return self._check_syntax(document)
+            if xml_document.is_macros_file:
+                return self._check_syntax(xml_document.document)
 
-            xml_tree = etree.fromstring(document.source)
+            xml_tree = etree.fromstring(xml_document.document.source)
             return self._validate_tree(xml_tree)
         except ExpandMacrosFoundException as e:
-            result = self._validate_tree_with_macros(document, e.xml_tree)
+            result = self._validate_tree_with_macros(xml_document.document, e.xml_tree)
             return result
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
@@ -64,20 +60,9 @@ class GalaxyToolValidationService:
             filename = import_element.text
             start = document.lines[line_number].find(filename)
             end = start + len(filename)
-            return Range(Position(line_number, start), Position(line_number, end),)
+            return Range(Position(line_number, start), Position(line_number, end))
         except BaseException:
             return None
-
-    def _is_macro_definition_file(self, document: Document) -> bool:
-        """Determines if a XML document is a macro definition file.
-
-        Args:
-            document (Document): The XML document.
-
-        Returns:
-            bool: True if it is a macro definition file or False otherwise.
-        """
-        return document.source.lstrip().startswith(MACROS_TAG)
 
     def _check_syntax(self, document: Document) -> List[Diagnostic]:
         """Check if the XML document contains any syntax error and returns it in a list.
@@ -114,13 +99,13 @@ class GalaxyToolValidationService:
             return []
         except etree.DocumentInvalid as e:
             diagnostics = [
-                Diagnostic(error_range, f"Validation error on macro: {error.message}", source=self.server_name,)
+                Diagnostic(error_range, f"Validation error on macro: {error.message}", source=self.server_name)
                 for error in e.error_log.filter_from_errors()
             ]
             return diagnostics
 
         except etree.XMLSyntaxError as e:
-            result = Diagnostic(error_range, f"Syntax error on macro: {e.msg}", source=self.server_name,)
+            result = Diagnostic(error_range, f"Syntax error on macro: {e.msg}", source=self.server_name)
             return [result]
 
     def _validate_tree(self, xml_tree: etree.ElementTree) -> List[Diagnostic]:
@@ -178,14 +163,14 @@ class GalaxyToolValidationService:
                 raise ExpandMacrosFoundException(xml_tree)
 
             result = Diagnostic(
-                Range(Position(error.line - 1, error.column), Position(error.line - 1, error.column),),
+                Range(Position(error.line - 1, error.column), Position(error.line - 1, error.column)),
                 error.message,
                 source=self.server_name,
             )
             diagnostics.append(result)
         return diagnostics
 
-    def _build_diagnostics_from_syntax_error(self, error: etree.XMLSyntaxError) -> Diagnostic:
+    def _build_diagnostics_from_syntax_error(self, error: etree.XMLSyntaxError) -> List[Diagnostic]:
         """Builds a Diagnostic element from a XMLSyntaxError.
 
         Args:
@@ -195,7 +180,7 @@ class GalaxyToolValidationService:
             Diagnostic: The converted Diagnostic item.
         """
         result = Diagnostic(
-            Range(Position(error.lineno - 1, error.position[0] - 1), Position(error.lineno - 1, error.position[1] - 1),),
+            Range(Position(error.lineno - 1, error.position[0] - 1), Position(error.lineno - 1, error.position[1] - 1)),
             error.msg,
             source=self.server_name,
         )

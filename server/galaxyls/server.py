@@ -31,10 +31,13 @@ from pygls.types import (
     TextDocumentPositionParams,
     TextEdit,
 )
+from pygls.workspace import Document
 
 from .config import CompletionMode, GalaxyToolsConfiguration
 from .features import AUTO_CLOSE_TAGS, CMD_GENERATE_TEST
 from .services.language import GalaxyToolLanguageService
+from .services.xml.document import XmlDocument
+from .services.xml.parser import XmlDocumentParser
 from .types import AutoCloseTagResult, GeneratedTestResult
 
 SERVER_NAME = "Galaxy Tools LS"
@@ -89,7 +92,10 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
     if server.configuration.completion_mode == CompletionMode.DISABLED:
         return None
     document = server.workspace.get_document(params.textDocument.uri)
-    return server.service.get_completion(document, params, server.configuration.completion_mode)
+    if not _is_document_supported(document):
+        return None
+    xml_document = _get_xml_document(document)
+    return server.service.get_completion(xml_document, params, server.configuration.completion_mode)
 
 
 @language_server.feature(AUTO_CLOSE_TAGS)
@@ -97,20 +103,28 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositi
     """Responds to a close tag request to close the currently opened node."""
     if server.configuration.auto_close_tags:
         document = server.workspace.get_document(params.textDocument.uri)
-        return server.service.get_auto_close_tag(document, params)
+        if not _is_document_supported(document):
+            return None
+        xml_document = _get_xml_document(document)
+        return server.service.get_auto_close_tag(xml_document, params)
 
 
 @language_server.feature(HOVER)
 def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
     document = server.workspace.get_document(params.textDocument.uri)
-    return server.service.get_documentation(document, params.position)
+    if not _is_document_supported(document):
+        return None
+    xml_document = _get_xml_document(document)
+    return server.service.get_documentation(xml_document, params.position)
 
 
 @language_server.feature(FORMATTING)
-def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> List[TextEdit]:
+def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> Optional[List[TextEdit]]:
     """Formats the whole document using the provided parameters"""
     document = server.workspace.get_document(params.textDocument.uri)
+    if not _is_document_supported(document):
+        return None
     content = document.source
     return server.service.format_document(content, params)
 
@@ -137,6 +151,7 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[GeneratedTestResult]:
+    """Generates some test snippets based on the inputs and outputs of the document."""
     document = server.workspace.get_document(params.uri)
     return server.service.generate_test(document)
 
@@ -144,5 +159,18 @@ async def cmd_generate_test(
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
     document = server.workspace.get_document(params.textDocument.uri)
-    diagnostics = server.service.get_diagnostics(document)
-    server.publish_diagnostics(document.uri, diagnostics)
+    if _is_document_supported(document):
+        xml_document = _get_xml_document(document)
+        diagnostics = server.service.get_diagnostics(xml_document)
+        server.publish_diagnostics(document.uri, diagnostics)
+
+
+def _get_xml_document(document: Document) -> XmlDocument:
+    """Parses the input Document and returns an XmlDocument."""
+    xml_document = XmlDocumentParser().parse(document)
+    return xml_document
+
+
+def _is_document_supported(document: Document) -> bool:
+    """Returns True if the given document is supported by the server."""
+    return XmlDocument.has_valid_root(document)

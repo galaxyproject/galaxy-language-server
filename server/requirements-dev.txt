@@ -8,3 +8,4 @@ pytest-mock
 flake8
 flake8-bugbear
 black
+lxml-stubs

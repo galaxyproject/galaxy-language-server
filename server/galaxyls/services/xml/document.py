@@ -1,6 +1,7 @@
 from typing import Dict, Optional
-from anytree.search import findall
 
+from anytree.search import findall
+from lxml import etree
 from pygls.types import Position, Range
 from pygls.workspace import Document
 
@@ -66,6 +67,16 @@ class XmlDocument(XmlSyntaxNode):
             return self.supported_document_types.get(self.root.name, DocumentType.UNKNOWN)
         return DocumentType.UNKNOWN
 
+    @property
+    def is_unknown(self) -> bool:
+        """Indicates if the document is of unknown type."""
+        return self.document_type == DocumentType.UNKNOWN
+
+    @property
+    def is_macros_file(self) -> bool:
+        """Indicates if the document is a macro definition file."""
+        return self.document_type == DocumentType.MACROS
+
     def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
         """Gets the syntax node a the given offset."""
         return self.root.find_node_at(offset)
@@ -107,3 +118,17 @@ class XmlDocument(XmlSyntaxNode):
         if element.is_self_closed:
             return convert_document_offset_to_position(self.document, element.end)
         return convert_document_offset_to_position(self.document, element.end_tag_close_offset)
+
+    @staticmethod
+    def has_valid_root(document: Document) -> bool:
+        """Checks if the document's root element matches one of the supported types."""
+        try:
+            xml = etree.parse(str(document.path))
+            root = xml.getroot()
+            if root and root.tag:
+                root_tag = root.tag.upper()
+                supported = [e.name for e in DocumentType if e != DocumentType.UNKNOWN]
+                return root_tag in supported
+            return False
+        except BaseException:
+            return False
