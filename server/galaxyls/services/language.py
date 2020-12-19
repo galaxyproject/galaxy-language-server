@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from pygls.types import (
     CompletionList,
     CompletionParams,
@@ -17,7 +19,6 @@ from ..types import GeneratedTestResult
 from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
-from .tools import GalaxyToolTestSnippetGenerator, GalaxyToolXmlDocument
 from .xml.document import XmlDocument
 from .xsd.service import GalaxyToolXsdService
 
@@ -71,10 +72,13 @@ class GalaxyToolLanguageService:
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
-    def generate_test(self, document: Document) -> Optional[GeneratedTestResult]:
+    def generate_tests(self, document: Document) -> Optional[GeneratedTestResult]:
+        """Generates a code snippet with some tests for the current inputs and outputs
+        of this tool wrapper."""
         tool = GalaxyToolXmlDocument(document)
-        snippet = GalaxyToolTestSnippetGenerator(tool).generate_test_suite_snippet()
+        generator = GalaxyToolTestSnippetGenerator(tool)
+        snippet = generator.generate_test_suite_snippet()
         if snippet:
-            insert_position = tool.find_tests_insert_position()
+            insert_position = generator.find_tests_insert_position(tool)
             return GeneratedTestResult(snippet, insert_position)
         return None

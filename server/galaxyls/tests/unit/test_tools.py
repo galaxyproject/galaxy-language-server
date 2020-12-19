@@ -1,7 +1,9 @@
 import pytest
 from pygls.types import Position, Range
 
-from ...services.tools import GalaxyToolTestSnippetGenerator, GalaxyToolXmlDocument
+from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
+
 from .sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
 from .utils import TestUtils
 

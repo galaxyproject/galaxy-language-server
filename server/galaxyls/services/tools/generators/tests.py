@@ -1,358 +1,55 @@
 from typing import List, Optional, cast
 
-from anytree import NodeMixin, RenderTree, find
 from galaxy.util import xml_macros
+from pygls.types import Position
+from galaxyls.services.tools.constants import (
+    ARGUMENT,
+    ASSERT_CONTENTS,
+    BOOLEAN,
+    BOOLEAN_OPTIONS,
+    CHECKED,
+    COLLECTION,
+    CONDITIONAL,
+    DASH,
+    DATA,
+    DELTA,
+    ELEMENT,
+    EXPECT_NUM_OUTPUTS,
+    EXPRESSION,
+    HAS_LINE,
+    HAS_LINE_MATCHING,
+    HAS_N_COLUMNS,
+    HAS_SIZE,
+    HAS_TEXT,
+    INPUTS,
+    LINE,
+    NAME,
+    OPTION,
+    OUTPUT,
+    OUTPUTS,
+    OUTPUT_COLLECTION,
+    PARAM,
+    REPEAT,
+    SECTION,
+    SELECT,
+    TEST,
+    TESTS,
+    TEXT,
+    TYPE,
+    UNDERSCORE,
+    VALUE,
+    N,
+)
+from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.inputs import ConditionalInputNode, InputNode, RepeatInputNode, SectionInputNode
+from galaxyls.services.xml.nodes import XmlElement
 from lxml import etree
-from pygls.types import Position, Range
 from pygls.workspace import Document
 
-from .xml.document import XmlDocument
-from .xml.nodes import XmlElement
-from .xml.parser import XmlDocumentParser
-from .xml.types import DocumentType
-
-INPUTS = "inputs"
-PARAM = "param"
-CONDITIONAL = "conditional"
-REPEAT = "repeat"
-SECTION = "section"
-NAME = "name"
-TYPE = "type"
-SELECT = "select"
-OPTION = "option"
-VALUE = "value"
-WHEN = "when"
-TEST = "test"
-TESTS = "tests"
-TEXT = "text"
-MIN = "min"
-BOOLEAN = "boolean"
-TRUEVALUE = "truevalue"
-FALSEVALUE = "falsevalue"
-CHECKED = "checked"
-ARGUMENT = "argument"
-BOOLEAN_OPTIONS = ["true", "false"]
-EXPECT_NUM_OUTPUTS = "expect_num_outputs"
-OUTPUTS = "outputs"
-DATA = "data"
-COLLECTION = "collection"
-OUTPUT = "output"
-OUTPUT_COLLECTION = "output_collection"
-ASSERT_CONTENTS = "assert_contents"
-HAS_TEXT = "has_text"
-HAS_LINE = "has_line"
-HAS_LINE_MATCHING = "has_line_matching"
-HAS_N_COLUMNS = "has_n_columns"
-HAS_SIZE = "has_size"
-LINE = "line"
-EXPRESSION = "expression"
-N = "n"
-DELTA = "delta"
-ELEMENT = "element"
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
     "Warning: the use of boolean as a conditional parameter is not recommended. Please consider using a select instead."
 )
-DASH = "-"
-UNDERSCORE = "_"
-
-
-class InputNode(NodeMixin):
-    """Represents a logical input node in the tool wrapper file.
-
-    Each node contains references to direct children classified by their type."""
-
-    def __init__(self, name: str, element: Optional[XmlElement] = None, parent: NodeMixin = None):
-        self.name: str = name
-        self.element: Optional[XmlElement] = element
-        self.parent = parent
-        self.params: List[XmlElement] = []
-        self.repeats: List[RepeatInputNode] = []
-        self.sections: List[SectionInputNode] = []
-
-    def __repr__(self) -> str:
-        return self.name
-
-
-class ConditionalInputNode(InputNode):
-    """Represents a conditional input branch node in the tool wrapper file.
-
-    The 'option_param' field contains the first select or boolean param and it's
-    value is set to the 'option' field of one of the possible 'when' definitions.
-    """
-
-    def __init__(self, name: str, option: str, element: Optional[XmlElement] = None, parent: InputNode = None):
-        super().__init__(name, element, parent)
-        self.option_param: XmlElement = element.elements[0]
-        self.option: str = option
-
-
-class RepeatInputNode(InputNode):
-    """Represents an input node that will be repeated 'min' times."""
-
-    def __init__(self, name: str, min: int, element: Optional[XmlElement] = None):
-        super().__init__(name, element, parent=None)
-        self.min: int = min
-
-
-class SectionInputNode(InputNode):
-    """Represents a section input node which is used to group other nodes."""
-
-    def __init__(self, name: str, element: Optional[XmlElement] = None):
-        super().__init__(name, element, parent=None)
-
-
-class GalaxyToolInputTree:
-    """The branches of this tree contains all the inputs within a conditional path for a specific option."""
-
-    def __init__(self, inputs: Optional[XmlElement] = None) -> None:
-        self._root: InputNode = InputNode(INPUTS, inputs)
-        if inputs:
-            self._build_input_tree(inputs, self._root)
-
-    @property
-    def leaves(self) -> List[InputNode]:
-        """The leaves of the tree contain all the final elements of the conditional branches."""
-        return list(self._root.leaves)
-
-    def _build_input_tree(self, inputs: XmlElement, parent: InputNode) -> None:
-        """Given the XML element containing the inputs of the tool, this method recursively builds
-        an expanded input tree.
-
-        Args:
-            inputs (XmlElement): The XML element corresponding to the inputs.
-            parent (InputNode): The node that will hold all the inputs.
-        """
-        parent.params = inputs.get_children_with_name(PARAM)
-
-        conditionals = inputs.get_children_with_name(CONDITIONAL)
-        for conditional in conditionals:
-            self._build_conditional_input_tree(conditional, parent)
-
-        repeats = inputs.get_children_with_name(REPEAT)
-        for repeat in repeats:
-            repeat_node = self._build_repeat_input_tree(repeat)
-            if repeat_node:
-                parent.repeats.append(repeat_node)
-
-        sections = inputs.get_children_with_name(SECTION)
-        for section in sections:
-            section_node = self._build_section_input_tree(section)
-            if section_node:
-                parent.sections.append(section_node)
-
-    def _build_conditional_input_tree(self, conditional: XmlElement, parent: InputNode) -> None:
-        """Populates the 'parent' node with a ConditionalInputNode for each of the declared options
-        in the given 'conditional' XmlElement.
-
-        Args:
-            conditional (XmlElement): The XML element (conditional tag).
-            parent (InputNode): The InputNode that will hold the conditional branches and it's elements.
-        """
-        param = conditional.elements[0]  # first child must be select or boolean
-        if param.get_attribute(TYPE) == SELECT:
-            options = param.get_children_with_name(OPTION)
-            for option in options:
-                option_value = option.get_attribute(VALUE)
-                self._build_conditional_option_branch(conditional, parent, option_value)
-        elif param.get_attribute(TYPE) == BOOLEAN:
-            true_value = param.get_attribute(TRUEVALUE)
-            if true_value:
-                self._build_conditional_option_branch(conditional, parent, true_value)
-            false_value = param.get_attribute(FALSEVALUE)
-            if false_value:
-                self._build_conditional_option_branch(conditional, parent, false_value)
-
-    def _build_conditional_option_branch(
-        self, conditional: XmlElement, parent: InputNode, option_value: Optional[str] = None
-    ) -> None:
-        """Builds a conditional branch in the input tree with the given 'option_value'.
-
-        Args:
-            conditional (XmlElement): The <conditional> XML element.
-            parent (InputNode): The input node that will contain this branch.
-            option_value (str): The value of the option selected in this conditional branch.
-        """
-        name = conditional.get_attribute(NAME)
-        if name and option_value:
-            conditional_node = ConditionalInputNode(name, option_value, element=conditional, parent=parent)
-            when = find(conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value)
-            when = cast(XmlElement, when)
-            if when:
-                self._build_input_tree(when, conditional_node)
-
-    def _build_repeat_input_tree(self, repeat: XmlElement) -> Optional[RepeatInputNode]:
-        """Builds and returns a RepeatInputNode from a 'repeat' XML tag with the minimum number
-        of repetitions defined.
-
-        Args:
-            repeat (XmlElement): The XML repeat tag.
-
-        Returns:
-            Optional[RepeatInputNode]: The resulting RepeatInputNode with it's own input children.
-        """
-        name = repeat.get_attribute(NAME)
-        if name:
-            min = 1
-            min_attr = repeat.get_attribute(MIN)
-            if min_attr and min_attr.isdigit:
-                min = int(min_attr)
-            repeat_node = RepeatInputNode(name, min, repeat)
-            self._build_input_tree(repeat, repeat_node)
-            return repeat_node
-        return None
-
-    def _build_section_input_tree(self, section: XmlElement) -> Optional[SectionInputNode]:
-        """Builds and returns a SectionInputNode from a 'section' XML tag.
-
-        Args:
-            section (XmlElement): The XML section tag.
-
-        Returns:
-            Optional[SectionInputNode]: The resulting SectionInputNode with it's own input children.
-        """
-        name = section.get_attribute(NAME)
-        if name:
-            section_node = SectionInputNode(name, section)
-            self._build_input_tree(section, section_node)
-            return section_node
-        return None
-
-
-class GalaxyToolXmlDocument:
-    """Represents a Galaxy tool XML wrapper.
-
-    This class provides access to the tool definitions and some utilities to extract
-    information from the document.
-    """
-
-    def __init__(self, document: Document) -> None:
-        self.document: Document = document
-        self.xml_document: XmlDocument = XmlDocumentParser().parse(document)
-
-    @property
-    def is_valid(self) -> bool:
-        """Indicates if this document is a valid Galaxy Tool Wrapper
-        XML document."""
-        return self.xml_document.document_type == DocumentType.TOOL
-
-    @property
-    def uses_macros(self) -> bool:
-        """Indicates if this tool document *uses* macro definitions.
-
-        Returns:
-            bool: True if the tool contains <expand> elements.
-        """
-        return self.xml_document.uses_macros
-
-    def find_tests_insert_position(self) -> Position:
-        """Returns the position inside the document where new test cases
-        can be inserted.
-
-        If the <tests> section does not exists in the file, the best aproximate
-        position where the tests should be inserted is returned (acording to the IUC
-        best practices tag order).
-
-        Returns:
-            Position: The position where the test cases can be inserted in the document.
-        """
-        section = self.find_element(TESTS)
-        if section:
-            content_range = self.get_element_content_range(section)
-            if content_range:
-                return content_range.end
-            else:  # is self closed <tests/>
-                return self.get_position_before(section)
-        else:
-            section = self.find_element(OUTPUTS)
-            if section:
-                return self.get_position_after(section)
-            section = self.find_element(INPUTS)
-            if section:
-                return self.get_position_after(section)
-            return Position()
-
-    def has_section_content(self, section_name: str) -> bool:
-        """Returns True if the given 'section_name' tag exists and
-        can hold content, i.e. is not self closed.
-
-        Args:
-            section_name (str): The name of the tag or element.
-
-        Returns:
-            bool: True if can hold content, otherwise Fase.
-        """
-        section = self.find_element(section_name)
-        return section is not None and not section.is_self_closed
-
-    def find_element(self, name: str, maxlevel: int = 3) -> Optional[XmlElement]:
-        """Finds the element with the given name in the document.
-
-        Args:
-            name (str): The name of the element to find.
-            maxlevel (int, optional): The level at which the search will
-            stop if not found. Defaults to 3.
-
-        Returns:
-            Optional[XmlElement]: The first element matching the name.
-        """
-        node = find(self.xml_document, filter_=lambda node: node.name == name, maxlevel=maxlevel)
-        return cast(XmlElement, node)
-
-    def get_element_content_range(self, element: Optional[XmlElement]) -> Optional[Range]:
-        """Returns the Range of the content block of the given element.
-
-        Args:
-            element (Optional[XmlElement]): The element.
-
-        Returns:
-            Optional[Range]: The Range of the content block.
-        """
-        if not element:
-            return None
-        return self.xml_document.get_element_content_range(element)
-
-    def get_position_before(self, element: XmlElement) -> Position:
-        """Returns the document position right before the given element opening tag.
-
-        Args:
-            element (XmlElement): The element.
-
-        Returns:
-            Position: The position right before the element opening tag.
-        """
-        return self.xml_document.get_position_before(element)
-
-    def get_position_after(self, element: XmlElement) -> Position:
-        """Returns the document position right after the given element closing tag.
-
-        Args:
-            element (XmlElement): The element.
-
-        Returns:
-            Position: The position right after the element closing tag.
-        """
-        return self.xml_document.get_position_after(element)
-
-    def analyze_inputs(self) -> GalaxyToolInputTree:
-        """Gets the inputs in the document and builds the input tree.
-
-        Returns:
-            GalaxyToolInputTree: The resulting input tree for this document.
-        """
-        inputs = self.find_element(INPUTS)
-        return GalaxyToolInputTree(inputs)
-
-    def get_outputs(self) -> List[XmlElement]:
-        """Gets the outputs of this document as a list of elements.
-
-        Returns:
-            List[XmlElement]: The outputs defined in the document.
-        """
-        outputs = self.find_element(OUTPUTS)
-        if outputs:
-            return outputs.elements
-        return []
 
 
 class GalaxyToolTestSnippetGenerator:
@@ -386,6 +83,33 @@ class GalaxyToolTestSnippetGenerator:
         if create_tests_section:
             return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
         return result_snippet
+
+    def find_tests_insert_position(self, tool: GalaxyToolXmlDocument) -> Position:
+        """Returns the position inside the document where new test cases
+        can be inserted.
+
+        If the <tests> section does not exists in the file, the best aproximate
+        position where the tests should be inserted is returned (acording to the IUC
+        best practices tag order).
+
+        Returns:
+            Position: The position where the test cases can be inserted in the document.
+        """
+        section = tool.find_element(TESTS)
+        if section:
+            content_range = tool.get_element_content_range(section)
+            if content_range:
+                return content_range.end
+            else:  # is self closed <tests/>
+                return tool.get_position_before(section)
+        else:
+            section = tool.find_element(OUTPUTS)
+            if section:
+                return tool.get_position_after(section)
+            section = tool.find_element(INPUTS)
+            if section:
+                return tool.get_position_after(section)
+            return Position()
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement], spaces: str = "  ") -> str:
         """Generates the code snippet for a single <test> element given an InputNode and the list of outputs
@@ -495,7 +219,8 @@ class GalaxyToolTestSnippetGenerator:
         return param
 
     def _build_conditional_test_element(self, input_conditional: ConditionalInputNode) -> etree._Element:
-        """Builds a <conditional> XML element to be used in a <test> code snippet from a given input <conditional> XML element."""
+        """Builds a <conditional> XML element to be used in a <test> code snippet from a
+        given input <conditional> XML element."""
         conditional = etree.Element(CONDITIONAL)
         conditional.attrib[NAME] = input_conditional.name
         # add the option param

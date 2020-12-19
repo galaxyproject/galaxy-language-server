@@ -153,7 +153,7 @@ async def cmd_generate_test(
 ) -> Optional[GeneratedTestResult]:
     """Generates some test snippets based on the inputs and outputs of the document."""
     document = server.workspace.get_document(params.uri)
-    return server.service.generate_test(document)
+    return server.service.generate_tests(document)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
