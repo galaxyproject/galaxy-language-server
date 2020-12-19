@@ -121,6 +121,6 @@ class TestGalaxyToolXmlDocumentClass:
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
 
-        actual_snippet = generator.generate_test_suite_snippet()
+        actual_snippet = generator.generate_snippet()
 
         assert actual_snippet == expected_snippet

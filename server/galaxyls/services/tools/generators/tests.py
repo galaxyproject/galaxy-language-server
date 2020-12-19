@@ -1,7 +1,6 @@
 from typing import List, Optional, cast
 
 from galaxy.util import xml_macros
-from pygls.types import Position
 from galaxyls.services.tools.constants import (
     ARGUMENT,
     ASSERT_CONTENTS,
@@ -26,8 +25,8 @@ from galaxyls.services.tools.constants import (
     NAME,
     OPTION,
     OUTPUT,
-    OUTPUTS,
     OUTPUT_COLLECTION,
+    OUTPUTS,
     PARAM,
     REPEAT,
     SECTION,
@@ -41,9 +40,11 @@ from galaxyls.services.tools.constants import (
     N,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators.snippets import SnippetGenerator
 from galaxyls.services.tools.inputs import ConditionalInputNode, InputNode, RepeatInputNode, SectionInputNode
 from galaxyls.services.xml.nodes import XmlElement
 from lxml import etree
+from pygls.types import Position
 from pygls.workspace import Document
 
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
@@ -52,22 +53,19 @@ BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
 )
 
 
-class GalaxyToolTestSnippetGenerator:
+class GalaxyToolTestSnippetGenerator(SnippetGenerator):
     """This class tries to generate the XML code for a test case using the information
     already defined in the inputs and outputs of the tool XML wrapper.
     """
 
     def __init__(self, tool_document: GalaxyToolXmlDocument) -> None:
-        self.tool_document: GalaxyToolXmlDocument = self._get_expanded_tool_document(tool_document)
-        self.tabstop_count: int = 0
+        super().__init__(tool_document)
 
-    def generate_test_suite_snippet(self, create_tests_section: bool = False, tabSize: int = 4) -> Optional[str]:
+    def generate_snippet(self, tabSize: int = 4) -> Optional[str]:
         """This function tries to generate a code snippet in TextMate format with all the tests cases extracted
         from the inputs and outputs of the tool.
 
         Args:
-            create_tests_section (bool, optional): Indicates if the code snippet should
-            be wrapped inside a <tests> element. Defaults to False.
             tabSize (int, optional): The number of spaces per tab. Defaults to 4.
 
         Returns:
@@ -79,12 +77,12 @@ class GalaxyToolTestSnippetGenerator:
         result_snippet = "\n".join(
             (self._generate_test_case_snippet(input_node, outputs, spaces) for input_node in input_tree.leaves)
         )
-        create_tests_section = not self.tool_document.has_section_content(TESTS)
-        if create_tests_section:
+        create_section = not self.tool_document.has_section_content(TESTS)
+        if create_section:
             return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
         return result_snippet
 
-    def find_tests_insert_position(self, tool: GalaxyToolXmlDocument) -> Position:
+    def find_snippet_insert_position(self, tool: GalaxyToolXmlDocument) -> Position:
         """Returns the position inside the document where new test cases
         can be inserted.
 

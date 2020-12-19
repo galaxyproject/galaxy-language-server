@@ -77,8 +77,8 @@ class GalaxyToolLanguageService:
         of this tool wrapper."""
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
-        snippet = generator.generate_test_suite_snippet()
+        snippet = generator.generate_snippet()
         if snippet:
-            insert_position = generator.find_tests_insert_position(tool)
+            insert_position = generator.find_snippet_insert_position(tool)
             return GeneratedTestResult(snippet, insert_position)
         return None
