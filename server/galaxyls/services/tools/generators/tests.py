@@ -1,6 +1,5 @@
 from typing import List, Optional, cast
 
-from galaxy.util import xml_macros
 from galaxyls.services.tools.constants import (
     ARGUMENT,
     ASSERT_CONTENTS,
@@ -45,7 +44,6 @@ from galaxyls.services.tools.inputs import ConditionalInputNode, InputNode, Repe
 from galaxyls.services.xml.nodes import XmlElement
 from lxml import etree
 from pygls.types import Position
-from pygls.workspace import Document
 
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
@@ -386,19 +384,3 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             self.tabstop_count += 1
             return f"${{{self.tabstop_count}|{','.join(options)}|}}"
         return self._get_next_tabstop()
-
-    def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
-        """If the given tool document uses macros, a new tool document with the expanded macros is returned,
-        otherwise, the same document is returned.
-        """
-        if tool_document.uses_macros:
-            try:
-                document = tool_document.document
-                expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
-                expanded_tool_tree = cast(etree._ElementTree, expanded_tool_tree)
-                expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
-                expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
-                return GalaxyToolXmlDocument(expanded_document)
-            except BaseException:
-                return tool_document
-        return tool_document

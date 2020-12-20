@@ -19,10 +19,14 @@ class SnippetGenerator(ABC):
 
     @abstractmethod
     def generate_snippet(self, tabSize: int = 4) -> Optional[str]:
+        """This abstract function should return the generated snippet in TextMate format or None
+        if the snippet can't be generated."""
         pass
 
     @abstractmethod
     def find_snippet_insert_position(self, tool: GalaxyToolXmlDocument) -> Position:
+        """This abstract function should find the proper position inside the document where the
+        snippet will be inserted."""
         pass
 
     def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
