@@ -1,12 +1,12 @@
 "use strict";
 
 import * as net from "net";
-import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages, ExtensionMode, commands, SnippetString, Range } from "vscode";
+import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages, ExtensionMode, commands } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
 import { GALAXY_LS } from './constants';
-import { Commands, GeneratedTestRequest } from './commands';
+import { Commands, GeneratedCommandRequest, GeneratedTestRequest, requestInsertSnippet } from './commands';
 
 let client: LanguageClient;
 
@@ -50,29 +50,16 @@ export async function activate(context: ExtensionContext) {
 
   // Setup generate test command
   const generateTest = async () => {
-    let activeEditor = window.activeTextEditor;
-    if (!activeEditor) return;
+    requestInsertSnippet(client, GeneratedTestRequest.type)
+  };
 
-    if (activeEditor.document.isDirty) {
-      window.showErrorMessage("Please save the document before executing this action.");
-      return;
-    }
-    let document = activeEditor.document;
-
-    let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
-    let result = await client.sendRequest(GeneratedTestRequest.type, param);
-    if (!result || !result.snippet) return;
-
-    try {
-      const snippet = new SnippetString(result.snippet);
-      const position = new Position(result.position.line, result.position.character)
-      activeEditor.insertSnippet(snippet, position);
-    } catch (err) {
-      window.showErrorMessage(err);
-    }
+  // Setup generate command section command
+  const generateCommand = async () => {
+    requestInsertSnippet(client, GeneratedCommandRequest.type)
   };
 
   context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST, generateTest));
+  context.subscriptions.push(commands.registerCommand(Commands.GENERATE_COMMAND, generateCommand));
 }
 
 /**

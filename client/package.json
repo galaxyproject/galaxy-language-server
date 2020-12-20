@@ -34,6 +34,11 @@
         "command": "galaxytools.generate.tests",
         "title": "Generate tests cases for current tool",
         "category": "Galaxy Tools"
+      },
+      {
+        "command": "galaxytools.generate.command",
+        "title": "Generate boilerplate command section for current tool",
+        "category": "Galaxy Tools"
       }
     ],
     "keybindings": [
@@ -41,6 +46,11 @@
         "command": "galaxytools.generate.tests",
         "key": "ctrl+alt+t",
         "mac": "cmd+alt+t"
+      },
+      {
+        "command": "galaxytools.generate.command",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c"
       }
     ],
     "configuration": {
