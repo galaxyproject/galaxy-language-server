@@ -115,12 +115,12 @@ class TestGalaxyToolXmlDocumentClass:
             ("complex_inputs_01.xml", "complex_inputs_01_test.xml"),
         ],
     )
-    def test_generate_test_suite_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
+    def test_build_test_suite_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
         document = TestUtils.get_test_document_from_file(tool_file)
         expected_snippet = TestUtils.get_test_file_contents(expected_snippet_file)
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
 
-        actual_snippet = generator.generate_snippet()
+        actual_snippet = generator._build_snippet()
 
         assert actual_snippet == expected_snippet

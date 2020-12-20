@@ -14,7 +14,7 @@ class AutoCloseTagResult:
         self.range = replace_range
 
 
-class GeneratedTestResult:
+class GeneratedSnippetResult:
     """Contains the auto-generated code snippet and the position in the text document
     where it should be inserted.
     """

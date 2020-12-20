@@ -1,6 +1,8 @@
 from typing import List, Optional
 
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
+from galaxyls.services.tools.generators.snippets import SnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from pygls.types import (
     CompletionList,
@@ -15,7 +17,7 @@ from pygls.types import (
 from pygls.workspace import Document
 
 from ..config import CompletionMode
-from ..types import GeneratedTestResult
+from ..types import GeneratedSnippetResult
 from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
@@ -72,13 +74,16 @@ class GalaxyToolLanguageService:
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
-    def generate_tests(self, document: Document) -> Optional[GeneratedTestResult]:
+    def generate_tests(self, document: Document) -> Optional[GeneratedSnippetResult]:
         """Generates a code snippet with some tests for the current inputs and outputs
         of this tool wrapper."""
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
-        snippet = generator.generate_snippet()
-        if snippet:
-            insert_position = generator.find_snippet_insert_position(tool)
-            return GeneratedTestResult(snippet, insert_position)
-        return None
+        return generator.generate_snippet()
+
+    def generate_command(self, document: Document) -> Optional[GeneratedSnippetResult]:
+        """Generates a boilerplate Cheetah code snippet based on the current inputs and outputs
+        of this tool wrapper."""
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolCommandSnippetGenerator(tool)
+        return generator.generate_snippet()

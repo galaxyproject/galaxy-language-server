@@ -59,7 +59,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
     def __init__(self, tool_document: GalaxyToolXmlDocument) -> None:
         super().__init__(tool_document)
 
-    def generate_snippet(self, tabSize: int = 4) -> Optional[str]:
+    def _build_snippet(self, tabSize: int = 4) -> Optional[str]:
         """This function tries to generate a code snippet in TextMate format with all the tests cases extracted
         from the inputs and outputs of the tool.
 
@@ -80,7 +80,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
         return result_snippet
 
-    def find_snippet_insert_position(self, tool: GalaxyToolXmlDocument) -> Position:
+    def _find_snippet_insert_position(self) -> Position:
         """Returns the position inside the document where new test cases
         can be inserted.
 
@@ -91,6 +91,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         Returns:
             Position: The position where the test cases can be inserted in the document.
         """
+        tool = self.tool_document
         section = tool.find_element(TESTS)
         if section:
             content_range = tool.get_element_content_range(section)

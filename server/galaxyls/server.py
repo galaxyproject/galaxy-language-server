@@ -34,11 +34,11 @@ from pygls.types import (
 from pygls.workspace import Document
 
 from .config import CompletionMode, GalaxyToolsConfiguration
-from .features import AUTO_CLOSE_TAGS, CMD_GENERATE_TEST
+from .features import AUTO_CLOSE_TAGS, CMD_GENERATE_COMMAND, CMD_GENERATE_TEST
 from .services.language import GalaxyToolLanguageService
 from .services.xml.document import XmlDocument
 from .services.xml.parser import XmlDocumentParser
-from .types import AutoCloseTagResult, GeneratedTestResult
+from .types import AutoCloseTagResult, GeneratedSnippetResult
 
 SERVER_NAME = "Galaxy Tools LS"
 
@@ -150,10 +150,19 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 @language_server.feature(CMD_GENERATE_TEST)
 async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
-) -> Optional[GeneratedTestResult]:
+) -> Optional[GeneratedSnippetResult]:
     """Generates some test snippets based on the inputs and outputs of the document."""
     document = server.workspace.get_document(params.uri)
     return server.service.generate_tests(document)
+
+
+@language_server.feature(CMD_GENERATE_COMMAND)
+async def cmd_generate_command(
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
+) -> Optional[GeneratedSnippetResult]:
+    """Generates a boilerplate Cheetah code snippet based on the inputs and outputs of the document."""
+    document = server.workspace.get_document(params.uri)
+    return server.service.generate_command(document)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
