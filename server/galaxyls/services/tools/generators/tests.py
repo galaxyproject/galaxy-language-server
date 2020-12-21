@@ -8,7 +8,6 @@ from galaxyls.services.tools.constants import (
     CHECKED,
     COLLECTION,
     CONDITIONAL,
-    DASH,
     DATA,
     DELTA,
     ELEMENT,
@@ -34,7 +33,6 @@ from galaxyls.services.tools.constants import (
     TESTS,
     TEXT,
     TYPE,
-    UNDERSCORE,
     VALUE,
     N,
 )
@@ -56,25 +54,19 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
     already defined in the inputs and outputs of the tool XML wrapper.
     """
 
-    def __init__(self, tool_document: GalaxyToolXmlDocument) -> None:
-        super().__init__(tool_document)
+    def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
+        super().__init__(tool_document, tabSize)
 
-    def _build_snippet(self, tabSize: int = 4) -> Optional[str]:
+    def _build_snippet(self) -> Optional[str]:
         """This function tries to generate a code snippet in TextMate format with all the tests cases extracted
         from the inputs and outputs of the tool.
-
-        Args:
-            tabSize (int, optional): The number of spaces per tab. Defaults to 4.
 
         Returns:
             Optional[str]: The code snippet in TextMate format or None if the generation failed.
         """
-        spaces = " " * tabSize
         input_tree = self.tool_document.analyze_inputs()
         outputs = self.tool_document.get_outputs()
-        result_snippet = "\n".join(
-            (self._generate_test_case_snippet(input_node, outputs, spaces) for input_node in input_tree.leaves)
-        )
+        result_snippet = "\n".join((self._generate_test_case_snippet(input_node, outputs) for input_node in input_tree.leaves))
         create_section = not self.tool_document.has_section_content(TESTS)
         if create_section:
             return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
@@ -108,7 +100,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
                 return tool.get_position_after(section)
             return Position()
 
-    def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement], spaces: str = "  ") -> str:
+    def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:
         """Generates the code snippet for a single <test> element given an InputNode and the list of outputs
         from the tool document.
 
@@ -124,7 +116,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             test_element = self._create_test_element()
             self._add_inputs_to_test_element(input_node, test_element)
             self._add_outputs_to_test_element(outputs, test_element)
-            etree.indent(test_element, space=spaces)
+            etree.indent(test_element, space=self.indent_spaces)
             snippet = etree.tostring(test_element, pretty_print=True, encoding=str)
             return cast(str, snippet)
         except BaseException:
@@ -191,7 +183,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         argument_attr = input_param.get_attribute(ARGUMENT)
         name_attr = input_param.get_attribute(NAME)
         if not name_attr and argument_attr:
-            name_attr = argument_attr.lstrip(DASH).replace(DASH, UNDERSCORE)
+            name_attr = self._extract_name_from_argument(argument_attr)
         if name_attr:
             param.attrib[NAME] = name_attr
         default_value = input_param.get_attribute(VALUE)
@@ -344,44 +336,3 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         option_elements = param.get_children_with_name(OPTION)
         options = [o.get_attribute(VALUE) for o in option_elements]
         return list(filter(None, options))
-
-    def _get_next_tabstop(self) -> str:
-        """Increments the tabstop count and returns the current tabstop
-        in TextMate format.
-
-        Returns:
-            str: The current tabstop for the code snippet.
-        """
-        self.tabstop_count += 1
-        return f"${self.tabstop_count}"
-
-    def _get_next_tabstop_with_placeholder(self, placeholder: str) -> str:
-        """Returns the current tabstop with a placeholder text.
-
-        Args:
-            placeholder (str): The placeholder text that will appear on this tabstop.
-
-        Returns:
-            str: The current tabstop with the placeholder text.
-        """
-        self.tabstop_count += 1
-        return f"${{{self.tabstop_count}:{placeholder}}}"
-
-    def _get_next_tabstop_with_options(self, options: List[str], default_option: Optional[str] = None) -> str:
-        """Gets the current tabstop with a list of possible options.
-
-        If the list is empty, a normal tabstop is returned.
-
-        Args:
-            options (List[str]): The list of options that can be selected in this tabstop.
-
-        Returns:
-            str: The current tabstop with all the available options.
-        """
-        if options:
-            if default_option:
-                options.remove(default_option)
-                options.insert(0, default_option)
-            self.tabstop_count += 1
-            return f"${{{self.tabstop_count}|{','.join(options)}|}}"
-        return self._get_next_tabstop()
