@@ -191,7 +191,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
     def _output_to_cheetah(self, output: XmlElement) -> Optional[str]:
         name = output.get_attribute(NAME)
         if name:
-            return f"\\${name}"
+            return f"'\\${name}'"
         return None
 
     def _get_argument_safe(self, argument: Optional[str]) -> str:
