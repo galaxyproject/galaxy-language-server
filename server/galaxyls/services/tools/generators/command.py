@@ -171,9 +171,8 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         repeat_name = repeat.element.get_attribute(NAME)
         if name_path:
             repeat_name = f"{name_path}.{repeat_name}"
-        index_placeholder = self._get_next_tabstop_with_placeholder(REPEAT_INDEX)
         var_placeholder = self._get_next_tabstop_with_placeholder(REPEAT_VAR)
-        result.append(f"{indentation}#for \\${index_placeholder}, \\${var_placeholder} in enumerate(\\${repeat_name}):")
+        result.append(f"{indentation}#for \\${REPEAT_INDEX}, \\${var_placeholder} in enumerate(\\${repeat_name}):")
         result.extend(self._node_to_cheetah(repeat, var_placeholder, indent_level + 1))
         result.append(f"{indentation}#end for")
         return result
