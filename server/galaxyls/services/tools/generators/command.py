@@ -21,7 +21,13 @@ from galaxyls.services.tools.constants import (
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.snippets import SnippetGenerator
-from galaxyls.services.tools.inputs import ConditionalInputNode, GalaxyToolInputTree, InputNode
+from galaxyls.services.tools.inputs import (
+    ConditionalInputNode,
+    GalaxyToolInputTree,
+    InputNode,
+    RepeatInputNode,
+    SectionInputNode,
+)
 from galaxyls.services.xml.nodes import XmlElement
 from pygls.types import Position
 
@@ -85,31 +91,71 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         for node in PreOrderIter(input_tree._root):
             node = cast(InputNode, node)
             if type(node) is ConditionalInputNode:
-                pass
+                indentation_level = node.depth - 1
+                result = self._conditional_to_cheetah(node, indentation_level)
+                snippets.extend(result)
             else:
-                for param in node.params:
-                    snippets.append(self._input_to_cheetah(param))
+                result = self._node_to_cheetah(node)
+
         snippets.append("\n## Outputs\n")
         return "\n".join(snippets)
 
-    def _input_to_cheetah(self, input: XmlElement) -> str:
+    def _param_to_cheetah(self, input: XmlElement, parent_name: Optional[str] = None, indent_level: int = 0) -> str:
+        indentation = self._get_indentation(indent_level)
         argument_attr = input.get_attribute(ARGUMENT)
         name_attr = input.get_attribute(NAME)
         if not name_attr and argument_attr:
             name_attr = argument_attr.lstrip(DASH).replace(DASH, UNDERSCORE)
         type_attr = input.get_attribute(TYPE)
+        if parent_name:
+            name_attr = f"{parent_name}.{name_attr}"
         if type_attr == BOOLEAN:
-            return f"\\${input.get_attribute(TRUEVALUE) or name_attr}"
+            return f"{indentation}\\${input.get_attribute(TRUEVALUE) or name_attr}"
         if type_attr in [INTEGER, FLOAT]:
             if input.get_attribute(OPTIONAL) == "true":
                 return (
-                    f"#if str(\\${name_attr}):\n"
-                    f"{self.indent_spaces}{self._get_argument_safe(argument_attr)} \\${name_attr}"
-                    f"#end if"
+                    f"{indentation}#if str(\\${name_attr}):\n"
+                    f"{indentation}{self.indent_spaces}{self._get_argument_safe(argument_attr)} \\${name_attr}"
+                    f"{indentation}#end if"
                 )
         if type_attr in [TEXT, DATA]:
-            return f"{self._get_argument_safe(argument_attr)} '\\${name_attr}'"
-        return f"{self._get_argument_safe(argument_attr)} \\${name_attr}"
+            return f"{indentation}{self._get_argument_safe(argument_attr)} '\\${name_attr}'"
+        return f"{indentation}{self._get_argument_safe(argument_attr)} \\${name_attr}"
+
+    def _node_to_cheetah(self, node: InputNode, parent_name: Optional[str] = None, indent_level: int = 0) -> List[str]:
+        result: List[str] = []
+        for param in node.params:
+            result.append(self._param_to_cheetah(param, parent_name, indent_level))
+        for repeat in node.repeats:
+            result.extend(self._repeat_to_cheetah(repeat, indent_level))
+        for section in node.sections:
+            result.extend(self._section_to_cheetah(section, indent_level))
+        return result
+
+    def _conditional_to_cheetah(self, conditional: ConditionalInputNode, indent_level: int = 0) -> List[str]:
+        indentation = self._get_indentation(indent_level)
+        result: List[str] = []
+        cond_name = conditional.name
+        param_name = conditional.option_param.get_attribute(NAME)
+        option = conditional.option
+        result.append(f'{indentation}#if str( \\${cond_name}.{param_name} ) == "{option}":')
+        result.extend(self._node_to_cheetah(conditional, cond_name, indent_level + 1))
+        return result
+
+    def _repeat_to_cheetah(self, repeat: RepeatInputNode, indent_level: int = 0) -> List[str]:
+        result: List[str] = []
+        repeat_name = repeat.element.get_attribute(NAME)
+        result.extend(self._node_to_cheetah(repeat, repeat_name, indent_level))
+        return result
+
+    def _section_to_cheetah(self, section: SectionInputNode, indent_level: int = 0) -> List[str]:
+        result: List[str] = []
+        section_name = section.element.get_attribute(NAME)
+        result.extend(self._node_to_cheetah(section, section_name, indent_level))
+        return result
 
     def _get_argument_safe(self, argument: Optional[str]) -> str:
         return argument or self._get_next_tabstop_with_placeholder(ARG_PLACEHOLDER)
+
+    def _get_indentation(self, level: int) -> str:
+        return self.indent_spaces * level
