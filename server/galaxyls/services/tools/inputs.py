@@ -49,19 +49,41 @@ class ConditionalInputNode(InputNode):
         super().__init__(name, element, parent)
         self.option_param: XmlElement = element.elements[0]
         self.option: str = option
+        self.options: List[str] = self._get_options()
 
     def __repr__(self) -> str:
         return f"{self.name} - {self.option}"
 
     @property
     def is_first_option(self) -> bool:
-        options = self.option_param.get_children_with_name(OPTION)
-        return self.option == options[0].get_attribute(VALUE)
+        if self.options:
+            return self.option == self.options[0]
+        return True
 
     @property
     def is_last_option(self) -> bool:
-        options = self.option_param.get_children_with_name(OPTION)
-        return self.option == options[-1].get_attribute(VALUE)
+        if self.options:
+            return self.option == self.options[-1]
+        return True
+
+    def _get_options(self) -> List[str]:
+        try:
+            type_attr = self.option_param.get_attribute(TYPE)
+            if type_attr == SELECT:
+                options = self.option_param.get_children_with_name(OPTION)
+                return list(filter(None, [option.get_attribute(VALUE) for option in options]))
+            elif type_attr == BOOLEAN:
+                options = []
+                true_value = self.option_param.get_attribute(TRUEVALUE)
+                if true_value:
+                    options.append(true_value)
+                false_value = self.option_param.get_attribute(FALSEVALUE)
+                if false_value:
+                    options.append(false_value)
+                return options
+            return []
+        except BaseException:
+            return []
 
 
 class RepeatInputNode(InputNode):

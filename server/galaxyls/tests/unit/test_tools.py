@@ -1,11 +1,10 @@
 import pytest
-from pygls.types import Position, Range
-
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
-
-from .sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
-from .utils import TestUtils
+from galaxyls.tests.unit.sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
+from galaxyls.tests.unit.utils import TestUtils
+from pygls.types import Position, Range
 
 
 class TestGalaxyToolXmlDocumentClass:
@@ -102,6 +101,8 @@ class TestGalaxyToolXmlDocumentClass:
 
         assert len(result.leaves) == 3
 
+
+class TestGalaxyToolTestSnippetGeneratorClass:
     @pytest.mark.parametrize(
         "tool_file, expected_snippet_file",
         [
@@ -120,6 +121,31 @@ class TestGalaxyToolXmlDocumentClass:
         expected_snippet = TestUtils.get_test_file_contents(expected_snippet_file)
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
+
+        actual_snippet = generator._build_snippet()
+
+        assert actual_snippet == expected_snippet
+
+
+class TestGalaxyToolCommandSnippetGeneratorClass:
+    @pytest.mark.parametrize(
+        "tool_file, expected_snippet_file",
+        [
+            ("simple_conditional_01.xml", "simple_conditional_01_command.xml"),
+            ("simple_conditional_02.xml", "simple_conditional_02_command.xml"),
+            ("simple_params_01.xml", "simple_params_01_command.xml"),
+            ("simple_repeat_01.xml", "simple_repeat_01_command.xml"),
+            ("simple_section_01.xml", "simple_section_01_command.xml"),
+            ("simple_output_01.xml", "simple_output_01_command.xml"),
+            ("simple_output_02.xml", "simple_output_02_command.xml"),
+            ("complex_inputs_01.xml", "complex_inputs_01_command.xml"),
+        ],
+    )
+    def test_build_command_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
+        document = TestUtils.get_test_document_from_file(tool_file)
+        expected_snippet = TestUtils.get_test_file_contents(expected_snippet_file)
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolCommandSnippetGenerator(tool)
 
         actual_snippet = generator._build_snippet()
 

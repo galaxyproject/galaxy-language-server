@@ -1,0 +1,38 @@
+<command><![CDATA[
+
+## Auto-generated command section
+## TODO: please review and edit this section as needed
+
+## Inputs
+
+#if str( \$c1.c1_action ) == "a1":
+    ${1:TODO_argument} '\$c1.c1_a1_p1'
+    ${2:TODO_argument} \$c1.sec1.number
+#elif str( \$c1.c1_action ) == "a2":
+    ${3:TODO_argument} '\$c1.c1_a2_p1'
+    #if str( \$c1.c2.c2_action ) == "c2a1":
+        ${4:TODO_argument} '\$c1.c2.c2_a1_p1'
+        ${5:TODO_argument} \$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p01
+        ${6:TODO_argument} \$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p02
+        \$--sub_p03
+        ${7:TODO_argument} '\$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p04'
+    #elif str( \$c1.c2.c2_action ) == "c2a2":
+        ${8:TODO_argument} '\$c1.c2.c2_a2_p1'
+        #for \$${9:i}, \$${10:var} in enumerate(\$c1.c2.rep):
+            ${11:TODO_argument} '\$${10:var}.rep_p1'
+            #for \$${12:i}, \$${13:var} in enumerate(\$${10:var}.sub_rep):
+                ${14:TODO_argument} '\$${13:var}.sub_rep_p1'
+            #end for
+        #end for
+    #end if
+#elif str( \$c1.c1_action ) == "a3":
+#end if
+
+## Outputs
+
+'\$sample'
+'\$out_collection'
+'\$out_paired'
+
+]]>
+</command>

@@ -1,0 +1,18 @@
+<command><![CDATA[
+
+## Auto-generated command section
+## TODO: please review and edit this section as needed
+
+## Inputs
+
+#if str( \$bool_conditional.option ) == "yes":
+    ${1:TODO_argument} '\$bool_conditional.param_yes'
+#elif str( \$bool_conditional.option ) == "no":
+    ${2:TODO_argument} '\$bool_conditional.param_no'
+#end if
+
+## Outputs
+
+
+]]>
+</command>
