@@ -93,8 +93,9 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         for node in PreOrderIter(input_tree._root):
             node = cast(InputNode, node)
             if type(node) is ConditionalInputNode:
-                indentation_level = node.depth - 1
-                result = self._conditional_to_cheetah(node, indentation_level)
+                indent_level = node.depth - 1
+                name_path = self._get_ancestor_name_path(node)
+                result = self._conditional_to_cheetah(node, name_path, indent_level)
                 snippets.extend(result)
             else:
                 result = self._node_to_cheetah(node)
@@ -107,15 +108,21 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 snippets.append(variable)
         return "\n".join(snippets)
 
-    def _param_to_cheetah(self, input: XmlElement, parent_name: Optional[str] = None, indent_level: int = 0) -> str:
+    def _get_ancestor_name_path(self, node: InputNode) -> Optional[str]:
+        if node.depth > 1:
+            ancestor_names = [node.name for node in node.ancestors[1:]]  # Skip the 'inputs' root node
+            result = ".".join(ancestor_names)
+            return result
+
+    def _param_to_cheetah(self, input: XmlElement, name_path: Optional[str] = None, indent_level: int = 0) -> str:
         indentation = self._get_indentation(indent_level)
         argument_attr = input.get_attribute(ARGUMENT)
         name_attr = input.get_attribute(NAME)
         if not name_attr and argument_attr:
             name_attr = argument_attr.lstrip(DASH).replace(DASH, UNDERSCORE)
         type_attr = input.get_attribute(TYPE)
-        if parent_name:
-            name_attr = f"{parent_name}.{name_attr}"
+        if name_path:
+            name_attr = f"{name_path}.{name_attr}"
         if type_attr == BOOLEAN:
             return f"{indentation}\\${input.get_attribute(TRUEVALUE) or name_attr}"
         if type_attr in [INTEGER, FLOAT]:
@@ -129,20 +136,24 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             return f"{indentation}{self._get_argument_safe(argument_attr)} '\\${name_attr}'"
         return f"{indentation}{self._get_argument_safe(argument_attr)} \\${name_attr}"
 
-    def _node_to_cheetah(self, node: InputNode, parent_name: Optional[str] = None, indent_level: int = 0) -> List[str]:
+    def _node_to_cheetah(self, node: InputNode, name_path: Optional[str] = None, indent_level: int = 0) -> List[str]:
         result: List[str] = []
         for param in node.params:
-            result.append(self._param_to_cheetah(param, parent_name, indent_level))
+            result.append(self._param_to_cheetah(param, name_path, indent_level))
         for repeat in node.repeats:
-            result.extend(self._repeat_to_cheetah(repeat, indent_level))
+            result.extend(self._repeat_to_cheetah(repeat, name_path, indent_level=indent_level))
         for section in node.sections:
-            result.extend(self._section_to_cheetah(section, indent_level))
+            result.extend(self._section_to_cheetah(section, name_path, indent_level=indent_level))
         return result
 
-    def _conditional_to_cheetah(self, conditional: ConditionalInputNode, indent_level: int = 0) -> List[str]:
+    def _conditional_to_cheetah(
+        self, conditional: ConditionalInputNode, name_path: Optional[str] = None, indent_level: int = 0
+    ) -> List[str]:
         indentation = self._get_indentation(indent_level)
         result: List[str] = []
         cond_name = conditional.name
+        if name_path:
+            cond_name = f"{name_path}.{cond_name}"
         param_name = conditional.option_param.get_attribute(NAME)
         option = conditional.option
         directive = "#elif"
@@ -154,18 +165,26 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             result.append(f"{indentation}#end if")
         return result
 
-    def _repeat_to_cheetah(self, repeat: RepeatInputNode, indent_level: int = 0) -> List[str]:
+    def _repeat_to_cheetah(self, repeat: RepeatInputNode, name_path: Optional[str] = None, indent_level: int = 0) -> List[str]:
         indentation = self._get_indentation(indent_level)
         result: List[str] = []
         repeat_name = repeat.element.get_attribute(NAME)
-        result.append(f"{indentation}#for \\${REPEAT_INDEX}, \\${REPEAT_VAR} in enumerate(\\${repeat_name}):")
-        result.extend(self._node_to_cheetah(repeat, REPEAT_VAR, indent_level + 1))
+        if name_path:
+            repeat_name = f"{name_path}.{repeat_name}"
+        index_placeholder = self._get_next_tabstop_with_placeholder(REPEAT_INDEX)
+        var_placeholder = self._get_next_tabstop_with_placeholder(REPEAT_VAR)
+        result.append(f"{indentation}#for \\${index_placeholder}, \\${var_placeholder} in enumerate(\\${repeat_name}):")
+        result.extend(self._node_to_cheetah(repeat, var_placeholder, indent_level + 1))
         result.append(f"{indentation}#end for")
         return result
 
-    def _section_to_cheetah(self, section: SectionInputNode, indent_level: int = 0) -> List[str]:
+    def _section_to_cheetah(
+        self, section: SectionInputNode, name_path: Optional[str] = None, indent_level: int = 0
+    ) -> List[str]:
         result: List[str] = []
         section_name = section.element.get_attribute(NAME)
+        if name_path:
+            section_name = f"{name_path}.{section_name}"
         result.extend(self._node_to_cheetah(section, section_name, indent_level))
         return result
 
