@@ -32,6 +32,8 @@ from galaxyls.services.xml.nodes import XmlElement
 from pygls.types import Position
 
 ARG_PLACEHOLDER = "TODO_argument"
+REPEAT_VAR = "var"
+REPEAT_INDEX = "i"
 
 
 class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
@@ -153,9 +155,12 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         return result
 
     def _repeat_to_cheetah(self, repeat: RepeatInputNode, indent_level: int = 0) -> List[str]:
+        indentation = self._get_indentation(indent_level)
         result: List[str] = []
         repeat_name = repeat.element.get_attribute(NAME)
-        result.extend(self._node_to_cheetah(repeat, repeat_name, indent_level))
+        result.append(f"{indentation}#for \\${REPEAT_INDEX}, \\${REPEAT_VAR} in enumerate(\\${repeat_name}):")
+        result.extend(self._node_to_cheetah(repeat, REPEAT_VAR, indent_level + 1))
+        result.append(f"{indentation}#end for")
         return result
 
     def _section_to_cheetah(self, section: SectionInputNode, indent_level: int = 0) -> List[str]:
