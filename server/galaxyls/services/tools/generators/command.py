@@ -138,8 +138,13 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         cond_name = conditional.name
         param_name = conditional.option_param.get_attribute(NAME)
         option = conditional.option
-        result.append(f'{indentation}#if str( \\${cond_name}.{param_name} ) == "{option}":')
+        directive = "#elif"
+        if conditional.is_first_option:
+            directive = "#if"
+        result.append(f'{indentation}{directive} str( \\${cond_name}.{param_name} ) == "{option}":')
         result.extend(self._node_to_cheetah(conditional, cond_name, indent_level + 1))
+        if conditional.is_last_option:
+            result.append(f"{indentation}#end if")
         return result
 
     def _repeat_to_cheetah(self, repeat: RepeatInputNode, indent_level: int = 0) -> List[str]:

@@ -50,6 +50,19 @@ class ConditionalInputNode(InputNode):
         self.option_param: XmlElement = element.elements[0]
         self.option: str = option
 
+    def __repr__(self) -> str:
+        return f"{self.name} - {self.option}"
+
+    @property
+    def is_first_option(self) -> bool:
+        options = self.option_param.get_children_with_name(OPTION)
+        return self.option == options[0].get_attribute(VALUE)
+
+    @property
+    def is_last_option(self) -> bool:
+        options = self.option_param.get_children_with_name(OPTION)
+        return self.option == options[-1].get_attribute(VALUE)
+
 
 class RepeatInputNode(InputNode):
     """Represents an input node that will be repeated 'min' times."""
