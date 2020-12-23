@@ -98,6 +98,10 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 result = self._node_to_cheetah(node)
 
         snippets.append("\n## Outputs\n")
+        for output in outputs:
+            variable = self._output_to_cheetah(output)
+            if variable:
+                snippets.append(variable)
         return "\n".join(snippets)
 
     def _param_to_cheetah(self, input: XmlElement, parent_name: Optional[str] = None, indent_level: int = 0) -> str:
