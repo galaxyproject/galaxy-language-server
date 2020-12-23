@@ -5,11 +5,11 @@
 
 ## Inputs
 
-#for \$i, \$${1:var} in enumerate(\$rep1):
-    ${2:TODO_argument} '\$${1:var}.rep1_p1'
+#for \$i, \$${1:item} in enumerate(\$rep1):
+    ${2:TODO_argument} '\$${1:item}.rep1_p1'
 #end for
-#for \$i, \$${3:var} in enumerate(\$rep2):
-    ${4:TODO_argument} '\$${3:var}.rep2_p1'
+#for \$i, \$${3:item} in enumerate(\$rep2):
+    ${4:TODO_argument} '\$${3:item}.rep2_p1'
 #end for
 
 ## Outputs

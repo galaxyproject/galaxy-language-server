@@ -15,7 +15,6 @@ from galaxyls.services.tools.constants import (
     NAME,
     OPTIONAL,
     TEXT,
-    TRUEVALUE,
     TYPE,
     UNDERSCORE,
 )
@@ -32,7 +31,7 @@ from galaxyls.services.xml.nodes import XmlElement
 from pygls.types import Position
 
 ARG_PLACEHOLDER = "TODO_argument"
-REPEAT_VAR = "var"
+REPEAT_VAR = "item"
 REPEAT_INDEX = "i"
 
 

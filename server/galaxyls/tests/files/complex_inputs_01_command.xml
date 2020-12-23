@@ -18,10 +18,10 @@
         ${7:TODO_argument} '\$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p04'
     #elif str( \$c1.c2.c2_action ) == "c2a2":
         ${8:TODO_argument} '\$c1.c2.c2_a2_p1'
-        #for \$i, \$${9:var} in enumerate(\$c1.c2.rep):
-            ${10:TODO_argument} '\$${9:var}.rep_p1'
-            #for \$i, \$${11:var} in enumerate(\$${9:var}.sub_rep):
-                ${12:TODO_argument} '\$${11:var}.sub_rep_p1'
+        #for \$i, \$${9:item} in enumerate(\$c1.c2.rep):
+            ${10:TODO_argument} '\$${9:item}.rep_p1'
+            #for \$i, \$${11:item} in enumerate(\$${9:item}.sub_rep):
+                ${12:TODO_argument} '\$${11:item}.sub_rep_p1'
             #end for
         #end for
     #end if
