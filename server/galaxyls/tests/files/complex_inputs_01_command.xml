@@ -14,7 +14,7 @@
         ${4:TODO_argument} '\$c1.c2.c2_a1_p1'
         ${5:TODO_argument} \$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p01
         ${6:TODO_argument} \$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p02
-        \$--sub_p03
+        \$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p03
         ${7:TODO_argument} '\$c1.c2.sec_c2a1.sub_sec_c2a1.sub_p04'
     #elif str( \$c1.c2.c2_action ) == "c2a2":
         ${8:TODO_argument} '\$c1.c2.c2_a2_p1'

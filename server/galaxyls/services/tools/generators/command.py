@@ -124,7 +124,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         if name_path:
             name_attr = f"{name_path}.{name_attr}"
         if type_attr == BOOLEAN:
-            return f"{indentation}\\${input.get_attribute(TRUEVALUE) or name_attr}"
+            return f"{indentation}\\${name_attr}"
         if type_attr in [INTEGER, FLOAT]:
             if input.get_attribute(OPTIONAL) == "true":
                 return (
