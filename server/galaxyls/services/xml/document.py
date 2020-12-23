@@ -125,7 +125,7 @@ class XmlDocument(XmlSyntaxNode):
         try:
             xml = etree.parse(str(document.path))
             root = xml.getroot()
-            if root and root.tag:
+            if root is not None and root.tag:
                 root_tag = root.tag.upper()
                 supported = [e.name for e in DocumentType if e != DocumentType.UNKNOWN]
                 return root_tag in supported
