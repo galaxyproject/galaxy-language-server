@@ -86,7 +86,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         snippets = [
             "## Auto-generated command section",
             "## TODO: please review and edit this section as needed",
-            "\n## Inputs",
+            "\n## Inputs\n",
         ]
         for node in PreOrderIter(input_tree._root):
             node = cast(InputNode, node)
@@ -96,6 +96,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 snippets.extend(result)
             else:
                 result = self._node_to_cheetah(node)
+                snippets.extend(result)
 
         snippets.append("\n## Outputs\n")
         for output in outputs:
@@ -162,6 +163,12 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         section_name = section.element.get_attribute(NAME)
         result.extend(self._node_to_cheetah(section, section_name, indent_level))
         return result
+
+    def _output_to_cheetah(self, output: XmlElement) -> Optional[str]:
+        name = output.get_attribute(NAME)
+        if name:
+            return f"\\${name}"
+        return None
 
     def _get_argument_safe(self, argument: Optional[str]) -> str:
         return argument or self._get_next_tabstop_with_placeholder(ARG_PLACEHOLDER)
