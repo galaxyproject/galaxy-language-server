@@ -1,4 +1,4 @@
-from typing import List, Optional, cast
+from typing import List, Optional, Union, cast
 
 from galaxyls.services.tools.constants import (
     ARGUMENT,
@@ -32,6 +32,7 @@ from galaxyls.services.tools.constants import (
     TEST,
     TESTS,
     TEXT,
+    TOOL,
     TYPE,
     VALUE,
     N,
@@ -41,7 +42,7 @@ from galaxyls.services.tools.generators.snippets import SnippetGenerator
 from galaxyls.services.tools.inputs import ConditionalInputNode, InputNode, RepeatInputNode, SectionInputNode
 from galaxyls.services.xml.nodes import XmlElement
 from lxml import etree
-from pygls.types import Position
+from pygls.types import Position, Range
 
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
@@ -67,12 +68,12 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         input_tree = self.tool_document.analyze_inputs()
         outputs = self.tool_document.get_outputs()
         result_snippet = "\n".join((self._generate_test_case_snippet(input_node, outputs) for input_node in input_tree.leaves))
-        create_section = not self.tool_document.has_section_content(TESTS)
-        if create_section:
-            return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
-        return result_snippet
+        tests_section = self.tool_document.find_element(TESTS)
+        if tests_section and not tests_section.is_self_closed:
+            return result_snippet
+        return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
 
-    def _find_snippet_insert_position(self) -> Position:
+    def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """Returns the position inside the document where new test cases
         can be inserted.
 
@@ -90,7 +91,9 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             if content_range:
                 return content_range.end
             else:  # is self closed <tests/>
-                return tool.get_position_before(section)
+                start = tool.get_position_before(section)
+                end = tool.get_position_after(section)
+                return Range(start, end)
         else:
             section = tool.find_element(OUTPUTS)
             if section:
@@ -98,6 +101,9 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             section = tool.find_element(INPUTS)
             if section:
                 return tool.get_position_after(section)
+            section = tool.find_element(TOOL)
+            if section:
+                return tool.get_element_content_range(section).end
             return Position()
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:

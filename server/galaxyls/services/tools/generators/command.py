@@ -1,4 +1,4 @@
-from typing import List, Optional, cast
+from typing import List, Optional, Union, cast
 
 from anytree import PreOrderIter
 from galaxyls.services.tools.constants import (
@@ -15,6 +15,7 @@ from galaxyls.services.tools.constants import (
     NAME,
     OPTIONAL,
     TEXT,
+    TOOL,
     TYPE,
     UNDERSCORE,
 )
@@ -28,7 +29,7 @@ from galaxyls.services.tools.inputs import (
     SectionInputNode,
 )
 from galaxyls.services.xml.nodes import XmlElement
-from pygls.types import Position
+from pygls.types import Position, Range
 
 ARG_PLACEHOLDER = "TODO_argument"
 REPEAT_VAR = "item"
@@ -53,12 +54,12 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         input_tree = self.tool_document.analyze_inputs()
         outputs = self.tool_document.get_outputs()
         result_snippet = self._generate_command_snippet(input_tree, outputs)
-        create_section = not self.tool_document.has_section_content(COMMAND)
-        if create_section:
-            return f"<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n"
-        return result_snippet
+        command_section = self.tool_document.find_element(COMMAND)
+        if command_section and not command_section.is_self_closed:
+            return result_snippet
+        return f"\n<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n"
 
-    def _find_snippet_insert_position(self) -> Position:
+    def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """Returns the position inside the document where command section
         can be inserted.
 
@@ -76,7 +77,9 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             if content_range:
                 return content_range.end
             else:  # is self closed <tests/>
-                return tool.get_position_before(section)
+                start = tool.get_position_before(section)
+                end = tool.get_position_after(section)
+                return Range(start, end)
         else:
             section = tool.find_element(ENV_VARIABLES)
             if section:
@@ -87,6 +90,9 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             section = tool.find_element(INPUTS)
             if section:
                 return tool.get_position_before(section)
+            section = tool.find_element(TOOL)
+            if section:
+                return tool.get_element_content_range(section).end
             return Position()
 
     def _generate_command_snippet(self, input_tree: GalaxyToolInputTree, outputs: List[XmlElement]) -> str:

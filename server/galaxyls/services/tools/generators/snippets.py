@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, cast
+from typing import List, Optional, Union, cast
 
 from galaxy.util import xml_macros
 from galaxyls.services.tools.constants import DASH, UNDERSCORE
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.types import GeneratedSnippetResult
 from lxml import etree
-from pygls.types import Position
+from pygls.types import Position, Range
 from pygls.workspace import Document
 
 
@@ -25,6 +25,10 @@ class SnippetGenerator(ABC):
         snippet = self._build_snippet()
         if snippet:
             insert_position = self._find_snippet_insert_position()
+            if type(insert_position) == Range:
+                insert_position = cast(Range, insert_position)
+                return GeneratedSnippetResult(snippet, insert_position.start, insert_position)
+            insert_position = cast(Position, insert_position)
             return GeneratedSnippetResult(snippet, insert_position)
         return None
 
@@ -35,7 +39,7 @@ class SnippetGenerator(ABC):
         pass
 
     @abstractmethod
-    def _find_snippet_insert_position(self) -> Position:
+    def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """This abstract function should find the proper position inside the document where the
         snippet will be inserted."""
         pass

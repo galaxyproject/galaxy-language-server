@@ -1,5 +1,6 @@
 """Constants definitions related to tool wrappers."""
 
+TOOL = "tool"
 INPUTS = "inputs"
 PARAM = "param"
 CONDITIONAL = "conditional"

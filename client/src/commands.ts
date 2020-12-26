@@ -1,6 +1,6 @@
 'use strict';
 
-import { window, Position, SnippetString } from "vscode";
+import { window, Position, SnippetString, Range } from "vscode";
 import { RequestType, TextDocumentIdentifier, LanguageClient } from "vscode-languageclient";
 
 export namespace Commands {
@@ -22,6 +22,7 @@ export namespace GeneratedCommandRequest {
 export interface GeneratedSnippetResult {
     snippet: string,
     position: Position
+    replace_range: Range | null
 }
 
 export async function requestInsertSnippet(client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any>) {
@@ -40,9 +41,30 @@ export async function requestInsertSnippet(client: LanguageClient, request: Requ
 
     try {
         const snippet = new SnippetString(result.snippet);
-        const position = new Position(result.position.line, result.position.character)
-        activeEditor.insertSnippet(snippet, position);
+        if (result.replace_range) {
+            const range = cloneRange(result.replace_range)
+            activeEditor.insertSnippet(snippet, range);
+        }
+        else {
+            const position = new Position(result.position.line, result.position.character)
+            activeEditor.insertSnippet(snippet, position);
+        }
+
     } catch (err) {
         window.showErrorMessage(err);
     }
+}
+
+/**
+ * Returns a new instance of the given immutable Range.
+ * @param range The original Range
+ */
+export function cloneRange(range: Range): Range {
+    let line = range.start.line;
+    let character = range.start.character;
+    let startPosition = new Position(line, character);
+    line = range.end.line;
+    character = range.end.character;
+    let endPosition = new Position(line, character);
+    return new Range(startPosition, endPosition);
 }
