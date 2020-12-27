@@ -185,11 +185,6 @@ class XmlAttributeKey(XmlSyntaxNode):
         Returns:
             Tuple[int, int]: The start and end offsets of this tag.
         """
-        if self.name:
-            end = self.start + len(self.name)
-            if self.owner.has_delimiter:
-                end = end - 1
-            return self.start - 1, end
         return self.start, self.end
 
 
@@ -251,6 +246,15 @@ class XmlElement(XmlSyntaxNode):
         """The child elements of this element."""
         return [element for element in self.children if type(element) is XmlElement]
 
+    @property
+    def end_offset(self) -> int:
+        """The offset position at the end of this element"""
+        if self.end_tag_close_offset != UNDEFINED_OFFSET:
+            return self.end_tag_close_offset + 1  # +1 for '>'
+        if self.start_tag_close_offset != UNDEFINED_OFFSET:
+            return self.start_tag_close_offset + 1  # +1 for '>'
+        return UNDEFINED_OFFSET
+
     def is_same_tag(self, tag: str) -> bool:
         """Indicates if this element has the same tag name as the one provided."""
         return self.name == tag
@@ -302,19 +306,19 @@ class XmlElement(XmlSyntaxNode):
             opening and ending tokens ('<', '>' '</').
         """
         if self.name:
-            start = self.start
-            end = self.start + len(self.name)
+            start = self.start + 1  # +1 for '<'
+            end = start + len(self.name)
             if self.is_at_closing_tag(offset):
                 start = self.end_tag_open_offset + 2  # +1 for '</'
-                end = self.end_tag_close_offset - 1  # -1 for '>'
+                end = self.end_tag_close_offset
             return start, end
         return self.start, self.end
 
     def get_content_offsets(self) -> Tuple[int, int]:
-        start = self.start_tag_close_offset
+        start = self.start_tag_close_offset + 1  # +1 for '>'
         end = self.end_tag_open_offset
         if self.is_self_closed:
-            end = start
+            start = end = -1
         return start, end
 
     def get_children_with_name(self, name: str) -> List["XmlElement"]:

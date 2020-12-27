@@ -1,0 +1,15 @@
+<command><![CDATA[
+
+## Auto-generated command section
+## TODO: please review and edit this section as needed
+
+## Inputs
+
+${1:TODO_argument} \$int.inttest
+${2:TODO_argument} \$float.floattest
+
+## Outputs
+
+
+]]>
+</command>

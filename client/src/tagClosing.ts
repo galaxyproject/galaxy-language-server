@@ -8,7 +8,7 @@
 
 import { window, workspace, Disposable, TextDocumentContentChangeEvent, TextDocument, Position, SnippetString, Range } from 'vscode';
 import { RequestType, TextDocumentPositionParams } from "vscode-languageclient";
-import { Commands } from './commands'
+import { cloneRange, Commands } from './commands'
 
 export namespace TagCloseRequest {
     export const type: RequestType<TextDocumentPositionParams, AutoCloseTagResult, any, any> = new RequestType(Commands.AUTO_CLOSE_TAGS);
@@ -51,14 +51,7 @@ export function activateTagClosing(tagProvider: (document: TextDocument, positio
                 let replaceLocation: Position | Range;
                 let range: Range = result.range;
                 if (range != null) {
-                    // re-create Range
-                    let line = range.start.line;
-                    let character = range.start.character;
-                    let startPosition = new Position(line, character);
-                    line = range.end.line;
-                    character = range.end.character;
-                    let endPosition = new Position(line, character);
-                    replaceLocation = new Range(startPosition, endPosition);
+                    replaceLocation = cloneRange(range);
                 }
                 else {
                     replaceLocation = position;
@@ -80,3 +73,5 @@ export function activateTagClosing(tagProvider: (document: TextDocument, positio
     }
     return Disposable.from(...disposables);
 }
+
+

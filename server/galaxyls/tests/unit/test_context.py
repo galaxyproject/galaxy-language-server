@@ -1,7 +1,7 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import pytest
-from pygls.workspace import Position
+from pygls.workspace import Position, Range
 from pytest_mock import MockerFixture
 
 from ...services.context import XmlContext, XmlContextService, XsdNode, XsdTree
@@ -141,3 +141,55 @@ class TestXmlContextServiceClass:
         assert context.token.node_type == expected_node_type
         assert context.xsd_element.name == expected_xsd_node_name
         assert context.stack == expected_stack
+
+    @pytest.mark.parametrize(
+        "source_with_mark, expected_token_name, expected_offsets",
+        [
+            ("<ro^ot></root>", "root", Range(Position(0, 1), Position(0, 5))),
+            ("<root></ro^ot>", "root", Range(Position(0, 8), Position(0, 12))),
+            ("<root>\n</ro^ot>", "root", Range(Position(1, 2), Position(1, 6))),
+        ],
+    )
+    def test_get_range_for_context_element_returns_expected_offsets(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        expected_token_name: Optional[str],
+        expected_offsets: Tuple[int, int],
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+        context = service.get_xml_context(xml_document, position)
+
+        actual_offsets = service.get_range_for_context(xml_document, context)
+
+        assert context.token.name == expected_token_name
+        assert actual_offsets == expected_offsets
+
+    @pytest.mark.parametrize(
+        "source_with_mark, expected_token_name, expected_offsets",
+        [
+            ('<root at^tr="val"></root>', "attr", Range(Position(0, 6), Position(0, 10))),
+            ("<root at^tr", "attr", Range(Position(0, 6), Position(0, 10))),
+            ("<root at^tr=", "attr", Range(Position(0, 6), Position(0, 10))),
+            ('<root>\n<child a^ttr="val" />\n</root>', "attr", Range(Position(1, 7), Position(1, 11))),
+            ('<root>\n<child long^_attr="val" />\n</root>', "long_attr", Range(Position(1, 7), Position(1, 16))),
+        ],
+    )
+    def test_get_range_for_context_attribute_returns_expected_offsets(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        expected_token_name: Optional[str],
+        expected_offsets: Tuple[int, int],
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+        context = service.get_xml_context(xml_document, position)
+
+        actual_offsets = service.get_range_for_context(xml_document, context)
+
+        assert context.token.name == expected_token_name
+        assert actual_offsets == expected_offsets

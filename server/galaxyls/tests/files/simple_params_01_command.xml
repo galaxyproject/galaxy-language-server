@@ -1,0 +1,19 @@
+<command><![CDATA[
+
+## Auto-generated command section
+## TODO: please review and edit this section as needed
+
+## Inputs
+
+--arg-01 \$arg_01
+-arg-02 \$arg_02
+${1:TODO_argument} '\$param_01'
+\$param_02
+${2:TODO_argument} '\$param_03'
+${3:TODO_argument} \$param_04
+
+## Outputs
+
+
+]]>
+</command>

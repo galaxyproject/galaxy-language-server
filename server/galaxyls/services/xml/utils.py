@@ -22,8 +22,11 @@ def convert_document_offset_to_position(document: Document, offset: int) -> Posi
     Returns:
         Position: The resulting Position with line and character offset.
     """
-    line = max(document.source.count(NEW_LINE, 0, offset + 1), 0)
-    character = offset - document.source.rfind(NEW_LINE, 0, offset + 1)
+    line = max(document.source.count(NEW_LINE, 0, offset), 0)
+    line_offset = max(document.source.rfind(NEW_LINE, 0, offset), 0)
+    character = offset - line_offset
+    if line > 0:
+        character -= 1
     return Position(line, character)
 
 

@@ -1,9 +1,10 @@
 import pytest
+from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
+from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
+from galaxyls.tests.unit.sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
+from galaxyls.tests.unit.utils import TestUtils
 from pygls.types import Position, Range
-
-from ...services.tools import GalaxyToolTestSnippetGenerator, GalaxyToolXmlDocument
-from .sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
-from .utils import TestUtils
 
 
 class TestGalaxyToolXmlDocumentClass:
@@ -101,6 +102,52 @@ class TestGalaxyToolXmlDocumentClass:
         assert len(result.leaves) == 3
 
     @pytest.mark.parametrize(
+        "source, element_name, expected_position",
+        [
+            ("<tool></tool>", "tool", Position(0, 0)),
+            ("<tool><description/><inputs></tool>", "description", Position(0, 6)),
+            ("<tool><description/><inputs></tool>", "inputs", Position(0, 20)),
+            ("<tool><macros><import></macros></tool>", "import", Position(0, 14)),
+            ("<tool>\n<macros>\n<import></macros></tool>", "import", Position(2, 0)),
+        ],
+    )
+    def test_get_position_before_element_returns_expected_position(
+        self, source: str, element_name: str, expected_position: Position
+    ) -> None:
+        document = TestUtils.to_document(source)
+        tool = GalaxyToolXmlDocument(document)
+        element = tool.find_element(element_name, maxlevel=4)
+
+        assert element is not None
+        actual_position = tool.get_position_before(element)
+        assert actual_position == expected_position
+
+    @pytest.mark.parametrize(
+        "source, element_name, expected_position",
+        [
+            ("<tool></tool>", "tool", Position(0, 13)),
+            ("<tool><description/><inputs></tool>", "description", Position(0, 20)),
+            ("<tool><description/>\n<inputs></tool>", "description", Position(0, 20)),
+            ("<tool>\n<description/>\n<inputs></tool>", "description", Position(1, 14)),
+            ("<tool><description/><inputs></tool>", "inputs", Position(0, 28)),
+            ("<tool><macros><import></macros></tool>", "import", Position(0, 22)),
+            ("<tool>\n<macros>\n<import></macros></tool>", "import", Position(2, 8)),
+        ],
+    )
+    def test_get_position_after_element_returns_expected_position(
+        self, source: str, element_name: str, expected_position: Position
+    ) -> None:
+        document = TestUtils.to_document(source)
+        tool = GalaxyToolXmlDocument(document)
+        element = tool.find_element(element_name, maxlevel=4)
+
+        assert element is not None
+        actual_position = tool.get_position_after(element)
+        assert actual_position == expected_position
+
+
+class TestGalaxyToolTestSnippetGeneratorClass:
+    @pytest.mark.parametrize(
         "tool_file, expected_snippet_file",
         [
             ("simple_conditional_01.xml", "simple_conditional_01_test.xml"),
@@ -113,12 +160,73 @@ class TestGalaxyToolXmlDocumentClass:
             ("complex_inputs_01.xml", "complex_inputs_01_test.xml"),
         ],
     )
-    def test_generate_test_suite_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
+    def test_build_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
         document = TestUtils.get_test_document_from_file(tool_file)
         expected_snippet = TestUtils.get_test_file_contents(expected_snippet_file)
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
 
-        actual_snippet = generator.generate_test_suite_snippet()
+        actual_snippet = generator._build_snippet()
 
         assert actual_snippet == expected_snippet
+
+    @pytest.mark.parametrize(
+        "source, expected_position",
+        [
+            ("<tool></tool>", Position(0, 6)),
+            ("<tool><description/><inputs></tool>", Position(0, 28)),
+            ("<tool><tests></tests></tool>", Position(0, 13)),
+            ("<tool><tests/></tool>", Range(Position(0, 6), Position(0, 14))),
+        ],
+    )
+    def test_find_snippet_position_returns_expected_result(self, source: str, expected_position: Position) -> None:
+        document = TestUtils.to_document(source)
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolTestSnippetGenerator(tool)
+
+        actual_position = generator._find_snippet_insert_position()
+
+        assert actual_position == expected_position
+
+
+class TestGalaxyToolCommandSnippetGeneratorClass:
+    @pytest.mark.parametrize(
+        "tool_file, expected_snippet_file",
+        [
+            ("simple_conditional_01.xml", "simple_conditional_01_command.xml"),
+            ("simple_conditional_02.xml", "simple_conditional_02_command.xml"),
+            ("simple_params_01.xml", "simple_params_01_command.xml"),
+            ("simple_repeat_01.xml", "simple_repeat_01_command.xml"),
+            ("simple_section_01.xml", "simple_section_01_command.xml"),
+            ("simple_output_01.xml", "simple_output_01_command.xml"),
+            ("simple_output_02.xml", "simple_output_02_command.xml"),
+            ("complex_inputs_01.xml", "complex_inputs_01_command.xml"),
+        ],
+    )
+    def test_build_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
+        document = TestUtils.get_test_document_from_file(tool_file)
+        expected_snippet = TestUtils.get_test_file_contents(expected_snippet_file)
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolCommandSnippetGenerator(tool)
+
+        actual_snippet = generator._build_snippet()
+
+        assert actual_snippet == expected_snippet
+
+    @pytest.mark.parametrize(
+        "source, expected_position",
+        [
+            ("<tool></tool>", Position(0, 6)),
+            ("<tool><description/><inputs></tool>", Position(0, 20)),
+            ("<tool><command></command></tool>", Position(0, 15)),
+            ("<tool><command/></tool>", Range(Position(0, 6), Position(0, 16))),
+        ],
+    )
+    def test_find_snippet_position_returns_expected_result(self, source: str, expected_position: Position) -> None:
+        document = TestUtils.to_document(source)
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolCommandSnippetGenerator(tool)
+
+        actual_position = generator._find_snippet_insert_position()
+
+        assert actual_position == expected_position

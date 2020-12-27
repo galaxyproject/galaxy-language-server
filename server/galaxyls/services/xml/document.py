@@ -104,7 +104,7 @@ class XmlDocument(XmlSyntaxNode):
         Returns:
             Position: The position just before the element declaration.
         """
-        return convert_document_offset_to_position(self.document, element.start - 1)
+        return convert_document_offset_to_position(self.document, element.start)
 
     def get_position_after(self, element: XmlElement) -> Position:
         """Return the position in the document after the given element.
@@ -117,7 +117,7 @@ class XmlDocument(XmlSyntaxNode):
         """
         if element.is_self_closed:
             return convert_document_offset_to_position(self.document, element.end)
-        return convert_document_offset_to_position(self.document, element.end_tag_close_offset)
+        return convert_document_offset_to_position(self.document, element.end_offset)
 
     @staticmethod
     def has_valid_root(document: Document) -> bool:
@@ -125,7 +125,7 @@ class XmlDocument(XmlSyntaxNode):
         try:
             xml = etree.parse(str(document.path))
             root = xml.getroot()
-            if root and root.tag:
+            if root is not None and root.tag:
                 root_tag = root.tag.upper()
                 supported = [e.name for e in DocumentType if e != DocumentType.UNKNOWN]
                 return root_tag in supported

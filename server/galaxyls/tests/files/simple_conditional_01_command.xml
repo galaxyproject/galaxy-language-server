@@ -1,0 +1,18 @@
+<command><![CDATA[
+
+## Auto-generated command section
+## TODO: please review and edit this section as needed
+
+## Inputs
+
+#if str( \$c1.c1_action ) == "a1":
+    ${1:TODO_argument} '\$c1.c1_a1_p1'
+#elif str( \$c1.c1_action ) == "a2":
+    ${2:TODO_argument} '\$c1.c1_a2_p1'
+#end if
+
+## Outputs
+
+
+]]>
+</command>

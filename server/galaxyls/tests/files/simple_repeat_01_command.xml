@@ -1,0 +1,19 @@
+<command><![CDATA[
+
+## Auto-generated command section
+## TODO: please review and edit this section as needed
+
+## Inputs
+
+#for \$i, \$${1:item} in enumerate(\$rep1):
+    ${2:TODO_argument} '\$${1:item}.rep1_p1'
+#end for
+#for \$i, \$${3:item} in enumerate(\$rep2):
+    ${4:TODO_argument} '\$${3:item}.rep2_p1'
+#end for
+
+## Outputs
+
+
+]]>
+</command>
