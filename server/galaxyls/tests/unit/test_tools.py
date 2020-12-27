@@ -170,6 +170,24 @@ class TestGalaxyToolTestSnippetGeneratorClass:
 
         assert actual_snippet == expected_snippet
 
+    @pytest.mark.parametrize(
+        "source, expected_position",
+        [
+            ("<tool></tool>", Position(0, 6)),
+            ("<tool><description/><inputs></tool>", Position(0, 28)),
+            ("<tool><tests></tests></tool>", Position(0, 13)),
+            ("<tool><tests/></tool>", Range(Position(0, 6), Position(0, 14))),
+        ],
+    )
+    def test_find_snippet_position_returns_expected_result(self, source: str, expected_position: Position) -> None:
+        document = TestUtils.to_document(source)
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolTestSnippetGenerator(tool)
+
+        actual_position = generator._find_snippet_insert_position()
+
+        assert actual_position == expected_position
+
 
 class TestGalaxyToolCommandSnippetGeneratorClass:
     @pytest.mark.parametrize(
