@@ -57,7 +57,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         command_section = self.tool_document.find_element(COMMAND)
         if command_section and not command_section.is_self_closed:
             return result_snippet
-        return f"\n<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n"
+        return f"<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n"
 
     def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """Returns the position inside the document where command section
