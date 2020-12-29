@@ -106,6 +106,9 @@
             "include": "#commandSection"
         },
         {
+            "include": "#helpSection"
+        },
+        {
             "begin": "(</?)(?:([-\\w\\.]+)((:)))?([-\\w\\.:]+)",
             "captures": {
                 "1": {
@@ -178,9 +181,6 @@
                     "include": "source.java"
                 }
             ]
-        },
-        {
-            "include": "#helpSection"
         },
         {
             "begin": "<!\\[CDATA\\[",
@@ -386,17 +386,14 @@
         },
         "commandSection": {
             "begin": "<command[\\w\\s\"=]*>",
-            "name": "punctuation.section.command.xml",
-            "end": "<\/command>",
+            "contentName": "punctuation.section.command.xml",
+            "end": "</command>",
             "patterns": [
                 {
                     "begin": "<!\\[CDATA\\[",
-                    "name": "source.cheetah.embedded.xml",
+                    "contentName": "source.cheetah.embedded.xml",
                     "end": "]]>",
                     "patterns": [
-                        {
-                            "include": "#tagStuff"
-                        },
                         {
                             "include": "source.cheetah"
                         }
@@ -405,12 +402,19 @@
             ]
         },
         "helpSection": {
-            "begin": "<help><!\\[CDATA\\[",
-            "name": "source.restructuredtext.embedded.xml",
-            "end": "]]>",
+            "begin": "<help[\\w\\s\"=]*>",
+            "contentName": "punctuation.section.help.xml",
+            "end": "</help>",
             "patterns": [
                 {
-                    "include": "text.restructuredtext"
+                    "begin": "<!\\[CDATA\\[",
+                    "contentName": "source.restructuredtext.embedded.xml",
+                    "end": "]]>",
+                    "patterns": [
+                        {
+                            "include": "text.restructuredtext"
+                        }
+                    ]
                 }
             ]
         }
