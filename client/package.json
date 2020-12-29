@@ -45,13 +45,15 @@
         "id": "cheetah",
         "extensions": [
           ".tmpl"
-        ]
+        ],
+        "configuration": "./languages/cheetah.language-configuration.json"
       },
       {
         "id": "restructuredtext",
         "extensions": [
           ".rst"
-        ]
+        ],
+        "configuration": "./languages/restructuredtext.language-configuration.json"
       }
     ],
     "grammars": [
