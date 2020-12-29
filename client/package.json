@@ -39,21 +39,21 @@
         "aliases": [
           "Galaxy Tool Wrapper"
         ],
-        "configuration": "./languages/galaxytoolxml.language-configuration.json"
+        "configuration": "./src/languages/galaxytoolxml.language-configuration.json"
       },
       {
         "id": "cheetah",
         "extensions": [
           ".tmpl"
         ],
-        "configuration": "./languages/cheetah.language-configuration.json"
+        "configuration": "./src/languages/cheetah.language-configuration.json"
       },
       {
         "id": "restructuredtext",
         "extensions": [
           ".rst"
         ],
-        "configuration": "./languages/restructuredtext.language-configuration.json"
+        "configuration": "./src/languages/restructuredtext.language-configuration.json"
       }
     ],
     "grammars": [
