@@ -1,0 +1,203 @@
+{
+  "comment": "Syntax highlighting for Cheetah templates based on https://github.com/irlabs/Cheetah.tmbundle/blob/master/Syntaxes/Cheetah%20templates.plist",
+  "scopeName": "source.cheetah",
+  "uuid": "9DD24FCA-A42A-4158-993B-FB3B05DB4736",
+  "fileTypes": [
+    "tmpl"
+  ],
+  "foldingStartMarker": "^#(block|cache|def)",
+  "foldingStopMarker": "^#end (block|cache|def)",
+  "keyEquivalent": "^~c",
+  "name": "Cheetah templates",
+  "patterns": [
+    {
+      "match": "##.*$",
+      "name": "comment.line.cheetah"
+    },
+    {
+      "begin": "#\\*",
+      "end": "\\*#",
+      "name": "comment.block.cheetah"
+    },
+    {
+      "begin": "^(#cache)",
+      "beginCaptures": {
+        "1": {
+          "name": "support.other.directive.cheetah"
+        }
+      },
+      "end": "$",
+      "name": "meta.directive.cache.cheetah",
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "variable.parameter.cheetah"
+            },
+            "2": {
+              "name": "entity.name.directive.cache.cheetah"
+            }
+          },
+          "match": "(id)='([a-zA-Z_][a-zA-Z0-9_]*)'",
+          "name": "meta.directive.cache"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "variable.parameter.cheetah"
+            }
+          },
+          "match": "(id|timer|test)=",
+          "name": "meta.directive.cache"
+        }
+      ]
+    },
+    {
+      "begin": "^(#end cache)(.*)?",
+      "beginCaptures": {
+        "1": {
+          "name": "support.other.directive.cheetah"
+        },
+        "2": {
+          "name": "entity.name.directive.cache.cheetah"
+        }
+      },
+      "end": "$",
+      "name": "meta.directive.cache.cheetah"
+    },
+    {
+      "begin": "^(#(end )?(block|def))\\s+([a-zA-Z_][a-zA-Z0-9_]*)(\\()?",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.function.cheetah"
+        },
+        "2": {
+          "name": "support.other.cheetah"
+        },
+        "4": {
+          "name": "entity.name.function.cheetah"
+        },
+        "5": {
+          "name": "punctuation.definition.parameters.begin.cheetah"
+        }
+      },
+      "end": "(\\))?$",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.parameters.end.cheetah"
+        }
+      },
+      "name": "meta.function.cheetah",
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "variable.parameter.function.cheetah"
+            }
+          },
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+          "name": "meta.function.parameters.cheetah"
+        }
+      ]
+    },
+    {
+      "match": "\\$[a-zA-Z.\\(\\)]*",
+      "name": "variable.other.cheetah"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.other.include.import.cheetah"
+        },
+        "2": {
+          "name": "keyword.other.include.as.cheetah"
+        }
+      },
+      "match": "^(#import)\\s+[a-zA-Z_][a-zA-Z0-9_]*\\s+(as)?",
+      "name": "meta.other.include.cheetah"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.other.include.from.cheetah"
+        },
+        "2": {
+          "name": "keyword.other.include.import.cheetah"
+        },
+        "3": {
+          "name": "keyword.other.include.as.cheetah"
+        }
+      },
+      "match": "^(#from)\\s+[a-zA-Z_][a-zA-Z0-9_]*\\s+(import)\\s+[a-zA-Z_][a-zA-Z0-9_]*\\s+(as)?",
+      "name": "meta.other.include.cheetah"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.other.extends.cheetah"
+        },
+        "2": {
+          "name": "entity.other.inherited-class"
+        }
+      },
+      "match": "^(#extends)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+      "name": "meta.other.extends.cheetah"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.other.implements.cheetah"
+        },
+        "2": {
+          "name": "entity.name.function.cheetah"
+        }
+      },
+      "match": "^(#implements)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+      "name": "meta.other.implements.cheetah"
+    },
+    {
+      "match": "#(end )?(for|if|repeat|try|unless|while)\\b",
+      "name": "keyword.control.cheetah"
+    },
+    {
+      "match": "#(end )?(raw)\\b",
+      "name": "keyword.other.cheetah"
+    },
+    {
+      "match": "#(else if)\\b",
+      "name": "keyword.control.cheetah"
+    },
+    {
+      "match": "#(assert|break|continue|else|elif|except|finally|pass|raise|stop)\\b",
+      "name": "keyword.control.cheetah"
+    },
+    {
+      "match": "#(attr|del|echo|filter|silent)\\b",
+      "name": "keyword.other.cheetah"
+    },
+    {
+      "match": "^#set(\\s+global)?",
+      "name": "keyword.other.cheetah"
+    },
+    {
+      "match": "#slurp",
+      "name": "keyword.directive.cheetah"
+    },
+    {
+      "match": "^#((end )?(compiler-settings)|breakpoint)\\b",
+      "name": "support.other.directive.cheetah"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "support.other.cheetah"
+        },
+        "2": {
+          "name": "support.decorator.cheetah"
+        }
+      },
+      "match": "^(#@(staticmethod|classmethod))\\b",
+      "name": "meta.function.decorator.cheetah"
+    }
+  ]
+}

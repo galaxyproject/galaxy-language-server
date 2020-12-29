@@ -1,0 +1,548 @@
+{
+  "comment": "Syntax highlighting for reStructuredText: http://docutils.sourceforge.net based on https://github.com/vscode-restructuredtext/vscode-restructuredtext/blob/master/syntaxes/restructuredtext.tmLanguage",
+  "scopeName": "text.restructuredtext",
+  "uuid": "62DA9AD6-36E1-4AB7-BB87-E933AD9FD1A4",
+  "fileTypes": [
+    "rst",
+    "rest"
+  ],
+  "keyEquivalent": "^~R",
+  "name": "reStructuredText",
+  "patterns": [
+    {
+      "begin": "^([ \\t]*)(?=\\S)",
+      "contentName": "meta.paragraph.restructuredtext",
+      "end": "^(?!\\1)",
+      "patterns": [
+        {
+          "include": "#all"
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "all": {
+      "patterns": [
+        {
+          "include": "#directives"
+        },
+        {
+          "include": "#raw-blocks"
+        },
+        {
+          "include": "#emphasis"
+        },
+        {
+          "include": "#link-def"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.substitution.restructuredtext"
+            },
+            "2": {
+              "name": "markup.underline.substitution.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.substitution.restructuredtext"
+            }
+          },
+          "comment": "substitution",
+          "match": "(\\|)([^| ]+[^|]*[^| ]*)(\\|_{0,2})"
+        },
+        {
+          "begin": "``",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.raw.restructuredtext"
+            }
+          },
+          "comment": "inline literal",
+          "end": "``((?=[^`\\w\\d])|$)",
+          "name": "markup.raw.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.intepreted.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.intepreted.restructuredtext"
+            }
+          },
+          "comment": "intepreted text - single line",
+          "match": "(`)[^`]+(`)(?!_)",
+          "name": "markup.other.command.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            },
+            "2": {
+              "name": "markup.underline.link.restructuredtext"
+            }
+          },
+          "comment": "anonymous links __ url",
+          "match": "\\s*(__)\\s+(.+)",
+          "name": "meta.link.restructuredtext"
+        },
+        {
+          "include": "#link-reference"
+        },
+        {
+          "begin": "(:)([-A-z0-9_.]*)(:)(`)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.intepreted.restructuredtext"
+            },
+            "2": {
+              "name": "entity.name.role.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.intepreted.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.definition.intepreted.restructuredtext"
+            }
+          },
+          "comment": "intepreted text - multiline with role",
+          "contentName": "string.other.interpreted.restructuredtext",
+          "end": "(`)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.intepreted.restructuredtext"
+            }
+          },
+          "name": "markup.other.command.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            },
+            "2": {
+              "name": "string.other.link.title.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.location.restructuredtext"
+            },
+            "4": {
+              "name": "markup.underline.link.restructuredtext"
+            },
+            "5": {
+              "name": "punctuation.definition.location.restructuredtext"
+            },
+            "6": {
+              "name": "punctuation.definition.link.restructuredtext"
+            }
+          },
+          "comment": "links `...`_ ",
+          "match": "(`)([^<`]+)\\s+(<)(.*?)(>)(`_)",
+          "name": "meta.link.inline.restructuredtext"
+        },
+        {
+          "include": "#footnotes"
+        },
+        {
+          "include": "#citations"
+        },
+        {
+          "include": "#tags"
+        },
+        {
+          "include": "#tables"
+        },
+        {
+          "include": "#headings"
+        },
+        {
+          "include": "#comments"
+        }
+      ]
+    },
+    "citations": {
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            },
+            "2": {
+              "name": "constant.other.citation.link.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "5": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "6": {
+              "name": "string.other.citation.restructuredtext"
+            }
+          },
+          "comment": "replacement",
+          "match": "^(\\.\\.)\\s+((\\[)[A-z][A-z0-9]*(\\]))(_)\\s+(.*)",
+          "name": "meta.link.citation.def.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "constant.other.citation.link.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            }
+          },
+          "comment": "citation reference",
+          "match": "((\\[)[A-z][A-z0-9_-]*(\\]))(_)",
+          "name": "meta.link.citation.restructuredtext"
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "begin": "^(\\.\\.)[ ]",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.comment.restructuredtext"
+            }
+          },
+          "end": "^[\\s]*$\\n?",
+          "name": "comment.line.double-dot.restructuredtext"
+        }
+      ]
+    },
+    "directives": {
+      "patterns": [
+        {
+          "match": "^[ \\t]*(\\.\\.)\\s((\\|)(.*)(\\|)\\s)?([A-z][-A-z0-9_]+)(::)((\\s[Uu](\\+)\\d{4,5})?(\\s[-A-z0-9_]+([(])[-A-z0-9_]*([)]))?(\\s(\\.\\.)\\s)?.*)?",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.directive.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.substitution.restructuredtext"
+            },
+            "4": {
+              "name": "markup.underline.substitution.restructuredtext"
+            },
+            "5": {
+              "name": "punctuation.definition.substitution.restructuredtext"
+            },
+            "6": {
+              "name": "support.directive.restructuredtext"
+            },
+            "7": {
+              "name": "punctuation.separator.key-value.restructuredtext"
+            },
+            "8": {
+              "name": "entity.name.directive.restructuredtext"
+            },
+            "10": {
+              "name": "punctuation.definition.directive.restructuredtext"
+            },
+            "12": {
+              "name": "punctuation.definition.directive.restructuredtext"
+            },
+            "13": {
+              "name": "punctuation.definition.directive.restructuredtext"
+            },
+            "15": {
+              "name": "punctuation.definition.directive.restructuredtext"
+            }
+          }
+        }
+      ]
+    },
+    "emphasis": {
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.bold.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.bold.restructuredtext"
+            }
+          },
+          "match": "(\\*\\*)[^*]+(\\*\\*)",
+          "name": "markup.bold.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.italic.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.italic.restructuredtext"
+            }
+          },
+          "match": "(\\*)\\w[^*]+\\w(\\*)",
+          "name": "markup.italic.restructuredtext"
+        }
+      ]
+    },
+    "footnotes": {
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            },
+            "2": {
+              "name": "constant.other.footnote.link.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "6": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "7": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "8": {
+              "name": "string.other.footnote.restructuredtext"
+            }
+          },
+          "comment": "replacement",
+          "match": "^(\\.\\.)\\s+((\\[)(((#?)[^]]*?)|\\*)(\\]))\\s+(.*)",
+          "name": "meta.link.footnote.def.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "constant.other.footnote.link"
+            },
+            "2": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            }
+          },
+          "comment": "footnote reference: [0]_",
+          "match": "((\\[)[0-9]+(\\]))(_)",
+          "name": "meta.link.footnote.numeric.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "constant.other.footnote.link"
+            },
+            "2": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            }
+          },
+          "comment": "footnote reference [#]_ or [#foo]_",
+          "match": "((\\[#)[A-z0-9_\\-]*(\\]))(_)",
+          "name": "meta.link.footnote.auto.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "constant.other.footnote.link.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "3": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.definition.constant.restructuredtext"
+            }
+          },
+          "comment": "footnote reference [*]_",
+          "match": "((\\[)\\*(\\]))(_)",
+          "name": "meta.link.footnote.symbol.auto.restructuredtext"
+        }
+      ]
+    },
+    "headings": {
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.heading.restructuredtext"
+            }
+          },
+          "match": "(^\\s*(=|-|~|`|#|\"|\\^|\\+|\\*|:|\\.|'|_|\\+){3,}$){1,1}?",
+          "name": "markup.heading.restructuredtext"
+        }
+      ]
+    },
+    "link-def": {
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.string.restructuredtext"
+            },
+            "3": {
+              "name": "string.other.link.title.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.separator.key-value.restructuredtext"
+            },
+            "5": {
+              "name": "markup.underline.link.restructuredtext"
+            }
+          },
+          "comment": "replacement",
+          "match": "(\\.\\.)\\s+(_)([-.\\d\\w\\s()]+)(:)\\s+(.*)",
+          "name": "meta.link.reference.def.restructuredtext"
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.string.restructuredtext"
+            },
+            "3": {
+              "name": "string.other.link.title.restructuredtext"
+            },
+            "4": {
+              "name": "punctuation.separator.key-value.restructuredtext"
+            },
+            "5": {
+              "name": "markup.underline.link.restructuredtext"
+            }
+          },
+          "comment": "replacement",
+          "match": "(\\.\\.)\\s+(_`)([^`]+)(`:)\\s+(.*)",
+          "name": "meta.link.reference.def.restructuredtext"
+        }
+      ]
+    },
+    "link-reference": {
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "string.other.link.title.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.link.restructuredtext"
+            }
+          },
+          "match": "\\b([-.:+_\\d\\w]+)(_)\\b",
+          "name": "meta.link.reference"
+        },
+        {
+          "begin": "(`)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            }
+          },
+          "end": "(`_)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.link.restructuredtext"
+            }
+          },
+          "name": "meta.link.reference",
+          "patterns": [
+            {
+              "match": "[^`]+",
+              "name": "string.other.link.title.restructuredtext"
+            }
+          ]
+        }
+      ]
+    },
+    "raw-blocks": {
+      "patterns": [
+        {
+          "begin": "(::)$",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.section.raw.restructuredtext"
+            }
+          },
+          "comment": "Literal Blocks",
+          "contentName": "meta.raw.block.restructuredtext",
+          "end": "^(?=\\S)",
+          "patterns": [
+            {
+              "include": "#raw-blocks-inner"
+            }
+          ]
+        }
+      ]
+    },
+    "raw-blocks-inner": {
+      "patterns": [
+        {
+          "match": ".+",
+          "name": "markup.raw.inner.restructuredtext"
+        }
+      ]
+    },
+    "tables": {
+      "patterns": [
+        {
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.table.restructuredtext"
+            }
+          },
+          "match": "\\+-[+-]+",
+          "name": "markup.other.table.restructuredtext"
+        },
+        {
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.table.restructuredtext"
+            }
+          },
+          "match": "\\+=[+=]+",
+          "name": "markup.other.table.restructuredtext"
+        }
+      ]
+    },
+    "tags": {
+      "patterns": [
+        {
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.field.restructuredtext"
+            },
+            "2": {
+              "name": "punctuation.definition.field.restructuredtext"
+            }
+          },
+          "comment": "tags (and field lists)",
+          "match": "(:)[[:alpha:]][[[:alpha:]]0-9  =\\s\\t_.-]*(:)",
+          "name": "entity.name.tag.restructuredtext"
+        }
+      ]
+    }
+  }
+}

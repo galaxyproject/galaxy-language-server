@@ -26,9 +26,55 @@
     "vscode": "^1.34.0"
   },
   "activationEvents": [
-    "onLanguage:xml"
+    "onLanguage:galaxytool"
   ],
   "contributes": {
+    "languages": [
+      {
+        "id": "galaxytool",
+        "firstLine": "^<tool",
+        "extensions": [
+          ".xml"
+        ],
+        "aliases": [
+          "Galaxy Tool Wrapper"
+        ],
+        "configuration": "./languages/galaxytoolxml.language-configuration.json"
+      },
+      {
+        "id": "cheetah",
+        "extensions": [
+          ".tmpl"
+        ]
+      },
+      {
+        "id": "restructuredtext",
+        "extensions": [
+          ".rst"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "galaxytool",
+        "scopeName": "galaxy.tool.xml",
+        "path": "./src/syntaxes/galaxytoolxml.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.cheetah.embedded.xml": "cheetah",
+          "source.restructuredtext.embedded.xml": "restructuredtext"
+        }
+      },
+      {
+        "language": "cheetah",
+        "scopeName": "source.cheetah",
+        "path": "./src/syntaxes/cheetah.tmLanguage.json"
+      },
+      {
+        "language": "restructuredtext",
+        "scopeName": "text.restructuredtext",
+        "path": "./src/syntaxes/restructuredtext.tmLanguage.json"
+      }
+    ],
     "commands": [
       {
         "command": "galaxytools.generate.tests",
