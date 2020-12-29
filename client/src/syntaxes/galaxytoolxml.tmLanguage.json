@@ -1,7 +1,7 @@
 {
     "comment": "Custom XML grammar for Galaxy tool wrappers based on https://github.com/microsoft/vscode/blob/master/extensions/xml/syntaxes/xml.tmLanguage.json",
     "name": "Galaxy Tool XML Wrapper",
-    "scopeName": "galaxy.tool.xml",
+    "scopeName": "text.xml.galaxytool",
     "patterns": [
         {
             "begin": "(<\\?)\\s*([-_a-zA-Z0-9]+)",

@@ -59,7 +59,7 @@
     "grammars": [
       {
         "language": "galaxytool",
-        "scopeName": "galaxy.tool.xml",
+        "scopeName": "text.xml.galaxytool",
         "path": "./src/syntaxes/galaxytoolxml.tmLanguage.json",
         "embeddedLanguages": {
           "source.cheetah.embedded.xml": "cheetah",
