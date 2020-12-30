@@ -6,18 +6,10 @@
     "rst",
     "rest"
   ],
-  "keyEquivalent": "^~R",
   "name": "reStructuredText",
   "patterns": [
     {
-      "begin": "^([ \\t]*)(?=\\S)",
-      "contentName": "meta.paragraph.restructuredtext",
-      "end": "^(?!\\1)",
-      "patterns": [
-        {
-          "include": "#all"
-        }
-      ]
+      "include": "#all"
     }
   ],
   "repository": {
