@@ -75,6 +75,15 @@
         "language": "restructuredtext",
         "scopeName": "text.restructuredtext",
         "path": "./src/syntaxes/restructuredtext.tmLanguage.json"
+      },
+      {
+        "path": "./src/syntaxes/token.injection.json",
+        "scopeName": "token.injection",
+        "injectTo": [
+          "text.xml.galaxytool",
+          "source.cheetah",
+          "text.restructuredtext"
+        ]
       }
     ],
     "commands": [
