@@ -62,8 +62,8 @@
         "scopeName": "text.xml.galaxytool",
         "path": "./src/syntaxes/galaxytoolxml.tmLanguage.json",
         "embeddedLanguages": {
-          "source.cheetah.embedded.xml": "cheetah",
-          "source.restructuredtext.embedded.xml": "restructuredtext"
+          "meta.embedded.block.cheetah": "cheetah",
+          "meta.embedded.block.restructuredtext": "restructuredtext"
         }
       },
       {

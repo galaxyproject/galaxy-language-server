@@ -385,14 +385,41 @@
             ]
         },
         "commandSection": {
-            "begin": "<command[\\w\\s\"=]*>",
-            "contentName": "punctuation.section.command.xml",
-            "end": "</command>",
+            "begin": "(<)(command)",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.xml"
+                },
+                "2": {
+                    "name": "entity.name.tag.namespace.xml"
+                }
+            },
+            "name": "meta.tag.xml",
+            "end": "(</)(command)(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.xml"
+                },
+                "2": {
+                    "name": "entity.name.tag.namespace.xml"
+                },
+                "3": {
+                    "name": "punctuation.definition.tag.xml"
+                }
+            },
             "patterns": [
                 {
+                    "match": ">",
+                    "name": "punctuation.definition.tag.xml"
+                },
+                {
+                    "include": "#tagStuff"
+                },
+                {
                     "begin": "<!\\[CDATA\\[",
-                    "contentName": "source.cheetah.embedded.xml",
                     "end": "]]>",
+                    "name": "string.unquoted.cdata.xml",
+                    "contentName": "meta.embedded.block.cheetah",
                     "patterns": [
                         {
                             "include": "source.cheetah"
@@ -402,14 +429,37 @@
             ]
         },
         "helpSection": {
-            "begin": "<help[\\w\\s\"=]*>",
-            "contentName": "punctuation.section.help.xml",
-            "end": "</help>",
+            "begin": "(<)(help)(>)",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.xml"
+                },
+                "2": {
+                    "name": "entity.name.tag.xml"
+                },
+                "3": {
+                    "name": "punctuation.definition.tag.xml"
+                }
+            },
+            "end": "(</)(help)(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.xml"
+                },
+                "2": {
+                    "name": "entity.name.tag.namespace.xml"
+                },
+                "3": {
+                    "name": "punctuation.definition.tag.xml"
+                }
+            },
+            "name": "meta.tag.xml",
             "patterns": [
                 {
                     "begin": "<!\\[CDATA\\[",
-                    "contentName": "source.restructuredtext.embedded.xml",
                     "end": "]]>",
+                    "name": "string.unquoted.cdata.xml",
+                    "contentName": "meta.embedded.block.restructuredtext",
                     "patterns": [
                         {
                             "include": "text.restructuredtext"
