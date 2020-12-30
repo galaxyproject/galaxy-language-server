@@ -131,7 +131,7 @@
     },
     "snippets": [
       {
-        "language": "xml",
+        "language": "galaxytool",
         "path": "./src/snippets.json"
       }
     ]
