@@ -198,6 +198,21 @@
       },
       "match": "^(#@(staticmethod|classmethod))\\b",
       "name": "meta.function.decorator.cheetah"
+    },
+    {
+      "begin": "\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.cheetah"
+        }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.cheetah"
+        }
+      },
+      "name": "string.quoted.double.cheetah"
     }
   ]
 }
