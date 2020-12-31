@@ -155,7 +155,7 @@
       "name": "meta.other.implements.cheetah"
     },
     {
-      "match": "#(end )?(for|if|repeat|try|unless|while)\\b",
+      "match": "#(end )?(for|if|repeat|try|unless|while|set)\\b",
       "name": "keyword.control.cheetah"
     },
     {
@@ -229,11 +229,11 @@
       "name": "string.quoted.single.cheetah"
     },
     {
-      "match": "(str|enumerate|join|split)",
+      "match": "\\b(str|enumerate|join|split)\\b",
       "name": "support.function.cheetah"
     },
     {
-      "match": "(in|&&)",
+      "match": "\\b(in)\\b",
       "name": "keyword.control.cheetah"
     }
   ]
