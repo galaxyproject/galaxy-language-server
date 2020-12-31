@@ -106,6 +106,9 @@
             "include": "#commandSection"
         },
         {
+            "include": "#configFileSection"
+        },
+        {
             "include": "#helpSection"
         },
         {
@@ -396,6 +399,50 @@
             },
             "name": "meta.tag.xml",
             "end": "(</)(command)(>)",
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.xml"
+                },
+                "2": {
+                    "name": "entity.name.tag.namespace.xml"
+                },
+                "3": {
+                    "name": "punctuation.definition.tag.xml"
+                }
+            },
+            "patterns": [
+                {
+                    "match": ">",
+                    "name": "punctuation.definition.tag.xml"
+                },
+                {
+                    "include": "#tagStuff"
+                },
+                {
+                    "begin": "<!\\[CDATA\\[",
+                    "end": "]]>",
+                    "name": "string.unquoted.cdata.xml",
+                    "contentName": "meta.embedded.block.cheetah",
+                    "patterns": [
+                        {
+                            "include": "source.cheetah"
+                        }
+                    ]
+                }
+            ]
+        },
+        "configFileSection": {
+            "begin": "(<)(configfile\\b)",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.tag.xml"
+                },
+                "2": {
+                    "name": "entity.name.tag.namespace.xml"
+                }
+            },
+            "name": "meta.tag.xml",
+            "end": "(</)(configfile)(>)",
             "endCaptures": {
                 "1": {
                     "name": "punctuation.definition.tag.xml"
