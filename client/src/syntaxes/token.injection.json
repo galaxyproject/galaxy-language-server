@@ -8,7 +8,7 @@
     ],
     "repository": {
         "token": {
-            "match": "@[[:upper:]_]*@",
+            "match": "@[[:upper:]_0-9]*@",
             "name": "variable.other.constant"
         }
     }
