@@ -7,7 +7,6 @@
   ],
   "foldingStartMarker": "^#(block|cache|def)",
   "foldingStopMarker": "^#end (block|cache|def)",
-  "keyEquivalent": "^~c",
   "name": "Cheetah templates",
   "patterns": [
     {
@@ -229,6 +228,13 @@
       },
       "name": "string.quoted.single.cheetah"
     },
+    {
+      "match": "(str|enumerate|join|split)",
+      "name": "support.function.cheetah"
+    },
+    {
+      "match": "(in|&&)",
+      "name": "keyword.control.cheetah"
     }
   ]
 }
