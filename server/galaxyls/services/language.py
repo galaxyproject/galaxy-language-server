@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
-from galaxyls.services.tools.generators.snippets import SnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from pygls.types import (
     CompletionList,
