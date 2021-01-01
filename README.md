@@ -11,7 +11,7 @@ The aim of this project is to implement the [Language Server Protocol](https://m
 
 This repository contains both the [server](https://github.com/davelopez/galaxy-language-server/tree/master/server) implementation in [Python](https://www.python.org/) and the [client](https://github.com/davelopez/galaxy-language-server/tree/master/client) implementation of a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
 
-> Please note this is still an early work in progress and **bugs and issues are expected**.
+> Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
 ## Features
 ### Tag and attribute auto-completion 
@@ -59,69 +59,11 @@ Snippets can be really helpful to speed up your tool wrapper development. They a
 ---
 
 # Getting Started
+If you just want to use the Galaxy Language Server, the easiest option is to install the VSCode extension from the [Market](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools) or the [Open VSX registry](https://open-vsx.org/extension/davelopez/galaxy-tools). Additionally you can download the VSIX package from the [releases](https://github.com/galaxyproject/galaxy-language-server/releases) and install it manually.
+
 If you are considering contributing, please read the [contribution guide](docs/CONTRIBUTING.md).
 
-## Setup for local development
-
-1. Fork this repo on Github
-2. Clone your fork locally:
-    ````sh
-    git clone https://github.com/<your_github_name>/galaxy-language-server.git
-    ````
-3. Create a virtual environment using conda and install the dependencies:
-
-    ```sh
-    conda create -n <environment-name> python=3.8
-    conda activate <environment-name>
-
-    # For the language server:
-    cd galaxy-language-server/server/
-    pip install -r requirements-dev.txt
-
-    # For the client vscode extension:
-    cd galaxy-language-server/client/
-    conda install -c conda-forge nodejs typescript
-    npm install
-    ```
-4. Run the tests locally
-    ```sh
-    # For the language server:
-    pytest
-    # Additionally you can check the coverage:
-    pytest --cov=server
-    ```
-
-5. Create a branch for local development:
-
-    ```sh
-    git checkout -b name-of-your-bugfix-or-feature
-    ```
-    >Now you can make your changes locally.
-    >
-    >Remember to check the [Style Guide](#style-guide) to maintain an uniform code style.
-
-6. When you're done making changes, check that your changes pass ``style linter`` and the ``tests``.
-    ```sh
-    flake8
-    pytest
-    ```
-
-7. Commit your changes and push your branch to GitHub::
-    ```sh
-    git add .
-    git commit -m "Your detailed description of your changes."
-    git push origin name-of-your-bugfix-or-feature
-    ```
-
-8. Submit a pull request through the GitHub website.
-
-
-### Setup Visual Studio Code for debugging
-If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
-1. Select or activate your ``<environment-name>`` in Visual Studio Code as explained [here](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment).
-2. Open the `galaxy-language-server` directory in Visual Studio Code.
-3. Open debug view (`ctrl + shift + D`).
-4. Select `Server + Client` and click ``RUN`` (or press `F5`).
+To setup your development environment you can read [this guide](docs/CONTRIBUTING.md#getting-started).
 
 
 ## How to manually run the server
