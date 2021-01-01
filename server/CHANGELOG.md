@@ -1,4 +1,17 @@
 # Galaxy Language Server Changelog
+
+## [0.3.0] - 2021-01-01
+
+### Added
+
+- A custom command to auto-generate the `<command>` section with boilerplate Cheetah template based on the current `inputs` and `outputs` defined in the tool ([#77](https://github.com/galaxyproject/galaxy-language-server/pull/77)).
+- A custom command to auto-generate `<test>` cases based on the current `inputs` and `outputs` defined in the tool ([#73](https://github.com/galaxyproject/galaxy-language-server/pull/73)).
+
+### Fixed
+
+- Avoid processing unknown XML documents (aka *not* tool wrappers) ([#75](https://github.com/galaxyproject/galaxy-language-server/pull/75)).
+- Broken XML parsing when more than one comment block was present in the document ([#70](https://github.com/galaxyproject/galaxy-language-server/pull/70)).
+
 ## [0.2.1] - 2020-11-22
 
 ### Fixed
