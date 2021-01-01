@@ -1,10 +1,10 @@
 # Galaxy Tools (Visual Studio Code Extension)
 This extensions provides XML validation, tag and attribute completion, help/documentation on hover and other *smart* features to assist in following best practices during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
 
-> Please note this is still an early work in progress so **bugs and issues are expected**.
+> Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
 # Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
-In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed in your system.
+In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed in your system. See the [Installation](#Installation) section for more details.
 
 # Features
 ### Tag and attribute auto-completion 
@@ -48,6 +48,24 @@ Whenever you write a closing ``>`` the corresponding closing tag will be inserte
 
 Snippets can be really helpful to speed up your tool wrapper development. They allow to quickly create common blocks and let you enter just the important information by pressing ``tab`` and navigating to the next available value.
 >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
+
+### Embedded syntax highlighting
+
+![Demo feature embedded syntax highlighting](../assets/feature.embedded.syntax.png)
+
+Basic support for `Cheetah` and `reStructuredText` syntax highlighting inside the `<command>`, `<configfile>` and `<help>` tags. The embedded code should be inside a `CDATA` block.
+
+### Auto-generate tests
+
+![Demo feature auto-generate tests](../assets/feature.generate.tests.gif)
+
+After you define the `<inputs>` and `<outputs>` of the tool, you can press `Ctrl+Alt+t` (or `Cmd+Alt+t` in Mac) to create a `<tests>` section with a basic structure and some test cases. This is especially useful when using conditionals and other nested parameters since you can get right aways most of the bolerplate XML.
+
+### Auto-generate command section
+
+![Demo feature auto-generate command section](../assets/feature.generate.command.gif)
+
+Similar to the [auto-generate tests](#Auto-generate-tests) command, but this time it will generate boilerplate `Cheetah` code for the `<command>` section.
 
 # Installation
 When the extension is activated for the first time, a notification will pop up informing that the `Galaxy Language Server` [Python package](https://pypi.org/project/galaxy-language-server/) must be installed.

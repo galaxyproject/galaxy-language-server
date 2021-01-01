@@ -74,6 +74,9 @@ Adding a new snippet is really easy, you just need to edit the [snippets.json](.
 
 After testing your snippet in your local environment, just make a pull request and share it!
 
+### Customizing grammars
+You can help improve the syntax highlighting of the different languages that are used in a Galaxy tool wrapper (currently `XML`, `Cheetah` and `reStructuredText`). This can be done by extending or fixing the [TextMate grammars](https://macromates.com/manual/en/language_grammars) found [here](../client/src/syntaxes). You can learn more about how these grammars are used in the [VSCode documentation](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide).
+
 # Your First Contribution
 If this is your first time... congratulations! :tada: You will learn lots of things! For example, you can find a great number of resources [here](https://github.com/freeCodeCamp/how-to-contribute-to-open-source).
 
@@ -153,10 +156,11 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
 8. Submit a pull request through the GitHub website.
 
 ### Setup Visual Studio Code for debugging
-If you want to debug the [extension](../client) and the [Language Server](../server) at the same time, follow these steps:
-1. Open the `galaxy-tool-extension` directory in Visual Studio Code
-2. Open debug view (`ctrl + shift + D`)
-3. Select `Server + Client` and press `F5`
+If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
+1. Select or activate your ``<environment-name>`` in Visual Studio Code as explained [here](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment).
+2. Open the `galaxy-language-server` directory in Visual Studio Code.
+3. Open debug view (`ctrl + shift + D`).
+4. Select `Server + Client` and click ``RUN`` (or press `F5`).
 
 ## Pull Request Guidelines
 

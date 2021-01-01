@@ -1,5 +1,18 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.3.0] - 2021-01-01
+
+### Added
+
+- Custom language definition (XML dialect) for Galaxy Tool Wrapper files and basic embedded language syntax highlighting (`Cheetah` and `reStructuredText`) ([#79](https://github.com/galaxyproject/galaxy-language-server/pull/79)).
+- A custom command (`Ctrl+Alt+c`) to auto-generate the `<command>` section with boilerplate Cheetah template based on the current `inputs` and `outputs` defined in the tool ([#77](https://github.com/galaxyproject/galaxy-language-server/pull/77)).
+- A custom command (`Ctrl+Alt+t`) to auto-generate `<test>` cases based on the current `inputs` and `outputs` defined in the tool ([#73](https://github.com/galaxyproject/galaxy-language-server/pull/73)).
+- New snippets for common `param` definitions ([#71](https://github.com/galaxyproject/galaxy-language-server/pull/71/files)).
+
+### Changed
+
+- Updated Galaxy Language Server [v0.3.0](./server/CHANGELOG.md#030)
+
 ## [0.2.1] - 2020-11-22
 
 ### Changed
