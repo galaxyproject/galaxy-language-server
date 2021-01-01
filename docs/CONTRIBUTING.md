@@ -74,6 +74,9 @@ Adding a new snippet is really easy, you just need to edit the [snippets.json](.
 
 After testing your snippet in your local environment, just make a pull request and share it!
 
+### Customizing grammars
+You can help improve the syntax highlighting of the different languages that are used in a Galaxy tool wrapper (currently `XML`, `Cheetah` and `reStructuredText`). This can be done by extending or fixing the [TextMate grammars](https://macromates.com/manual/en/language_grammars) found [here](../client/src/syntaxes). You can learn more about how these grammars are used in the [VSCode documentation](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide).
+
 # Your First Contribution
 If this is your first time... congratulations! :tada: You will learn lots of things! For example, you can find a great number of resources [here](https://github.com/freeCodeCamp/how-to-contribute-to-open-source).
 
