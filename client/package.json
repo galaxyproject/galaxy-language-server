@@ -26,9 +26,66 @@
     "vscode": "^1.34.0"
   },
   "activationEvents": [
-    "onLanguage:xml"
+    "onLanguage:galaxytool"
   ],
   "contributes": {
+    "languages": [
+      {
+        "id": "galaxytool",
+        "firstLine": "^<tool",
+        "extensions": [
+          ".xml"
+        ],
+        "aliases": [
+          "Galaxy Tool Wrapper"
+        ],
+        "configuration": "./src/languages/galaxytoolxml.language-configuration.json"
+      },
+      {
+        "id": "cheetah",
+        "extensions": [
+          ".tmpl"
+        ],
+        "configuration": "./src/languages/cheetah.language-configuration.json"
+      },
+      {
+        "id": "restructuredtext",
+        "extensions": [
+          ".rst"
+        ],
+        "configuration": "./src/languages/restructuredtext.language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "galaxytool",
+        "scopeName": "text.xml.galaxytool",
+        "path": "./src/syntaxes/galaxytoolxml.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.cheetah": "cheetah",
+          "meta.embedded.block.restructuredtext": "restructuredtext"
+        }
+      },
+      {
+        "language": "cheetah",
+        "scopeName": "source.cheetah",
+        "path": "./src/syntaxes/cheetah.tmLanguage.json"
+      },
+      {
+        "language": "restructuredtext",
+        "scopeName": "text.restructuredtext",
+        "path": "./src/syntaxes/restructuredtext.tmLanguage.json"
+      },
+      {
+        "path": "./src/syntaxes/token.injection.json",
+        "scopeName": "token.injection",
+        "injectTo": [
+          "text.xml.galaxytool",
+          "source.cheetah",
+          "text.restructuredtext"
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "galaxytools.generate.tests",
@@ -83,7 +140,7 @@
     },
     "snippets": [
       {
-        "language": "xml",
+        "language": "galaxytool",
         "path": "./src/snippets.json"
       }
     ]

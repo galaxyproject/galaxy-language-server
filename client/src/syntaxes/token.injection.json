@@ -1,0 +1,15 @@
+{
+    "scopeName": "token.injection",
+    "injectionSelector": "L:meta.tag.xml",
+    "patterns": [
+        {
+            "include": "#token"
+        }
+    ],
+    "repository": {
+        "token": {
+            "match": "@[[:upper:]_0-9]*@",
+            "name": "variable.other.constant"
+        }
+    }
+}

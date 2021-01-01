@@ -9,6 +9,7 @@ export const LS_VENV_NAME = "glsenv";
 export const GALAXY_LS_PACKAGE = "galaxy-language-server";
 export const GALAXY_LS = "galaxyls";
 export const GALAXY_LS_VERSION = EXTENSION_VERSION; // The Extension and Language Server versions should always match
+export const LANGUAGE_ID = "galaxytool"
 
 export const PYTHON_UNIX = "python3";
 export const PYTHON_WIN = "python.exe";

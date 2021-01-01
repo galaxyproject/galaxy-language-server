@@ -5,7 +5,7 @@ import { ExtensionContext, window, TextDocument, Position, IndentAction, Languag
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
-import { GALAXY_LS } from './constants';
+import { GALAXY_LS, LANGUAGE_ID } from './constants';
 import { Commands, GeneratedCommandRequest, GeneratedTestRequest, requestInsertSnippet } from './commands';
 
 let client: LanguageClient;
@@ -36,7 +36,7 @@ export async function activate(context: ExtensionContext) {
   }
 
   // Configure auto-indentation
-  languages.setLanguageConfiguration('xml', getIndentationRules());
+  languages.setLanguageConfiguration(LANGUAGE_ID, getIndentationRules());
 
   context.subscriptions.push(client.start());
 
@@ -74,8 +74,8 @@ function getClientOptions(): LanguageClientOptions {
   return {
     // Register the server for xml documents
     documentSelector: [
-      { scheme: "file", language: "xml" },
-      { scheme: "untitled", language: "xml" },
+      { scheme: "file", language: LANGUAGE_ID },
+      { scheme: "untitled", language: LANGUAGE_ID },
     ],
     outputChannelName: "[galaxyls]",
     synchronize: {
