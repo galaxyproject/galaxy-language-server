@@ -13,4 +13,4 @@
 
 
 # Getting Started
-See [this](https://github.com/davelopez/galaxy-language-server/blob/master/README.md#getting-started).
+See [this](https://github.com/galaxyproject/galaxy-language-server/blob/master/docs/CONTRIBUTING.md#getting-started).
