@@ -51,8 +51,8 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         Returns:
             Optional[str]: The code snippet in TextMate format or None if the generation failed.
         """
-        input_tree = self.tool_document.analyze_inputs()
-        outputs = self.tool_document.get_outputs()
+        input_tree = self.expanded_document.analyze_inputs()
+        outputs = self.expanded_document.get_outputs()
         result_snippet = self._generate_command_snippet(input_tree, outputs)
         command_section = self.tool_document.find_element(COMMAND)
         if command_section and not command_section.is_self_closed:
