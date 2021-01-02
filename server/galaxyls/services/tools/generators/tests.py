@@ -87,7 +87,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         tool = self.tool_document
         section = tool.find_element(TESTS)
         if section:
-            content_range = tool.get_element_content_range(section)
+            content_range = tool.get_content_range(section)
             if content_range:
                 return content_range.end
             else:  # is self closed <tests/>
@@ -103,7 +103,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
                 return tool.get_position_after(section)
             section = tool.find_element(TOOL)
             if section:
-                return tool.get_element_content_range(section).end
+                return tool.get_content_range(section).end
             return Position()
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:

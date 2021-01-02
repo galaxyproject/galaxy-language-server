@@ -52,7 +52,7 @@ class TestGalaxyToolXmlDocumentClass:
         tool = GalaxyToolXmlDocument(document)
         node = tool.find_element("unknown")
 
-        actual = tool.get_element_content_range(node)
+        actual = tool.get_content_range(node)
 
         assert actual is None
 
@@ -71,7 +71,7 @@ class TestGalaxyToolXmlDocumentClass:
         tool = GalaxyToolXmlDocument(document)
         node = tool.find_element(element)
 
-        actual = tool.get_element_content_range(node)
+        actual = tool.get_content_range(node)
 
         assert actual == expected
 

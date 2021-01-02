@@ -1,10 +1,9 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, cast
 
 from anytree import NodeMixin
-
-from .constants import UNDEFINED_OFFSET
-from .types import NodeType
+from galaxyls.services.xml.constants import UNDEFINED_OFFSET
+from galaxyls.services.xml.types import NodeType
 
 
 class XmlSyntaxNode(ABC, NodeMixin):
@@ -96,6 +95,14 @@ class XmlSyntaxNode(ABC, NodeMixin):
         if self.name:
             return self.start, self.start + len(self.name)
         return self.start, self.end
+
+
+class XmlContainerNode(XmlSyntaxNode):
+    """Represents a node that can have content."""
+
+    @abstractmethod
+    def get_content_offsets(self) -> Tuple[int, int]:
+        return NotImplemented
 
 
 class XmlContent(XmlSyntaxNode):
@@ -213,7 +220,7 @@ class XmlAttributeValue(XmlSyntaxNode):
         return self.owner.name
 
 
-class XmlElement(XmlSyntaxNode):
+class XmlElement(XmlContainerNode):
     """Represents a XML element in the document syntax tree."""
 
     def __init__(self, start: int = UNDEFINED_OFFSET, end: int = UNDEFINED_OFFSET):
@@ -325,8 +332,12 @@ class XmlElement(XmlSyntaxNode):
         children = [child for child in self.children if child.name == name]
         return list(children)
 
+    def get_cdata_section(self) -> Optional["XmlCDATASection"]:
+        """Gets the CDATA node inside this element or None if it doesn't have a CDATA section."""
+        return next((node for node in self.children if type(node) == XmlCDATASection), None)
 
-class XmlCDATASection(XmlSyntaxNode):
+
+class XmlCDATASection(XmlContainerNode):
     """Represents a CDATA section in a XML document."""
 
     def __init__(self, start: int, end: int):
@@ -340,6 +351,9 @@ class XmlCDATASection(XmlSyntaxNode):
     def node_type(self) -> NodeType:
         """The type of this node."""
         return NodeType.CDATA_SECTION
+
+    def get_content_offsets(self) -> Tuple[int, int]:
+        return self.start_content, self.end_content
 
 
 class XmlComment(XmlSyntaxNode):

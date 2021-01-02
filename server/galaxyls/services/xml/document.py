@@ -5,7 +5,7 @@ from lxml import etree
 from pygls.types import Position, Range
 from pygls.workspace import Document
 
-from .nodes import XmlElement, XmlSyntaxNode
+from .nodes import XmlContainerNode, XmlElement, XmlSyntaxNode
 from .types import DocumentType, NodeType
 from .utils import convert_document_offset_to_position, convert_document_offsets_to_range
 
@@ -81,11 +81,11 @@ class XmlDocument(XmlSyntaxNode):
         """Gets the syntax node a the given offset."""
         return self.root.find_node_at(offset)
 
-    def get_element_content_range(self, element: XmlElement) -> Optional[Range]:
+    def get_content_range(self, element: XmlContainerNode) -> Optional[Range]:
         """Gets the Range positions for the given XML element's content in the document.
 
         Args:
-            element (XmlElement): The XML element to determine it's content range positions.
+            element (XmlContainerNode): The XML element to determine it's content range positions.
 
         Returns:
             Optional[Range]: The range positions for the content of the given XML element.

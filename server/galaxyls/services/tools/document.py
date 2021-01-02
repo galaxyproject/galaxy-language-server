@@ -5,7 +5,7 @@ from pygls.types import Position, Range
 from pygls.workspace import Document
 from galaxyls.services.tools.constants import INPUTS, OUTPUTS
 from galaxyls.services.tools.inputs import GalaxyToolInputTree
-from galaxyls.services.xml.nodes import XmlElement
+from galaxyls.services.xml.nodes import XmlContainerNode, XmlElement
 
 from galaxyls.services.xml.types import DocumentType
 from galaxyls.services.xml.document import XmlDocument
@@ -65,7 +65,7 @@ class GalaxyToolXmlDocument:
         node = find(self.xml_document, filter_=lambda node: node.name == name, maxlevel=maxlevel)
         return cast(XmlElement, node)
 
-    def get_element_content_range(self, element: Optional[XmlElement]) -> Optional[Range]:
+    def get_content_range(self, element: Optional[XmlContainerNode]) -> Optional[Range]:
         """Returns the Range of the content block of the given element.
 
         Args:
@@ -76,7 +76,7 @@ class GalaxyToolXmlDocument:
         """
         if not element:
             return None
-        return self.xml_document.get_element_content_range(element)
+        return self.xml_document.get_content_range(element)
 
     def get_position_before(self, element: XmlElement) -> Position:
         """Returns the document position right before the given element opening tag.
