@@ -56,6 +56,24 @@ Whenever you write a closing ``>`` the corresponding closing tag will be inserte
 Snippets can be really helpful to speed up your tool wrapper development. They allow to quickly create common blocks and let you enter just the important information by pressing ``tab`` and navigating to the next available value.
 >If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
 
+### Embedded syntax highlighting
+
+![Demo feature embedded syntax highlighting](../assets/feature.embedded.syntax.png)
+
+Basic support for `Cheetah` and `reStructuredText` syntax highlighting inside the `<command>`, `<configfile>` and `<help>` tags. The embedded code should be inside a `CDATA` block.
+
+### Auto-generate tests
+
+![Demo feature auto-generate tests](../assets/feature.generate.tests.gif)
+
+After you define the `<inputs>` and `<outputs>` of the tool, you can press `Ctrl+Alt+t` (or `Cmd+Alt+t` in Mac) to create a `<tests>` section with a basic structure and some test cases. This is especially useful when using conditionals and other nested parameters since you can get right aways most of the bolerplate XML.
+
+### Auto-generate command section
+
+![Demo feature auto-generate command section](../assets/feature.generate.command.gif)
+
+Similar to the [auto-generate tests](#Auto-generate-tests) command, but this time it will generate boilerplate `Cheetah` code for the `<command>` section.
+
 ---
 
 # Getting Started
