@@ -52,7 +52,7 @@ class TestGalaxyToolXmlDocumentClass:
         tool = GalaxyToolXmlDocument(document)
         node = tool.find_element("unknown")
 
-        actual = tool.get_element_content_range(node)
+        actual = tool.get_content_range(node)
 
         assert actual is None
 
@@ -71,7 +71,7 @@ class TestGalaxyToolXmlDocumentClass:
         tool = GalaxyToolXmlDocument(document)
         node = tool.find_element(element)
 
-        actual = tool.get_element_content_range(node)
+        actual = tool.get_content_range(node)
 
         assert actual == expected
 
@@ -188,6 +188,24 @@ class TestGalaxyToolTestSnippetGeneratorClass:
 
         assert actual_position == expected_position
 
+    def test_generate_snippet_without_tests_section_returns_tests_tag(self) -> None:
+        document = TestUtils.to_document("<tool></tool>")
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolTestSnippetGenerator(tool)
+
+        result = generator.generate_snippet()
+
+        assert "<tests>" in result.snippet
+
+    def test_generate_snippet_with_tests_section_returns_snippet_only(self) -> None:
+        document = TestUtils.to_document("<tool><tests></tests></tool>")
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolTestSnippetGenerator(tool)
+
+        result = generator.generate_snippet()
+
+        assert "<tests>" not in result.snippet
+
 
 class TestGalaxyToolCommandSnippetGeneratorClass:
     @pytest.mark.parametrize(
@@ -219,6 +237,7 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
             ("<tool></tool>", Position(0, 6)),
             ("<tool><description/><inputs></tool>", Position(0, 20)),
             ("<tool><command></command></tool>", Position(0, 15)),
+            ("<tool><command><![CDATA[]]></command></tool>", Position(0, 24)),
             ("<tool><command/></tool>", Range(Position(0, 6), Position(0, 16))),
         ],
     )
@@ -230,3 +249,33 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
         actual_position = generator._find_snippet_insert_position()
 
         assert actual_position == expected_position
+
+    def test_generate_snippet_without_command_returns_command_tag_with_cdata(self) -> None:
+        document = TestUtils.to_document("<tool></tool>")
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolCommandSnippetGenerator(tool)
+
+        result = generator.generate_snippet()
+
+        assert "<command" in result.snippet
+        assert "<![CDATA[" in result.snippet
+
+    def test_generate_snippet_with_command_no_cdata_returns_cdata(self) -> None:
+        document = TestUtils.to_document("<tool><command></command></tool>")
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolCommandSnippetGenerator(tool)
+
+        result = generator.generate_snippet()
+
+        assert "<command" not in result.snippet
+        assert "<![CDATA[" in result.snippet
+
+    def test_generate_snippet_with_command_with_cdata_returns_snippet_only(self) -> None:
+        document = TestUtils.to_document("<tool><command><![CDATA[]]></command></tool>")
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolCommandSnippetGenerator(tool)
+
+        result = generator.generate_snippet()
+
+        assert "<command" not in result.snippet
+        assert "<![CDATA[" not in result.snippet

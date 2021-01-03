@@ -65,8 +65,8 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         Returns:
             Optional[str]: The code snippet in TextMate format or None if the generation failed.
         """
-        input_tree = self.tool_document.analyze_inputs()
-        outputs = self.tool_document.get_outputs()
+        input_tree = self.expanded_document.analyze_inputs()
+        outputs = self.expanded_document.get_outputs()
         result_snippet = "\n".join((self._generate_test_case_snippet(input_node, outputs) for input_node in input_tree.leaves))
         tests_section = self.tool_document.find_element(TESTS)
         if tests_section and not tests_section.is_self_closed:
@@ -87,7 +87,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         tool = self.tool_document
         section = tool.find_element(TESTS)
         if section:
-            content_range = tool.get_element_content_range(section)
+            content_range = tool.get_content_range(section)
             if content_range:
                 return content_range.end
             else:  # is self closed <tests/>
@@ -103,7 +103,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
                 return tool.get_position_after(section)
             section = tool.find_element(TOOL)
             if section:
-                return tool.get_element_content_range(section).end
+                return tool.get_content_range(section).end
             return Position()
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:

@@ -51,12 +51,14 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         Returns:
             Optional[str]: The code snippet in TextMate format or None if the generation failed.
         """
-        input_tree = self.tool_document.analyze_inputs()
-        outputs = self.tool_document.get_outputs()
+        input_tree = self.expanded_document.analyze_inputs()
+        outputs = self.expanded_document.get_outputs()
         result_snippet = self._generate_command_snippet(input_tree, outputs)
         command_section = self.tool_document.find_element(COMMAND)
         if command_section and not command_section.is_self_closed:
-            return result_snippet
+            if command_section.get_cdata_section():
+                return result_snippet
+            return f"<![CDATA[\n\n{result_snippet}\n\n]]>\n"
         return f"<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n"
 
     def _find_snippet_insert_position(self) -> Union[Position, Range]:
@@ -73,8 +75,11 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         tool = self.tool_document
         section = tool.find_element(COMMAND)
         if section:
-            content_range = tool.get_element_content_range(section)
+            content_range = tool.get_content_range(section)
             if content_range:
+                cdata = section.get_cdata_section()
+                if cdata:
+                    content_range = tool.get_content_range(cdata)
                 return content_range.end
             else:  # is self closed <tests/>
                 start = tool.get_position_before(section)
@@ -92,7 +97,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 return tool.get_position_before(section)
             section = tool.find_element(TOOL)
             if section:
-                return tool.get_element_content_range(section).end
+                return tool.get_content_range(section).end
             return Position()
 
     def _generate_command_snippet(self, input_tree: GalaxyToolInputTree, outputs: List[XmlElement]) -> str:
