@@ -3,6 +3,8 @@ from typing import Optional
 import pytest
 from pytest_mock import MockerFixture
 
+from galaxyls.services.context import XmlContextService
+
 from ...services.completion import (
     AutoCloseTagResult,
     CompletionContext,
@@ -60,9 +62,8 @@ def fake_context_on_root_node(fake_tree: XsdTree) -> XmlContext:
     return fake_context
 
 
-def get_fake_context_with_line_position(fake_tree: XsdTree, line: str, position: Position) -> XmlContext:
-    fake_context = XmlContext(fake_tree.root, XmlElement(), line_text=line, position=position)
-    return fake_context
+def get_context_from_line_position(fake_tree: XsdTree, line: str, position: Position) -> XmlContext:
+    return XmlContextService(fake_tree).get_xml_context(TestUtils.from_source_to_xml_document(line), position)
 
 
 class TestXmlCompletionServiceClass:
@@ -222,7 +223,7 @@ class TestXmlCompletionServiceClass:
     @pytest.mark.parametrize(
         "line_with_mark, trigger, expected",
         [
-            ("<root>^", ">", "$0</root>"),
+            ("<root^", ">", "$0</root>"),
             ("<root/^", "/", "/>$0"),
         ],
     )
@@ -235,18 +236,40 @@ class TestXmlCompletionServiceClass:
     ) -> None:
         service = XmlCompletionService(fake_tree)
         position, line = TestUtils.extract_mark_from_source("^", line_with_mark)
-        fake_context = get_fake_context_with_line_position(fake_tree, line, position)
+        fake_context = get_context_from_line_position(fake_tree, line, position)
 
         actual = service.get_auto_close_tag(fake_context, trigger)
 
         assert actual.snippet == expected
 
     @pytest.mark.parametrize(
+        "line_with_mark, trigger",
+        [
+            ("<root>>^", ">"),
+            ("<root>^>", ">"),
+            ("<root/>^", "/"),
+            ("<root^/>", "/"),
+        ],
+    )
+    def test_auto_close_returns_none_when_expected(
+        self,
+        fake_tree: XsdTree,
+        line_with_mark: str,
+        trigger: str,
+    ) -> None:
+        service = XmlCompletionService(fake_tree)
+        position, line = TestUtils.extract_mark_from_source("^", line_with_mark)
+        fake_context = get_context_from_line_position(fake_tree, line, position)
+
+        actual = service.get_auto_close_tag(fake_context, trigger)
+
+        assert not actual
+
+    @pytest.mark.parametrize(
         "line_with_mark, trigger, expected_range",
         [
             ("<root>^", ">", None),
             ("<root^/", "/", Range(Position(character=5), Position(character=6))),
-            ("<root^/>", "/", Range(Position(character=5), Position(character=7))),
         ],
     )
     def test_auto_close_returns_expected_replace_range_at_context(
@@ -258,7 +281,7 @@ class TestXmlCompletionServiceClass:
     ) -> None:
         service = XmlCompletionService(fake_tree)
         position, line = TestUtils.extract_mark_from_source("^", line_with_mark)
-        fake_context = get_fake_context_with_line_position(fake_tree, line, position)
+        fake_context = get_context_from_line_position(fake_tree, line, position)
 
         actual = service.get_auto_close_tag(fake_context, trigger)
 
