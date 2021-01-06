@@ -34,7 +34,7 @@ class XmlCompletionService:
         if isinstance(context.token, XmlCDATASection):
             return None
         triggerKind = completion_context.triggerKind
-        if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter:
+        if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter and not context.is_attribute:
             if completion_context.triggerCharacter == "<":
                 return self.get_node_completion(context)
             if completion_context.triggerCharacter == " ":
@@ -120,8 +120,14 @@ class XmlCompletionService:
 
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
-        if isinstance(context.token, XmlCDATASection):
+        if (
+            isinstance(context.token, XmlCDATASection)
+            or context.is_closing_tag
+            or context.is_attribute
+            or context.token.is_closed
+        ):
             return None
+
         tag = context.xsd_element.name
         snippet = f"$0</{tag}>"
         replace_range = None
