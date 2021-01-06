@@ -26,6 +26,11 @@ class XmlSyntaxNode(ABC, NodeMixin):
         return self.node_type == NodeType.ELEMENT
 
     @property
+    def is_attribute(self) -> bool:
+        """Indicates if this node is an attribute node."""
+        return self.node_type in [NodeType.ATTRIBUTE, NodeType.ATTRIBUTE_KEY, NodeType.ATTRIBUTE_VALUE]
+
+    @property
     def has_attributes(self) -> bool:
         """Indicates if this node has any attributes defined."""
         return False

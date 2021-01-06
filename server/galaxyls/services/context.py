@@ -75,6 +75,11 @@ class XmlContext:
         return self._node is not None and self._node.node_type == NodeType.ELEMENT
 
     @property
+    def is_attribute(self) -> bool:
+        """Indicates if the token in context is an attribute."""
+        return self._node is not None and self._node.is_attribute
+
+    @property
     def is_attribute_key(self) -> bool:
         """Indicates if the token in context is an attribute key."""
         return self._node is not None and self._node.node_type == NodeType.ATTRIBUTE_KEY

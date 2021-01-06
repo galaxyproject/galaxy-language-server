@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+from galaxyls.services.xml.nodes import XmlCDATASection
 from pygls.types import (
     CompletionContext,
     CompletionItem,
@@ -29,9 +30,11 @@ class XmlCompletionService:
 
     def get_completion_at_context(
         self, context: XmlContext, completion_context: CompletionContext, mode: CompletionMode = CompletionMode.AUTO
-    ) -> CompletionList:
+    ) -> Optional[CompletionList]:
+        if isinstance(context.token, XmlCDATASection):
+            return None
         triggerKind = completion_context.triggerKind
-        if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter:
+        if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter and not context.is_attribute:
             if completion_context.triggerCharacter == "<":
                 return self.get_node_completion(context)
             if completion_context.triggerCharacter == " ":
@@ -43,7 +46,7 @@ class XmlCompletionService:
                 if context.token.name:
                     return self.get_attribute_completion(context)
                 return self.get_node_completion(context)
-        return CompletionList(items=[], is_incomplete=False)
+        return None
 
     def get_node_completion(self, context: XmlContext) -> CompletionList:
         """Gets a list of completion items with all the available child tags
@@ -117,6 +120,14 @@ class XmlCompletionService:
 
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
+        if (
+            isinstance(context.token, XmlCDATASection)
+            or context.is_closing_tag
+            or context.is_attribute
+            or context.token.is_closed
+        ):
+            return None
+
         tag = context.xsd_element.name
         snippet = f"$0</{tag}>"
         replace_range = None
