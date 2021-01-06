@@ -148,5 +148,14 @@
             "</conditional>"
         ],
         "description": "Reference source selector for FASTA files"
-    }
+    },
+    "xref section with bio.tools": {
+        "prefix": "gx-xref-section",
+        "body": [
+            "<xrefs>",
+            "    <xref type=\"bio.tools\">$1</xref>",
+            "</xrefs>"
+        ],
+        "description": "Add a xref section with bio.tools type."
+    },
 }
