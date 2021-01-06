@@ -59,7 +59,9 @@ class GalaxyToolLanguageService:
         """
         return self.format_service.format(content, params)
 
-    def get_completion(self, xml_document: XmlDocument, params: CompletionParams, mode: CompletionMode) -> CompletionList:
+    def get_completion(
+        self, xml_document: XmlDocument, params: CompletionParams, mode: CompletionMode
+    ) -> Optional[CompletionList]:
         """Gets completion items depending on the current document context."""
         context = self.xml_context_service.get_xml_context(xml_document, params.position)
         return self.completion_service.get_completion_at_context(context, params.context, mode)
