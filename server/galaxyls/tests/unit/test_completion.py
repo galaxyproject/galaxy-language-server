@@ -16,7 +16,7 @@ from ...services.completion import (
     XsdNode,
     XsdTree,
 )
-from ...services.xml.nodes import XmlAttribute, XmlContent, XmlElement
+from ...services.xml.nodes import XmlAttribute, XmlCDATASection, XmlContent, XmlElement
 from .utils import TestUtils
 
 
@@ -86,7 +86,7 @@ class TestXmlCompletionServiceClass:
         assert actual.items[1].label == "expand"
         assert actual.items[1].kind == CompletionItemKind.Class
 
-    def test_get_completion_at_context_with_closing_tag_invoke_returns_empty(self, fake_tree: XsdTree) -> None:
+    def test_get_completion_at_context_with_closing_tag_invoke_returns_none(self, fake_tree: XsdTree) -> None:
         fake_element = XmlElement()
         fake_context = XmlContext(fake_tree.root, fake_element)
         fake_completion_context = CompletionContext(CompletionTriggerKind.Invoked)
@@ -94,8 +94,17 @@ class TestXmlCompletionServiceClass:
 
         actual = service.get_completion_at_context(fake_context, fake_completion_context)
 
-        assert actual
-        assert len(actual.items) == 0
+        assert not actual
+
+    def test_get_completion_at_context_inside_cdata_returns_none(self, fake_tree: XsdTree) -> None:
+        fake_element = XmlCDATASection(0, 0)
+        fake_context = XmlContext(fake_tree.root, fake_element)
+        fake_completion_context = CompletionContext(CompletionTriggerKind.Invoked)
+        service = XmlCompletionService(fake_tree)
+
+        actual = service.get_completion_at_context(fake_context, fake_completion_context)
+
+        assert not actual
 
     def test_get_completion_at_context_on_node_returns_expected_attributes(self, fake_tree: XsdTree) -> None:
         fake_node = XmlElement()
@@ -259,6 +268,28 @@ class TestXmlCompletionServiceClass:
         service = XmlCompletionService(fake_tree)
         trigger = ">"
         fake_node = XmlContent(0, 0)
+        fake_node.name = fake_tree.root.name
+        fake_context = XmlContext(fake_tree.root, fake_node)
+
+        actual = service.get_auto_close_tag(fake_context, trigger)
+
+        assert not actual
+
+    def test_auto_close_returns_none_when_at_cdata(self, fake_tree: XsdTree) -> None:
+        service = XmlCompletionService(fake_tree)
+        trigger = ">"
+        fake_node = XmlCDATASection(0, 0)
+        fake_node.name = fake_tree.root.name
+        fake_context = XmlContext(fake_tree.root, fake_node)
+
+        actual = service.get_auto_close_tag(fake_context, trigger)
+
+        assert not actual
+
+    def test_auto_close_with_slash_returns_none_when_at_cdata(self, fake_tree: XsdTree) -> None:
+        service = XmlCompletionService(fake_tree)
+        trigger = "/"
+        fake_node = XmlCDATASection(0, 0)
         fake_node.name = fake_tree.root.name
         fake_context = XmlContext(fake_tree.root, fake_node)
 
