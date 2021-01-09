@@ -13,7 +13,7 @@ In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-lan
   - [Completion: mode](#completion-mode)
   - [Completion: auto close tags](#completion-auto-close-tags)
 - [Features](#features)
-  - [Tag and attribute auto-completion ](#tag-and-attribute-auto-completion-)
+  - [Tag and attribute auto-completion ](#tag-and-attribute-auto-completion)
   - [Documentation on Hover](#documentation-on-hover)
   - [Document validation](#document-validation)
   - [Document auto-formatting](#document-auto-formatting)

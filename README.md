@@ -18,7 +18,7 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-l
   - [Using the Galaxy Language Server](#using-the-galaxy-language-server)
   - [Contributing](#contributing)
 - [Features](#features)
-  - [Tag and attribute auto-completion ](#tag-and-attribute-auto-completion-)
+  - [Tag and attribute auto-completion ](#tag-and-attribute-auto-completion)
   - [Documentation on Hover](#documentation-on-hover)
   - [Document validation](#document-validation)
   - [Document auto-formatting](#document-auto-formatting)
