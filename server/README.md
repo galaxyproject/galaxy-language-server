@@ -13,4 +13,51 @@
 
 
 # Getting Started
-See [this](https://github.com/galaxyproject/galaxy-language-server/blob/master/docs/CONTRIBUTING.md#getting-started).
+Check the [Getting Started](https://github.com/galaxyproject/galaxy-language-server/blob/master/docs/CONTRIBUTING.md#getting-started) section in the [contributing](https://github.com/galaxyproject/galaxy-language-server/blob/master/docs/CONTRIBUTING.md) docs.
+
+# How to manually run the server
+Usually, the [client](https://github.com/galaxyproject/galaxy-language-server/tree/master/client) will be in charge of running the server when it is needed, but, in case you want to run it manually for some reason, you can use the following commands:
+
+In any case, it is recommended to create a Python virtual environment first (assuming you are using `Python3.8+`):
+````sh
+# Create a virtual environment and activate it
+python -m venv myenv
+source ./myenv/bin/activate
+````
+
+## Option 1: Installing from PyPi
+````sh
+# Install the language server and its dependencies
+pip install galaxy-language-server
+````
+
+## Option 2: Building from source
+````sh
+# Clone the repo
+git clone https://github.com/galaxyproject/galaxy-language-server.git
+
+# Go to the server directory
+cd galaxy-language-server/server
+
+# Install the dependencies
+python -m pip install -r ./requirements.txt
+````
+
+## Run the server
+````sh
+# Run the server with the default parameters
+python -m galaxyls
+````
+
+By default, the server uses IO pipes to communicate with the client. If you want to use TCP, you can pass additional parameters, for example:
+
+````sh
+python -m galaxyls --tcp --host=127.0.0.1 --port=2087
+````
+
+To check if everything went ok, you can look at the content of the server log file (``galaxy-language-server.log``) that should contain the following lines:
+````
+INFO:pygls.server:Starting server on 127.0.0.1:2087
+INFO:pygls.server:Shutting down the server
+INFO:pygls.server:Closing the event loop.
+````

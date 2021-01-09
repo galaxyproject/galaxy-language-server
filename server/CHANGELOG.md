@@ -1,5 +1,15 @@
 # Galaxy Language Server Changelog
 
+## [0.3.1] - 2021-01-09
+
+### Fixed
+
+- The autocompletion of tags and attributes was leaking into the `CDATA` sections ([#86](https://github.com/galaxyproject/galaxy-language-server/pull/86)).
+
+- Weird behavior of the autoclosing tag feature ([#86](https://github.com/galaxyproject/galaxy-language-server/pull/86)).
+
+- When using a custom command to auto-generate the `<command>` or the `<tests>` sections (with a tool document containing `macros`), the insert position inside the document for the code snippets was offset ([#83](https://github.com/galaxyproject/galaxy-language-server/pull/83)).
+
 ## [0.3.0] - 2021-01-01
 
 ### Added

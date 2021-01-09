@@ -1,5 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.3.1] - 2021-01-09
+
+### Added
+
+- New snippet for bio.tools `xrefs` ([#87](https://github.com/galaxyproject/galaxy-language-server/pull/87/files)).
+
+### Changed
+
+- Updated Galaxy Language Server [v0.3.1](./server/CHANGELOG.md#031)
+
 ## [0.3.0] - 2021-01-01
 
 ### Added
