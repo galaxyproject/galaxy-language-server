@@ -25,8 +25,8 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-l
   - [Tag auto-closing](#tag-auto-closing)
   - [Snippets](#snippets)
   - [Embedded syntax highlighting](#embedded-syntax-highlighting)
-  - [Auto-generate tests](#auto-generate-tests)
-  - [Auto-generate command section](#auto-generate-command-section)
+  - [Auto-generate tests](#auto-generate-tests) *new feature!* :rocket:
+  - [Auto-generate command section](#auto-generate-command-section) *new feature!* :rocket:
 
 
 # Getting Started
