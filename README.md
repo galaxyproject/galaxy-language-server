@@ -18,26 +18,26 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-l
   - [Using the Galaxy Language Server](#using-the-galaxy-language-server)
   - [Contributing](#contributing)
 - [Features](#features)
-  - [Tag and attribute auto-completion ](#tag-and-attribute-auto-completion)
+  - [Tag and attribute auto-completion](#tag-and-attribute-auto-completion)
   - [Documentation on Hover](#documentation-on-hover)
   - [Document validation](#document-validation)
   - [Document auto-formatting](#document-auto-formatting)
   - [Tag auto-closing](#tag-auto-closing)
   - [Snippets](#snippets)
   - [Embedded syntax highlighting](#embedded-syntax-highlighting)
-  - [Auto-generate tests](#auto-generate-tests) *new feature!* :rocket:
-  - [Auto-generate command section](#auto-generate-command-section) *new feature!* :rocket:
+  - [Auto-generate tests](#auto-generate-tests). *New feature!* :rocket:
+  - [Auto-generate command section](#auto-generate-command-section). *New feature!* :rocket:
 
 
 # Getting Started
 
 ## Using the Galaxy Language Server
-If you just want to use the Galaxy Language Server, the easiest option is to **install the VSCode extension** from the [Market](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools) or the [Open VSX registry](https://open-vsx.org/extension/davelopez/galaxy-tools). Additionally you can download the VSIX package from the [releases](https://github.com/galaxyproject/galaxy-language-server/releases) page and install it manually.
+If you just want to use the Galaxy Language Server, the easiest option is to **install the VSCode extension** from the [Market](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools) or the [Open VSX registry](https://open-vsx.org/extension/davelopez/galaxy-tools). Additionally, you can download the VSIX package from the [releases](https://github.com/galaxyproject/galaxy-language-server/releases) page and install it manually.
 
 ## Contributing
 If you are considering contributing, please read the [contribution guide](docs/CONTRIBUTING.md).
 
-To setup your development environment check [this guide](docs/CONTRIBUTING.md#getting-started).
+To setup your development environment, please check [this guide](docs/CONTRIBUTING.md#getting-started).
 
 
 # Features
@@ -45,7 +45,7 @@ To setup your development environment check [this guide](docs/CONTRIBUTING.md#ge
 
 ![Demo feature auto-completion](../assets/feature.autocompletion.gif)
 
-The tags and attributes are suggested based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema. They will appear in the same order that they are declared in the schema, so they can comply with the best practices recommendations defined in the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
+The tags and attributes are suggested based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema. They will appear in the same order as they are declared in the schema to comply with the best practices recommendations defined in the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
 
 
 ## Documentation on Hover
@@ -73,7 +73,7 @@ When the tool file is saved it gets auto-formatted to maintain a consistent form
 
 ![Demo feature auto-close tags](../assets/autoCloseTag.gif)
 
-Whenever you write a closing ``>`` the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
+Whenever you write a closing (``>``), the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
 
 
 ## Snippets
@@ -93,7 +93,7 @@ Basic support for `Cheetah` and `reStructuredText` syntax highlighting inside th
 
 ![Demo feature auto-generate tests](../assets/feature.generate.tests.gif)
 
-After you define the `<inputs>` and `<outputs>` of the tool, you can press `Ctrl+Alt+t` (or `Cmd+Alt+t` in Mac) to create a `<tests>` section with a basic structure and some test cases. This is especially useful when using conditionals and other nested parameters since you can get right aways most of the bolerplate XML.
+After you define the `<inputs>` and `<outputs>` of the tool, you can press `Ctrl+Alt+t` (or `Cmd+Alt+t` in Mac) to create a `<tests>` section with a basic structure and some test cases. This is especially useful when using conditionals and other nested parameters since you can get right away most of the boilerplate XML.
 
 ## Auto-generate command section
 

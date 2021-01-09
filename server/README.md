@@ -18,7 +18,7 @@ Check the [Getting Started](https://github.com/galaxyproject/galaxy-language-ser
 # How to manually run the server
 Usually, the [client](https://github.com/galaxyproject/galaxy-language-server/tree/master/client) will be in charge of running the server when it is needed, but, in case you want to run it manually for some reason, you can use the following commands:
 
-In any case is recommended to create a Python virtual environment first (assuming you are using `Python3.8+`):
+In any case, it is recommended to create a Python virtual environment first (assuming you are using `Python3.8+`):
 ````sh
 # Create a virtual environment and activate it
 python -m venv myenv
@@ -27,7 +27,7 @@ source ./myenv/bin/activate
 
 ## Option 1: Installing from PyPi
 ````sh
-# Install the language server and it's dependencies
+# Install the language server and its dependencies
 pip install galaxy-language-server
 ````
 

@@ -1,10 +1,10 @@
 # Galaxy Tools (Visual Studio Code Extension)
-This extension provides XML validation, tag and attributes completion, help/documentation on hover, and other *smart* features to assist in following best practices during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
+This extension provides XML validation, tags and attributes completion, help/documentation on hover, and other *smart* features to assist in following best practices during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
 
 > Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
 # Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
-In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed in your system. See the [Installation](#Installation) section for more details.
+In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed on your system. See the [Installation](#Installation) section for more details.
 
 # Table of Content
 - [Installation](#installation)
@@ -13,15 +13,15 @@ In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-lan
   - [Completion: mode](#completion-mode)
   - [Completion: auto close tags](#completion-auto-close-tags)
 - [Features](#features)
-  - [Tag and attribute auto-completion ](#tag-and-attribute-auto-completion)
+  - [Tag and attribute auto-completion](#tag-and-attribute-auto-completion)
   - [Documentation on Hover](#documentation-on-hover)
   - [Document validation](#document-validation)
   - [Document auto-formatting](#document-auto-formatting)
   - [Tag auto-closing](#tag-auto-closing)
   - [Snippets](#snippets)
   - [Embedded syntax highlighting](#embedded-syntax-highlighting)
-  - [Auto-generate tests](#auto-generate-tests) *new feature!* :rocket:
-  - [Auto-generate command section](#auto-generate-command-section) *new feature!* :rocket:
+  - [Auto-generate tests](#auto-generate-tests). *New feature!* :rocket:
+  - [Auto-generate command section](#auto-generate-command-section). *New feature!* :rocket:
 
 
 # Installation
@@ -29,7 +29,7 @@ When the extension is activated for the first time, a notification will pop up i
 
 The installation process will try to use the default Python version in your system. If the version is not compatible, it will ask you to enter the path to a compatible version. Just click `Select` in the notification message and you will be able to type the Python path at the top of the window.
 
-This Python is used to create a virtual environment in which the language server will be installed.
+This Python version is used to create a virtual environment in which the language server will be installed.
 
 ## Troubleshooting
 If you encounter any problem during the language server installation, open the Visual Studio Code `Console log` and then find any error message with the `[gls]` prefix. You can access this log from the menu `Help > Toggle Developer Tools > Console`. Then, search the issues [here](https://github.com/galaxyproject/galaxy-language-server/issues) to check whether the problem already has a solution. If not, please feel free to open a new issue including the error message from the console log.
@@ -88,13 +88,13 @@ The tools are also validated against the [Galaxy.xsd](https://github.com/galaxyp
 
 ![Demo feature auto-formatting](../assets/feature.autoformat.gif)
 
-When the tool file is saved it gets auto-formatted to maintain a consistent format with the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
+When the tool file is saved it gets auto-formatted to comply with the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
 
 ## Tag auto-closing
 
 ![Demo feature auto-close tags](../assets/autoCloseTag.gif)
 
-Whenever you write a closing ``>`` the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
+Whenever you write a closing (``>``), the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
 
 
 ## Snippets
