@@ -1,4 +1,4 @@
 pygls==0.9.1
 lxml==4.6.2
 anytree==2.8.0
-galaxy-tool-util==20.9.1
+galaxy-tool-util==21.1.0.dev4
