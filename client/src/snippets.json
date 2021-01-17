@@ -9,7 +9,7 @@
             "    </xrefs>",
             "    <macros>",
             "        <token name=\"@TOOL_VERSION@\">${3:0.1.0}</token>",
-            "        <token name=\"@VERSION_SUFFIX@\">1</token>",
+            "        <token name=\"@VERSION_SUFFIX@\">0</token>",
             "    </macros>",
             "    <!-- TODO: please annotate this tool with topics and operations from http://edamontology.org -->",
             "    <!-- TODO: for more information see: https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html#edam-topics-and-operations -->",
