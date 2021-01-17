@@ -2,19 +2,25 @@
     "Basic Galaxy tool": {
         "prefix": "gx-tool",
         "body": [
-            "<tool id=\"$1\" name=\"$2\" version=\"0.1.0\" profile=\"20.01\" license=\"TODO_license_in_spdx_format\">",
-            "    <description></description>",
+            "<tool id=\"$1\" name=\"$2\" version=\"@TOOL_VERSION@+galaxy@VERSION_SUFFIX@\" profile=\"20.01\" license=\"${4|MIT,Apache-2.0,GPL-3.0-or-later,GPL-2.0-only,BSD-3-Clause,LGPL-3.0+|}\">",
+            "    <description>$5</description>",
             "    <xrefs>",
             "        <xref type=\"bio.tools\">$0</xref>",
             "    </xrefs>",
+            "    <macros>",
+            "        <token name=\"@TOOL_VERSION@\">${3:0.1.0}</token>",
+            "        <token name=\"@VERSION_SUFFIX@\">1</token>",
+            "    </macros>",
+            "    <!-- TODO: please annotate this tool with topics and operations from http://edamontology.org -->",
+            "    <!-- TODO: for more information see: https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html#edam-topics-and-operations -->",
             "    <edam_topics>",
-            "        <!-- TODO: please annotate this tool with topics from http://edamontology.org -->",
             "        <edam_topic></edam_topic>",
             "    </edam_topics>",
             "    <edam_operations>",
             "        <edam_operation></edam_operation>",
             "    </edam_operations>",
             "    <requirements>",
+            "        <requirement type=\"package\" version=\"@TOOL_VERSION@\">$1</requirement>",
             "    </requirements>",
             "    <command detect_errors=\"exit_code\"><![CDATA[",
             "        TODO: Fill in command template.",
@@ -157,5 +163,5 @@
             "</xrefs>"
         ],
         "description": "Add a xref section with bio.tools type."
-    },
+    }
 }
