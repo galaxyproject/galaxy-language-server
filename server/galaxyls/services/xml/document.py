@@ -1,7 +1,6 @@
 from typing import Dict, Optional
 
 from anytree.search import findall
-from lxml import etree
 from pygls.types import Position, Range
 from pygls.workspace import Document
 
@@ -118,17 +117,3 @@ class XmlDocument(XmlSyntaxNode):
         if element.is_self_closed:
             return convert_document_offset_to_position(self.document, element.end)
         return convert_document_offset_to_position(self.document, element.end_offset)
-
-    @staticmethod
-    def has_valid_root(document: Document) -> bool:
-        """Checks if the document's root element matches one of the supported types."""
-        try:
-            xml = etree.parse(str(document.path))
-            root = xml.getroot()
-            if root is not None and root.tag:
-                root_tag = root.tag.upper()
-                supported = [e.name for e in DocumentType if e != DocumentType.UNKNOWN]
-                return root_tag in supported
-            return False
-        except BaseException:
-            return False

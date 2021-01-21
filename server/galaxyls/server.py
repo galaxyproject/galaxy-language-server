@@ -33,6 +33,8 @@ from pygls.types import (
 )
 from pygls.workspace import Document
 
+from galaxyls.services.validation import DocumentValidator
+
 from .config import CompletionMode, GalaxyToolsConfiguration
 from .features import AUTO_CLOSE_TAGS, CMD_GENERATE_COMMAND, CMD_GENERATE_TEST
 from .services.language import GalaxyToolLanguageService
@@ -182,4 +184,4 @@ def _get_xml_document(document: Document) -> XmlDocument:
 
 def _is_document_supported(document: Document) -> bool:
     """Returns True if the given document is supported by the server."""
-    return XmlDocument.has_valid_root(document)
+    return DocumentValidator().has_valid_root(document)
