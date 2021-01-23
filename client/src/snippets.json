@@ -2,40 +2,59 @@
     "Basic Galaxy tool": {
         "prefix": "gx-tool",
         "body": [
-            "<tool id=\"$1\" name=\"$2\" version=\"@TOOL_VERSION@+galaxy@VERSION_SUFFIX@\" profile=\"20.01\" license=\"${4|MIT,Apache-2.0,GPL-3.0-or-later,GPL-2.0-only,BSD-3-Clause,LGPL-3.0+|}\">",
+            "<tool id=\"$1\" name=\"$2\" version=\"@TOOL_VERSION@+galaxy@VERSION_SUFFIX@\" profile=\"20.01\" license=\"${3|MIT,Apache-2.0,GPL-3.0-or-later,GPL-2.0-only,BSD-3-Clause,LGPL-3.0+|}\">",
             "    <description>$5</description>",
             "    <xrefs>",
             "        <xref type=\"bio.tools\">$0</xref>",
             "    </xrefs>",
             "    <macros>",
-            "        <token name=\"@TOOL_VERSION@\">${3:0.1.0}</token>",
+            "        <token name=\"@TOOL_VERSION@\">${4:0.1.0}</token>",
             "        <token name=\"@VERSION_SUFFIX@\">0</token>",
             "    </macros>",
             "    <!-- TODO: please annotate this tool with topics and operations from http://edamontology.org -->",
             "    <!-- TODO: for more information see: https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html#edam-topics-and-operations -->",
             "    <edam_topics>",
-            "        <edam_topic></edam_topic>",
+            "        <edam_topic>topic_TODO</edam_topic>",
             "    </edam_topics>",
             "    <edam_operations>",
-            "        <edam_operation></edam_operation>",
+            "        <edam_operation>operation_TODO</edam_operation>",
             "    </edam_operations>",
             "    <requirements>",
             "        <requirement type=\"package\" version=\"@TOOL_VERSION@\">$1</requirement>",
             "    </requirements>",
             "    <command detect_errors=\"exit_code\"><![CDATA[",
-            "        TODO: Fill in command template.",
+            "        ## TODO: Fill in command using Cheetah templates",
+            "        ## Hint: Use [ctrl+alt+c] after defining the inputs/outputs to auto-generate some Cheetah boilerplate code for you.",
             "    ]]></command>",
             "    <inputs>",
             "    </inputs>",
             "    <outputs>",
             "    </outputs>",
             "    <tests>",
+            "        <!-- Hint: You can use [ctrl+alt+t] after defining the inputs/outputs to auto-scaffold some basic test cases. -->",
             "    </tests>",
             "    <help><![CDATA[",
-            "        TODO: Fill in help in reStructuredText (https://en.wikipedia.org/wiki/ReStructuredText)",
+            "",
+            ".. class:: infomark",
+            "",
+            "**What it does**",
+            "",
+            "TODO: Fill in help in reStructuredText format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)",
+            "Hint: If you want, you can preview your help section using this online editor: http://rst.ninjs.org/",
+            "",
+            "Usage",
+            ".....",
+            "",
+            "",
+            "**Input**",
+            "",
+            "",
+            "**Output**",
+            "",
+            "",
             "    ]]></help>",
             "    <citations>",
-            "        <citation type=\"doi\"></citation>",
+            "        <citation type=\"doi\"> </citation>",
             "    </citations>",
             "</tool>"
         ],
@@ -45,9 +64,9 @@
         "prefix": "gx-conditional-select",
         "body": [
             "<conditional name=\"$1\">",
-            "    <param name=\"$2\" type=\"select\" label=\"$3\" help=\"$4\">",
-            "        <option value=\"$5\">TODO: option $5</option>",
-            "        <option value=\"$6\">TODO: option $6</option>",
+            "    <param name=\"$2\" type=\"select\" label=\"$3\" help=\"${4:TODO}\">",
+            "        <option value=\"$5\">TODO: $5</option>",
+            "        <option value=\"$6\">TODO: $6</option>",
             "    </param>",
             "    <when value=\"$5\">",
             "        $0",
@@ -61,10 +80,10 @@
     "Select parameter with 3 options": {
         "prefix": "gx-select-3-param",
         "body": [
-            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"$3\">",
-            "    <option value=\"$4\">TODO: option $4</option>",
-            "    <option value=\"$5\">TODO: option $5</option>",
-            "    <option value=\"$6\">TODO: option $6</option>",
+            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"${3:TODO}\">",
+            "    <option value=\"$4\">TODO: $4</option>",
+            "    <option value=\"$5\">TODO: $5</option>",
+            "    <option value=\"$6\">TODO: $6</option>",
             "</param>"
         ],
         "description": "Select parameter with 3 options"
@@ -72,12 +91,12 @@
     "Select parameter with 5 options": {
         "prefix": "gx-select-5-param",
         "body": [
-            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"$3\">",
-            "    <option value=\"$4\">TODO: option $4</option>",
-            "    <option value=\"$5\">TODO: option $5</option>",
-            "    <option value=\"$6\">TODO: option $6</option>",
-            "    <option value=\"$7\">TODO: option $7</option>",
-            "    <option value=\"$8\">TODO: option $8</option>",
+            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"${3:TODO}\">",
+            "    <option value=\"$4\">TODO: $4</option>",
+            "    <option value=\"$5\">TODO: $5</option>",
+            "    <option value=\"$6\">TODO: $6</option>",
+            "    <option value=\"$7\">TODO: $7</option>",
+            "    <option value=\"$8\">TODO: $8</option>",
             "</param>"
         ],
         "description": "Select parameter with 5 options"
@@ -85,42 +104,42 @@
     "Boolean parameter": {
         "prefix": "gx-boolean-param",
         "body": [
-            "<param argument=\"$1\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"${1:--}\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"${4:TODO}\" />"
         ],
         "description": "Boolean parameter"
     },
     "Integer parameter": {
         "prefix": "gx-integer-param",
         "body": [
-            "<param argument=\"$1\" type=\"integer\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
+            "<param argument=\"--$1\" type=\"integer\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"${6:TODO}\" />"
         ],
         "description": "Integer parameter"
     },
     "Float parameter": {
         "prefix": "gx-float-param",
         "body": [
-            "<param argument=\"$1\" type=\"float\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
+            "<param argument=\"--$1\" type=\"float\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"${6:TODO}\" />"
         ],
         "description": "Float parameter"
     },
     "Data parameter with single required dataset": {
         "prefix": "gx-data-single-param",
         "body": [
-            "<param argument=\"$1\" name=\"$1\" type=\"data\" format=\"$2\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"--$1\" type=\"data\" format=\"$2\" label=\"$3\" help=\"${4:TODO}\" />"
         ],
         "description": "Data parameter with single required dataset"
     },
     "Data parameter with multiple required datasets": {
         "prefix": "gx-data-multiple-param",
         "body": [
-            "<param argument=\"$1\" name=\"$1\" type=\"data\" format=\"$2\" multiple=\"true\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"--$1\" type=\"data\" format=\"$2\" multiple=\"true\" label=\"$3\" help=\"${4:TODO}\" />"
         ],
         "description": "Data parameter with multiple required datasets"
     },
     "Text parameter": {
         "prefix": "gx-text-param",
         "body": [
-            "<param argument=\"$1\" type=\"text\" value=\"$2\" label=\"$3\" help=\"$4\">",
+            "<param argument=\"--$1\" type=\"text\" value=\"$2\" label=\"$3\" help=\"${4:TODO}\">",
             "    <sanitizer invalid_char=\"\">",
             "        <valid initial=\"string.letters,string.digits\">",
             "            <add value=\"_\" />",
@@ -140,7 +159,7 @@
             "        <option value=\"history\">History</option>",
             "    </param>",
             "    <when value=\"cached\">",
-            "        <param argument=\"$1\" type=\"select\"",
+            "        <param argument=\"--$1\" type=\"select\"",
             "            label=\"Reference genome\">",
             "            <options from_data_table=\"fasta_indexes\">",
             "                <filter type=\"data_meta\" column=\"dbkey\" key=\"dbkey\" ref=\"reads\" />",
@@ -149,7 +168,7 @@
             "        </param>",
             "    </when>",
             "    <when value=\"history\">",
-            "        <param argument=\"$1\" type=\"data\" format=\"fasta\" label=\"Reference\" help=\"Reference sequence\" />",
+            "        <param argument=\"--$2\" type=\"data\" format=\"fasta\" label=\"Reference\" help=\"Reference sequence\" />",
             "    </when>",
             "</conditional>"
         ],
