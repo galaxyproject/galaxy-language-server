@@ -45,14 +45,14 @@
         "prefix": "gx-conditional-select",
         "body": [
             "<conditional name=\"$1\">",
-            "    <param name=\"$2\" type=\"select\" label=\"$3\" help=\"$4\">",
-            "        <option value=\"$5\">TODO: option $5</option>",
-            "        <option value=\"$6\">TODO: option $6</option>",
+            "    <param name=\"$2\" type=\"select\" label=\"$3\" help=\"TODO\">",
+            "        <option value=\"$4\">TODO: $4</option>",
+            "        <option value=\"$5\">TODO: $5</option>",
             "    </param>",
-            "    <when value=\"$5\">",
+            "    <when value=\"$4\">",
             "        $0",
             "    </when>",
-            "    <when value=\"$6\">",
+            "    <when value=\"$5\">",
             "    </when>",
             "</conditional>"
         ],
@@ -61,10 +61,10 @@
     "Select parameter with 3 options": {
         "prefix": "gx-select-3-param",
         "body": [
-            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"$3\">",
-            "    <option value=\"$4\">TODO: option $4</option>",
-            "    <option value=\"$5\">TODO: option $5</option>",
-            "    <option value=\"$6\">TODO: option $6</option>",
+            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"TODO\">",
+            "    <option value=\"$3\">TODO: $3</option>",
+            "    <option value=\"$4\">TODO: $4</option>",
+            "    <option value=\"$5\">TODO: $5</option>",
             "</param>"
         ],
         "description": "Select parameter with 3 options"
@@ -72,12 +72,12 @@
     "Select parameter with 5 options": {
         "prefix": "gx-select-5-param",
         "body": [
-            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"$3\">",
-            "    <option value=\"$4\">TODO: option $4</option>",
-            "    <option value=\"$5\">TODO: option $5</option>",
-            "    <option value=\"$6\">TODO: option $6</option>",
-            "    <option value=\"$7\">TODO: option $7</option>",
-            "    <option value=\"$8\">TODO: option $8</option>",
+            "<param name=\"$1\" type=\"select\" label=\"$2\" help=\"TODO\">",
+            "    <option value=\"$3\">TODO: $3</option>",
+            "    <option value=\"$4\">TODO: $4</option>",
+            "    <option value=\"$5\">TODO: $5</option>",
+            "    <option value=\"$6\">TODO: $6</option>",
+            "    <option value=\"$7\">TODO: $7</option>",
             "</param>"
         ],
         "description": "Select parameter with 5 options"
