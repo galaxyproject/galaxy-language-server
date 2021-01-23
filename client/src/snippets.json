@@ -85,42 +85,42 @@
     "Boolean parameter": {
         "prefix": "gx-boolean-param",
         "body": [
-            "<param argument=\"$1\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"--$1\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Boolean parameter"
     },
     "Integer parameter": {
         "prefix": "gx-integer-param",
         "body": [
-            "<param argument=\"$1\" type=\"integer\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
+            "<param argument=\"--$1\" type=\"integer\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
         ],
         "description": "Integer parameter"
     },
     "Float parameter": {
         "prefix": "gx-float-param",
         "body": [
-            "<param argument=\"$1\" type=\"float\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
+            "<param argument=\"--$1\" type=\"float\" min=\"$2\" max=\"$3\" value=\"$4\" label=\"$5\" help=\"$6\" />"
         ],
         "description": "Float parameter"
     },
     "Data parameter with single required dataset": {
         "prefix": "gx-data-single-param",
         "body": [
-            "<param argument=\"$1\" name=\"$1\" type=\"data\" format=\"$2\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"--$1\" type=\"data\" format=\"$2\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Data parameter with single required dataset"
     },
     "Data parameter with multiple required datasets": {
         "prefix": "gx-data-multiple-param",
         "body": [
-            "<param argument=\"$1\" name=\"$1\" type=\"data\" format=\"$2\" multiple=\"true\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"--$1\" type=\"data\" format=\"$2\" multiple=\"true\" label=\"$3\" help=\"$4\" />"
         ],
         "description": "Data parameter with multiple required datasets"
     },
     "Text parameter": {
         "prefix": "gx-text-param",
         "body": [
-            "<param argument=\"$1\" type=\"text\" value=\"$2\" label=\"$3\" help=\"$4\">",
+            "<param argument=\"--$1\" type=\"text\" value=\"$2\" label=\"$3\" help=\"$4\">",
             "    <sanitizer invalid_char=\"\">",
             "        <valid initial=\"string.letters,string.digits\">",
             "            <add value=\"_\" />",
@@ -140,7 +140,7 @@
             "        <option value=\"history\">History</option>",
             "    </param>",
             "    <when value=\"cached\">",
-            "        <param argument=\"$1\" type=\"select\"",
+            "        <param argument=\"--$1\" type=\"select\"",
             "            label=\"Reference genome\">",
             "            <options from_data_table=\"fasta_indexes\">",
             "                <filter type=\"data_meta\" column=\"dbkey\" key=\"dbkey\" ref=\"reads\" />",
@@ -149,7 +149,7 @@
             "        </param>",
             "    </when>",
             "    <when value=\"history\">",
-            "        <param argument=\"$1\" type=\"data\" format=\"fasta\" label=\"Reference\" help=\"Reference sequence\" />",
+            "        <param argument=\"--$2\" type=\"data\" format=\"fasta\" label=\"Reference\" help=\"Reference sequence\" />",
             "    </when>",
             "</conditional>"
         ],
