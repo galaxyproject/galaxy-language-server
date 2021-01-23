@@ -2,13 +2,13 @@
     "Basic Galaxy tool": {
         "prefix": "gx-tool",
         "body": [
-            "<tool id=\"$1\" name=\"$2\" version=\"@TOOL_VERSION@+galaxy@VERSION_SUFFIX@\" profile=\"20.01\" license=\"${4|MIT,Apache-2.0,GPL-3.0-or-later,GPL-2.0-only,BSD-3-Clause,LGPL-3.0+|}\">",
+            "<tool id=\"$1\" name=\"$2\" version=\"@TOOL_VERSION@+galaxy@VERSION_SUFFIX@\" profile=\"20.01\" license=\"${3|MIT,Apache-2.0,GPL-3.0-or-later,GPL-2.0-only,BSD-3-Clause,LGPL-3.0+|}\">",
             "    <description>$5</description>",
             "    <xrefs>",
             "        <xref type=\"bio.tools\">$0</xref>",
             "    </xrefs>",
             "    <macros>",
-            "        <token name=\"@TOOL_VERSION@\">${3:0.1.0}</token>",
+            "        <token name=\"@TOOL_VERSION@\">${4:0.1.0}</token>",
             "        <token name=\"@VERSION_SUFFIX@\">0</token>",
             "    </macros>",
             "    <!-- TODO: please annotate this tool with topics and operations from http://edamontology.org -->",
