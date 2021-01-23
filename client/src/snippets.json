@@ -104,7 +104,7 @@
     "Boolean parameter": {
         "prefix": "gx-boolean-param",
         "body": [
-            "<param argument=\"--$1\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"$4\" />"
+            "<param argument=\"${1:--}\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"${4:TODO}\" />"
         ],
         "description": "Boolean parameter"
     },
