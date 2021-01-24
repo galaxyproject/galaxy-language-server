@@ -1,0 +1,27 @@
+from typing import Tuple, cast
+import pytest
+
+from galaxyls.services.xml.nodes import XmlElement
+from galaxyls.tests.unit.utils import TestUtils
+
+
+class TestXmlElementClass:
+    @pytest.mark.parametrize(
+        "source, expected_offsets",
+        [
+            ("<test", (5, 5)),
+            ("<test>", (5, 5)),
+            ("<test ", (5, 5)),
+            ('<test attr="val">', (6, 16)),
+            ('<test attr="val"   attr2="value" >', (6, 32)),
+        ],
+    )
+    def test_get_attributes_offsets_returns_expected(self, source: str, expected_offsets: Tuple[int, int]) -> None:
+        xml_document = TestUtils.from_source_to_xml_document(source)
+        node = xml_document.get_node_at(1)
+
+        assert node.is_element
+        element = cast(XmlElement, node)
+
+        actual_offsets = element.get_attributes_offsets()
+        assert actual_offsets == expected_offsets
