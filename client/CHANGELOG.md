@@ -1,5 +1,12 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.3.2] - 2021-01-24
+
+### Changed
+
+- Minor improvements in snippets ([#101](https://github.com/galaxyproject/galaxy-language-server/pull/101)).
+- Updated Galaxy Language Server [v0.3.2](./server/CHANGELOG.md#032)
+
 ## [0.3.1] - 2021-01-09
 
 ### Added
