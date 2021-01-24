@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.3.2] - 2021-01-24
+
+### Fixed
+
+- The server was ignoring tool wrappers with syntax errors instead of reporting those syntax errors ([#100](https://github.com/galaxyproject/galaxy-language-server/pull/100))
+
 ## [0.3.1] - 2021-01-09
 
 ### Fixed
