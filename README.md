@@ -25,8 +25,9 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-l
   - [Tag auto-closing](#tag-auto-closing)
   - [Snippets](#snippets)
   - [Embedded syntax highlighting](#embedded-syntax-highlighting)
-  - [Auto-generate tests](#auto-generate-tests). *New feature!* :rocket:
-  - [Auto-generate command section](#auto-generate-command-section). *New feature!* :rocket:
+  - [Auto-generate tests](#auto-generate-tests)
+  - [Auto-generate command section](#auto-generate-command-section)
+  - [Auto-sort param attributes](#auto-sort-param-attributes). *New feature!* :rocket:
 
 
 # Getting Started
@@ -100,3 +101,9 @@ After you define the `<inputs>` and `<outputs>` of the tool, you can press `Ctrl
 ![Demo feature auto-generate command section](../assets/feature.generate.command.gif)
 
 Similar to the [auto-generate tests](#Auto-generate-tests) command, but this time it will generate boilerplate `Cheetah` code for the `<command>` section.
+
+## Auto-sort param attributes
+
+![Demo feature auto-sort param attributes](../assets/feature.sort.param.attributes.gif)
+
+Now you can automatically sort the attributes of param elements according to the [IUC Coding Style guidelines](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html#coding-style) using a key-shortcut or the command palette. This can be done for each `<param>` element individually or for the full document.
