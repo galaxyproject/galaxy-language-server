@@ -8,7 +8,8 @@
 
 import { window, workspace, Disposable, TextDocumentContentChangeEvent, TextDocument, Position, SnippetString, Range } from 'vscode';
 import { RequestType, TextDocumentPositionParams } from "vscode-languageclient";
-import { cloneRange, Commands } from './commands'
+import { Commands } from './commands'
+import { cloneRange } from './utils';
 
 export namespace TagCloseRequest {
     export const type: RequestType<TextDocumentPositionParams, AutoCloseTagResult, any, any> = new RequestType(Commands.AUTO_CLOSE_TAGS);

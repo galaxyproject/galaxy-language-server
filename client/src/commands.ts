@@ -1,31 +1,89 @@
 'use strict';
 
-import { window, Position, SnippetString, Range } from "vscode";
-import { RequestType, TextDocumentIdentifier, LanguageClient } from "vscode-languageclient";
+import { window, Position, SnippetString, Range, ExtensionContext, commands } from "vscode";
+import { RequestType, TextDocumentIdentifier, TextDocumentPositionParams, LanguageClient } from "vscode-languageclient";
+import { cloneRange } from "./utils";
 
 export namespace Commands {
 
     export const AUTO_CLOSE_TAGS = 'galaxytools.completion.autoCloseTags';
     export const GENERATE_TEST = 'galaxytools.generate.tests';
     export const GENERATE_COMMAND = 'galaxytools.generate.command';
+    export const SORT_SINGLE_PARAM_ATTRS = 'galaxytools.sort.singleParamAttributes';
 }
 
-
-export namespace GeneratedTestRequest {
+namespace GeneratedTestRequest {
     export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any> = new RequestType(Commands.GENERATE_TEST);
 }
 
-export namespace GeneratedCommandRequest {
+namespace GeneratedCommandRequest {
     export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any> = new RequestType(Commands.GENERATE_COMMAND);
 }
 
-export interface GeneratedSnippetResult {
+namespace SortSingleParamAttrsCommandRequest {
+    export const type: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any, any> = new RequestType(Commands.SORT_SINGLE_PARAM_ATTRS);
+}
+interface GeneratedSnippetResult {
     snippet: string,
     position: Position
     replace_range: Range | null
 }
 
-export async function requestInsertSnippet(client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any>) {
+interface ReplaceTextRangeResult {
+    text: string,
+    replace_range: Range
+}
+
+
+
+export function setupCommands(client: LanguageClient, context: ExtensionContext) {
+    // Setup generate test command
+    const generateTest = async () => {
+        requestInsertSnippet(client, GeneratedTestRequest.type)
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST, generateTest));
+
+    // Setup generate command section command
+    const generateCommand = async () => {
+        requestInsertSnippet(client, GeneratedCommandRequest.type)
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_COMMAND, generateCommand));
+
+    // Setup sort param attributes command
+    const sortSingleParamAttrs = async () => {
+        requestSortSingleParamAttrs(client, SortSingleParamAttrsCommandRequest.type)
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.SORT_SINGLE_PARAM_ATTRS, sortSingleParamAttrs));
+
+}
+
+async function requestSortSingleParamAttrs(client: LanguageClient, request: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any, any>) {
+    let activeEditor = window.activeTextEditor;
+    if (!activeEditor) return;
+
+    if (activeEditor.document.isDirty) {
+        window.showErrorMessage("Please save the document before executing this action.");
+        return;
+    }
+    let document = activeEditor.document;
+
+    const position = activeEditor.selection.active;
+    let param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
+    let result = await client.sendRequest(request, param);
+    if (!result) return;
+
+    try {
+        const range = cloneRange(result.replace_range)
+        activeEditor.edit(builder => {
+            builder.replace(range, result.text);
+        });
+
+    } catch (err) {
+        window.showErrorMessage(err);
+    }
+}
+
+async function requestInsertSnippet(client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any>) {
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
@@ -53,18 +111,4 @@ export async function requestInsertSnippet(client: LanguageClient, request: Requ
     } catch (err) {
         window.showErrorMessage(err);
     }
-}
-
-/**
- * Returns a new instance of the given immutable Range.
- * @param range The original Range
- */
-export function cloneRange(range: Range): Range {
-    let line = range.start.line;
-    let character = range.start.character;
-    let startPosition = new Position(line, character);
-    line = range.end.line;
-    character = range.end.character;
-    let endPosition = new Position(line, character);
-    return new Range(startPosition, endPosition);
 }

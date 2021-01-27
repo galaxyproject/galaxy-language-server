@@ -1,12 +1,12 @@
 "use strict";
 
 import * as net from "net";
-import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages, ExtensionMode, commands } from "vscode";
+import { ExtensionContext, window, TextDocument, Position, IndentAction, LanguageConfiguration, languages, ExtensionMode } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
 import { GALAXY_LS, LANGUAGE_ID } from './constants';
-import { Commands, GeneratedCommandRequest, GeneratedTestRequest, requestInsertSnippet } from './commands';
+import { setupCommands } from './commands';
 
 let client: LanguageClient;
 
@@ -48,18 +48,8 @@ export async function activate(context: ExtensionContext) {
   };
   context.subscriptions.push(activateTagClosing(tagProvider));
 
-  // Setup generate test command
-  const generateTest = async () => {
-    requestInsertSnippet(client, GeneratedTestRequest.type)
-  };
+  setupCommands(client, context);
 
-  // Setup generate command section command
-  const generateCommand = async () => {
-    requestInsertSnippet(client, GeneratedCommandRequest.type)
-  };
-
-  context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST, generateTest));
-  context.subscriptions.push(commands.registerCommand(Commands.GENERATE_COMMAND, generateCommand));
 }
 
 /**
