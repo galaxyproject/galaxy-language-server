@@ -8,8 +8,32 @@ from pygls.types import Position, Range
 
 
 class TestIUCToolParamAttributeSorterClass:
-    def test_sort_param__without_attributes_returns_none(self) -> None:
-        xml_document = TestUtils.from_source_to_xml_document("<test>")
+    def test_sort_param_without_attributes_returns_none(self) -> None:
+        xml_document = TestUtils.from_source_to_xml_document("<param>")
+        node = xml_document.get_node_at(1)
+        assert node.is_element
+        element = cast(XmlElement, node)
+
+        sorter = IUCToolParamAttributeSorter()
+
+        actual = sorter.sort_param_attributes(element, xml_document)
+
+        assert actual is None
+
+    def test_sort_param_with_single_attribute_returns_none(self) -> None:
+        xml_document = TestUtils.from_source_to_xml_document('<param format="val1">')
+        node = xml_document.get_node_at(1)
+        assert node.is_element
+        element = cast(XmlElement, node)
+
+        sorter = IUCToolParamAttributeSorter()
+
+        actual = sorter.sort_param_attributes(element, xml_document)
+
+        assert actual is None
+
+    def test_sort_param_with_sorted_attributes_returns_none(self) -> None:
+        xml_document = TestUtils.from_source_to_xml_document('<param name="n" format="f">')
         node = xml_document.get_node_at(1)
         assert node.is_element
         element = cast(XmlElement, node)
@@ -24,28 +48,23 @@ class TestIUCToolParamAttributeSorterClass:
         "source, expected_range, expected_text",
         [
             (
-                "<test format=",
-                Range(Position(0, 6), Position(0, 13)),
-                'format=""',
+                '<param format="val1" name="n">',
+                Range(Position(0, 7), Position(0, 29)),
+                'name="n" format="val1"',
             ),
             (
-                '<test format="val1">',
-                Range(Position(0, 6), Position(0, 19)),
-                'format="val1"',
-            ),
-            (
-                '<test format="val1"   type="val2" >',
-                Range(Position(0, 6), Position(0, 33)),
+                '<param format="val1"   type="val2" >',
+                Range(Position(0, 7), Position(0, 34)),
                 'type="val2" format="val1"',
             ),
             (
-                '<test format="val1" name="val2" type="val3">',
-                Range(Position(0, 6), Position(0, 43)),
+                '<param format="val1" name="val2" type="val3">',
+                Range(Position(0, 7), Position(0, 44)),
                 'name="val2" type="val3" format="val1"',
             ),
             (
-                '<test unknown="val0" format="val1" name="val2" type="val3">',
-                Range(Position(0, 6), Position(0, 58)),
+                '<param unknown="val0" format="val1" name="val2" type="val3">',
+                Range(Position(0, 7), Position(0, 59)),
                 'name="val2" type="val3" format="val1" unknown="val0"',
             ),
         ],
@@ -76,12 +95,15 @@ class TestIUCToolParamAttributeSorterClass:
             ("<test>", 0),
             ("<test><param/></test>", 0),
             ("<test><param></param></test>", 0),
-            ('<test><param name="val"></param></test>', 1),
+            ('<test><param name="val"></param></test>', 0),
+            ('<test><param name="val" label="lab"></param></test>', 0),
+            ('<test><param label="lab" name="val"></param></test>', 1),
             (
                 """
                 <test>
                     <param />
                     <param name="val"/>
+                    <param label="lab" name="val"/>
                 </test>
                 """,
                 1,
@@ -89,9 +111,9 @@ class TestIUCToolParamAttributeSorterClass:
             (
                 """
                 <test>
-                    <param name="val"/>
-                    <param name="val"/>
-                    <param name="val"/>
+                    <param label="lab" name="val"/>
+                    <param label="lab" name="val"/>
+                    <param label="lab" name="val"/>
                 </test>
                 """,
                 3,
