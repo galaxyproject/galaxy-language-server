@@ -1,8 +1,10 @@
 from typing import List, Optional
 
+from galaxyls.services.tools.common import ToolParamAttributeSorter
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
+from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
 from pygls.types import (
     CompletionList,
     CompletionParams,
@@ -16,7 +18,7 @@ from pygls.types import (
 from pygls.workspace import Document
 
 from ..config import CompletionMode
-from ..types import GeneratedSnippetResult
+from ..types import GeneratedSnippetResult, ReplaceTextRangeResult
 from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
@@ -37,6 +39,7 @@ class GalaxyToolLanguageService:
         tree = self.xsd_service.xsd_parser.get_tree()
         self.completion_service = XmlCompletionService(tree)
         self.xml_context_service = XmlContextService(tree)
+        self.sort_service: ToolParamAttributeSorter = IUCToolParamAttributeSorter()
 
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list
@@ -88,3 +91,17 @@ class GalaxyToolLanguageService:
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolCommandSnippetGenerator(tool)
         return generator.generate_snippet()
+
+    def sort_single_param_attrs(
+        self, xml_document: XmlDocument, params: TextDocumentPositionParams
+    ) -> Optional[ReplaceTextRangeResult]:
+        """Sorts the attributes of the param element under the cursor."""
+        offset = xml_document.document.offset_at_position(params.position)
+        param_element = xml_document.find_element_at(offset)
+        if param_element:
+            return self.sort_service.sort_param_attributes(param_element, xml_document)
+        return None
+
+    def sort_document_param_attributes(self, xml_document: XmlDocument) -> List[ReplaceTextRangeResult]:
+        """Sorts the attributes of all the param elements contained in the document."""
+        return self.sort_service.sort_document_param_attributes(xml_document)

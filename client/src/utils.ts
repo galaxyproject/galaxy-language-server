@@ -1,4 +1,8 @@
+"use strict";
+
 import { exec } from "child_process";
+import { Position, Range } from "vscode";
+
 
 export async function execAsync(command: string, options: object = {}): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -9,4 +13,18 @@ export async function execAsync(command: string, options: object = {}): Promise<
             resolve(stdout.trim().toString());
         });
     });
+}
+
+/**
+ * Returns a new instance of the given immutable Range.
+ * @param range The original Range
+ */
+export function cloneRange(range: Range): Range {
+    let line = range.start.line;
+    let character = range.start.character;
+    let startPosition = new Position(line, character);
+    line = range.end.line;
+    character = range.end.character;
+    let endPosition = new Position(line, character);
+    return new Range(startPosition, endPosition);
 }

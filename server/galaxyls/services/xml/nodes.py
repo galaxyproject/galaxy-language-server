@@ -87,6 +87,22 @@ class XmlSyntaxNode(ABC, NodeMixin):
                     return attr
         return self
 
+    def find_element_at(self, offset: int) -> Optional["XmlElement"]:
+        """Finds the element node at the given document offset."""
+        node = self.find_node_at(offset)
+        if node:
+            return node.get_parent_element()
+        return None
+
+    def get_parent_element(self) -> Optional["XmlElement"]:
+        """Returns the XmlElement associated with this syntax node or None."""
+        if self.is_element:
+            return cast(XmlElement, self)
+        if self.parent:
+            parent: Optional[XmlSyntaxNode] = cast(XmlSyntaxNode, self.parent)
+            return parent.get_parent_element()
+        return None
+
     def get_offsets(self, _: int) -> Tuple[int, int]:
         """Get the starting and ending offsets of this syntax node as a tuple.
 
@@ -259,6 +275,18 @@ class XmlElement(XmlContainerNode):
         return [element for element in self.children if type(element) is XmlElement]
 
     @property
+    def name_start_offset(self) -> int:
+        """The offset at where this element's tag name starts."""
+        return self.start + 1  # +1 for '<'
+
+    @property
+    def name_end_offset(self) -> int:
+        """The offset at where this element's tag name ends."""
+        if self.name:
+            return self.name_start_offset + len(self.name)
+        return self.name_start_offset
+
+    @property
     def end_offset(self) -> int:
         """The offset position at the end of this element"""
         if self.end_tag_close_offset != UNDEFINED_OFFSET:
@@ -318,13 +346,34 @@ class XmlElement(XmlContainerNode):
             opening and ending tokens ('<', '>' '</').
         """
         if self.name:
-            start = self.start + 1  # +1 for '<'
-            end = start + len(self.name)
+            start = self.name_start_offset
+            end = self.name_end_offset
             if self.is_at_closing_tag(offset):
                 start = self.end_tag_open_offset + 2  # +1 for '</'
                 end = self.end_tag_close_offset
             return start, end
         return self.start, self.end
+
+    def get_attributes_offsets(self) -> Tuple[int, int]:
+        """Get the starting and ending offsets of all the attributes of this element.
+
+        Returns:
+            Tuple[int, int]: The start and end offsets of the attributes. The starting offset
+            will be the start of the first attribute and the end offset the end of the last
+            attribute defined in this element.
+        """
+        if self.has_attributes:
+            attributes = self.get_attribute_nodes()
+            first_attr = attributes[0]
+            last_attr = attributes[-1]
+            start = first_attr.start
+            end = last_attr.end
+            return start, end
+
+        if self.name:
+            return self.name_end_offset, self.name_end_offset
+
+        return self.end, self.end
 
     def get_content_offsets(self) -> Tuple[int, int]:
         start = self.start_tag_close_offset + 1  # +1 for '>'

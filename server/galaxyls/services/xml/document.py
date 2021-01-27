@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from anytree.search import findall
 from pygls.types import Position, Range
@@ -117,3 +117,10 @@ class XmlDocument(XmlSyntaxNode):
         if element.is_self_closed:
             return convert_document_offset_to_position(self.document, element.end)
         return convert_document_offset_to_position(self.document, element.end_offset)
+
+    def find_all_elements_with_name(self, name: str) -> List[XmlElement]:
+        """Returns a list with all the elements contained in the document matching the given name."""
+        if self.root:
+            found = findall(self.root, filter_=lambda node: node is not None and node.name == name)
+            return list(found)
+        return []

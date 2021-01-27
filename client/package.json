@@ -96,6 +96,16 @@
         "command": "galaxytools.generate.command",
         "title": "Generate boilerplate command section for current tool",
         "category": "Galaxy Tools"
+      },
+      {
+        "command": "galaxytools.sort.singleParamAttributes",
+        "title": "Sort the attributes of the param element under the cursor according to the IUC Coding Style Guide.",
+        "category": "Galaxy Tools"
+      },
+      {
+        "command": "galaxytools.sort.documentParamsAttributes",
+        "title": "Sort the attributes of all the param elements in the document according to the IUC Coding Style Guidelines.",
+        "category": "Galaxy Tools"
       }
     ],
     "keybindings": [
@@ -108,6 +118,16 @@
         "command": "galaxytools.generate.command",
         "key": "ctrl+alt+c",
         "mac": "cmd+alt+c"
+      },
+      {
+        "command": "galaxytools.sort.singleParamAttributes",
+        "key": "ctrl+alt+s ctrl+alt+p",
+        "mac": "cmd+alt+s cmd+alt+p"
+      },
+      {
+        "command": "galaxytools.sort.documentParamsAttributes",
+        "key": "ctrl+alt+s ctrl+alt+d",
+        "mac": "cmd+alt+s cmd+alt+d"
       }
     ],
     "configuration": {
