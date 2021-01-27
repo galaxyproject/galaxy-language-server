@@ -66,7 +66,7 @@ class TestIUCToolParamAttributeSorterClass:
         actual = sorter.sort_param_attributes(element, xml_document)
 
         assert actual
-        assert actual.range == expected_range
+        assert actual.replace_range == expected_range
         assert actual.text == expected_text
 
     @pytest.mark.parametrize(

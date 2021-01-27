@@ -32,6 +32,6 @@ class GeneratedSnippetResult:
 class ReplaceTextRangeResult:
     """Represents a position range in the document that should be replaced with some text."""
 
-    def __init__(self, range: Range, text: str) -> None:
-        self.range = range
+    def __init__(self, replace_range: Range, text: str) -> None:
+        self.replace_range = replace_range
         self.text = text

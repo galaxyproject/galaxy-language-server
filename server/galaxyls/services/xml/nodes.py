@@ -87,6 +87,22 @@ class XmlSyntaxNode(ABC, NodeMixin):
                     return attr
         return self
 
+    def find_element_at(self, offset: int) -> Optional["XmlElement"]:
+        """Finds the element node at the given document offset."""
+        node = self.find_node_at(offset)
+        if node:
+            return node.get_parent_element()
+        return None
+
+    def get_parent_element(self) -> Optional["XmlElement"]:
+        """Returns the XmlElement associated with this syntax node or None."""
+        if self.is_element:
+            return cast(XmlElement, self)
+        if self.parent:
+            parent: Optional[XmlSyntaxNode] = cast(XmlSyntaxNode, self.parent)
+            return parent.get_parent_element()
+        return None
+
     def get_offsets(self, _: int) -> Tuple[int, int]:
         """Get the starting and ending offsets of this syntax node as a tuple.
 

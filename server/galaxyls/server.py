@@ -36,11 +36,17 @@ from pygls.workspace import Document
 from galaxyls.services.validation import DocumentValidator
 
 from .config import CompletionMode, GalaxyToolsConfiguration
-from .features import AUTO_CLOSE_TAGS, CMD_GENERATE_COMMAND, CMD_GENERATE_TEST
+from .features import (
+    AUTO_CLOSE_TAGS,
+    CMD_GENERATE_COMMAND,
+    CMD_GENERATE_TEST,
+    SORT_DOCUMENT_PARAMS_ATTRS,
+    SORT_SINGLE_PARAM_ATTRS,
+)
 from .services.language import GalaxyToolLanguageService
 from .services.xml.document import XmlDocument
 from .services.xml.parser import XmlDocumentParser
-from .types import AutoCloseTagResult, GeneratedSnippetResult
+from .types import AutoCloseTagResult, GeneratedSnippetResult, ReplaceTextRangeResult
 
 SERVER_NAME = "Galaxy Tools LS"
 
@@ -165,6 +171,16 @@ async def cmd_generate_command(
     """Generates a boilerplate Cheetah code snippet based on the inputs and outputs of the document."""
     document = server.workspace.get_document(params.uri)
     return server.service.generate_command(document)
+
+
+@language_server.feature(SORT_SINGLE_PARAM_ATTRS)
+def sort_single_param_attrs_command(
+    server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
+) -> Optional[ReplaceTextRangeResult]:
+    """Sorts the attributes of the param element under the cursor."""
+    document = server.workspace.get_document(params.textDocument.uri)
+    xml_document = _get_xml_document(document)
+    return server.service.sort_single_param_attrs(xml_document, params)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
