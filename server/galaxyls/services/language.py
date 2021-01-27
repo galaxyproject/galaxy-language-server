@@ -102,3 +102,6 @@ class GalaxyToolLanguageService:
             return self.sort_service.sort_param_attributes(param_element, xml_document)
         return None
 
+    def sort_document_param_attributes(self, xml_document: XmlDocument) -> List[ReplaceTextRangeResult]:
+        """Sorts the attributes of all the param elements contained in the document."""
+        return self.sort_service.sort_document_param_attributes(xml_document)

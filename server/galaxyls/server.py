@@ -183,6 +183,16 @@ def sort_single_param_attrs_command(
     return server.service.sort_single_param_attrs(xml_document, params)
 
 
+@language_server.feature(SORT_DOCUMENT_PARAMS_ATTRS)
+def sort_document_params_attrs_command(
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
+) -> Optional[List[ReplaceTextRangeResult]]:
+    """Sorts the attributes of all the param elements contained in the document."""
+    document = server.workspace.get_document(params.uri)
+    xml_document = _get_xml_document(document)
+    return server.service.sort_document_param_attributes(xml_document)
+
+
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
     document = server.workspace.get_document(params.textDocument.uri)

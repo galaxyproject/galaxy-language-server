@@ -43,7 +43,7 @@ class IUCToolParamAttributeSorter(ToolParamAttributeSorter):
     }
 
     def sort_param_attributes(self, param: XmlElement, xml_document: XmlDocument) -> Optional[ReplaceTextRangeResult]:
-        if param and param.has_attributes:
+        if param and param.name == PARAM and param.has_attributes:
             start, end = param.get_attributes_offsets()
             sorted_attribute_names = self._sort_attribute_names(param.get_attribute_names())
             sorted_attributes_text = self._get_param_attributes_as_text_sorted(param, sorted_attribute_names)
