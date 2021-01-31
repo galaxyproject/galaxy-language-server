@@ -155,6 +155,19 @@
           "type": "boolean",
           "markdownDescription": "Controls whether to auto-insert the closing tag after typing `>` or `/`.",
           "default": "true"
+        },
+        "galaxyTools.planemo.virtualEnv": {
+          "scope": "resource",
+          "type": "string",
+          "markdownDescription": "**[Experimental]** The path to the `Python virtual environment` where `planemo` is installed.",
+          "default": null
+        },
+        "galaxyTools.planemo.galaxyRoot": {
+          "scope": "resource",
+          "type": "string",
+          "markdownDescription": "**[Experimental]** The path to the *Galaxy root directory* that will be used by `planemo`.",
+          "default": null
+        }
         }
       }
     },
