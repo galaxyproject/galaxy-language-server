@@ -175,7 +175,9 @@ class GalaxyToolInputTree:
         name = conditional.get_attribute(NAME)
         if name and option_value:
             conditional_node = ConditionalInputNode(name, option_value, element=conditional, parent=parent)
-            when = find(conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value)
+            when = find(
+                conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value, maxlevel=2
+            )
             when = cast(XmlElement, when)
             if when:
                 self._build_input_tree(when, conditional_node)
