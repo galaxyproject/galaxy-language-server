@@ -1,0 +1,28 @@
+<tool id="nested_conditional_bug_01" name="Nested conditional bug 01">
+    <description>Nested conditional with the same 'when' values should return the correct 'when'.</description>
+    <inputs>
+        <conditional name="parent_conditional">
+            <param name="option" type="select">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </param>
+            <when value="yes">
+                <conditional name="child_conditional">
+                    <param name="option" type="select">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </param>
+                    <when value="yes">
+                        <param name="param" type="text"/>
+                    </when>
+                    <when value="no">
+                    </when>
+                </conditional>
+            </when>
+            <when value="no">
+            </when>
+        </conditional>
+    </inputs>
+    <tests>
+    </tests>
+</tool>

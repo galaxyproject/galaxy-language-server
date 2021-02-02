@@ -158,6 +158,7 @@ class TestGalaxyToolTestSnippetGeneratorClass:
             ("simple_output_01.xml", "simple_output_01_test.xml"),
             ("simple_output_02.xml", "simple_output_02_test.xml"),
             ("complex_inputs_01.xml", "complex_inputs_01_test.xml"),
+            ("nested_conditional_bug_01.xml", "nested_conditional_bug_01_test.xml"),
         ],
     )
     def test_build_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
@@ -167,7 +168,7 @@ class TestGalaxyToolTestSnippetGeneratorClass:
         generator = GalaxyToolTestSnippetGenerator(tool)
 
         actual_snippet = generator._build_snippet()
-
+        print(actual_snippet)
         assert actual_snippet == expected_snippet
 
     @pytest.mark.parametrize(
@@ -219,6 +220,7 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
             ("simple_output_01.xml", "simple_output_01_command.xml"),
             ("simple_output_02.xml", "simple_output_02_command.xml"),
             ("complex_inputs_01.xml", "complex_inputs_01_command.xml"),
+            ("nested_conditional_bug_01.xml", "nested_conditional_bug_01_test.xml"),
         ],
     )
     def test_build_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
@@ -228,7 +230,7 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
         generator = GalaxyToolCommandSnippetGenerator(tool)
 
         actual_snippet = generator._build_snippet()
-
+        print(actual_snippet)
         assert actual_snippet == expected_snippet
 
     @pytest.mark.parametrize(
