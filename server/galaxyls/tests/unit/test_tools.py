@@ -220,7 +220,7 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
             ("simple_output_01.xml", "simple_output_01_command.xml"),
             ("simple_output_02.xml", "simple_output_02_command.xml"),
             ("complex_inputs_01.xml", "complex_inputs_01_command.xml"),
-            ("nested_conditional_bug_01.xml", "nested_conditional_bug_01_test.xml"),
+            ("nested_conditional_bug_01.xml", "nested_conditional_bug_01_command.xml"),
         ],
     )
     def test_build_snippet_returns_expected_result(self, tool_file: str, expected_snippet_file: str) -> None:
