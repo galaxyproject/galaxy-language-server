@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement
-from galaxyls.types import ReplaceTextRangeResult
+from galaxyls.types import ReplaceTextRangeResult, TestSuiteInfoResult
 
 
 class ToolParamAttributeSorter(metaclass=abc.ABCMeta):
@@ -20,4 +20,12 @@ class ToolParamAttributeSorter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def sort_document_param_attributes(self, xml_document: XmlDocument) -> List[ReplaceTextRangeResult]:
         """Returns a collection of edits with all the attributes of the param elements in the document sorted."""
+        raise NotImplementedError
+
+
+class TestsDiscoveryService(metaclass=abc.ABCMeta):
+    """Interface class for test discovering."""
+
+    @abc.abstractmethod
+    def discover_tests_in_document(self, xml_document: XmlDocument) -> TestSuiteInfoResult:
         raise NotImplementedError

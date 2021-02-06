@@ -40,13 +40,14 @@ from .features import (
     AUTO_CLOSE_TAGS,
     CMD_GENERATE_COMMAND,
     CMD_GENERATE_TEST,
+    DISCOVER_TESTS,
     SORT_DOCUMENT_PARAMS_ATTRS,
     SORT_SINGLE_PARAM_ATTRS,
 )
 from .services.language import GalaxyToolLanguageService
 from .services.xml.document import XmlDocument
 from .services.xml.parser import XmlDocumentParser
-from .types import AutoCloseTagResult, GeneratedSnippetResult, ReplaceTextRangeResult
+from .types import AutoCloseTagResult, GeneratedSnippetResult, ReplaceTextRangeResult, TestSuiteInfoResult
 
 SERVER_NAME = "Galaxy Tools LS"
 
@@ -101,8 +102,8 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
         return None
     document = _get_valid_document(server, params.textDocument.uri)
     if document:
-    xml_document = _get_xml_document(document)
-    return server.service.get_completion(xml_document, params, server.configuration.completion_mode)
+        xml_document = _get_xml_document(document)
+        return server.service.get_completion(xml_document, params, server.configuration.completion_mode)
 
 
 @language_server.feature(AUTO_CLOSE_TAGS)
@@ -111,8 +112,8 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositi
     if server.configuration.auto_close_tags:
         document = _get_valid_document(server, params.textDocument.uri)
         if document:
-        xml_document = _get_xml_document(document)
-        return server.service.get_auto_close_tag(xml_document, params)
+            xml_document = _get_xml_document(document)
+            return server.service.get_auto_close_tag(xml_document, params)
 
 
 @language_server.feature(HOVER)
@@ -120,8 +121,8 @@ def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams)
     """Displays Markdown documentation for the element under the cursor."""
     document = _get_valid_document(server, params.textDocument.uri)
     if document:
-    xml_document = _get_xml_document(document)
-    return server.service.get_documentation(xml_document, params.position)
+        xml_document = _get_xml_document(document)
+        return server.service.get_documentation(xml_document, params.position)
 
 
 @language_server.feature(FORMATTING)
@@ -129,8 +130,8 @@ def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingPara
     """Formats the whole document using the provided parameters"""
     document = _get_valid_document(server, params.textDocument.uri)
     if document:
-    content = document.source
-    return server.service.format_document(content, params)
+        content = document.source
+        return server.service.format_document(content, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
@@ -158,7 +159,7 @@ async def cmd_generate_test(
     """Generates some test snippets based on the inputs and outputs of the document."""
     document = _get_valid_document(server, params.uri)
     if document:
-    return server.service.generate_tests(document)
+        return server.service.generate_tests(document)
 
 
 @language_server.feature(CMD_GENERATE_COMMAND)
@@ -168,7 +169,7 @@ async def cmd_generate_command(
     """Generates a boilerplate Cheetah code snippet based on the inputs and outputs of the document."""
     document = _get_valid_document(server, params.uri)
     if document:
-    return server.service.generate_command(document)
+        return server.service.generate_command(document)
 
 
 @language_server.feature(SORT_SINGLE_PARAM_ATTRS)
@@ -178,8 +179,8 @@ def sort_single_param_attrs_command(
     """Sorts the attributes of the param element under the cursor."""
     document = _get_valid_document(server, params.textDocument.uri)
     if document:
-    xml_document = _get_xml_document(document)
-    return server.service.sort_single_param_attrs(xml_document, params)
+        xml_document = _get_xml_document(document)
+        return server.service.sort_single_param_attrs(xml_document, params)
 
 
 @language_server.feature(SORT_DOCUMENT_PARAMS_ATTRS)
@@ -189,8 +190,17 @@ def sort_document_params_attrs_command(
     """Sorts the attributes of all the param elements contained in the document."""
     document = _get_valid_document(server, params.uri)
     if document:
-    xml_document = _get_xml_document(document)
-    return server.service.sort_document_param_attributes(xml_document)
+        xml_document = _get_xml_document(document)
+        return server.service.sort_document_param_attributes(xml_document)
+
+
+@language_server.feature(DISCOVER_TESTS)
+def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> Optional[TestSuiteInfoResult]:
+    """Sorts the attributes of all the param elements contained in the document."""
+    document = _get_valid_document(server, params.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+        return server.service.discover_tests(xml_document)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
