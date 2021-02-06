@@ -99,9 +99,8 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
     """Returns completion items depending on the current document context."""
     if server.configuration.completion_mode == CompletionMode.DISABLED:
         return None
-    document = server.workspace.get_document(params.textDocument.uri)
-    if not _is_document_supported(document):
-        return None
+    document = _get_valid_document(server, params.textDocument.uri)
+    if document:
     xml_document = _get_xml_document(document)
     return server.service.get_completion(xml_document, params, server.configuration.completion_mode)
 
@@ -110,9 +109,8 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
 def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
     """Responds to a close tag request to close the currently opened node."""
     if server.configuration.auto_close_tags:
-        document = server.workspace.get_document(params.textDocument.uri)
-        if not _is_document_supported(document):
-            return None
+        document = _get_valid_document(server, params.textDocument.uri)
+        if document:
         xml_document = _get_xml_document(document)
         return server.service.get_auto_close_tag(xml_document, params)
 
@@ -120,9 +118,8 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositi
 @language_server.feature(HOVER)
 def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
-    document = server.workspace.get_document(params.textDocument.uri)
-    if not _is_document_supported(document):
-        return None
+    document = _get_valid_document(server, params.textDocument.uri)
+    if document:
     xml_document = _get_xml_document(document)
     return server.service.get_documentation(xml_document, params.position)
 
@@ -130,9 +127,8 @@ def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams)
 @language_server.feature(FORMATTING)
 def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> Optional[List[TextEdit]]:
     """Formats the whole document using the provided parameters"""
-    document = server.workspace.get_document(params.textDocument.uri)
-    if not _is_document_supported(document):
-        return None
+    document = _get_valid_document(server, params.textDocument.uri)
+    if document:
     content = document.source
     return server.service.format_document(content, params)
 
@@ -160,7 +156,8 @@ async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[GeneratedSnippetResult]:
     """Generates some test snippets based on the inputs and outputs of the document."""
-    document = server.workspace.get_document(params.uri)
+    document = _get_valid_document(server, params.uri)
+    if document:
     return server.service.generate_tests(document)
 
 
@@ -169,7 +166,8 @@ async def cmd_generate_command(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[GeneratedSnippetResult]:
     """Generates a boilerplate Cheetah code snippet based on the inputs and outputs of the document."""
-    document = server.workspace.get_document(params.uri)
+    document = _get_valid_document(server, params.uri)
+    if document:
     return server.service.generate_command(document)
 
 
@@ -178,7 +176,8 @@ def sort_single_param_attrs_command(
     server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
 ) -> Optional[ReplaceTextRangeResult]:
     """Sorts the attributes of the param element under the cursor."""
-    document = server.workspace.get_document(params.textDocument.uri)
+    document = _get_valid_document(server, params.textDocument.uri)
+    if document:
     xml_document = _get_xml_document(document)
     return server.service.sort_single_param_attrs(xml_document, params)
 
@@ -188,18 +187,25 @@ def sort_document_params_attrs_command(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[List[ReplaceTextRangeResult]]:
     """Sorts the attributes of all the param elements contained in the document."""
-    document = server.workspace.get_document(params.uri)
+    document = _get_valid_document(server, params.uri)
+    if document:
     xml_document = _get_xml_document(document)
     return server.service.sort_document_param_attributes(xml_document)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
-    document = server.workspace.get_document(params.textDocument.uri)
-    if _is_document_supported(document):
+    document = _get_valid_document(server, params.textDocument.uri)
+    if document:
         xml_document = _get_xml_document(document)
         diagnostics = server.service.get_diagnostics(xml_document)
         server.publish_diagnostics(document.uri, diagnostics)
+
+
+def _get_valid_document(server: GalaxyToolsLanguageServer, uri: str) -> Optional[Document]:
+    document = server.workspace.get_document(uri)
+    if _is_document_supported(document):
+        return document
 
 
 def _get_xml_document(document: Document) -> XmlDocument:
