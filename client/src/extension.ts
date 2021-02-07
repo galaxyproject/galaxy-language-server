@@ -7,6 +7,7 @@ import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
 import { GALAXY_LS, LANGUAGE_ID } from './constants';
 import { setupCommands } from './commands';
+import { DefaultConfigurationFactory } from "./planemo/configuration";
 
 let client: LanguageClient;
 
@@ -39,6 +40,8 @@ export async function activate(context: ExtensionContext) {
   languages.setLanguageConfiguration(LANGUAGE_ID, getIndentationRules());
 
   context.subscriptions.push(client.start());
+
+  const configFactory = new DefaultConfigurationFactory();
 
   // Setup auto close tags
   const tagProvider = (document: TextDocument, position: Position) => {

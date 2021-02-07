@@ -161,17 +161,35 @@
           "markdownDescription": "Controls whether to auto-insert the closing tag after typing `>` or `/`.",
           "default": "true"
         },
-        "galaxyTools.planemo.virtualEnv": {
+        "galaxyTools.planemo.enabled": {
+          "scope": "resource",
+          "type": "boolean",
+          "markdownDescription": "**[Experimental]** When enabled, you can use some of the `planemo` features directly from your editor. Please set `#galaxyTools.planemo.envPath#` to be able to use `planemo`.",
+          "default": true
+        },
+        "galaxyTools.planemo.envPath": {
           "scope": "resource",
           "type": "string",
-          "markdownDescription": "**[Experimental]** The path to the `Python virtual environment` where `planemo` is installed.",
+          "markdownDescription": "The full path to the `Python virtual environment` where `planemo` is installed. This is required to be able to use `planemo` features.",
           "default": null
         },
         "galaxyTools.planemo.galaxyRoot": {
           "scope": "resource",
           "type": "string",
-          "markdownDescription": "**[Experimental]** The path to the *Galaxy root directory* that will be used by `planemo`.",
+          "markdownDescription": "The full path to the *Galaxy root directory* that will be used by `planemo`. This is required to be able to use some `planemo` features that require a `Galaxy` instance running.",
           "default": null
+        },
+        "galaxyTools.planemo.testing.enabled": {
+          "scope": "resource",
+          "type": "boolean",
+          "markdownDescription": "Whether to discover and run tests using `planemo` inside the editor Test Explorer.",
+          "default": true
+        },
+        "galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled": {
+          "scope": "resource",
+          "type": "boolean",
+          "markdownDescription": "Whether to try to discover new tests when a Galaxy Tool Wrapper file is saved.",
+          "default": true
         }
       }
     },
@@ -188,7 +206,8 @@
       "planemo-explorer": [
         {
           "id": "planemo-config",
-          "name": "Configuration"
+          "name": "Configuration",
+          "when": "config.galaxyTools.planemo.enabled"
         }
       ]
     },
