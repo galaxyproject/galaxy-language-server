@@ -40,9 +40,9 @@ class ReplaceTextRangeResult:
 class TestInfoResult:
     """Contains information about a particular test case."""
 
-    def __init__(self, test_id: str, file: str, line: int, skipped: bool = False) -> None:
-        self.id = test_id
-        self.label = f"Test #{test_id}"
+    def __init__(self, tool_id: str, test_id: str, file: str, line: int, skipped: bool = False) -> None:
+        self.id = f"{tool_id}:{test_id}"
+        self.label = f"{tool_id}:Test #{test_id}"
         self.file = file
         self.line = line
         self.skipped = skipped

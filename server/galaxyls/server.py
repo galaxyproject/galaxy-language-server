@@ -195,12 +195,9 @@ def sort_document_params_attrs_command(
 
 
 @language_server.feature(DISCOVER_TESTS)
-def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> Optional[TestSuiteInfoResult]:
+def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> List[TestSuiteInfoResult]:
     """Sorts the attributes of all the param elements contained in the document."""
-    document = _get_valid_document(server, params.uri)
-    if document:
-        xml_document = _get_xml_document(document)
-        return server.service.discover_tests(xml_document)
+    return server.service.discover_tests(server.workspace)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:

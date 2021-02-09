@@ -1,6 +1,8 @@
 import abc
 from typing import List, Optional
 
+from pygls.workspace import Workspace
+
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement
 from galaxyls.types import ReplaceTextRangeResult, TestSuiteInfoResult
@@ -27,5 +29,5 @@ class TestsDiscoveryService(metaclass=abc.ABCMeta):
     """Interface class for test discovering."""
 
     @abc.abstractmethod
-    def discover_tests_in_document(self, xml_document: XmlDocument) -> TestSuiteInfoResult:
+    def discover_tests_in_workspace(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
         raise NotImplementedError
