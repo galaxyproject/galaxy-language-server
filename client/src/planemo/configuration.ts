@@ -1,15 +1,24 @@
 import { GalaxyToolsWorkspaceConfiguration } from "../configuration/galaxyToolWorkspaceConfiguration";
-import { IWorkspaceConfiguration } from "../configuration/workspaceConfiguration";
+import { ConfigValidationResult, IWorkspaceConfiguration } from "../configuration/workspaceConfiguration";
 
 export interface IPlanemoConfiguration {
 
     enabled(): boolean;
 
-    envPath(): string | null;
+    envPath(): string;
 
-    galaxyPath(): string | null;
+    galaxyRoot(): string | null;
 
-    testingEnabled(): boolean;
+    getCwd(): string | undefined;
+
+    testing(): IPlanemoTestingConfiguration;
+
+    Validate(): ConfigValidationResult;
+}
+
+export interface IPlanemoTestingConfiguration {
+
+    enabled(): boolean;
 
     autoTestDiscoverOnSaveEnabled(): boolean;
 }

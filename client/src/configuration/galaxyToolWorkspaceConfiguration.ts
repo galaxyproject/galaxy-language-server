@@ -1,7 +1,8 @@
+import { existsSync } from "fs";
 import { workspace, WorkspaceConfiguration } from 'vscode';
 
-import { IPlanemoConfiguration } from "../planemo/configuration";
-import { IWorkspaceConfiguration } from "./workspaceConfiguration";
+import { IPlanemoConfiguration, IPlanemoTestingConfiguration } from "../planemo/configuration";
+import { ConfigValidationResult, IWorkspaceConfiguration } from "./workspaceConfiguration";
 
 
 
@@ -15,27 +16,58 @@ export class GalaxyToolsWorkspaceConfiguration implements IWorkspaceConfiguratio
         this.planemoConfig = new GalaxyToolsPlanemoConfiguration(this.config);
     }
 
-
-    getPlanemoConfiguration(): IPlanemoConfiguration {
+    planemo(): IPlanemoConfiguration {
         return this.planemoConfig;
     }
 }
 
 class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
+    private readonly planemoTestingConfig: IPlanemoTestingConfiguration;
 
     constructor(private readonly config: WorkspaceConfiguration) {
+        this.planemoTestingConfig = new GalaxyToolsPlanemoTestingConfiguration(this.config)
     }
 
     enabled(): boolean {
         return this.config.get("planemo.enabled", true);
     }
-    envPath(): string | null {
-        return this.config.get("planemo.envPath", null);
+    envPath(): string {
+        return this.config.get("planemo.envPath", "planemo");
     }
-    galaxyPath(): string | null {
-        return this.config.get("planemo.galaxyPath", null);
+    galaxyRoot(): string | null {
+        return this.config.get("planemo.galaxyRoot", null);
     }
-    testingEnabled(): boolean {
+
+    getCwd(): string | undefined {
+        return workspace.workspaceFolders ? workspace.workspaceFolders[0].uri.fsPath : undefined
+    }
+
+    testing(): IPlanemoTestingConfiguration {
+        return this.planemoTestingConfig;
+    }
+
+    Validate(): ConfigValidationResult {
+        const result = new ConfigValidationResult();
+
+        const envPath = this.envPath();
+        if (envPath === null || !envPath.endsWith("planemo") || !existsSync(envPath)) {
+            result.addErrorMessage("Please set a valid `envPath` for planemo in the configuration.")
+        }
+
+        const galaxyRoot = this.galaxyRoot();
+        if (galaxyRoot === null || !galaxyRoot.endsWith("galaxy") || !existsSync(envPath)) {
+            result.addErrorMessage("Please set a valid `galaxyRoot` for planemo in the configuration.")
+        }
+
+        return result;
+    }
+}
+
+class GalaxyToolsPlanemoTestingConfiguration implements IPlanemoTestingConfiguration {
+
+    constructor(private readonly config: WorkspaceConfiguration) { }
+
+    enabled(): boolean {
         return this.config.get("planemo.testing.enabled", true);
     }
     autoTestDiscoverOnSaveEnabled(): boolean {

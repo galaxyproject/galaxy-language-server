@@ -7,6 +7,7 @@ import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
 import { GALAXY_LS, LANGUAGE_ID } from './constants';
 import { setupCommands } from './commands';
+import { setupPlanemo } from "./planemo/main";
 import { DefaultConfigurationFactory } from "./planemo/configuration";
 
 let client: LanguageClient;
@@ -52,6 +53,11 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(activateTagClosing(tagProvider));
 
   setupCommands(client, context);
+
+
+  client.onReady().then(() => {
+    setupPlanemo(client, context, configFactory);
+  });
 
 }
 

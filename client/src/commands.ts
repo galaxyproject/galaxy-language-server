@@ -11,6 +11,7 @@ export namespace Commands {
     export const GENERATE_COMMAND = 'galaxytools.generate.command';
     export const SORT_SINGLE_PARAM_ATTRS = 'galaxytools.sort.singleParamAttributes';
     export const SORT_DOCUMENT_PARAMS_ATTRS = 'galaxytools.sort.documentParamsAttributes';
+    export const DISCOVER_TESTS = 'galaxytools.tests.discover';
     export const PLANEMO_OPEN_SETTINGS = 'galaxytools.planemo.openSettings';
 }
 

@@ -1,5 +1,6 @@
 "use strict";
 
+import * as fs from 'fs';
 import { exec } from "child_process";
 import { Position, Range } from "vscode";
 
@@ -27,4 +28,16 @@ export function cloneRange(range: Range): Range {
     character = range.end.character;
     let endPosition = new Position(line, character);
     return new Range(startPosition, endPosition);
+}
+
+export function readFile(file: fs.PathLike): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        fs.readFile(file, 'utf-8', (error, content) => {
+            if (error) {
+                reject(error);
+            }
+
+            resolve(content);
+        });
+    });
 }
