@@ -170,13 +170,13 @@
         "galaxyTools.planemo.envPath": {
           "scope": "resource",
           "type": "string",
-          "markdownDescription": "The full path to the `Python virtual environment` where `planemo` is installed. This is required to be able to use `planemo` features.",
+          "markdownDescription": "The full path to the `Python virtual environment` where `planemo` is installed. The path must end with `planemo` and be something like `/<full-path-to-virtual-env>/bin/planemo`.\n\n**This is required** to be able to use `planemo` features.",
           "default": null
         },
         "galaxyTools.planemo.galaxyRoot": {
           "scope": "resource",
           "type": "string",
-          "markdownDescription": "The full path to the *Galaxy root directory* that will be used by `planemo`. This is required to be able to use some `planemo` features that require a `Galaxy` instance running.",
+          "markdownDescription": "The full path to the *Galaxy root directory* that will be used by `planemo`. This value will be passed to `planemo` as the parameter to `--galaxy_root`.\n\n**This is required** to be able to use *some* `planemo` features that need a `running Galaxy instance`.",
           "default": null
         },
         "galaxyTools.planemo.testing.enabled": {
@@ -214,7 +214,7 @@
     "viewsWelcome": [
       {
         "view": "planemo-config",
-        "contents": "Welcome!\nThe planemo integration with Galaxy Tools is currently in the **EXPERIMENTAL** phase. If you find any problems or want to suggest improvements please [fill an issue here](https://github.com/galaxyproject/galaxy-language-server/issues).\nIn order to use this feature you need to have planemo installed in a virtual environment and a Galaxy repo. You can find more information about installing planemo in the [planemo docs](https://planemo.readthedocs.io/en/latest/).\nTo get started...\n[Open the Planemo Settings](command:galaxytools.planemo.openSettings)\nand provide the required values."
+        "contents": "Welcome!\nThe planemo integration with Galaxy Tools is currently in the **EXPERIMENTAL** phase. If you find any problems or want to suggest improvements please [fill an issue here](https://github.com/galaxyproject/galaxy-language-server/issues).\nIn order to use this feature you need to have planemo installed in a virtual environment and a Galaxy repo. You can find more information about installing planemo in the [planemo docs](https://planemo.readthedocs.io/en/latest/).\nTo get started...\n[Open the Planemo Settings](command:galaxytools.planemo.openSettings)\nand provide the path settings (marked as required)."
       }
     ],
     "snippets": [
