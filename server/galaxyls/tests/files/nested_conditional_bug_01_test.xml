@@ -1,0 +1,27 @@
+<test expect_num_outputs="$1">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="parent_conditional">
+        <param name="option" value="yes"/>
+        <conditional name="child_conditional">
+            <param name="option" value="yes"/>
+            <param name="param" value="$2"/>
+        </conditional>
+    </conditional>
+</test>
+
+<test expect_num_outputs="$3">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="parent_conditional">
+        <param name="option" value="yes"/>
+        <conditional name="child_conditional">
+            <param name="option" value="no"/>
+        </conditional>
+    </conditional>
+</test>
+
+<test expect_num_outputs="$4">
+    <!--TODO: auto-generated test case. Please fill in the required values-->
+    <conditional name="parent_conditional">
+        <param name="option" value="no"/>
+    </conditional>
+</test>

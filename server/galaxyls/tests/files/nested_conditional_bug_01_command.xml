@@ -1,0 +1,20 @@
+<command><![CDATA[
+
+## Auto-generated command section
+## TODO: please review and edit this section as needed
+
+## Inputs
+
+#if str( \$parent_conditional.option ) == "yes":
+    #if str( \$parent_conditional.child_conditional.option ) == "yes":
+        ${1:TODO_argument} '\$parent_conditional.child_conditional.param'
+    #elif str( \$parent_conditional.child_conditional.option ) == "no":
+    #end if
+#elif str( \$parent_conditional.option ) == "no":
+#end if
+
+## Outputs
+
+
+]]>
+</command>
