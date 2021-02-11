@@ -3,15 +3,26 @@ This extension provides XML validation, tags and attributes completion, help/doc
 
 > Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
-# Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
+# Requirements
+
+## Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
+
 In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed on your system. See the [Installation](#Installation) section for more details.
+
+## Planemo
+
+Since version `0.4.0` you can use some of the cool features of [planemo](https://github.com/galaxyproject/planemo) directly from the extension. You only need to provide the required path to your planemo installation (see [configuration](#planemo-settings)) and the necessary parameters.
+
+## Test Explorer
+
+To support testing your tools inside VSCode you need to install the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) extension. This is a new requirement since version `0.4.0`.
 
 # Table of Content
 - [Installation](#installation)
   - [Troubleshooting](#troubleshooting)
 - [Configuration](#configuration)
-  - [Completion: mode](#completion-mode)
-  - [Completion: auto close tags](#completion-auto-close-tags)
+  - [Completion settings](#completion-settings)
+  - [Planemo settings](#planemo-settings)
 - [Features](#features)
   - [Tag and attribute auto-completion](#tag-and-attribute-auto-completion)
   - [Documentation on Hover](#documentation-on-hover)
@@ -23,6 +34,7 @@ In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-lan
   - [Auto-generate tests](#auto-generate-tests)
   - [Auto-generate command section](#auto-generate-command-section)
   - [Auto-sort param attributes](#auto-sort-param-attributes). *New feature!* :rocket:
+  - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer). *New feature!* :rocket:
 
 
 # Installation
@@ -41,26 +53,56 @@ Some possible errors:
 # Configuration
 You can customize some of the features with various settings either placing them in the settings.json file in your workspace or editing them through the Settings Editor UI.
 
-## Completion: mode
-This setting controls the auto-completion of tags and attributes. You can choose between three different options:
-- `auto`: shows suggestions as you type. This is the default option.
-- `invoke`: shows suggestions only when you request them using the key shortcut (`Ctrl + space`)
-- `disabled`: completely disables the auto-completion feature.
+You can customize some of the features with various settings either placing them in the `.vscode/settings.json` file in your workspace or editing them through the Settings Editor UI.
 
-````json
-{
-    "galaxyTools.completion.mode": "invoke",
-}
-````
+## Completion settings
 
-## Completion: auto close tags
-This setting controls whether to auto-insert the closing tag after typing `>` or `/`.
+Property                               | Description
+---------------------------------------|---------------------------------------------------------------
+`galaxyTools.completion.mode`          | This setting controls the auto-completion of tags and attributes. You can choose between three different options: `auto` shows suggestions as you type; `invoke` shows suggestions only when you request them using the key shortcut (`Ctrl + space`); `disabled` completely disables the auto-completion feature.
+`galaxyTools.completion.autoCloseTags` | This setting controls whether to auto-insert the closing tag after typing `>` or `/`.
 
-````json
-{
-    "galaxyTools.completion.autoCloseTags": false
-}
-````
+## Planemo settings
+
+Planemo integration is currently in **experimental** phase. Please report any problems you may encounter [here](https://github.com/galaxyproject/galaxy-language-server/issues).
+
+Property                               | Description
+---------------------------------------|---------------------------------------------------------------
+`galaxyTools.planemo.enabled`          | When enabled, you can use some of the `planemo` features directly from your editor. Please set `#galaxyTools.planemo.envPath#` to be able to use `planemo`.
+`galaxyTools.planemo.envPath`          | The full path to the `Python virtual environment` where `planemo` is installed. The path must end with `planemo` and be something like `/<full-path-to-virtual-env>/bin/planemo`. **This is required** to be able to use `planemo` features.
+`galaxyTools.planemo.galaxyRoot`       | The full path to the *Galaxy root directory* that will be used by `planemo`. This value will be passed to `planemo` as the parameter to `--galaxy_root`. **This is required** to be able to use *some* `planemo` features that need a `running Galaxy instance`.
+
+## Testing Configuration
+
+### Planemo testing configuration
+
+Property                               | Description
+---------------------------------------|---------------------------------------------------------------
+`galaxyTools.planemo.testing.enabled`                      | Whether to discover and run tests using `planemo test` directly from the Test Explorer.
+`galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled`| Whether to try to discover new tests when a Galaxy Tool Wrapper file is saved.
+
+### Configuring Test Explorer UI
+
+The following additional configuration properties are provided by [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer):
+
+Property                              | Description
+--------------------------------------|---------------------------------------------------------------
+`testExplorer.onStart`                | Retire or reset all test states whenever a test run is started
+`testExplorer.onReload`               | Retire or reset all test states whenever the test tree is reloaded
+`testExplorer.codeLens`               | Show a CodeLens above each test or suite for running or debugging the tests
+`testExplorer.gutterDecoration`       | Show the state of each test in the editor using Gutter Decorations
+`testExplorer.errorDecoration`        | Show error messages from test failures as decorations in the editor
+`testExplorer.errorDecorationHover`   | Provide hover messages for the error decorations in the editor
+`testExplorer.sort`                   | Sort the tests and suites by label or location. If this is not set (or set to null), they will be shown in the order that they were received from the adapter
+`testExplorer.showCollapseButton`     | Show a button for collapsing the nodes of the test tree
+`testExplorer.showExpandButton`       | Show a button for expanding the top nodes of the test tree, recursively for the given number of levels
+`testExplorer.showOnRun`              | Switch to the Test Explorer view whenever a test run is started
+`testExplorer.addToEditorContextMenu` | Add menu items for running and debugging the tests in the current file to the editor context menu
+`testExplorer.mergeSuites`            | Merge suites with the same label and parent
+`testExplorer.hideEmptyLog`           | Hide the output channel used to show a test's log when the user clicks on a test whose log is empty
+`testExplorer.hideWhen`               | Hide the Test Explorer when no test adapters have been registered or when no tests have been found by the registered adapters. The default is to never hide the Test Explorer (some test adapters only work with this default setting).
+
+See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) documentation for the latest changes in configuration.
 
 # Features
 ## Tag and attribute auto-completion 
@@ -128,3 +170,16 @@ Similar to the [auto-generate tests](#Auto-generate-tests) command, but this tim
 ![Demo feature auto-sort param attributes](../assets/feature.sort.param.attributes.gif)
 
 Now you can automatically sort the attributes of param elements according to the [IUC Coding Style guidelines](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html#coding-style) using a key-shortcut or the command palette. This can be done for each `<param>` element individually or for the full document.
+
+## Run planemo tests in the Test Explorer
+
+![Demo feature planemo tests explorer](../assets/feature.planemo.testing.png)
+
+You can now run `planemo test` for the currently opened tool directly from the `Test Explorer`.
+
+- The tests are automatically discovered by the `galaxy-language-server` when you open a tool or save the document (this can be controlled by the settings).
+- You can then run all the tests from the `Test Explorer` by using `planemo test` in the background. Currently running individual tests is not supported as AFAIK `planemo` does not have an option to do so at the moment.
+- After successfully running the tests, the results will be displayed in a convenient way directly on your source XML.
+
+The failing tests will be marked in red and the reason for failure can be seen directly beside the test definition in the same line or more detailed in the `Output`. You can also directly navigate to each of the tests XML source from the `Test Explorer`.
+This can be very convenient especially when having a large number of tests in your tool.
