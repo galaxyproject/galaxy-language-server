@@ -1,4 +1,5 @@
 # Galaxy Tools (Visual Studio Code Extension)
+
 This extension provides XML validation, tags and attributes completion, help/documentation on hover, and other *smart* features to assist in following best practices during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
 
 > Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
@@ -18,6 +19,7 @@ Since version `0.4.0` you can use some of the cool features of [planemo](https:/
 To support testing your tools inside VSCode you need to install the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) extension. This is a new requirement since version `0.4.0`.
 
 # Table of Content
+
 - [Installation](#installation)
   - [Troubleshooting](#troubleshooting)
 - [Configuration](#configuration)
@@ -36,8 +38,8 @@ To support testing your tools inside VSCode you need to install the [Test Explor
   - [Auto-sort param attributes](#auto-sort-param-attributes). *New feature!* :rocket:
   - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer). *New feature!* :rocket:
 
-
 # Installation
+
 When the extension is activated for the first time, a notification will pop up informing that the `Galaxy Language Server` [Python package](https://pypi.org/project/galaxy-language-server/) must be installed.
 
 The installation process will try to use the default Python version in your system. If the version is not compatible, it will ask you to enter the path to a compatible version. Just click `Select` in the notification message and you will be able to type the Python path at the top of the window.
@@ -45,13 +47,14 @@ The installation process will try to use the default Python version in your syst
 This Python version is used to create a virtual environment in which the language server will be installed.
 
 ## Troubleshooting
+
 If you encounter any problem during the language server installation, open the Visual Studio Code `Console log` and then find any error message with the `[gls]` prefix. You can access this log from the menu `Help > Toggle Developer Tools > Console`. Then, search the issues [here](https://github.com/galaxyproject/galaxy-language-server/issues) to check whether the problem already has a solution. If not, please feel free to open a new issue including the error message from the console log.
 
 Some possible errors:
+
 - ``The selected file is not a valid Python <version> path!``. This message will appear if you select a Python binary that is not compatible with the required version. You will be given a chance to select the correct version the next time the extension gets activated. You can force it by reloading the extension or restarting VScode.
 
 # Configuration
-You can customize some of the features with various settings either placing them in the settings.json file in your workspace or editing them through the Settings Editor UI.
 
 You can customize some of the features with various settings either placing them in the `.vscode/settings.json` file in your workspace or editing them through the Settings Editor UI.
 
@@ -105,12 +108,12 @@ Property                              | Description
 See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) documentation for the latest changes in configuration.
 
 # Features
-## Tag and attribute auto-completion 
+
+## Tag and attribute auto-completion
 
 ![Demo feature auto-completion](../assets/feature.autocompletion.gif)
 
 The tags and attributes are suggested based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema. They will appear in the same order that they are declared in the schema, so they can comply with the best practices recommendations defined in the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
-
 
 ## Documentation on Hover
 
@@ -119,13 +122,11 @@ The tags and attributes are suggested based on the [Galaxy.xsd](https://github.c
 The documentation of tags and attributes is retrieved from the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
 >Please note that some elements in the schema are still missing documentation. This will probably be improved over time.
 
-
 ## Document validation
 
 ![Demo feature validation](../assets/feature.validation.png)
 
 The tools are also validated against the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
-
 
 ## Document auto-formatting
 
@@ -138,7 +139,6 @@ When the tool file is saved it gets auto-formatted to comply with the [Galaxy IU
 ![Demo feature auto-close tags](../assets/autoCloseTag.gif)
 
 Whenever you write a closing (``>``), the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
-
 
 ## Snippets
 
