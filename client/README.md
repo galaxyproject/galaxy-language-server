@@ -8,15 +8,15 @@ This extension provides XML validation, tags and attributes completion, help/doc
 
 ## Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
 
-In order to use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed on your system. See the [Installation](#Installation) section for more details.
+To use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed on your system. See the [Installation](#Installation) section for more details.
 
 ## Planemo
 
 Since version `0.4.0` you can use some of the cool features of [planemo](https://github.com/galaxyproject/planemo) directly from the extension. You only need to provide the required path to your planemo installation (see [configuration](#planemo-settings)) and the necessary parameters.
 
-## Test Explorer
+## Test Explorer UI (extension)
 
-To support testing your tools inside VSCode you need to install the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) extension. This is a new requirement since version `0.4.0`.
+To support testing your tools using `planemo test` inside VSCode you need to install the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) extension. This is a new requirement since version `0.4.0`.
 
 # Table of Content
 
@@ -105,7 +105,7 @@ Property                              | Description
 `testExplorer.hideEmptyLog`           | Hide the output channel used to show a test's log when the user clicks on a test whose log is empty
 `testExplorer.hideWhen`               | Hide the Test Explorer when no test adapters have been registered or when no tests have been found by the registered adapters. The default is to never hide the Test Explorer (some test adapters only work with this default setting).
 
-See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) documentation for the latest changes in configuration.
+See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) documentation for the latest configuration changes.
 
 # Features
 
