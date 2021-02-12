@@ -55,7 +55,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
         }
 
         const galaxyRoot = this.galaxyRoot();
-        if (galaxyRoot === null || !galaxyRoot.endsWith("galaxy") || !existsSync(envPath)) {
+        if (galaxyRoot === null || !galaxyRoot.endsWith("galaxy") || !existsSync(galaxyRoot)) {
             result.addErrorMessage("Please set a valid `galaxyRoot` for planemo in the configuration.")
         }
 
