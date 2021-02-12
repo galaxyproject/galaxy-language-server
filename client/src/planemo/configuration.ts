@@ -13,7 +13,7 @@ export interface IPlanemoConfiguration {
 
     testing(): IPlanemoTestingConfiguration;
 
-    Validate(): ConfigValidationResult;
+    validate(): Promise<ConfigValidationResult>
 }
 
 export interface IPlanemoTestingConfiguration {

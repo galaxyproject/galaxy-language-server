@@ -95,7 +95,7 @@ export class PlanemoTestAdapter implements TestAdapter {
             this.testsEmitter.fire(<TestLoadFinishedEvent>{ type: 'finished', uite: undefined, errorMessage: errorMessage });
             return;
         }
-        const validationResult = planemoConfig.Validate();
+        const validationResult = await planemoConfig.validate();
         if (validationResult.hasErrors()) {
             const errorMessage = validationResult.getErrorsAsString()
             this.testsEmitter.fire(<TestLoadFinishedEvent>{ type: 'finished', uite: undefined, errorMessage: errorMessage });
@@ -121,7 +121,7 @@ export class PlanemoTestAdapter implements TestAdapter {
         if (this.testRunner.isRunning()) return;
 
         const planemoConfig = this.configurationFactory.getConfiguration().planemo();
-        const validationResult = planemoConfig.Validate();
+        const validationResult = await planemoConfig.validate();
         if (validationResult.hasErrors()) {
             window.showErrorMessage(validationResult.getErrorsAsString());
             return;

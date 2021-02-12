@@ -1,4 +1,6 @@
 import { existsSync } from "fs";
+
+import { lookpath } from "lookpath"
 import { workspace, WorkspaceConfiguration } from 'vscode';
 
 import { IPlanemoConfiguration, IPlanemoTestingConfiguration } from "../planemo/configuration";
@@ -28,30 +30,29 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
         this.planemoTestingConfig = new GalaxyToolsPlanemoTestingConfiguration(this.config)
     }
 
-    enabled(): boolean {
+    public enabled(): boolean {
         return this.config.get("planemo.enabled", true);
     }
-    envPath(): string {
+    public envPath(): string {
         return this.config.get("planemo.envPath", "planemo");
     }
-    galaxyRoot(): string | null {
+    public galaxyRoot(): string | null {
         return this.config.get("planemo.galaxyRoot", null);
     }
 
-    getCwd(): string | undefined {
+    public getCwd(): string | undefined {
         return workspace.workspaceFolders ? workspace.workspaceFolders[0].uri.fsPath : undefined
     }
 
-    testing(): IPlanemoTestingConfiguration {
+    public testing(): IPlanemoTestingConfiguration {
         return this.planemoTestingConfig;
     }
 
-    Validate(): ConfigValidationResult {
+    public async validate(): Promise<ConfigValidationResult> {
         const result = new ConfigValidationResult();
 
-        const envPath = this.envPath();
-        if (envPath === null || !envPath.endsWith("planemo") || !existsSync(envPath)) {
-            result.addErrorMessage("Please set a valid `envPath` for planemo in the configuration.")
+        if (!this.isPlanemoInstalled()) {
+            result.addErrorMessage("Please set a valid `envPath` value for planemo in the configuration.")
         }
 
         const galaxyRoot = this.galaxyRoot();
@@ -60,6 +61,17 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
         }
 
         return result;
+    }
+
+    private async isPlanemoInstalled(): Promise<boolean> {
+        try {
+            const envPath = this.envPath();
+            const isOnPath = await lookpath('planemo') !== undefined;
+            return envPath !== null && envPath.endsWith("planemo") && (isOnPath || existsSync(envPath));
+        }
+        catch (err) {
+            return false;
+        }
     }
 }
 
