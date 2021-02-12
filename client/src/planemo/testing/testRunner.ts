@@ -1,6 +1,8 @@
+import { unlinkSync } from 'fs';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
+import { TOOL_DOCUMENT_EXTENSION } from '../../constants';
 import { IProcessExecution, runProcess } from '../../processRunner';
 import { ITestRunner } from '../../testing/testRunner';
 import { IPlanemoConfiguration } from '../configuration';
@@ -21,9 +23,9 @@ export class PlanemoTestRunner implements ITestRunner {
         }
 
         const testSuiteId = testSuite.id;
-        const testFile = testSuite.file ? testSuite.file : `${planemoConfig.getCwd()}/${testSuiteId}.xml`;
+        const testFile = testSuite.file ? testSuite.file : `${planemoConfig.getCwd()}/${testSuiteId}.${TOOL_DOCUMENT_EXTENSION}`;
         try {
-            const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(planemoConfig.getCwd());
+            const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(testFile);
 
             const testRunArguments = [
                 `test`,
@@ -72,11 +74,15 @@ export class PlanemoTestRunner implements ITestRunner {
 
     }
 
-    private async getJsonReportPath(cwd: string | undefined): Promise<{ file: string, cleanupCallback: () => void }> {
-        if (cwd !== undefined) {
+    private async getJsonReportPath(testFile: string | undefined): Promise<{ file: string, cleanupCallback: () => void }> {
+        if (testFile !== undefined) {
+            const baseDir = path.dirname(testFile);
+            const testFileName = path.basename(testFile, TOOL_DOCUMENT_EXTENSION);
+            const reportFile = path.resolve(baseDir, `${testFileName}json`);
+
             return Promise.resolve({
-                file: path.resolve(cwd, "tool_test_output.json"),
-                cleanupCallback: () => { /* intentionally empty */ },
+                file: reportFile,
+                cleanupCallback: () => { unlinkSync(reportFile); },
             });
         }
         return await this.createTemporaryFile();
