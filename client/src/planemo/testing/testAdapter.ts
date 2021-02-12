@@ -1,7 +1,8 @@
 'use strict';
 
-import { WorkspaceFolder, Event, EventEmitter, workspace, window } from "vscode";
+import { WorkspaceFolder, Event, EventEmitter, workspace, window, TextDocument } from "vscode";
 import { RetireEvent, TestAdapter, TestEvent, TestLoadFinishedEvent, TestLoadStartedEvent, TestRunFinishedEvent, TestRunStartedEvent, TestSuiteEvent, TestSuiteInfo } from "vscode-test-adapter-api";
+import { LANGUAGE_ID, TOOL_DOCUMENT_EXTENSION } from "../../constants";
 import { TestState } from "../../testing/common";
 import { ITestRunner } from "../../testing/testRunner";
 import { ITestsProvider } from "../../testing/testsProvider";
@@ -28,10 +29,7 @@ export class PlanemoTestAdapter implements TestAdapter {
         private readonly testsProvider: ITestsProvider,
         private readonly testRunner: ITestRunner,
         private readonly configurationFactory: IConfigurationFactory,
-        // private readonly log: Log
     ) {
-
-        // this.log.info('Initializing Planemo Test Adapter');
 
         this.disposables = [
             this.testsEmitter,
@@ -54,7 +52,6 @@ export class PlanemoTestAdapter implements TestAdapter {
             const needsReload = sectionsToReload.some(
                 section => configurationChange.affectsConfiguration(section, this.workspaceFolder.uri));
             if (needsReload) {
-                // this.log.info('Configuration changed, reloading tests');
                 this.load();
             }
         }));
@@ -68,13 +65,24 @@ export class PlanemoTestAdapter implements TestAdapter {
                 }
             }
         }));
+
+        this.disposables.push(workspace.onDidOpenTextDocument(async document => {
+            if (this.isToolDocument(document)) {
+                await this.load();
+            }
+        }));
+
+        this.disposables.push(workspace.onDidCloseTextDocument(async document => {
+            if (this.isToolDocument(document)) {
+                await this.load();
+            }
+        }));
     }
 
     async load(): Promise<void> {
 
         if (this.isLoading) return;
 
-        // this.log.info('Discovering tests...');
         this.testsEmitter.fire(<TestLoadStartedEvent>{ type: 'started' });
 
         this.testsSuitesById.clear();
@@ -101,7 +109,6 @@ export class PlanemoTestAdapter implements TestAdapter {
             this.testsEmitter.fire(<TestLoadFinishedEvent>{ type: 'finished', suite: loadedTests });
 
         } catch (error) {
-            // this.log.error(`Test loading failed: ${error}`);
             this.testsEmitter.fire(<TestLoadFinishedEvent>{ type: 'finished', suite: undefined, errorMessage: error.stack });
         }
         this.retireEmitter.fire({});
@@ -145,7 +152,6 @@ export class PlanemoTestAdapter implements TestAdapter {
                             }
                         });
                     } catch (reason) {
-                        // this.logger.log('crit', `Execution of the test "${test}" failed: ${reason}`);
                         this.setTestStatesRecursive(testSuite, 'failed', reason);
                     }
                 }
@@ -192,5 +198,10 @@ export class PlanemoTestAdapter implements TestAdapter {
                 state,
                 message,
             }));
+    }
+
+    private isToolDocument(document: TextDocument): boolean {
+        return document.languageId === LANGUAGE_ID
+            && document.fileName.endsWith(TOOL_DOCUMENT_EXTENSION);
     }
 }
