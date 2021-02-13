@@ -5,12 +5,13 @@ from typing import List, Optional
 from pygls.types import Range
 from pygls.workspace import Position
 
-from .xml.constants import UNDEFINED_OFFSET
-from .xml.document import XmlDocument
-from .xml.nodes import XmlSyntaxNode
-from .xml.types import NodeType
-from .xml.utils import convert_document_offsets_to_range
-from .xsd.types import XsdNode, XsdTree
+from galaxyls.services.tools.constants import MACROS
+from galaxyls.services.xml.constants import UNDEFINED_OFFSET
+from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.nodes import XmlSyntaxNode
+from galaxyls.services.xml.types import NodeType
+from galaxyls.services.xml.utils import convert_document_offsets_to_range
+from galaxyls.services.xsd.types import XsdNode, XsdTree
 
 
 class XmlContext:
@@ -22,17 +23,17 @@ class XmlContext:
 
     def __init__(
         self,
-        xsd_node: XsdNode,
+        xsd_node: Optional[XsdNode],
         node: Optional[XmlSyntaxNode] = None,
         line_text: str = "",
         position: Optional[Position] = None,
         offset: int = UNDEFINED_OFFSET,
     ):
-        self._xsd_node: XsdNode = xsd_node
-        self._node: Optional[XmlSyntaxNode] = node
-        self._line_text: str = line_text
-        self._position: Optional[Position] = position
-        self._offset: int = offset
+        self._xsd_node = xsd_node
+        self._node = node
+        self._line_text = line_text
+        self._position = position
+        self._offset = offset
 
     @property
     def token(self) -> Optional[XmlSyntaxNode]:
@@ -55,7 +56,7 @@ class XmlContext:
         return self._line_text
 
     @property
-    def xsd_element(self) -> XsdNode:
+    def xsd_element(self) -> Optional[XsdNode]:
         """The XSD element associated with the token in context."""
         return self._xsd_node
 
@@ -163,7 +164,7 @@ class XmlContextService:
         context = XmlContext(xsd_node, node, line_text, position, offset)
         return context
 
-    def find_matching_xsd_element(self, node: Optional[XmlSyntaxNode], xsd_tree: XsdTree) -> XsdNode:
+    def find_matching_xsd_element(self, node: Optional[XmlSyntaxNode], xsd_tree: XsdTree) -> Optional[XsdNode]:
         """Finds the xsd element in the XSD tree that matches the xml element associated with the given syntax node.
         If there is no matching node, the root (tool) xsd node is always returned.
 
@@ -172,13 +173,14 @@ class XmlContextService:
             xsd_tree (XsdTree): The XSD tree definition.
 
         Returns:
-            XsdNode: The matching xsd node.
+            XsdNode: The matching xsd node or None if there is no matching.
         """
         if node:
-            xsd_node = xsd_tree.find_node_by_stack(node.stack)
-            if xsd_node:
-                return xsd_node
-        return xsd_tree.root
+            node_stack = node.stack
+            if len(node_stack) > 0 and MACROS in node_stack:
+                return xsd_tree.find_node_by_name(node_stack[-1])
+            xsd_node = xsd_tree.find_node_by_stack(node_stack)
+            return xsd_node
 
     def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range:
         start_offset, end_offset = context.token.get_offsets(context.offset)

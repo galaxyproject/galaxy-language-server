@@ -3,7 +3,7 @@ to simplify access to definitions.
 """
 
 from lxml import etree
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, cast
 from .types import XsdNode, XsdAttribute, XsdTree
 
 from .constants import (
@@ -43,7 +43,7 @@ class GalaxyToolXsdParser:
         self._named_type_map: Dict[str, etree._Element] = {}
         self._named_group_map: Dict[str, etree._Element] = {}
 
-    def get_tree(self) -> Optional[XsdTree]:
+    def get_tree(self) -> XsdTree:
         """Builds the tree structure from the root etree._Element if
         it does not exists, or returns it if exists.
 
@@ -55,7 +55,12 @@ class GalaxyToolXsdParser:
             self._register_named_types()
             self._register_named_groups()
             self._build_tree_recursive(self._root, self._tree)
-        return self._tree
+            if self._tree is None:
+                self._tree = self._build_empty_tree()
+        return cast(XsdTree, self._tree)
+
+    def _build_empty_tree(self) -> XsdTree:
+        return XsdTree(XsdNode(""))
 
     def _register_named_types(self) -> None:
         """Finds all (named) complex and simple type definitions in the
@@ -63,11 +68,13 @@ class GalaxyToolXsdParser:
         """
         for element in self._root.findall(XS_COMPLEX_TYPE):
             name = element.get("name")
-            self._named_type_map[name] = element
+            if name:
+                self._named_type_map[name] = element
 
         for element in self._root.findall(XS_SIMPLE_TYPE):
             name = element.get("name")
-            self._named_type_map[name] = element
+            if name:
+                self._named_type_map[name] = element
 
     def _register_named_groups(self) -> None:
         """Finds all (named) groups and attribute group definitions in the
@@ -75,13 +82,15 @@ class GalaxyToolXsdParser:
         """
         for element in self._root.findall(XS_GROUP):
             name = element.get("name")
-            self._named_group_map[name] = element
+            if name:
+                self._named_group_map[name] = element
 
         for element in self._root.findall(XS_ATTRIBUTE_GROUP):
             name = element.get("name")
-            self._named_group_map[name] = element
+            if name:
+                self._named_group_map[name] = element
 
-    def _build_tree_recursive(self, parent_element: etree._Element, parent_node: XsdNode, depth: int = 0) -> None:
+    def _build_tree_recursive(self, parent_element: etree._Element, parent_node: Optional[XsdNode], depth: int = 0) -> None:
         if depth > MAX_RECURSION_DEPTH:
             return None  # Stop recursion
 
