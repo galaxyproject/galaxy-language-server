@@ -1,10 +1,12 @@
 """ Type definitions for XSD processing.
 """
 
+from typing import Dict, List, Optional, cast
+
+from anytree import NodeMixin, RenderTree, Resolver, ResolverError, findall
 from lxml import etree
-from anytree import NodeMixin, RenderTree, Resolver, ResolverError
-from typing import List, Dict, Optional, cast
 from pygls.types import MarkupContent, MarkupKind
+
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
 
@@ -90,7 +92,7 @@ class XsdNode(XsdBase, NodeMixin):
         NodeMixin: Inherits tree node functionality from NodeMixin.
     """
 
-    def __init__(self, name: str, element: Optional[etree._Element], parent: Optional[NodeMixin] = None):
+    def __init__(self, name: str, element: Optional[etree._Element] = None, parent: Optional[NodeMixin] = None):
         super(XsdNode, self).__init__(name, element)
         self.parent: Optional[NodeMixin] = parent
         self.attributes: Dict[str, XsdAttribute] = {}
@@ -130,6 +132,8 @@ class XsdTree:
         result_node = None
         if node_stack:
             try:
+                if "macros" in node_stack:
+                    return self.find_node_by_name(node_stack[-1])
                 path = self._get_path_from_stack(node_stack)
                 if path.endswith(self.expand_element.name):
                     return self.expand_element
@@ -163,3 +167,11 @@ class XsdTree:
         attr = XsdAttribute(attr_name, None, type_name=None, is_required=True)
         expand_node.attributes[attr_name] = attr
         return expand_node
+
+    def find_node_by_name(self, name: str) -> Optional[XsdNode]:
+        result = findall(
+            self.root,
+            filter_=lambda node: node.name == name,
+        )
+        if len(result) > 0:
+            return result[0]
