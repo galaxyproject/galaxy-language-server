@@ -132,8 +132,6 @@ class XsdTree:
         result_node = None
         if node_stack:
             try:
-                if "macros" in node_stack:
-                    return self.find_node_by_name(node_stack[-1])
                 path = self._get_path_from_stack(node_stack)
                 if path.endswith(self.expand_element.name):
                     return self.expand_element
@@ -169,6 +167,9 @@ class XsdTree:
         return expand_node
 
     def find_node_by_name(self, name: str) -> Optional[XsdNode]:
+        if name == self.expand_element.name:
+            return self.expand_element
+
         result = findall(
             self.root,
             filter_=lambda node: node.name == name,

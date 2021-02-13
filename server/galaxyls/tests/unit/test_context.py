@@ -101,8 +101,9 @@ class TestXmlContextServiceClass:
             ('<root attr="4" ^><child ', "root", NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4"><^child ', "child", NodeType.ELEMENT, "child", ["root", "child"]),
             ('<root attr="4">\n<child/^><other', "child", NodeType.ELEMENT, "child", ["root", "child"]),
-            ('<root attr="4">\n<child/>^<other', "other", NodeType.ELEMENT, "root", ["root", "other"]),
-            ('<root attr="4">\n<child/><^other', "other", NodeType.ELEMENT, "root", ["root", "other"]),
+            ('<root attr="4">\n<child/>^<other', "other", NodeType.ELEMENT, None, ["root", "other"]),
+            ('<root attr="4">\n<child/>^ <other', None, NodeType.CONTENT, "root", ["root"]),
+            ('<root attr="4">\n<child/><^other', "other", NodeType.ELEMENT, None, ["root", "other"]),
             ('<root attr="4">\n<child/><^sibling', "sibling", NodeType.ELEMENT, "sibling", ["root", "sibling"]),
             ('<root attr="4">\n    <^ \n<child', None, NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4">\n    < \n<^child', "child", NodeType.ELEMENT, "child", ["root", "child"]),
@@ -139,8 +140,11 @@ class TestXmlContextServiceClass:
         assert context.token
         assert context.token.name == expected_token_name
         assert context.token.node_type == expected_node_type
-        assert context.xsd_element.name == expected_xsd_node_name
         assert context.stack == expected_stack
+        if expected_xsd_node_name is None:
+            assert context.xsd_element is None
+        else:
+            assert context.xsd_element.name == expected_xsd_node_name
 
     @pytest.mark.parametrize(
         "source_with_mark, expected_token_name, expected_offsets",

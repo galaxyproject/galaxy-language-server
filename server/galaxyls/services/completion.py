@@ -62,7 +62,7 @@ class XmlCompletionService:
         """
         result = []
         if context.is_empty or context.is_root:
-            result.append(self._build_node_completion_item(context.xsd_element))
+            result.append(self._build_node_completion_item(self.xsd_tree.root))
         elif context.xsd_element:
             for child in context.xsd_element.children:
                 if not context.has_reached_max_occurs(child):
