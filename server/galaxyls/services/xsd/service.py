@@ -41,14 +41,12 @@ class GalaxyToolXsdService:
         """Gets the documentation annotated in the XSD about the
         given element name (node or attribute).
         """
-        tree = self.xsd_parser.get_tree()
-        node = tree.find_node_by_stack(context.stack)
-        if node:
+        if context.xsd_element:
             element = None
             if context.is_tag:
-                element = node
+                element = context.xsd_element
             if context.is_attribute_key and context.token.name:
-                element = node.attributes.get(context.token.name)
+                element = context.xsd_element.attributes.get(context.token.name)
             if element:
                 return element.get_doc()
         return NO_DOC_MARKUP

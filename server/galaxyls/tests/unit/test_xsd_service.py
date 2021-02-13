@@ -8,9 +8,7 @@ class TestGalaxyToolXsdServiceClass:
     def test_get_documentation_for_unknown_node_attribute_returns_no_documentation(self, mocker: MockerFixture) -> None:
         service = GalaxyToolXsdService("Test")
         fake_context = mocker.Mock()
-        fake_context.is_tag = True
-        fake_context.is_attribute_key = False
-        fake_context.stack = ["unknown"]
+        fake_context.xsd_element = None
 
         doc = service.get_documentation_for(fake_context)
 
