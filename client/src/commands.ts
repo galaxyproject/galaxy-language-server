@@ -11,6 +11,8 @@ export namespace Commands {
     export const GENERATE_COMMAND = 'galaxytools.generate.command';
     export const SORT_SINGLE_PARAM_ATTRS = 'galaxytools.sort.singleParamAttributes';
     export const SORT_DOCUMENT_PARAMS_ATTRS = 'galaxytools.sort.documentParamsAttributes';
+    export const DISCOVER_TESTS = 'galaxytools.tests.discover';
+    export const PLANEMO_OPEN_SETTINGS = 'galaxytools.planemo.openSettings';
 }
 
 namespace GeneratedTestRequest {
@@ -66,6 +68,9 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
         requestSortDocumentParamsAttrs(client, SortDocumentParamsAttrsCommandRequest.type)
     };
     context.subscriptions.push(commands.registerCommand(Commands.SORT_DOCUMENT_PARAMS_ATTRS, sortDocumentParamsAttrs));
+
+    // Open planemo settings
+    context.subscriptions.push(commands.registerCommand(Commands.PLANEMO_OPEN_SETTINGS, openPlanemoSettings))
 }
 
 async function requestSortSingleParamAttrs(client: LanguageClient, request: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any, any>) {
@@ -154,4 +159,8 @@ function ensureDocumentIsSaved(editor: TextEditor): Boolean {
         window.showErrorMessage("Please save the document before executing this action.");
     }
     return !editor.document.isDirty;
+}
+
+function openPlanemoSettings() {
+    commands.executeCommand('workbench.action.openSettings', 'galaxyTools.planemo');
 }

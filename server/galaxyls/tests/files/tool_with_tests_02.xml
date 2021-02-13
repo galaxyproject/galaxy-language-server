@@ -1,0 +1,9 @@
+<tool id="tool_with_tests_02" name="Simple tool with a couple of test definitions">
+    <tests>
+        <test/>
+        <test/>
+        <test/>
+        <test/>
+        <test/>
+    </tests>
+</tool>

@@ -1,7 +1,7 @@
 """This module contains shared types across all modules.
 """
 
-from typing import Optional
+from typing import List, Optional
 from pygls.types import Position, Range
 
 
@@ -35,3 +35,36 @@ class ReplaceTextRangeResult:
     def __init__(self, replace_range: Range, text: str) -> None:
         self.replace_range = replace_range
         self.text = text
+
+
+class TestInfoResult:
+    """Contains information about a particular test case."""
+
+    def __init__(self, tool_id: str, test_id: str, file: str, line: int, skipped: bool = False) -> None:
+        self.id = f"{tool_id}:{test_id}"
+        self.label = f"{tool_id}:Test #{test_id}"
+        self.file = file
+        self.line = line
+        self.skipped = skipped
+        self.description: Optional[str] = None
+        self.tooltip: Optional[str] = None
+        self.debuggable: bool = False
+        self.errored: bool = False
+        self.message: Optional[str] = None
+
+
+class TestSuiteInfoResult:
+    """Contains information about all the tests for a tool wrapper."""
+
+    def __init__(self, tool_id: str, file: str, children: List[TestInfoResult] = None) -> None:
+        self.id = tool_id
+        self.label = f"{tool_id} tests"
+        self.file = file
+        self.children = children
+        self.line: int = 0
+        self.debuggable: bool = False
+        self.description: Optional[str] = None
+        self.tooltip: Optional[str] = None
+
+        self.errored: bool = False
+        self.message: Optional[str] = None

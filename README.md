@@ -14,6 +14,7 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-l
 > Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
 # Table of Contents
+
 - [Getting Started](#getting-started)
   - [Using the Galaxy Language Server](#using-the-galaxy-language-server)
   - [Contributing](#contributing)
@@ -28,26 +29,27 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-l
   - [Auto-generate tests](#auto-generate-tests)
   - [Auto-generate command section](#auto-generate-command-section)
   - [Auto-sort param attributes](#auto-sort-param-attributes). *New feature!* :rocket:
-
+  - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer). *New feature!* :rocket:
 
 # Getting Started
 
 ## Using the Galaxy Language Server
+
 If you just want to use the Galaxy Language Server, the easiest option is to **install the VSCode extension** from the [Market](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools) or the [Open VSX registry](https://open-vsx.org/extension/davelopez/galaxy-tools). Additionally, you can download the VSIX package from the [releases](https://github.com/galaxyproject/galaxy-language-server/releases) page and install it manually.
 
 ## Contributing
+
 If you are considering contributing, please read the [contribution guide](docs/CONTRIBUTING.md).
 
 To setup your development environment, please check [this guide](docs/CONTRIBUTING.md#getting-started).
 
-
 # Features
-## Tag and attribute auto-completion 
+
+## Tag and attribute auto-completion
 
 ![Demo feature auto-completion](../assets/feature.autocompletion.gif)
 
 The tags and attributes are suggested based on the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema. They will appear in the same order as they are declared in the schema to comply with the best practices recommendations defined in the [Galaxy IUC Standards Style Guide](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html?#coding-style).
-
 
 ## Documentation on Hover
 
@@ -56,13 +58,11 @@ The tags and attributes are suggested based on the [Galaxy.xsd](https://github.c
 The documentation of tags and attributes is retrieved from the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
 >Please note that some elements in the schema are still missing documentation. This will probably be improved over time.
 
-
 ## Document validation
 
 ![Demo feature validation](../assets/feature.validation.png)
 
 The tools are also validated against the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
-
 
 ## Document auto-formatting
 
@@ -75,7 +75,6 @@ When the tool file is saved it gets auto-formatted to maintain a consistent form
 ![Demo feature auto-close tags](../assets/autoCloseTag.gif)
 
 Whenever you write a closing (``>``), the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
-
 
 ## Snippets
 
@@ -107,3 +106,16 @@ Similar to the [auto-generate tests](#Auto-generate-tests) command, but this tim
 ![Demo feature auto-sort param attributes](../assets/feature.sort.param.attributes.gif)
 
 Now you can automatically sort the attributes of param elements according to the [IUC Coding Style guidelines](https://galaxy-iuc-standards.readthedocs.io/en/latest/best_practices/tool_xml.html#coding-style) using a key-shortcut or the command palette. This can be done for each `<param>` element individually or for the full document.
+
+## Run planemo tests in the Test Explorer
+
+![Demo feature planemo tests explorer](../assets/feature.planemo.testing.png)
+
+You can now run `planemo test` for the currently opened tool directly from the `Test Explorer`.
+
+- The tests are automatically discovered by the `galaxy-language-server` when you open a tool or save the document (this can be controlled by the settings).
+- You can then run all the tests from the `Test Explorer` by using `planemo test` in the background. Currently running individual tests is not supported as AFAIK `planemo` does not have an option to do so at the moment.
+- After successfully running the tests, the results will be displayed in a convenient way directly on your source XML.
+
+The failing tests will be marked in red and the reason for failure can be seen directly beside the test definition in the same line or more detailed in the `Output`. You can also directly navigate to each of the tests XML source from the `Test Explorer`.
+This can be very convenient especially when having a large number of tests in your tool.

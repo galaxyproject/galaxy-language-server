@@ -22,6 +22,14 @@ class DocumentValidator:
             return root_tag in supported
         return False
 
+    def is_tool_document(self, document: Document) -> bool:
+        """Checks if the document's root element is <tool>."""
+        root = self._get_document_root_tag(document)
+        if root is not None:
+            root_tag = root.upper()
+            return root_tag == DocumentType.TOOL.name
+        return False
+
     def _get_document_root_tag(self, document: Document) -> Optional[str]:
         """Checks the first MAX_PEEK_CONTENT characters of the document for a root tag and
         returns the name of the tag if found."""

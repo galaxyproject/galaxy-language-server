@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from galaxyls.services.tools.common import ToolParamAttributeSorter
+from galaxyls.services.tools.common import TestsDiscoveryService, ToolParamAttributeSorter
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
@@ -15,10 +15,12 @@ from pygls.types import (
     TextDocumentPositionParams,
     TextEdit,
 )
-from pygls.workspace import Document
+from pygls.workspace import Document, Workspace
+
+from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 
 from ..config import CompletionMode
-from ..types import GeneratedSnippetResult, ReplaceTextRangeResult
+from ..types import GeneratedSnippetResult, ReplaceTextRangeResult, TestSuiteInfoResult
 from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
@@ -40,6 +42,7 @@ class GalaxyToolLanguageService:
         self.completion_service = XmlCompletionService(tree)
         self.xml_context_service = XmlContextService(tree)
         self.sort_service: ToolParamAttributeSorter = IUCToolParamAttributeSorter()
+        self.test_discovery_service: TestsDiscoveryService = ToolTestsDiscoveryService()
 
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list
@@ -105,3 +108,7 @@ class GalaxyToolLanguageService:
     def sort_document_param_attributes(self, xml_document: XmlDocument) -> List[ReplaceTextRangeResult]:
         """Sorts the attributes of all the param elements contained in the document."""
         return self.sort_service.sort_document_param_attributes(xml_document)
+
+    def discover_tests(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
+        """Sorts the attributes of all the param elements contained in the document."""
+        return self.test_discovery_service.discover_tests_in_workspace(workspace)

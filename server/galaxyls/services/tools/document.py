@@ -3,7 +3,7 @@ from typing import List, Optional, cast
 from anytree import find
 from pygls.types import Position, Range
 from pygls.workspace import Document
-from galaxyls.services.tools.constants import INPUTS, OUTPUTS
+from galaxyls.services.tools.constants import INPUTS, OUTPUTS, TESTS, TOOL
 from galaxyls.services.tools.inputs import GalaxyToolInputTree
 from galaxyls.services.xml.nodes import XmlContainerNode, XmlElement
 
@@ -19,9 +19,13 @@ class GalaxyToolXmlDocument:
     information from the document.
     """
 
-    def __init__(self, document: Document) -> None:
-        self.document: Document = document
-        self.xml_document: XmlDocument = XmlDocumentParser().parse(document)
+    def __init__(self, document: Document, xml_document: Optional[XmlDocument] = None) -> None:
+        if xml_document:
+            self.xml_document = xml_document
+            self.document: Document = xml_document.document
+        else:
+            self.document: Document = document
+            self.xml_document = XmlDocumentParser().parse(document)
 
     @property
     def is_valid(self) -> bool:
@@ -118,4 +122,20 @@ class GalaxyToolXmlDocument:
         outputs = self.find_element(OUTPUTS)
         if outputs:
             return outputs.elements
+        return []
+
+    def get_tool_id(self) -> Optional[str]:
+        """Gets the identifier of the tool"""
+        tool_element = self.find_element(TOOL)
+        return tool_element.get_attribute("id")
+
+    def get_tests(self) -> List[XmlElement]:
+        """Gets the tests of this document as a list of elements.
+
+        Returns:
+            List[XmlElement]: The tests defined in the document.
+        """
+        tests = self.find_element(TESTS)
+        if tests:
+            return tests.elements
         return []
