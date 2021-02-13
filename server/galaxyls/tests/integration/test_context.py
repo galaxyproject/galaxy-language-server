@@ -33,6 +33,10 @@ class TestIntegrationXmlContextServiceClass:
                 "<macros><xml><citation ^",
                 "citation",
             ),
+            (
+                "<macros><xml><expand ^",
+                "expand",
+            ),
         ],
     )
     def test_context_xsd_node_inside_macros_is_expected(
@@ -48,3 +52,17 @@ class TestIntegrationXmlContextServiceClass:
         context = service.get_xml_context(document, position)
 
         assert context.xsd_element.name == expected_element_name
+
+    def test_unknown_element_context_xsd_node_inside_macros_is_none(
+        self,
+        galaxy_xsd_tree: XsdTree,
+    ):
+        source_with_mark = "<macros><xml><unknowntag ^"
+
+        position, source_without_mark = TestUtils.extract_mark_from_source("^", source_with_mark)
+        document = TestUtils.from_source_to_xml_document(source_without_mark)
+        service = XmlContextService(galaxy_xsd_tree)
+
+        context = service.get_xml_context(document, position)
+
+        assert context.xsd_element is None
