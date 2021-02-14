@@ -32,14 +32,15 @@ namespace SortDocumentParamsAttrsCommandRequest {
 }
 
 interface GeneratedSnippetResult {
-    snippet: string,
-    position: Position
-    replace_range: Range | null
+    snippet: string;
+    position: Position;
+    replace_range: Range | null;
+    error_message: string;
 }
 
 interface ReplaceTextRangeResult {
-    text: string,
-    replace_range: Range
+    text: string;
+    replace_range: Range;
 }
 
 
@@ -136,7 +137,12 @@ async function requestInsertSnippet(client: LanguageClient, request: RequestType
 
     let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
     let response = await client.sendRequest(request, param);
-    if (!response || !response.snippet) return;
+    if (!response || !response.snippet || response.error_message) {
+        if (response.error_message) {
+            window.showErrorMessage(response.error_message);
+        }
+        return;
+    }
 
     try {
         const snippet = new SnippetString(response.snippet);
