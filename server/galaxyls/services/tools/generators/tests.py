@@ -1,4 +1,4 @@
-from typing import List, Optional, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 from galaxyls.services.tools.constants import (
     ARGUMENT,
@@ -58,20 +58,26 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
     def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
         super().__init__(tool_document, tabSize)
 
-    def _build_snippet(self) -> Optional[str]:
+    def _build_snippet(self) -> Tuple[str, bool]:
         """This function tries to generate a code snippet in TextMate format with all the tests cases extracted
         from the inputs and outputs of the tool.
 
         Returns:
-            Optional[str]: The code snippet in TextMate format or None if the generation failed.
+            Tuple[str, bool]: The code snippet in TextMate format or an error message if the generation failed.
+            The second value of the tuple indicates if there was an error.
         """
-        input_tree = self.expanded_document.analyze_inputs()
-        outputs = self.expanded_document.get_outputs()
-        result_snippet = "\n".join((self._generate_test_case_snippet(input_node, outputs) for input_node in input_tree.leaves))
-        tests_section = self.tool_document.find_element(TESTS)
-        if tests_section and not tests_section.is_self_closed:
-            return result_snippet
-        return f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>"
+        try:
+            input_tree = self.expanded_document.analyze_inputs()
+            outputs = self.expanded_document.get_outputs()
+            result_snippet = "\n".join(
+                (self._generate_test_case_snippet(input_node, outputs) for input_node in input_tree.leaves)
+            )
+            tests_section = self.tool_document.find_element(TESTS)
+            if tests_section and not tests_section.is_self_closed:
+                return (result_snippet, False)
+            return (f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>", False)
+        except BaseException as ex:
+            return (f"Automatic Test Case generation failed with reason: {ex}", True)
 
     def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """Returns the position inside the document where new test cases
@@ -118,15 +124,12 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         Returns:
             str: The resulting code snippet in TextMate format.
         """
-        try:
-            test_element = self._create_test_element()
-            self._add_inputs_to_test_element(input_node, test_element)
-            self._add_outputs_to_test_element(outputs, test_element)
-            etree.indent(test_element, space=self.indent_spaces)
-            snippet = etree.tostring(test_element, pretty_print=True, encoding=str)
-            return cast(str, snippet)
-        except BaseException:
-            return ""
+        test_element = self._create_test_element()
+        self._add_inputs_to_test_element(input_node, test_element)
+        self._add_outputs_to_test_element(outputs, test_element)
+        etree.indent(test_element, space=self.indent_spaces)
+        snippet = etree.tostring(test_element, pretty_print=True, encoding=str)
+        return cast(str, snippet)
 
     def _create_test_element(self) -> etree._Element:
         """Returns a XML element representing a <test> tag with the basic information.

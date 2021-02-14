@@ -1,4 +1,4 @@
-from typing import List, Optional, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 from anytree import PreOrderIter
 from galaxyls.services.tools.constants import (
@@ -44,22 +44,26 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
     def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
         super().__init__(tool_document, tabSize)
 
-    def _build_snippet(self) -> Optional[str]:
+    def _build_snippet(self) -> Tuple[str, bool]:
         """This function tries to generate a code snippet in TextMate format with boilerplate
         Cheetah code extracted from the inputs and outputs of the tool.
 
         Returns:
-            Optional[str]: The code snippet in TextMate format or None if the generation failed.
+            Tuple[str, bool]: The code snippet in TextMate format or an error message if the
+            generation failed. The second value of the tuple indicates if it is an error.
         """
-        input_tree = self.expanded_document.analyze_inputs()
-        outputs = self.expanded_document.get_outputs()
-        result_snippet = self._generate_command_snippet(input_tree, outputs)
-        command_section = self.tool_document.find_element(COMMAND)
-        if command_section and not command_section.is_self_closed:
-            if command_section.get_cdata_section():
-                return result_snippet
-            return f"<![CDATA[\n\n{result_snippet}\n\n]]>\n"
-        return f"<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n"
+        try:
+            input_tree = self.expanded_document.analyze_inputs()
+            outputs = self.expanded_document.get_outputs()
+            result_snippet = self._generate_command_snippet(input_tree, outputs)
+            command_section = self.tool_document.find_element(COMMAND)
+            if command_section and not command_section.is_self_closed:
+                if command_section.get_cdata_section():
+                    return (result_snippet, False)
+                return (f"<![CDATA[\n\n{result_snippet}\n\n]]>\n", False)
+            return (f"<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n", False)
+        except BaseException as ex:
+            return (f"Automatic command section generation failed with reason: {ex}", True)
 
     def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """Returns the position inside the document where command section

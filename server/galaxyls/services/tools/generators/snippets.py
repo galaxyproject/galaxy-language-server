@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Union, cast
+from typing import List, Optional, Tuple, Union, cast
 
 from galaxy.util import xml_macros
 from galaxyls.services.tools.constants import DASH, UNDERSCORE
@@ -21,22 +21,24 @@ class SnippetGenerator(ABC):
         self.indent_spaces: str = " " * tabSize
         super().__init__()
 
-    def generate_snippet(self) -> Optional[GeneratedSnippetResult]:
+    def generate_snippet(self) -> GeneratedSnippetResult:
         """Generates a code snippet using this generator."""
-        snippet = self._build_snippet()
-        if snippet:
-            insert_position = self._find_snippet_insert_position()
-            if type(insert_position) == Range:
-                insert_position = cast(Range, insert_position)
-                return GeneratedSnippetResult(snippet, insert_position.start, insert_position)
-            insert_position = cast(Position, insert_position)
-            return GeneratedSnippetResult(snippet, insert_position)
-        return None
+        result, is_error = self._build_snippet()
+        if is_error:
+            return GeneratedSnippetResult.as_error(result)
+        insert_position = self._find_snippet_insert_position()
+        if type(insert_position) == Range:
+            insert_position = cast(Range, insert_position)
+            return GeneratedSnippetResult(result, insert_position.start, insert_position)
+        insert_position = cast(Position, insert_position)
+        return GeneratedSnippetResult(result, insert_position)
 
     @abstractmethod
-    def _build_snippet(self) -> Optional[str]:
-        """This abstract function should return the generated snippet in TextMate format or None
-        if the snippet can't be generated."""
+    def _build_snippet(self) -> Tuple[str, bool]:
+        """This abstract function should return a tuple with the generated snippet text in TextMate format or
+        an error message if the snippet can't be generated.
+
+        The second value of the tuple is a bool indicating if there was an error."""
         pass
 
     @abstractmethod
