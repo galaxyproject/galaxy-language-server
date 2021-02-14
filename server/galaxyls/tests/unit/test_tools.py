@@ -167,9 +167,10 @@ class TestGalaxyToolTestSnippetGeneratorClass:
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
 
-        actual_snippet = generator._build_snippet()
+        actual_snippet, is_error = generator._build_snippet()
         print(actual_snippet)
         assert actual_snippet == expected_snippet
+        assert not is_error
 
     @pytest.mark.parametrize(
         "source, expected_position",
@@ -229,9 +230,10 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolCommandSnippetGenerator(tool)
 
-        actual_snippet = generator._build_snippet()
+        actual_snippet, is_error = generator._build_snippet()
         print(actual_snippet)
         assert actual_snippet == expected_snippet
+        assert not is_error
 
     @pytest.mark.parametrize(
         "source, expected_position",

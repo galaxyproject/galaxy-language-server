@@ -23,10 +23,24 @@ class GeneratedSnippetResult:
     text inside the given range.
     """
 
-    def __init__(self, snippet: str, insert_position: Position, replace_range: Optional[Range] = None):
+    def __init__(
+        self,
+        snippet: str,
+        insert_position: Position,
+        replace_range: Optional[Range] = None,
+        error_message: Optional[str] = None,
+    ):
         self.snippet = snippet
         self.position = insert_position
         self.replace_range = replace_range
+        self.error_message = error_message
+
+    @staticmethod
+    def as_error(error_message: str) -> "GeneratedSnippetResult":
+        """Returns a GeneratedSnippetResult with empty values and the given error message.
+
+        The error message should be displayed or logged by the client."""
+        return GeneratedSnippetResult("", Position(), error_message=error_message)
 
 
 class ReplaceTextRangeResult:
