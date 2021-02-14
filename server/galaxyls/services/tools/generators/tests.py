@@ -77,7 +77,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
                 return (result_snippet, False)
             return (f"\n<{TESTS}>\n{result_snippet}\n</{TESTS}>", False)
         except BaseException as ex:
-            return (str(ex), True)
+            return (f"Automatic Test Case generation failed with reason: {ex}", True)
 
     def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """Returns the position inside the document where new test cases
@@ -124,15 +124,12 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         Returns:
             str: The resulting code snippet in TextMate format.
         """
-        try:
-            test_element = self._create_test_element()
-            self._add_inputs_to_test_element(input_node, test_element)
-            self._add_outputs_to_test_element(outputs, test_element)
-            etree.indent(test_element, space=self.indent_spaces)
-            snippet = etree.tostring(test_element, pretty_print=True, encoding=str)
-            return cast(str, snippet)
-        except BaseException:
-            return ""
+        test_element = self._create_test_element()
+        self._add_inputs_to_test_element(input_node, test_element)
+        self._add_outputs_to_test_element(outputs, test_element)
+        etree.indent(test_element, space=self.indent_spaces)
+        snippet = etree.tostring(test_element, pretty_print=True, encoding=str)
+        return cast(str, snippet)
 
     def _create_test_element(self) -> etree._Element:
         """Returns a XML element representing a <test> tag with the basic information.

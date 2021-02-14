@@ -63,7 +63,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 return (f"<![CDATA[\n\n{result_snippet}\n\n]]>\n", False)
             return (f"<{COMMAND}><![CDATA[\n\n{result_snippet}\n\n]]>\n</{COMMAND}>\n", False)
         except BaseException as ex:
-            return (str(ex), True)
+            return (f"Automatic command section generation failed with reason: {ex}", True)
 
     def _find_snippet_insert_position(self) -> Union[Position, Range]:
         """Returns the position inside the document where command section
