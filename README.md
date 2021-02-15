@@ -1,22 +1,24 @@
-# Galaxy Language Server
+# Galaxy Tools Extension and Galaxy Language Server
 
 [![Actions Status](https://github.com/davelopez/galaxy-language-server/workflows/Language%20Server%20CI/badge.svg)](https://github.com/davelopez/galaxy-language-server/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
 [![PyPI version](https://badge.fury.io/py/galaxy-language-server.svg)](https://badge.fury.io/py/galaxy-language-server)
 
-The aim of this project is to implement the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) to assist in the development of [Galaxy tool wrappers](https://docs.galaxyproject.org/en/latest/dev/schema.html) inside modern code editors.
+This repository contains two projects, the [Galaxy Language Server](https://github.com/davelopez/galaxy-language-server/tree/master/server) which is a [Python](https://www.python.org/) implementation of the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) and the [Galaxy Tools extension](https://github.com/davelopez/galaxy-language-server/tree/master/client) which is a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
 
-> The idea is to provide realtime XML validation, code completion, help/documentation and other *smart* features to help in following best practices during the development process of XML tool wrappers for Galaxy.
+This project has the following main goals:
 
-This repository contains both the [server](https://github.com/davelopez/galaxy-language-server/tree/master/server) implementation in [Python](https://www.python.org/) and the [client](https://github.com/davelopez/galaxy-language-server/tree/master/client) implementation of a [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
+- **Easy onboarding of new Galaxy tool developers**: with the [intelligent code completion](#tag-and-attribute-auto-completion) and the [documentation tooltips](#documentation-on-hover), new developers can reduce the need for memorizing tags and attributes as well as easily discover what they need as they write avoiding syntax and structural errors on the way.
+- **Development speed**: more experienced developers can greatly boost their speed writing tools for Galaxy by using the [code snippets](#snippets) to quickly write code for commonly used tag or even [generating scaffolding code for the tests](#auto-generate-tests) covering most of the *conditional paths* of their tool.
+- **Encourage best practices**: one of the **most important goals** of this project is to assist the developer in writing tools that follow the [best practices established by the Intergalactic Utilities Commission](https://galaxy-iuc-standards.readthedocs.io/en/latest/index.html) by providing features like [attribute sorting](#auto-sort-param-attributes) or [auto-formatting](#document-auto-formatting) and many more to come!
 
 > Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
 # Table of Contents
 
 - [Getting Started](#getting-started)
-  - [Using the Galaxy Language Server](#using-the-galaxy-language-server)
+  - [Using the project](#using-the-project)
   - [Contributing](#contributing)
 - [Features](#features)
   - [Tag and attribute auto-completion](#tag-and-attribute-auto-completion)
@@ -33,9 +35,9 @@ This repository contains both the [server](https://github.com/davelopez/galaxy-l
 
 # Getting Started
 
-## Using the Galaxy Language Server
+## Using the project
 
-If you just want to use the Galaxy Language Server, the easiest option is to **install the VSCode extension** from the [Market](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools) or the [Open VSX registry](https://open-vsx.org/extension/davelopez/galaxy-tools). Additionally, you can download the VSIX package from the [releases](https://github.com/galaxyproject/galaxy-language-server/releases) page and install it manually.
+If you just want to use the features provided by the Galaxy Language Server, the easiest and recommended option is to **install the VSCode extension** from the [Market](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools) or, if you prefer, you can use [VSCodium](https://github.com/VSCodium/vscodium) and the [Open VSX registry](https://open-vsx.org/extension/davelopez/galaxy-tools). Additionally, you can download the VSIX package from the [releases](https://github.com/galaxyproject/galaxy-language-server/releases) page and install it manually.
 
 ## Contributing
 
