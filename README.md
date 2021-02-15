@@ -47,6 +47,10 @@ To setup your development environment, please check [this guide](docs/CONTRIBUTI
 
 # Features
 
+You can watch a short video with a tour of some of the features of the Galaxy Tools extension here:
+
+[![Galaxy Tools features video](https://img.youtube.com/vi/MpPrgtNrEcQ/0.jpg)](https://www.youtube.com/watch?v=MpPrgtNrEcQ)
+
 ## Tag and attribute auto-completion
 
 ![Demo feature auto-completion](../assets/feature.autocompletion.gif)
