@@ -1,5 +1,21 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.4.0] - 2021-02-15
+
+### Added
+
+- New settings to integrate [planemo](https://github.com/galaxyproject/planemo) and run `planemo test` inside [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) for the currently opened tool documents. ([#110](https://github.com/galaxyproject/galaxy-language-server/pull/110))
+
+- Commands to reorder `<param>` attributes (in a single tag `Ctrl+Alt+s Ctrl+Alt+p` or the whole document `Ctrl+Alt+s Ctrl+Alt+d`) according to the IUC Style Guidelines. ([#104](https://github.com/galaxyproject/galaxy-language-server/pull/104))
+
+### Fixed
+
+- Display error notification when a code generation command fails ([#113](https://github.com/galaxyproject/galaxy-language-server/pull/113)).
+
+### Changed
+
+- Update gx-tool snippet to latests IUC best practices ([#94](https://github.com/galaxyproject/galaxy-language-server/pull/94)).
+
 ## [0.3.2] - 2021-01-24
 
 ### Changed

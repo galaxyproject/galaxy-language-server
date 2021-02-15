@@ -1,5 +1,21 @@
 # Galaxy Language Server Changelog
 
+## [0.4.0] - 2021-02-15
+
+### Added
+
+- A custom command for tests discovery that provides information about the test definitions of all the opened tool documents in the virtual workspace. ([#110](https://github.com/galaxyproject/galaxy-language-server/pull/110))
+
+- A custom command to reorder `<param>` attributes according to the IUC Style Guidelines. ([#104](https://github.com/galaxyproject/galaxy-language-server/pull/104))
+
+### Fixed
+
+- Unexpected errors when generating code were failing silently without providing feedback to the user. Now an error notification will be displayed to the user. ([#113](https://github.com/galaxyproject/galaxy-language-server/pull/113))
+
+- Elements inside macros were not correctly associated with their XSD definition. ([#111](https://github.com/galaxyproject/galaxy-language-server/pull/111))
+
+- An bug in the search algorithm when analyzing the tool input trees with nested conditional sharing the same 'when' value. This was causing the code generation commands to fail. ([#109](https://github.com/galaxyproject/galaxy-language-server/pull/109))
+
 ## [0.3.2] - 2021-01-24
 
 ### Fixed

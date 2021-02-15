@@ -1,6 +1,6 @@
 # Galaxy Tools (Visual Studio Code Extension)
 
-This extension provides XML validation, tags and attributes completion, help/documentation on hover, and other *smart* features to assist in following best practices during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
+This extension provides XML validation, tags and attributes completion, help/documentation on hover, and other *smart* features to assist in **following best practices** recommended by the [Intergalactic Utilities Commission](https://galaxy-iuc-standards.readthedocs.io/en/latest/index.html) during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
 
 > Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
