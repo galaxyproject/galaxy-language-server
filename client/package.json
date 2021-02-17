@@ -90,27 +90,32 @@
       {
         "command": "galaxytools.generate.tests",
         "title": "Generate tests cases for current tool",
-        "category": "Galaxy Tools"
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive"
       },
       {
         "command": "galaxytools.generate.command",
         "title": "Generate boilerplate command section for current tool",
-        "category": "Galaxy Tools"
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive"
       },
       {
         "command": "galaxytools.sort.singleParamAttributes",
         "title": "Sort the attributes of the param element under the cursor according to the IUC Coding Style Guide.",
-        "category": "Galaxy Tools"
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive"
       },
       {
         "command": "galaxytools.sort.documentParamsAttributes",
         "title": "Sort the attributes of all the param elements in the document according to the IUC Coding Style Guidelines.",
-        "category": "Galaxy Tools"
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive"
       },
       {
         "command": "galaxytools.planemo.openSettings",
         "title": "Displays the configuration settings for `planemo`.",
-        "category": "Galaxy Tools: Planemo"
+        "category": "Galaxy Tools: Planemo",
+        "enablement": "galaxytools:isActive"
       }
     ],
     "keybindings": [
@@ -207,7 +212,7 @@
         {
           "id": "planemo-config",
           "name": "Configuration",
-          "when": "config.galaxyTools.planemo.enabled"
+          "when": "galaxytools:isActive && config.galaxyTools.planemo.enabled"
         }
       ]
     },
