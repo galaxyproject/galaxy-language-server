@@ -72,6 +72,8 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
 
     // Open planemo settings
     context.subscriptions.push(commands.registerCommand(Commands.PLANEMO_OPEN_SETTINGS, openPlanemoSettings))
+
+    notifyExtensionActive();
 }
 
 async function requestSortSingleParamAttrs(client: LanguageClient, request: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any, any>) {
@@ -169,4 +171,8 @@ function ensureDocumentIsSaved(editor: TextEditor): Boolean {
 
 function openPlanemoSettings() {
     commands.executeCommand('workbench.action.openSettings', 'galaxyTools.planemo');
+}
+
+function notifyExtensionActive() {
+    commands.executeCommand('setContext', 'galaxytools:isActive', true);
 }
