@@ -2,7 +2,7 @@ import { unlinkSync } from 'fs';
 import * as path from 'path';
 import * as tmp from 'tmp';
 import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
-import { TOOL_DOCUMENT_EXTENSION } from '../../constants';
+import { Constants } from '../../constants';
 import { IProcessExecution, runProcess } from '../../processRunner';
 import { ITestRunner } from '../../testing/testRunner';
 import { IPlanemoConfiguration } from '../configuration';
@@ -23,7 +23,7 @@ export class PlanemoTestRunner implements ITestRunner {
         }
 
         const testSuiteId = testSuite.id;
-        const testFile = testSuite.file ? testSuite.file : `${planemoConfig.getCwd()}/${testSuiteId}.${TOOL_DOCUMENT_EXTENSION}`;
+        const testFile = testSuite.file ? testSuite.file : `${planemoConfig.getCwd()}/${testSuiteId}.${Constants.TOOL_DOCUMENT_EXTENSION}`;
         try {
             const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(testFile);
 
@@ -77,7 +77,7 @@ export class PlanemoTestRunner implements ITestRunner {
     private async getJsonReportPath(testFile: string | undefined): Promise<{ file: string, cleanupCallback: () => void }> {
         if (testFile !== undefined) {
             const baseDir = path.dirname(testFile);
-            const testFileName = path.basename(testFile, TOOL_DOCUMENT_EXTENSION);
+            const testFileName = path.basename(testFile, Constants.TOOL_DOCUMENT_EXTENSION);
             const reportFile = path.resolve(baseDir, `${testFileName}json`);
 
             return Promise.resolve({
