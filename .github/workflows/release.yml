@@ -73,8 +73,6 @@ jobs:
 
       - name: Package and Upload to PyPI
         env:
-          # This env variable will be used to set the version in setup.py
-          GALAXYLS_VERSION: ${{ needs.prepare_release.outputs.release_version }}
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
