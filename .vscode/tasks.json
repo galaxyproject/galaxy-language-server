@@ -2,21 +2,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "compile:client",
-            "type": "shell",
-            "command": "tsc",
-            "args": [
-                "-p",
-                "client"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "panel": "shared",
-                "reveal": "silent",
-            },
-        },
+            "type": "npm",
+            "script": "webpack",
+            "path": "client/",
+            "problemMatcher": [],
+            "label": "npm: webpack",
+            "detail": "webpack --mode development"
+        }
     ]
 }
