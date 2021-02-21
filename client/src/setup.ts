@@ -1,7 +1,7 @@
 import { join } from "path";
 import { existsSync } from "fs";
 import { commands, ExtensionContext, ProgressLocation, Uri, window, workspace } from "vscode";
-import { IS_WIN, LS_VENV_NAME, GALAXY_LS_PACKAGE, PYTHON_UNIX, PYTHON_WIN, GALAXY_LS_VERSION, REQUIRED_PYTHON_VERSION } from "./constants";
+import { Constants } from "./constants";
 import { execAsync } from "./utils";
 
 /**
@@ -12,17 +12,17 @@ import { execAsync } from "./utils";
  */
 export async function installLanguageServer(context: ExtensionContext): Promise<string | undefined> {
     // Check if the LS is already installed
-    let venvPath = getVirtualEnvironmentPath(context.extensionPath, LS_VENV_NAME)
+    let venvPath = getVirtualEnvironmentPath(context.extensionPath, Constants.LS_VENV_NAME)
     if (existsSync(venvPath)) {
         const venvPython = getPythonFromVenvPath(venvPath);
-        const isInstalled = await isPythonPackageInstalled(venvPython, GALAXY_LS_PACKAGE, GALAXY_LS_VERSION);
+        const isInstalled = await isPythonPackageInstalled(venvPython, Constants.GALAXY_LS_PACKAGE, Constants.GALAXY_LS_VERSION);
         if (isInstalled) {
-            console.log(`[gls] ${GALAXY_LS_PACKAGE} already installed.`);
+            console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} already installed.`);
             return Promise.resolve(venvPython);
         }
     }
 
-    const result = await window.showInformationMessage(`Galaxy Tools needs to install the Galaxy Language Server Python package to continue. This will be installed in a virtual environment inside the extension and will require Python ${REQUIRED_PYTHON_VERSION}`, ...['Install', 'More Info']);
+    const result = await window.showInformationMessage(`Galaxy Tools needs to install the Galaxy Language Server Python package to continue. This will be installed in a virtual environment inside the extension and will require Python ${Constants.REQUIRED_PYTHON_VERSION}`, ...['Install', 'More Info']);
 
     if (result === undefined) {
         console.log(`[gls] Language server installation cancelled by the user.`);
@@ -45,26 +45,26 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
 
                     if (python === undefined) {
                         await window.showInformationMessage(
-                            `Please select your Python ${REQUIRED_PYTHON_VERSION} path to continue the installation. This python will be used to create a virtual environment inside the extension directory.`,
+                            `Please select your Python ${Constants.REQUIRED_PYTHON_VERSION} path to continue the installation. This python will be used to create a virtual environment inside the extension directory.`,
                             ...['Select']);
                         python = await selectPythonUsingFileDialog();
                         // User canceled the input
                         if (python === undefined) {
-                            const message = `Python ${REQUIRED_PYTHON_VERSION} is required in order to use the language server features.`;
+                            const message = `Python ${Constants.REQUIRED_PYTHON_VERSION} is required in order to use the language server features.`;
                             window.showErrorMessage(message);
                             throw new Error(message);
                         }
                     }
 
                     console.log(`[gls] Creating virtual environment...`);
-                    venvPath = await createVirtualEnvironment(python, LS_VENV_NAME, context.extensionPath);
+                    venvPath = await createVirtualEnvironment(python, Constants.LS_VENV_NAME, context.extensionPath);
                 }
 
                 const venvPython = getPythonFromVenvPath(venvPath);
                 console.log(`[gls] Using Python from: ${venvPython}`);
 
-                console.log(`[gls] Installing ${GALAXY_LS_PACKAGE}...`);
-                const isInstalled = await intallPythonPackage(venvPython, GALAXY_LS_PACKAGE, GALAXY_LS_VERSION)
+                console.log(`[gls] Installing ${Constants.GALAXY_LS_PACKAGE}...`);
+                const isInstalled = await intallPythonPackage(venvPython, Constants.GALAXY_LS_PACKAGE, Constants.GALAXY_LS_VERSION)
 
                 if (!isInstalled) {
                     const errorMessage = "There was a problem trying to install the Galaxy language server.";
@@ -72,7 +72,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
                     throw new Error(errorMessage);
                 }
 
-                console.log(`[gls] ${GALAXY_LS_PACKAGE} installed successfully.`);
+                console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} installed successfully.`);
                 window.showInformationMessage("Galaxy Tools extension is ready!");
                 resolve(venvPython);
             } catch (err) {
@@ -85,11 +85,11 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
 }
 
 function getPythonFromVenvPath(venvPath: string): string {
-    return IS_WIN ? join(venvPath, "Scripts", PYTHON_WIN) : join(venvPath, "bin", PYTHON_UNIX);
+    return Constants.IS_WIN ? join(venvPath, "Scripts", Constants.PYTHON_WIN) : join(venvPath, "bin", Constants.PYTHON_UNIX);
 }
 
 function getPythonCrossPlatform(): string {
-    return IS_WIN ? PYTHON_WIN : PYTHON_UNIX;
+    return Constants.IS_WIN ? Constants.PYTHON_WIN : Constants.PYTHON_UNIX;
 }
 
 function getVirtualEnvironmentPath(extensionDirectory: string, envName: string): string {
@@ -156,7 +156,7 @@ async function getPython(): Promise<string | undefined> {
 async function selectPythonUsingFileDialog(): Promise<string | undefined> {
     let result = await window.showOpenDialog({
         openLabel: "Select", canSelectMany: false,
-        title: `Select the Python ${REQUIRED_PYTHON_VERSION} binary:`
+        title: `Select the Python ${Constants.REQUIRED_PYTHON_VERSION} binary:`
     });
 
     if (result !== undefined) {
@@ -165,7 +165,7 @@ async function selectPythonUsingFileDialog(): Promise<string | undefined> {
         if (await checkPythonVersion(pythonPath)) {
             return pythonPath;
         } else {
-            window.showErrorMessage(`The selected file is not a valid Python ${REQUIRED_PYTHON_VERSION} path!`);
+            window.showErrorMessage(`The selected file is not a valid Python ${Constants.REQUIRED_PYTHON_VERSION} path!`);
         }
     }
 

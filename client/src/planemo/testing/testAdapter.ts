@@ -2,7 +2,7 @@
 
 import { WorkspaceFolder, Event, EventEmitter, workspace, window, TextDocument } from "vscode";
 import { RetireEvent, TestAdapter, TestEvent, TestLoadFinishedEvent, TestLoadStartedEvent, TestRunFinishedEvent, TestRunStartedEvent, TestSuiteEvent, TestSuiteInfo } from "vscode-test-adapter-api";
-import { LANGUAGE_ID, TOOL_DOCUMENT_EXTENSION } from "../../constants";
+import { Constants } from "../../constants";
 import { TestState } from "../../testing/common";
 import { ITestRunner } from "../../testing/testRunner";
 import { ITestsProvider } from "../../testing/testsProvider";
@@ -201,7 +201,7 @@ export class PlanemoTestAdapter implements TestAdapter {
     }
 
     private isToolDocument(document: TextDocument): boolean {
-        return document.languageId === LANGUAGE_ID
-            && document.fileName.endsWith(TOOL_DOCUMENT_EXTENSION);
+        return document.languageId === Constants.LANGUAGE_ID
+            && document.fileName.endsWith(Constants.TOOL_DOCUMENT_EXTENSION);
     }
 }

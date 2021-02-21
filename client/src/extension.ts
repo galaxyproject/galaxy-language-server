@@ -5,7 +5,7 @@ import { ExtensionContext, window, TextDocument, Position, IndentAction, Languag
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient";
 import { activateTagClosing, TagCloseRequest } from './tagClosing';
 import { installLanguageServer } from './setup';
-import { GALAXY_LS, LANGUAGE_ID } from './constants';
+import { Constants } from './constants';
 import { setupCommands } from './commands';
 import { setupPlanemo } from "./planemo/main";
 import { DefaultConfigurationFactory } from "./planemo/configuration";
@@ -30,7 +30,7 @@ export async function activate(context: ExtensionContext) {
         return;
       }
 
-      client = startLanguageServer(python, ["-m", GALAXY_LS], context.extensionPath);
+      client = startLanguageServer(python, ["-m", Constants.GALAXY_LS], context.extensionPath);
 
     } catch (err) {
       window.showErrorMessage(err);
@@ -38,7 +38,7 @@ export async function activate(context: ExtensionContext) {
   }
 
   // Configure auto-indentation
-  languages.setLanguageConfiguration(LANGUAGE_ID, getIndentationRules());
+  languages.setLanguageConfiguration(Constants.LANGUAGE_ID, getIndentationRules());
 
   context.subscriptions.push(client.start());
 
@@ -73,8 +73,8 @@ function getClientOptions(): LanguageClientOptions {
   return {
     // Register the server for xml documents
     documentSelector: [
-      { scheme: "file", language: LANGUAGE_ID },
-      { scheme: "untitled", language: LANGUAGE_ID },
+      { scheme: "file", language: Constants.LANGUAGE_ID },
+      { scheme: "untitled", language: Constants.LANGUAGE_ID },
     ],
     outputChannelName: "[galaxyls]",
     synchronize: {
