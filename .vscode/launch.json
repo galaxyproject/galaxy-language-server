@@ -3,21 +3,24 @@
     "version": "0.2.0",
     "configurations": [
         {
+            // Launches the compound configuration by default
+            "name": "Server + Client",
+            "type": "node",
+            "request": "launch",
+        },
+        {
             "name": "Launch Client",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "sourceMaps": true,
             "args": [
-                "--extensionDevelopmentPath=${workspaceRoot}"
+                "--extensionDevelopmentPath=${workspaceFolder}"
             ],
             "outFiles": [
-                "${workspaceRoot}/client/out/**/*.js"
+                "${workspaceFolder}/client/dist/**/*.js"
             ],
-            "preLaunchTask": "compile:client",
-            "env": {
-                "VSCODE_DEBUG_MODE": "true"
-            }
+            "preLaunchTask": "npm: webpack",
         },
         {
             "name": "Launch Server",
