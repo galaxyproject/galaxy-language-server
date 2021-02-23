@@ -106,7 +106,8 @@ export class PlanemoTestRunner implements ITestRunner {
 
     private getTestHtmlReportFilePath(testFile: string): string {
         const baseDir = path.dirname(testFile);
-        const reportFile = path.resolve(baseDir, `tool_test_output.html`);
+        const testFileName = path.basename(testFile, Constants.TOOL_DOCUMENT_EXTENSION).replace(".", "");
+        const reportFile = path.resolve(baseDir, `${testFileName}_test_report.html`);
         return reportFile;
     }
 }
