@@ -26,12 +26,17 @@ export class PlanemoTestRunner implements ITestRunner {
         const testFile = testSuite.file ? testSuite.file : `${planemoConfig.getCwd()}/${testSuiteId}.${Constants.TOOL_DOCUMENT_EXTENSION}`;
         try {
             const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(testFile);
+            const htmlReportFile = this.getTestHtmlReportFilePath(testFile);
 
             const testRunArguments = [
                 `test`,
-                `--galaxy_root=${planemoConfig.galaxyRoot()}`,
-                `--test_output_json=${output_json_file}`,
-                testFile,
+                `--galaxy_root`,
+                `${planemoConfig.galaxyRoot()}`,
+                `--test_output_json`,
+                `${output_json_file}`,
+                `--test_output`,
+                `${htmlReportFile}`,
+                `${testFile}`,
             ]
 
             const testExecution = this.runPlanemoTest(planemoConfig, testRunArguments);
@@ -39,7 +44,7 @@ export class PlanemoTestRunner implements ITestRunner {
             this.testExecutions.set(testSuiteId, testExecution);
             await testExecution.complete();
 
-            const states = await parseTestStates(output_json_file, testSuite);
+            const states = await parseTestStates(output_json_file, testSuite, htmlReportFile);
 
             cleanupCallback();
 
@@ -97,5 +102,12 @@ export class PlanemoTestRunner implements ITestRunner {
                 resolve({ file, cleanupCallback });
             });
         });
+    }
+
+    private getTestHtmlReportFilePath(testFile: string): string {
+        const baseDir = path.dirname(testFile);
+        const testFileName = path.basename(testFile, Constants.TOOL_DOCUMENT_EXTENSION).replace(".", "");
+        const reportFile = path.resolve(baseDir, `${testFileName}_test_report.html`);
+        return reportFile;
     }
 }

@@ -46,13 +46,13 @@ interface ITestCaseJobInfo {
     tool_stdout: string;
 }
 
-export async function parseTestStates(outputJsonFile: string, testSuite: TestSuiteInfo): Promise<TestEvent[]> {
+export async function parseTestStates(outputJsonFile: string, testSuite: TestSuiteInfo, htmlReportFile: string): Promise<TestEvent[]> {
     const content = await readFile(outputJsonFile);
     const parseResult = await JSON.parse(content);
-    return parseTestResults(parseResult, testSuite);
+    return parseTestResults(parseResult, testSuite, htmlReportFile);
 }
 
-function parseTestResults(parserResult: any, testSuite: TestSuiteInfo): TestEvent[] {
+function parseTestResults(parserResult: any, testSuite: TestSuiteInfo, htmlReportFile: string): TestEvent[] {
     if (!parserResult) {
         return [];
     }
@@ -63,6 +63,7 @@ function parseTestResults(parserResult: any, testSuite: TestSuiteInfo): TestEven
         const testInfo = getTestInfo(testCaseResult, testSuite);
         const adatedResult = adaptTestResult(testCaseResult, testInfo);
         if (adatedResult !== undefined) {
+            adatedResult.message += `${EOL}${EOL}See full test report: ${htmlReportFile}`;
             testResults.push(adatedResult);
         }
     });
