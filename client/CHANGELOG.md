@@ -1,12 +1,24 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.4.1] - 2021-02-27
+
+### Added
+
+- After running the tests from the Test Explorer a link to the full HTML test report will appear in the output console ([#122](https://github.com/galaxyproject/galaxy-language-server/pull/122)).
+
+### Changed
+
+- Various improvements in the installation process. Lightweight extension bundle, remember selected Python binary on updates, and less repeated notifications ([#120](https://github.com/galaxyproject/galaxy-language-server/pull/120)).
+- Detach client and server versions. Now both versions can evolve independently ([#119](https://github.com/galaxyproject/galaxy-language-server/pull/119)).
+- Hide command and view contributions when the extension is not active. This will make the commands and the planemo explorer icon visible only if the extension is active and not all the time ([#117](https://github.com/galaxyproject/galaxy-language-server/pull/117)).
+
 ## [0.4.0] - 2021-02-15
 
 ### Added
 
-- New settings to integrate [planemo](https://github.com/galaxyproject/planemo) and run `planemo test` inside [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) for the currently opened tool documents. ([#110](https://github.com/galaxyproject/galaxy-language-server/pull/110))
+- New settings to integrate [planemo](https://github.com/galaxyproject/planemo) and run `planemo test` inside [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) for the currently opened tool documents ([#110](https://github.com/galaxyproject/galaxy-language-server/pull/110)).
 
-- Commands to reorder `<param>` attributes (in a single tag `Ctrl+Alt+s Ctrl+Alt+p` or the whole document `Ctrl+Alt+s Ctrl+Alt+d`) according to the IUC Style Guidelines. ([#104](https://github.com/galaxyproject/galaxy-language-server/pull/104))
+- Commands to reorder `<param>` attributes (in a single tag `Ctrl+Alt+s Ctrl+Alt+p` or the whole document `Ctrl+Alt+s Ctrl+Alt+d`) according to the IUC Style Guidelines ([#104](https://github.com/galaxyproject/galaxy-language-server/pull/104)).
 
 ### Fixed
 
@@ -15,6 +27,7 @@
 ### Changed
 
 - Update gx-tool snippet to latests IUC best practices ([#94](https://github.com/galaxyproject/galaxy-language-server/pull/94)).
+- Updated Galaxy Language Server [v0.4.0](./server/CHANGELOG.md#040)
 
 ## [0.3.2] - 2021-01-24
 
