@@ -34,13 +34,10 @@ jobs:
             - Galaxy Language Server [changelog](https://github.com/davelopez/galaxy-language-server/blob/master/server/CHANGELOG.md)
             - Galaxy Tools Visual Studio Extension [changelog](https://github.com/davelopez/galaxy-language-server/blob/master/client/CHANGELOG.md#)
 
-            This version of the language server is available as a [PyPI package](https://pypi.org/project/galaxy-language-server/) and can be installed using:
-            ```
-            python3 -m pip install galaxy-language-server==${{ steps.get_version.outputs.version-without-v }}
-            ```
+            The standalone version of the language server is available as a [PyPI package](https://pypi.org/project/galaxy-language-server/).
 
             The Galaxy Tools Extension is available at [Open VSX Registry](https://open-vsx.org/extension/davelopez/galaxy-tools) and [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools).
-            You can also install the extension manually by downloading the VSIX package and using:
+            You can also install the extension manually by downloading the VSIX package included in this release and using:
             ```
             code --install-extension galaxy-tools-${{ steps.get_version.outputs.version-without-v }}.vsix
             ```
