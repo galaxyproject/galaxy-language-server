@@ -115,7 +115,8 @@
         "command": "galaxytools.planemo.openSettings",
         "title": "Displays the configuration settings for `planemo`.",
         "category": "Galaxy Tools: Planemo",
-        "enablement": "galaxytools:isActive"
+        "enablement": "galaxytools:isActive",
+        "icon": "$(settings-gear)"
       }
     ],
     "keybindings": [
@@ -213,6 +214,15 @@
           "id": "planemo-config",
           "name": "Configuration",
           "when": "galaxytools:isActive && config.galaxyTools.planemo.enabled"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "galaxytools.planemo.openSettings",
+          "when": "view == planemo-config",
+          "group": "navigation"
         }
       ]
     },
