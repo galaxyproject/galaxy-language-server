@@ -51,7 +51,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
     public async validate(): Promise<ConfigValidationResult> {
         const result = new ConfigValidationResult();
 
-        if (!this.isPlanemoInstalled()) {
+        if (!await this.isPlanemoInstalled()) {
             result.addErrorMessage("Please set a valid `envPath` value for planemo in the configuration.")
         }
 
