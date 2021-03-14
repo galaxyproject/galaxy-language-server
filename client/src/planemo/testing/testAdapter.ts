@@ -44,7 +44,7 @@ export class PlanemoTestAdapter implements TestAdapter {
         this.disposables.push(workspace.onDidChangeConfiguration(async configurationChange => {
             const sectionsToReload = [
                 'galaxyTools.planemo.enabled',
-                'galaxyTools.planemo.virtualEnv',
+                'galaxyTools.planemo.envPath',
                 'galaxyTools.planemo.galaxyRoot',
                 'galaxyTools.planemo.testing.enabled',
             ];
