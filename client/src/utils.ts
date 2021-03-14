@@ -41,3 +41,9 @@ export function readFile(file: fs.PathLike): Promise<string> {
         });
     });
 }
+
+export async function exists(path: string): Promise<boolean> {
+    return fs.promises.access(path, fs.constants.F_OK)
+        .then(() => true)
+        .catch(() => false);
+}

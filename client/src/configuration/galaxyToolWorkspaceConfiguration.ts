@@ -1,9 +1,8 @@
-import { existsSync } from "fs";
-
 import { lookpath } from "lookpath"
 import { workspace, WorkspaceConfiguration } from 'vscode';
 
 import { IPlanemoConfiguration, IPlanemoTestingConfiguration } from "../planemo/configuration";
+import { exists } from "../utils";
 import { ConfigValidationResult, IWorkspaceConfiguration } from "./workspaceConfiguration";
 
 
@@ -49,25 +48,35 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
     }
 
     public async validate(): Promise<ConfigValidationResult> {
-        const result = new ConfigValidationResult();
+        const validPlanemo = await this.isPlanemoInstalled();
+        const validGalaxyRoot = await this.isValidGalaxyRoot();
 
-        if (!await this.isPlanemoInstalled()) {
+        const result = new ConfigValidationResult(validPlanemo, validGalaxyRoot);
+
+        if (!validPlanemo) {
             result.addErrorMessage("Please set a valid `envPath` value for planemo in the configuration.")
         }
 
-        const galaxyRoot = this.galaxyRoot();
-        if (galaxyRoot === null || !galaxyRoot.endsWith("galaxy") || !existsSync(galaxyRoot)) {
+        if (!validGalaxyRoot) {
             result.addErrorMessage("Please set a valid `galaxyRoot` for planemo in the configuration.")
         }
 
         return result;
     }
 
+    private async isValidGalaxyRoot(): Promise<boolean> {
+        const galaxyRoot = this.galaxyRoot();
+        if (galaxyRoot === null || !galaxyRoot.endsWith("galaxy") || !await exists(galaxyRoot)) {
+            return false;
+        }
+        return true;
+    }
+
     private async isPlanemoInstalled(): Promise<boolean> {
         try {
             const envPath = this.envPath();
             const isOnPath = await lookpath('planemo') !== undefined;
-            return envPath !== null && envPath.endsWith("planemo") && (isOnPath || existsSync(envPath));
+            return envPath !== null && envPath.endsWith("planemo") && (isOnPath || await exists(envPath));
         }
         catch (err) {
             return false;

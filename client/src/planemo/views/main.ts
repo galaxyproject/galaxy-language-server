@@ -2,6 +2,7 @@
 
 import { ExtensionContext, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient";
+import { Settings } from "../../configuration/workspaceConfiguration";
 import { IConfigurationFactory } from "../configuration";
 import { registerConfigTreeDataProvider } from "./configurationView";
 
@@ -12,8 +13,8 @@ export function registerViews(client: LanguageClient, context: ExtensionContext,
 
     context.subscriptions.push(workspace.onDidChangeConfiguration(async configurationChange => {
         const sectionsToReload = [
-            'galaxyTools.planemo.envPath',
-            'galaxyTools.planemo.galaxyRoot',
+            Settings.Planemo.ENV_PATH,
+            Settings.Planemo.GALAXY_ROOT,
         ];
 
         const needsReload = sectionsToReload.some(

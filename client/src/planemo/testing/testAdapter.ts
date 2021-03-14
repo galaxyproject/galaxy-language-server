@@ -2,6 +2,7 @@
 
 import { WorkspaceFolder, Event, EventEmitter, workspace, window, TextDocument } from "vscode";
 import { RetireEvent, TestAdapter, TestEvent, TestLoadFinishedEvent, TestLoadStartedEvent, TestRunFinishedEvent, TestRunStartedEvent, TestSuiteEvent, TestSuiteInfo } from "vscode-test-adapter-api";
+import { Settings } from "../../configuration/workspaceConfiguration";
 import { Constants } from "../../constants";
 import { TestState } from "../../testing/common";
 import { ITestRunner } from "../../testing/testRunner";
@@ -43,10 +44,9 @@ export class PlanemoTestAdapter implements TestAdapter {
     private registerActions() {
         this.disposables.push(workspace.onDidChangeConfiguration(async configurationChange => {
             const sectionsToReload = [
-                'galaxyTools.planemo.enabled',
-                'galaxyTools.planemo.envPath',
-                'galaxyTools.planemo.galaxyRoot',
-                'galaxyTools.planemo.testing.enabled',
+                Settings.Planemo.ENV_PATH,
+                Settings.Planemo.GALAXY_ROOT,
+                Settings.Planemo.Testing.ENABLED,
             ];
 
             const needsReload = sectionsToReload.some(

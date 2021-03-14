@@ -55,7 +55,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
 
         const planemoConfig = this.configFactory.getConfiguration().planemo();
         const planemoConfigValidation = await planemoConfig.validate();
-        if (planemoConfigValidation.hasErrors()) {
+        if (!planemoConfigValidation.isValidPlanemo()) {
             return Promise.resolve([]);
         }
 
@@ -64,7 +64,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
         } else {
             const rootItem: PlanemoConfigTreeItem = {
                 label: PLANEMO_LABEL,
-                collapsibleState: TreeItemCollapsibleState.Collapsed,
+                collapsibleState: TreeItemCollapsibleState.Expanded,
                 description: 'configuration details',
                 contextValue: 'planemoConfigItem',
                 iconPath: {
@@ -118,31 +118,24 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             collapsibleState: TreeItemCollapsibleState.Collapsed,
             contextValue: 'galaxyConfigItem',
             getItemChildren: async planemoConfig => {
+                const children = new Array<TreeItem>();
                 const version = await this.getGalaxyVersionItem(planemoConfig);
-                const galaxyRoot = this.getGalaxyRootItem(planemoConfig);
+                children.push(version);
 
-                return [
-                    version,
-                    galaxyRoot,
-                ]
+                if (version.description !== UNKNOWN) {
+                    const galaxyRoot = this.getGalaxyRootItem(planemoConfig);
+                    children.push(galaxyRoot);
+                }
+
+                return children;
             }
         };
         return item;
     }
 
-    private getGalaxyRootItem(planemoConfig: IPlanemoConfiguration): TreeItem {
-        const galaxyRootPath = planemoConfig.galaxyRoot();
-        const galaxyRoot: TreeItem = {
-            label: "Root",
-            description: galaxyRootPath!,
-            collapsibleState: TreeItemCollapsibleState.None,
-        };
-        return galaxyRoot;
-    }
-
     private async getGalaxyVersionItem(planemoConfig: IPlanemoConfiguration): Promise<TreeItem> {
         const version = await this.getGalaxyVersion(planemoConfig);
-        const icon = new ThemeIcon(version ? "pass" : "alert");
+        const icon = new ThemeIcon(version === UNKNOWN ? "alert" : "pass");
         const item: TreeItem = {
             label: "Version",
             collapsibleState: TreeItemCollapsibleState.None,
@@ -169,6 +162,17 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             console.error(`[gls.planemo] getGalaxyVersion: ${error}`);
             return UNKNOWN;
         }
+    }
+
+    private getGalaxyRootItem(planemoConfig: IPlanemoConfiguration): TreeItem {
+        const galaxyRootPath = planemoConfig.galaxyRoot();
+        const galaxyRoot: TreeItem = {
+            label: "Root",
+            description: galaxyRootPath!,
+            tooltip: "Root of development galaxy directory to execute commands with.",
+            collapsibleState: TreeItemCollapsibleState.None,
+        };
+        return galaxyRoot;
     }
 }
 
