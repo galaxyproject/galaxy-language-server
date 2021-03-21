@@ -32,7 +32,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
     public enabled(): boolean {
         return this.config.get("planemo.enabled", true);
     }
-    public envPath(): string {
+    public binaryPath(): string {
         return this.config.get("planemo.envPath", "planemo");
     }
     public galaxyRoot(): string | null {
@@ -74,7 +74,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
 
     private async isPlanemoInstalled(): Promise<boolean> {
         try {
-            const envPath = this.envPath();
+            const envPath = this.binaryPath();
             const isOnPath = await lookpath('planemo') !== undefined;
             return envPath !== null && envPath.endsWith("planemo") && (isOnPath || await exists(envPath));
         }

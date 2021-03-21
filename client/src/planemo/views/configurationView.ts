@@ -2,13 +2,14 @@
 
 import { EOL } from 'os';
 import * as path from 'path';
-import { Event, EventEmitter, ExtensionContext, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, window } from "vscode";
+import { lookpath } from "lookpath"
 import { execAsync, readFile } from '../../utils';
 import { IConfigurationFactory, IPlanemoConfiguration } from "../configuration";
 
 const PLANEMO_LABEL = "Planemo";
 const GALAXY_LABEL = "Galaxy";
 const UNKNOWN = "Unknown";
+const PLANEMO_BINARY = "planemo";
 
 export function registerConfigTreeDataProvider(context: ExtensionContext, configFactory: IConfigurationFactory): PlanemoConfigTreeDataProvider {
 
@@ -72,12 +73,14 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
                     dark: path.join(__filename, '..', '..', 'resources', 'dark', 'planemo.svg')
                 },
                 getItemChildren: async planemoConfig => {
-                    const version = await this.getPlanemoVersionItem(planemoConfig);
-                    const galaxy = await this.getPlanemoGalaxyItem(planemoConfig);
+                    const versionItem = await this.getPlanemoVersionItem(planemoConfig);
+                    const pathItem = await this.getPlanemoPathItem(planemoConfig);
+                    const galaxyItem = await this.getPlanemoGalaxyItem(planemoConfig);
 
                     return [
-                        version,
-                        galaxy,
+                        versionItem,
+                        pathItem,
+                        galaxyItem,
                     ]
                 }
             };
@@ -90,16 +93,42 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
         const planemoVersion = await this.getPlanemoVersion(planemoConfig);
         const item: TreeItem = {
             label: "Version",
-            collapsibleState: TreeItemCollapsibleState.None,
             description: planemoVersion,
-            tooltip: planemoConfig.envPath()
+            collapsibleState: TreeItemCollapsibleState.None,
+            tooltip: planemoConfig.binaryPath()
         };
         return item;
     }
 
+    private async getPlanemoPathItem(planemoConfig: IPlanemoConfiguration): Promise<TreeItem> {
+        const planemoPath = await this.getPlanemoPath(planemoConfig.binaryPath());
+        const item: TreeItem = {
+            label: "Path",
+            description: planemoPath,
+            tooltip: `Using planemo binary in: ${planemoPath}`,
+            collapsibleState: TreeItemCollapsibleState.None,
+        };
+        return item;
+    }
+
+    private async getPlanemoPath(planemoPathInConfig: string): Promise<string> {
+        try {
+            if (planemoPathInConfig === PLANEMO_BINARY) {
+                const valueOnPath = await lookpath(PLANEMO_BINARY);
+                if (valueOnPath !== undefined) {
+                    return valueOnPath;
+                }
+            }
+            return planemoPathInConfig;
+        }
+        catch (err) {
+            return UNKNOWN;
+        }
+    }
+
     private async getPlanemoVersion(planemoConfig: IPlanemoConfiguration): Promise<string> {
         try {
-            const planemoPath = planemoConfig.envPath();
+            const planemoPath = planemoConfig.binaryPath();
             const getPlanemoVersionCmd = `"${planemoPath}" --version`;
             const commandResult = await execAsync(getPlanemoVersionCmd);
             const versionMatch = commandResult.match(new RegExp(/[\d.]+/g));
@@ -116,7 +145,6 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             label: GALAXY_LABEL,
             description: "instance used by Planemo",
             collapsibleState: TreeItemCollapsibleState.Collapsed,
-            contextValue: 'galaxyConfigItem',
             getItemChildren: async planemoConfig => {
                 const children = new Array<TreeItem>();
                 const version = await this.getGalaxyVersionItem(planemoConfig);

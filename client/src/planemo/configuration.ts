@@ -5,7 +5,7 @@ export interface IPlanemoConfiguration {
 
     enabled(): boolean;
 
-    envPath(): string;
+    binaryPath(): string;
 
     galaxyRoot(): string | null;
 

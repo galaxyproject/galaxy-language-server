@@ -74,7 +74,7 @@ export class PlanemoTestRunner implements ITestRunner {
     }
 
     private runPlanemoTest(planemoConfig: IPlanemoConfiguration, args: string[]): IProcessExecution {
-        const planemoPath = planemoConfig.envPath();
+        const planemoPath = planemoConfig.binaryPath();
         return runProcess(planemoPath, args, { cwd: planemoConfig.getCwd() });
 
     }
