@@ -3,8 +3,10 @@
 import { EOL } from 'os';
 import * as path from 'path';
 import { lookpath } from "lookpath"
+import { Event, EventEmitter, ExtensionContext, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window } from "vscode";
 import { execAsync, readFile } from '../../utils';
 import { IConfigurationFactory, IPlanemoConfiguration } from "../configuration";
+import { DirectoryTreeItem } from '../../views/common';
 
 const PLANEMO_LABEL = "Planemo";
 const GALAXY_LABEL = "Galaxy";
@@ -34,7 +36,6 @@ export class PlanemoConfigTreeItem extends TreeItem {
     }
 
 }
-
 
 export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>{
 
@@ -194,13 +195,11 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
 
     private getGalaxyRootItem(planemoConfig: IPlanemoConfiguration): TreeItem {
         const galaxyRootPath = planemoConfig.galaxyRoot();
-        const galaxyRoot: TreeItem = {
-            label: "Root",
-            description: galaxyRootPath!,
-            tooltip: "Root of development galaxy directory to execute commands with.",
-            collapsibleState: TreeItemCollapsibleState.None,
-        };
-        return galaxyRoot;
+        const label = "Root";
+        const galaxyRootUri = Uri.file(galaxyRootPath!);
+        const tooltip = "Root of development galaxy directory to execute commands with.";
+        const item = new DirectoryTreeItem(label, galaxyRootUri, tooltip);
+        return item;
     }
 }
 

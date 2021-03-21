@@ -3,6 +3,7 @@
 import { window, Position, SnippetString, Range, ExtensionContext, commands, TextEditor } from "vscode";
 import { RequestType, TextDocumentIdentifier, TextDocumentPositionParams, LanguageClient } from "vscode-languageclient";
 import { cloneRange } from "./utils";
+import { DirectoryTreeItem } from "./views/common";
 
 export namespace Commands {
 
@@ -13,6 +14,7 @@ export namespace Commands {
     export const SORT_DOCUMENT_PARAMS_ATTRS = 'galaxytools.sort.documentParamsAttributes';
     export const DISCOVER_TESTS = 'galaxytools.tests.discover';
     export const PLANEMO_OPEN_SETTINGS = 'galaxytools.planemo.openSettings';
+    export const OPEN_TERMINAL_AT_DIRECTORY_ITEM = 'galaxytools.openTerminalAtDirectory';
 }
 
 namespace GeneratedTestRequest {
@@ -72,6 +74,8 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
 
     // Open planemo settings
     context.subscriptions.push(commands.registerCommand(Commands.PLANEMO_OPEN_SETTINGS, openPlanemoSettings))
+
+    context.subscriptions.push(commands.registerCommand(Commands.OPEN_TERMINAL_AT_DIRECTORY_ITEM, (item: DirectoryTreeItem) => openTerminalAtDirectoryItem(item)))
 
     notifyExtensionActive();
 }
@@ -171,6 +175,13 @@ function ensureDocumentIsSaved(editor: TextEditor): Boolean {
 
 function openPlanemoSettings() {
     commands.executeCommand('workbench.action.openSettings', 'galaxyTools.planemo');
+}
+
+function openTerminalAtDirectoryItem(item: DirectoryTreeItem) {
+    let terminal = window.createTerminal({
+        cwd: item.directoryUri.fsPath
+    });
+    terminal.show(false);
 }
 
 function notifyExtensionActive() {
