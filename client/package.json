@@ -91,7 +91,8 @@
         "command": "galaxytools.generate.tests",
         "title": "Generate tests cases for current tool",
         "category": "Galaxy Tools",
-        "enablement": "galaxytools:isActive"
+        "enablement": "galaxytools:isActive",
+        "icon": "$(test-view-icon)"
       },
       {
         "command": "galaxytools.generate.command",
@@ -115,7 +116,15 @@
         "command": "galaxytools.planemo.openSettings",
         "title": "Displays the configuration settings for `planemo`.",
         "category": "Galaxy Tools: Planemo",
-        "enablement": "galaxytools:isActive"
+        "enablement": "galaxytools:isActive",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "galaxytools.openTerminalAtDirectory",
+        "title": "Open this directory in a new terminal.",
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive",
+        "icon": "$(terminal-view-icon)"
       }
     ],
     "keybindings": [
@@ -213,6 +222,22 @@
           "id": "planemo-config",
           "name": "Configuration",
           "when": "galaxytools:isActive && config.galaxyTools.planemo.enabled"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "galaxytools.planemo.openSettings",
+          "when": "view == planemo-config",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "galaxytools.openTerminalAtDirectory",
+          "when": "view == planemo-config && viewItem == directoryItem",
+          "group": "inline"
         }
       ]
     },
