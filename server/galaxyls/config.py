@@ -27,9 +27,6 @@ class CompletionConfig(ConfigModel):
     mode: CompletionMode = CompletionMode.AUTO
     auto_close_tags: bool = True
 
-    class Config:
-        alias_generator = to_camel
-
 
 class GalaxyToolsConfiguration(ConfigModel):
     """Galaxy Language Server general configuration."""
