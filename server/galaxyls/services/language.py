@@ -5,7 +5,7 @@ from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
-from pygls.types import (
+from pygls.lsp.types import (
     CompletionList,
     CompletionParams,
     Diagnostic,
@@ -56,7 +56,7 @@ class GalaxyToolLanguageService:
         if context.token and (context.is_tag or context.is_attribute_key):
             documentation = self.xsd_service.get_documentation_for(context)
             context_range = self.xml_context_service.get_range_for_context(xml_document, context)
-            return Hover(documentation, context_range)
+            return Hover(contents=documentation, range=context_range)
         return None
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
@@ -77,7 +77,7 @@ class GalaxyToolLanguageService:
     ) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
         trigger_character = xml_document.document.lines[params.position.line][params.position.character - 1]
-        position_before_trigger = Position(params.position.line, params.position.character - 1)
+        position_before_trigger = Position(line=params.position.line, character=params.position.character - 1)
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 

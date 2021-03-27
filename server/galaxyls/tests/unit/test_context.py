@@ -28,7 +28,7 @@ class TestXmlContextClass:
         expected_xsd_element = fake_xsd_tree.root
         exepected_token = XmlElement()
         expected_line_content = "test"
-        expected_position = Position()
+        expected_position = Position(line=0, character=0)
 
         context = XmlContext(
             expected_xsd_element, exepected_token, line_text=expected_line_content, position=expected_position
@@ -74,7 +74,7 @@ class TestXmlContextServiceClass:
 
     def test_get_xml_context_returns_empty_document_context(self, mocker: MockerFixture) -> None:
         empty_xml_content = ""
-        position = Position()
+        position = Position(line=0, character=0)
         xsd_tree_mock = mocker.Mock()
         service = XmlContextService(xsd_tree_mock)
 
@@ -149,9 +149,9 @@ class TestXmlContextServiceClass:
     @pytest.mark.parametrize(
         "source_with_mark, expected_token_name, expected_offsets",
         [
-            ("<ro^ot></root>", "root", Range(Position(0, 1), Position(0, 5))),
-            ("<root></ro^ot>", "root", Range(Position(0, 8), Position(0, 12))),
-            ("<root>\n</ro^ot>", "root", Range(Position(1, 2), Position(1, 6))),
+            ("<ro^ot></root>", "root", Range(start=Position(line=0, character=1), end=Position(line=0, character=5))),
+            ("<root></ro^ot>", "root", Range(start=Position(line=0, character=8), end=Position(line=0, character=12))),
+            ("<root>\n</ro^ot>", "root", Range(start=Position(line=1, character=2), end=Position(line=1, character=6))),
         ],
     )
     def test_get_range_for_context_element_returns_expected_offsets(
@@ -174,11 +174,31 @@ class TestXmlContextServiceClass:
     @pytest.mark.parametrize(
         "source_with_mark, expected_token_name, expected_offsets",
         [
-            ('<root at^tr="val"></root>', "attr", Range(Position(0, 6), Position(0, 10))),
-            ("<root at^tr", "attr", Range(Position(0, 6), Position(0, 10))),
-            ("<root at^tr=", "attr", Range(Position(0, 6), Position(0, 10))),
-            ('<root>\n<child a^ttr="val" />\n</root>', "attr", Range(Position(1, 7), Position(1, 11))),
-            ('<root>\n<child long^_attr="val" />\n</root>', "long_attr", Range(Position(1, 7), Position(1, 16))),
+            (
+                '<root at^tr="val"></root>',
+                "attr",
+                Range(start=Position(line=0, character=6), end=Position(line=0, character=10)),
+            ),
+            (
+                "<root at^tr",
+                "attr",
+                Range(start=Position(line=0, character=6), end=Position(line=0, character=10)),
+            ),
+            (
+                "<root at^tr=",
+                "attr",
+                Range(start=Position(line=0, character=6), end=Position(line=0, character=10)),
+            ),
+            (
+                '<root>\n<child a^ttr="val" />\n</root>',
+                "attr",
+                Range(start=Position(line=1, character=7), end=Position(line=1, character=11)),
+            ),
+            (
+                '<root>\n<child long^_attr="val" />\n</root>',
+                "long_attr",
+                Range(start=Position(line=1, character=7), end=Position(line=1, character=16)),
+            ),
         ],
     )
     def test_get_range_for_context_attribute_returns_expected_offsets(

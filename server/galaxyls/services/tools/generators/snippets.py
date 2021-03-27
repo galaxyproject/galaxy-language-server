@@ -6,7 +6,7 @@ from galaxyls.services.tools.constants import DASH, UNDERSCORE
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.types import GeneratedSnippetResult
 from lxml import etree
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 from pygls.workspace import Document
 
 

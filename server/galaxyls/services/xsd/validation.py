@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from galaxy.util import xml_macros
 from lxml import etree
-from pygls.types import Diagnostic, Position, Range
+from pygls.lsp.types import Diagnostic, Position, Range
 from pygls.workspace import Document
 
 from ..xml.document import XmlDocument
@@ -60,7 +60,10 @@ class GalaxyToolValidationService:
             filename = import_element.text
             start = document.lines[line_number].find(filename)
             end = start + len(filename)
-            return Range(Position(line_number, start), Position(line_number, end))
+            return Range(
+                start=Position(line=line_number, character=start),
+                end=Position(line=line_number, character=end),
+            )
         except BaseException:
             return None
 
@@ -99,13 +102,21 @@ class GalaxyToolValidationService:
             return []
         except etree.DocumentInvalid as e:
             diagnostics = [
-                Diagnostic(error_range, f"Validation error on macro: {error.message}", source=self.server_name)
+                Diagnostic(
+                    range=error_range,
+                    message=f"Validation error on macro: {error.message}",
+                    source=self.server_name,
+                )
                 for error in e.error_log.filter_from_errors()
             ]
             return diagnostics
 
         except etree.XMLSyntaxError as e:
-            result = Diagnostic(error_range, f"Syntax error on macro: {e.msg}", source=self.server_name)
+            result = Diagnostic(
+                range=error_range,
+                message=f"Syntax error on macro: {e.msg}",
+                source=self.server_name,
+            )
             return [result]
 
     def _validate_tree(self, xml_tree: etree.ElementTree) -> List[Diagnostic]:
@@ -163,8 +174,11 @@ class GalaxyToolValidationService:
                 raise ExpandMacrosFoundException(xml_tree)
 
             result = Diagnostic(
-                Range(Position(error.line - 1, error.column), Position(error.line - 1, error.column)),
-                error.message,
+                range=Range(
+                    start=Position(line=error.line - 1, character=error.column),
+                    end=Position(line=error.line - 1, character=error.column),
+                ),
+                message=error.message,
                 source=self.server_name,
             )
             diagnostics.append(result)
@@ -180,8 +194,11 @@ class GalaxyToolValidationService:
             Diagnostic: The converted Diagnostic item.
         """
         result = Diagnostic(
-            Range(Position(error.lineno - 1, error.position[0] - 1), Position(error.lineno - 1, error.position[1] - 1)),
-            error.msg,
+            range=Range(
+                start=Position(line=error.lineno - 1, character=error.position[0] - 1),
+                end=Position(line=error.lineno - 1, character=error.position[1] - 1),
+            ),
+            message=error.msg,
             source=self.server_name,
         )
         return [result]

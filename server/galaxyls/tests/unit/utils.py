@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Tuple
 
-from pygls.types import Position
+from pygls.lsp.types import Position
 from pygls.workspace import Document
 
 from ...services.xml.constants import NEW_LINE
@@ -69,7 +69,7 @@ class TestUtils:
         start_line = source_with_mark.count(NEW_LINE, 0, mark_offset)
         line_start_offset = max(source_with_mark.rfind(NEW_LINE, 0, mark_offset), 0)
         start_character = mark_offset - line_start_offset
-        mark_position = Position(start_line, start_character)
+        mark_position = Position(line=start_line, character=start_character)
         source = source_with_mark.replace(mark, "")
         return (mark_position, source)
 

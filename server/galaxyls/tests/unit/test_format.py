@@ -1,5 +1,5 @@
 from ...services.format import GalaxyToolFormatService
-from pygls.types import (
+from pygls.lsp.types import (
     DocumentFormattingParams,
     TextDocumentIdentifier,
     FormattingOptions,
@@ -23,7 +23,7 @@ class TestGalaxyToolFormatServiceClass:
     def test_format_should_return_whole_file_text_edit(self):
         service = GalaxyToolFormatService()
         params = DocumentFormattingParams(
-            TextDocumentIdentifier("test"),
+            text_document=TextDocumentIdentifier(uri="test"),
             options=FormattingOptions(tab_size=4, insert_spaces=True),
         )
 

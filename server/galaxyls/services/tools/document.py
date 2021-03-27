@@ -1,7 +1,7 @@
 from typing import List, Optional, cast
 
 from anytree import find
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 from pygls.workspace import Document
 from galaxyls.services.tools.constants import INPUTS, OUTPUTS, TESTS, TOOL
 from galaxyls.services.tools.inputs import GalaxyToolInputTree

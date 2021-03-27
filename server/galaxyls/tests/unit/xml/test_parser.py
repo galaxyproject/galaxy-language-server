@@ -1,5 +1,5 @@
 from typing import Optional
-from pygls.types import Position
+from pygls.lsp.types import Position
 
 import pytest
 from pygls.workspace import Document
@@ -193,17 +193,17 @@ class TestXmlDocumentParserClass:
     @pytest.mark.parametrize(
         "document, position, expected",
         [
-            (TEST_TOOL_01_DOCUMENT, Position(0, 1), NodeType.ELEMENT),
-            (TEST_TOOL_01_DOCUMENT, Position(0, 7), NodeType.ATTRIBUTE_KEY),
-            (TEST_TOOL_01_DOCUMENT, Position(0, 8), NodeType.ATTRIBUTE_KEY),
-            (TEST_TOOL_01_DOCUMENT, Position(0, 9), NodeType.ATTRIBUTE_VALUE),
-            (TEST_TOOL_01_DOCUMENT, Position(0, 27), NodeType.ATTRIBUTE_VALUE),
-            (TEST_TOOL_01_DOCUMENT, Position(1, 1), NodeType.CONTENT),
-            (TEST_TOOL_01_DOCUMENT, Position(1, 44), NodeType.CDATA_SECTION),
-            (TEST_TOOL_01_DOCUMENT, Position(2, 0), NodeType.CDATA_SECTION),
-            (TEST_TOOL_01_DOCUMENT, Position(3, 6), NodeType.CDATA_SECTION),
-            (TEST_TOOL_01_DOCUMENT, Position(3, 7), NodeType.CONTENT),
-            (TEST_TOOL_01_DOCUMENT, Position(3, 8), NodeType.ELEMENT),
+            (TEST_TOOL_01_DOCUMENT, Position(line=0, character=1), NodeType.ELEMENT),
+            (TEST_TOOL_01_DOCUMENT, Position(line=0, character=7), NodeType.ATTRIBUTE_KEY),
+            (TEST_TOOL_01_DOCUMENT, Position(line=0, character=8), NodeType.ATTRIBUTE_KEY),
+            (TEST_TOOL_01_DOCUMENT, Position(line=0, character=9), NodeType.ATTRIBUTE_VALUE),
+            (TEST_TOOL_01_DOCUMENT, Position(line=0, character=27), NodeType.ATTRIBUTE_VALUE),
+            (TEST_TOOL_01_DOCUMENT, Position(line=1, character=1), NodeType.CONTENT),
+            (TEST_TOOL_01_DOCUMENT, Position(line=1, character=44), NodeType.CDATA_SECTION),
+            (TEST_TOOL_01_DOCUMENT, Position(line=2, character=0), NodeType.CDATA_SECTION),
+            (TEST_TOOL_01_DOCUMENT, Position(line=3, character=6), NodeType.CDATA_SECTION),
+            (TEST_TOOL_01_DOCUMENT, Position(line=3, character=7), NodeType.CONTENT),
+            (TEST_TOOL_01_DOCUMENT, Position(line=3, character=8), NodeType.ELEMENT),
         ],
     )
     def test_get_node_at_returns_expected_type(self, document: Document, position: Position, expected: NodeType) -> None:
