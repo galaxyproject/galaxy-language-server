@@ -59,7 +59,7 @@ class GalaxyToolsLanguageServer(LanguageServer):
     def __init__(self):
         super().__init__()
         self.service = GalaxyToolLanguageService(SERVER_NAME)
-        self.configuration: GalaxyToolsConfiguration
+        self.configuration: GalaxyToolsConfiguration = GalaxyToolsConfiguration()
 
 
 language_server = GalaxyToolsLanguageServer()
@@ -73,12 +73,9 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
         server (GalaxyToolsLanguageServer): The language server instance.
     """
     try:
-        config = await server.get_configuration_async(
-            ConfigurationParams([ConfigurationItem(section=GalaxyToolsConfiguration.SECTION)])
-        )
-        server.configuration = GalaxyToolsConfiguration(config[0])
+        config = await server.get_configuration_async(ConfigurationParams(items=[ConfigurationItem(section="galaxyTools")]))
+        server.configuration = GalaxyToolsConfiguration(**config[0])
     except BaseException as err:
-        server.configuration = GalaxyToolsConfiguration()
         server.show_message_log(f"Error loading configuration: {err}")
         server.show_message("Error loading configuration. Using default settings.", MessageType.Error)
 
@@ -99,18 +96,18 @@ async def did_change_configuration(server: GalaxyToolsLanguageServer, params: Di
 @language_server.feature(COMPLETION, CompletionOptions(trigger_characters=["<", " "]))
 def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> Optional[CompletionList]:
     """Returns completion items depending on the current document context."""
-    if server.configuration.completion_mode == CompletionMode.DISABLED:
+    if server.configuration.completion.mode == CompletionMode.DISABLED:
         return None
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
-        return server.service.get_completion(xml_document, params, server.configuration.completion_mode)
+        return server.service.get_completion(xml_document, params, server.configuration.completion.mode)
 
 
 @language_server.feature(AUTO_CLOSE_TAGS)
 def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
     """Responds to a close tag request to close the currently opened node."""
-    if server.configuration.auto_close_tags:
+    if server.configuration.completion.auto_close_tags:
         document = _get_valid_document(server, params.text_document.uri)
         if document:
             xml_document = _get_xml_document(document)
