@@ -1,35 +1,34 @@
-from enum import Enum, unique
-from typing import Any, Optional
+from enum import Enum
+
+from pydantic import BaseModel
 
 
-@unique
-class CompletionMode(Enum):
-    """Supported types of XML documents."""
-
-    AUTO = 1
-    INVOKE = 2
-    DISABLED = 3
+def to_camel(string: str) -> str:
+    pascal = "".join(word.capitalize() for word in string.split("_"))
+    camel = pascal[0].lower() + pascal[1:]
+    return camel
 
 
-class GalaxyToolsConfiguration:
+class CompletionMode(str, Enum):
+    AUTO = "auto"
+    INVOKE = "invoke"
+    DISABLED = "disabled"
 
-    SECTION = "galaxyTools"
 
-    def __init__(self, config: Optional[Any] = None) -> None:
-        self._config = config
-        self._completion_mode = self._to_completion_mode(self._config.completion.mode)
-        self._auto_close_tags: bool = self._config.completion.autoCloseTags == "true"
+class ConfigModel(BaseModel):
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
 
-    @property
-    def completion_mode(self) -> CompletionMode:
-        return self._completion_mode
 
-    @property
-    def auto_close_tags(self) -> bool:
-        return self._auto_close_tags
+class CompletionConfig(ConfigModel):
+    """Auto-completion feature configuration."""
 
-    def _to_completion_mode(self, setting: str) -> CompletionMode:
-        try:
-            return CompletionMode[setting.upper()]
-        except BaseException:
-            return CompletionMode.AUTO
+    mode: CompletionMode = CompletionMode.AUTO
+    auto_close_tags: bool = True
+
+
+class GalaxyToolsConfiguration(ConfigModel):
+    """Galaxy Language Server general configuration."""
+
+    completion: CompletionConfig = CompletionConfig()

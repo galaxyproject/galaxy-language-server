@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 
 from anytree.search import findall
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 from pygls.workspace import Document
 
 from .nodes import XmlContainerNode, XmlElement, XmlSyntaxNode

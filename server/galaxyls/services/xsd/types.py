@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, cast
 
 from anytree import NodeMixin, RenderTree, Resolver, ResolverError, findall
 from lxml import etree
-from pygls.types import MarkupContent, MarkupKind
+from pygls.lsp.types import MarkupContent, MarkupKind
 
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
@@ -43,8 +43,8 @@ class XsdBase:
         """
         doc = self._get_doc_text_of_element(self.xsd_element, lang) or self._get_doc_text_of_element(self.xsd_type, lang)
         if doc:
-            return MarkupContent(MarkupKind.Markdown, doc)
-        return MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
+            return MarkupContent(kind=MarkupKind.Markdown, value=doc)
+        return MarkupContent(kind=MarkupKind.Markdown, value=MSG_NO_DOCUMENTATION_AVAILABLE)
 
     def _get_doc_text_of_element(self, element: Optional[etree._Element], lang: str = "en") -> str:
         try:

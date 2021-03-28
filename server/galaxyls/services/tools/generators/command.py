@@ -29,7 +29,7 @@ from galaxyls.services.tools.inputs import (
     SectionInputNode,
 )
 from galaxyls.services.xml.nodes import XmlElement
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 
 ARG_PLACEHOLDER = "TODO_argument"
 REPEAT_VAR = "item"
@@ -88,7 +88,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             else:  # is self closed <tests/>
                 start = tool.get_position_before(section)
                 end = tool.get_position_after(section)
-                return Range(start, end)
+                return Range(start=start, end=end)
         else:
             section = tool.find_element(ENV_VARIABLES)
             if section:
@@ -102,7 +102,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             section = tool.find_element(TOOL)
             if section:
                 return tool.get_content_range(section).end
-            return Position()
+            return Position(line=0, character=0)
 
     def _generate_command_snippet(self, input_tree: GalaxyToolInputTree, outputs: List[XmlElement]) -> str:
         snippets = [

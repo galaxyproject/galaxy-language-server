@@ -4,7 +4,7 @@ import pytest
 from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
 from galaxyls.services.xml.nodes import XmlElement
 from galaxyls.tests.unit.utils import TestUtils
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 
 
 class TestIUCToolParamAttributeSorterClass:
@@ -49,22 +49,34 @@ class TestIUCToolParamAttributeSorterClass:
         [
             (
                 '<param format="val1" name="n">',
-                Range(Position(0, 7), Position(0, 29)),
+                Range(
+                    start=Position(line=0, character=7),
+                    end=Position(line=0, character=29),
+                ),
                 'name="n" format="val1"',
             ),
             (
                 '<param format="val1"   type="val2" >',
-                Range(Position(0, 7), Position(0, 34)),
+                Range(
+                    start=Position(line=0, character=7),
+                    end=Position(line=0, character=34),
+                ),
                 'type="val2" format="val1"',
             ),
             (
                 '<param format="val1" name="val2" type="val3">',
-                Range(Position(0, 7), Position(0, 44)),
+                Range(
+                    start=Position(line=0, character=7),
+                    end=Position(line=0, character=44),
+                ),
                 'name="val2" type="val3" format="val1"',
             ),
             (
                 '<param unknown="val0" format="val1" name="val2" type="val3">',
-                Range(Position(0, 7), Position(0, 59)),
+                Range(
+                    start=Position(line=0, character=7),
+                    end=Position(line=0, character=59),
+                ),
                 'name="val2" type="val3" format="val1" unknown="val0"',
             ),
         ],

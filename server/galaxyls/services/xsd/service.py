@@ -5,7 +5,7 @@ information from the XSD schema.
 from typing import List
 
 from lxml import etree
-from pygls.types import Diagnostic, MarkupContent, MarkupKind
+from pygls.lsp.types import Diagnostic, MarkupContent, MarkupKind
 
 from ..context import XmlContext
 from ..xml.document import XmlDocument
@@ -13,7 +13,7 @@ from .constants import MSG_NO_DOCUMENTATION_AVAILABLE, TOOL_XSD_FILE
 from .parser import GalaxyToolXsdParser
 from .validation import GalaxyToolValidationService
 
-NO_DOC_MARKUP = MarkupContent(MarkupKind.Markdown, MSG_NO_DOCUMENTATION_AVAILABLE)
+NO_DOC_MARKUP = MarkupContent(kind=MarkupKind.Markdown, value=MSG_NO_DOCUMENTATION_AVAILABLE)
 
 
 class GalaxyToolXsdService:

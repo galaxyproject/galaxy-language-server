@@ -3,7 +3,7 @@
 from typing import Optional
 
 from galaxyls.services.xml.nodes import XmlCDATASection
-from pygls.types import (
+from pygls.lsp.types import (
     CompletionContext,
     CompletionItem,
     CompletionItemKind,
@@ -33,11 +33,11 @@ class XmlCompletionService:
     ) -> Optional[CompletionList]:
         if isinstance(context.token, XmlCDATASection):
             return None
-        triggerKind = completion_context.triggerKind
+        triggerKind = completion_context.trigger_kind
         if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter and not context.is_attribute:
-            if completion_context.triggerCharacter == "<":
+            if completion_context.trigger_character == "<":
                 return self.get_node_completion(context)
-            if completion_context.triggerCharacter == " ":
+            if completion_context.trigger_character == " ":
                 return self.get_attribute_completion(context)
         elif triggerKind == CompletionTriggerKind.Invoked:
             if context.is_attribute_value:
@@ -114,9 +114,9 @@ class XmlCompletionService:
         if context.attribute_name:
             attribute: Optional[XsdAttribute] = context.xsd_element.attributes.get(context.attribute_name)
             if attribute and attribute.enumeration:
-                result = [CompletionItem(item, CompletionItemKind.Value) for item in attribute.enumeration]
+                result = [CompletionItem(label=item, kind=CompletionItemKind.Value) for item in attribute.enumeration]
                 return CompletionList(items=result, is_incomplete=False)
-        return CompletionList(False)
+        return CompletionList(is_incomplete=False)
 
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
@@ -133,11 +133,11 @@ class XmlCompletionService:
         replace_range = None
         is_self_closing = trigger_character == "/"
         if is_self_closing:
-            start = Position(context.position.line, context.position.character)
+            start = Position(line=context.position.line, character=context.position.character)
             end_character = context.position.character + 1
             if len(context.line_text) > end_character and context.line_text[end_character] == ">":
                 end_character = end_character + 1
-            end = Position(context.position.line, end_character)
+            end = Position(line=context.position.line, character=end_character)
             replace_range = Range(start=start, end=end)
             if not context.is_content:
                 snippet = "/>$0"
@@ -160,8 +160,8 @@ class XmlCompletionService:
             about the node.
         """
         return CompletionItem(
-            node.name,
-            CompletionItemKind.Class,
+            label=node.name,
+            kind=CompletionItemKind.Class,
             documentation=node.get_doc(),
             sort_text=str(order).zfill(2),
         )
@@ -180,8 +180,8 @@ class XmlCompletionService:
             about the attribute.
         """
         return CompletionItem(
-            attr.name,
-            CompletionItemKind.Variable,
+            label=attr.name,
+            kind=CompletionItemKind.Variable,
             documentation=attr.get_doc(),
             insert_text=f'{attr.name}="$1"',
             insert_text_format=InsertTextFormat.Snippet,

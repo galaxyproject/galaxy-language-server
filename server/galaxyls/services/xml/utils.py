@@ -6,7 +6,7 @@ Only the minimum subset of the XML dialect used by Galaxy tool wrappers is suppo
 
 from typing import Callable, List
 
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 from pygls.workspace import Document
 
 from .constants import NEW_LINE, _LAN, WHITESPACE_CHARS
@@ -41,7 +41,7 @@ def convert_document_offset_to_position(document: Document, offset: int) -> Posi
     character = offset - line_offset
     if line > 0:
         character -= 1
-    return Position(line, character)
+    return Position(line=line, character=character)
 
 
 def convert_document_offsets_to_range(document: Document, start_offset: int, end_offset: int) -> Range:
@@ -56,8 +56,8 @@ def convert_document_offsets_to_range(document: Document, start_offset: int, end
         Range: The resulting Range with the correct line number and character offset
     """
     return Range(
-        convert_document_offset_to_position(document, start_offset),
-        convert_document_offset_to_position(document, end_offset),
+        start=convert_document_offset_to_position(document, start_offset),
+        end=convert_document_offset_to_position(document, end_offset),
     )
 
 

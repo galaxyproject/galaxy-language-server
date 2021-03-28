@@ -4,7 +4,7 @@ from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetG
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from galaxyls.tests.unit.sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
 from galaxyls.tests.unit.utils import TestUtils
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 
 
 class TestGalaxyToolXmlDocumentClass:
@@ -60,10 +60,26 @@ class TestGalaxyToolXmlDocumentClass:
         "source, element, expected",
         [
             ("<tool><tests/></tool>", "tests", None),
-            ("<tool><tests></tests></tool>", "tests", Range(Position(0, 13), Position(0, 13))),
-            ("<tool><tests>\n</tests></tool>", "tests", Range(Position(0, 13), Position(1, 0))),
-            ("<tool>\n<tests>\n   \n</tests>\n</tool>", "tests", Range(Position(1, 7), Position(3, 0))),
-            ("<tool>\n<tests>\n<test/></tests></tool>", "tests", Range(Position(1, 7), Position(2, 7))),
+            (
+                "<tool><tests></tests></tool>",
+                "tests",
+                Range(start=Position(line=0, character=13), end=Position(line=0, character=13)),
+            ),
+            (
+                "<tool><tests>\n</tests></tool>",
+                "tests",
+                Range(start=Position(line=0, character=13), end=Position(line=1, character=0)),
+            ),
+            (
+                "<tool>\n<tests>\n   \n</tests>\n</tool>",
+                "tests",
+                Range(start=Position(line=1, character=7), end=Position(line=3, character=0)),
+            ),
+            (
+                "<tool>\n<tests>\n<test/></tests></tool>",
+                "tests",
+                Range(start=Position(line=1, character=7), end=Position(line=2, character=7)),
+            ),
         ],
     )
     def test_get_element_content_range_of_element_returns_expected(self, source: str, element: str, expected: Range) -> None:
@@ -104,11 +120,11 @@ class TestGalaxyToolXmlDocumentClass:
     @pytest.mark.parametrize(
         "source, element_name, expected_position",
         [
-            ("<tool></tool>", "tool", Position(0, 0)),
-            ("<tool><description/><inputs></tool>", "description", Position(0, 6)),
-            ("<tool><description/><inputs></tool>", "inputs", Position(0, 20)),
-            ("<tool><macros><import></macros></tool>", "import", Position(0, 14)),
-            ("<tool>\n<macros>\n<import></macros></tool>", "import", Position(2, 0)),
+            ("<tool></tool>", "tool", Position(line=0, character=0)),
+            ("<tool><description/><inputs></tool>", "description", Position(line=0, character=6)),
+            ("<tool><description/><inputs></tool>", "inputs", Position(line=0, character=20)),
+            ("<tool><macros><import></macros></tool>", "import", Position(line=0, character=14)),
+            ("<tool>\n<macros>\n<import></macros></tool>", "import", Position(line=2, character=0)),
         ],
     )
     def test_get_position_before_element_returns_expected_position(
@@ -125,13 +141,13 @@ class TestGalaxyToolXmlDocumentClass:
     @pytest.mark.parametrize(
         "source, element_name, expected_position",
         [
-            ("<tool></tool>", "tool", Position(0, 13)),
-            ("<tool><description/><inputs></tool>", "description", Position(0, 20)),
-            ("<tool><description/>\n<inputs></tool>", "description", Position(0, 20)),
-            ("<tool>\n<description/>\n<inputs></tool>", "description", Position(1, 14)),
-            ("<tool><description/><inputs></tool>", "inputs", Position(0, 28)),
-            ("<tool><macros><import></macros></tool>", "import", Position(0, 22)),
-            ("<tool>\n<macros>\n<import></macros></tool>", "import", Position(2, 8)),
+            ("<tool></tool>", "tool", Position(line=0, character=13)),
+            ("<tool><description/><inputs></tool>", "description", Position(line=0, character=20)),
+            ("<tool><description/>\n<inputs></tool>", "description", Position(line=0, character=20)),
+            ("<tool>\n<description/>\n<inputs></tool>", "description", Position(line=1, character=14)),
+            ("<tool><description/><inputs></tool>", "inputs", Position(line=0, character=28)),
+            ("<tool><macros><import></macros></tool>", "import", Position(line=0, character=22)),
+            ("<tool>\n<macros>\n<import></macros></tool>", "import", Position(line=2, character=8)),
         ],
     )
     def test_get_position_after_element_returns_expected_position(
@@ -175,10 +191,10 @@ class TestGalaxyToolTestSnippetGeneratorClass:
     @pytest.mark.parametrize(
         "source, expected_position",
         [
-            ("<tool></tool>", Position(0, 6)),
-            ("<tool><description/><inputs></tool>", Position(0, 28)),
-            ("<tool><tests></tests></tool>", Position(0, 13)),
-            ("<tool><tests/></tool>", Range(Position(0, 6), Position(0, 14))),
+            ("<tool></tool>", Position(line=0, character=6)),
+            ("<tool><description/><inputs></tool>", Position(line=0, character=28)),
+            ("<tool><tests></tests></tool>", Position(line=0, character=13)),
+            ("<tool><tests/></tool>", Range(start=Position(line=0, character=6), end=Position(line=0, character=14))),
         ],
     )
     def test_find_snippet_position_returns_expected_result(self, source: str, expected_position: Position) -> None:
@@ -238,11 +254,11 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
     @pytest.mark.parametrize(
         "source, expected_position",
         [
-            ("<tool></tool>", Position(0, 6)),
-            ("<tool><description/><inputs></tool>", Position(0, 20)),
-            ("<tool><command></command></tool>", Position(0, 15)),
-            ("<tool><command><![CDATA[]]></command></tool>", Position(0, 24)),
-            ("<tool><command/></tool>", Range(Position(0, 6), Position(0, 16))),
+            ("<tool></tool>", Position(line=0, character=6)),
+            ("<tool><description/><inputs></tool>", Position(line=0, character=20)),
+            ("<tool><command></command></tool>", Position(line=0, character=15)),
+            ("<tool><command><![CDATA[]]></command></tool>", Position(line=0, character=24)),
+            ("<tool><command/></tool>", Range(start=Position(line=0, character=6), end=Position(line=0, character=16))),
         ],
     )
     def test_find_snippet_position_returns_expected_result(self, source: str, expected_position: Position) -> None:

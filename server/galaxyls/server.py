@@ -3,7 +3,7 @@
 
 from typing import List, Optional
 
-from pygls.features import (
+from pygls.lsp.methods import (
     COMPLETION,
     FORMATTING,
     HOVER,
@@ -13,8 +13,9 @@ from pygls.features import (
     TEXT_DOCUMENT_DID_SAVE,
     WORKSPACE_DID_CHANGE_CONFIGURATION,
 )
+from pygls.lsp.types.language_features.completion import CompletionOptions
 from pygls.server import LanguageServer
-from pygls.types import (
+from pygls.lsp.types import (
     CompletionList,
     CompletionParams,
     ConfigurationItem,
@@ -58,7 +59,7 @@ class GalaxyToolsLanguageServer(LanguageServer):
     def __init__(self):
         super().__init__()
         self.service = GalaxyToolLanguageService(SERVER_NAME)
-        self.configuration: GalaxyToolsConfiguration
+        self.configuration: GalaxyToolsConfiguration = GalaxyToolsConfiguration()
 
 
 language_server = GalaxyToolsLanguageServer()
@@ -72,12 +73,9 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
         server (GalaxyToolsLanguageServer): The language server instance.
     """
     try:
-        config = await server.get_configuration_async(
-            ConfigurationParams([ConfigurationItem(section=GalaxyToolsConfiguration.SECTION)])
-        )
-        server.configuration = GalaxyToolsConfiguration(config[0])
+        config = await server.get_configuration_async(ConfigurationParams(items=[ConfigurationItem(section="galaxyTools")]))
+        server.configuration = GalaxyToolsConfiguration(**config[0])
     except BaseException as err:
-        server.configuration = GalaxyToolsConfiguration()
         server.show_message_log(f"Error loading configuration: {err}")
         server.show_message("Error loading configuration. Using default settings.", MessageType.Error)
 
@@ -95,22 +93,22 @@ async def did_change_configuration(server: GalaxyToolsLanguageServer, params: Di
     server.show_message("Settings updated")
 
 
-@language_server.feature(COMPLETION, trigger_characters=["<", " "])
+@language_server.feature(COMPLETION, CompletionOptions(trigger_characters=["<", " "]))
 def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> Optional[CompletionList]:
     """Returns completion items depending on the current document context."""
-    if server.configuration.completion_mode == CompletionMode.DISABLED:
+    if server.configuration.completion.mode == CompletionMode.DISABLED:
         return None
-    document = _get_valid_document(server, params.textDocument.uri)
+    document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
-        return server.service.get_completion(xml_document, params, server.configuration.completion_mode)
+        return server.service.get_completion(xml_document, params, server.configuration.completion.mode)
 
 
 @language_server.feature(AUTO_CLOSE_TAGS)
 def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
     """Responds to a close tag request to close the currently opened node."""
-    if server.configuration.auto_close_tags:
-        document = _get_valid_document(server, params.textDocument.uri)
+    if server.configuration.completion.auto_close_tags:
+        document = _get_valid_document(server, params.text_document.uri)
         if document:
             xml_document = _get_xml_document(document)
             return server.service.get_auto_close_tag(xml_document, params)
@@ -119,7 +117,7 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositi
 @language_server.feature(HOVER)
 def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
-    document = _get_valid_document(server, params.textDocument.uri)
+    document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
         return server.service.get_documentation(xml_document, params.position)
@@ -128,7 +126,7 @@ def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams)
 @language_server.feature(FORMATTING)
 def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> Optional[List[TextEdit]]:
     """Formats the whole document using the provided parameters"""
-    document = _get_valid_document(server, params.textDocument.uri)
+    document = _get_valid_document(server, params.text_document.uri)
     if document:
         content = document.source
         return server.service.format_document(content, params)
@@ -177,7 +175,7 @@ def sort_single_param_attrs_command(
     server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
 ) -> Optional[ReplaceTextRangeResult]:
     """Sorts the attributes of the param element under the cursor."""
-    document = _get_valid_document(server, params.textDocument.uri)
+    document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
         return server.service.sort_single_param_attrs(xml_document, params)
@@ -202,7 +200,7 @@ def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocume
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
-    document = _get_valid_document(server, params.textDocument.uri)
+    document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
         diagnostics = server.service.get_diagnostics(xml_document)

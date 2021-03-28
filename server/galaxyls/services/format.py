@@ -3,9 +3,9 @@ best practices.
 """
 
 from lxml import etree
-from typing import List
+from typing import List, cast
 
-from pygls.types import DocumentFormattingParams, Position, Range, TextEdit
+from pygls.lsp.types import DocumentFormattingParams, Position, Range, TextEdit
 
 
 class GalaxyToolFormatService:
@@ -19,12 +19,12 @@ class GalaxyToolFormatService:
         """Given the document contents returns the list of TextEdits
         needed to properly layout the document.
         """
-        formatted_result = self._format_document(content, params.options.tabSize)
+        formatted_result = self._format_document(content, params.options.tab_size)
 
         lines = content.count("\n")
-        start = Position(0, 0)
-        end = Position(lines + 1, 0)
-        return [TextEdit(Range(start, end), formatted_result)]
+        start = Position(line=0, character=0)
+        end = Position(line=lines + 1, character=0)
+        return [TextEdit(range=Range(start=start, end=end), new_text=formatted_result)]
 
     def _format_document(self, content: str, tabSize: int) -> str:
         """Formats the whole XML document."""
@@ -34,6 +34,6 @@ class GalaxyToolFormatService:
             spaces = " " * tabSize
             etree.indent(xml, space=spaces)
             result = etree.tostring(xml, pretty_print=True, encoding=str)
-            return result
+            return cast(str, result)
         except etree.XMLSyntaxError:
             return content  # Do not auto-format if there are syntax errors

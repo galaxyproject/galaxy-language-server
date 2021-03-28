@@ -42,7 +42,7 @@ from galaxyls.services.tools.generators.snippets import SnippetGenerator
 from galaxyls.services.tools.inputs import ConditionalInputNode, InputNode, RepeatInputNode, SectionInputNode
 from galaxyls.services.xml.nodes import XmlElement
 from lxml import etree
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
@@ -99,7 +99,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             else:  # is self closed <tests/>
                 start = tool.get_position_before(section)
                 end = tool.get_position_after(section)
-                return Range(start, end)
+                return Range(start=start, end=end)
         else:
             section = tool.find_element(OUTPUTS)
             if section:
@@ -110,7 +110,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             section = tool.find_element(TOOL)
             if section:
                 return tool.get_content_range(section).end
-            return Position()
+            return Position(line=0, character=0)
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:
         """Generates the code snippet for a single <test> element given an InputNode and the list of outputs

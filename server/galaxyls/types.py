@@ -2,7 +2,7 @@
 """
 
 from typing import List, Optional
-from pygls.types import Position, Range
+from pygls.lsp.types import Position, Range
 
 
 class AutoCloseTagResult:
@@ -40,7 +40,7 @@ class GeneratedSnippetResult:
         """Returns a GeneratedSnippetResult with empty values and the given error message.
 
         The error message should be displayed or logged by the client."""
-        return GeneratedSnippetResult("", Position(), error_message=error_message)
+        return GeneratedSnippetResult("", Position(line=0, character=0), error_message=error_message)
 
 
 class ReplaceTextRangeResult:
