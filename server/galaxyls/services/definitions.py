@@ -19,6 +19,10 @@ class DocumentDefinitionsProvider:
         if token_definition:
             return [token_definition.location]
 
+        macro_definition = macro_definitions.get_macro_definition(word)
+        if macro_definition:
+            return [macro_definition.location]
+
         offset = xml_document.document.offset_at_position(position)
         node = xml_document.find_node_at(offset)
         if isinstance(node, XmlContent) and node.parent.name == "import":

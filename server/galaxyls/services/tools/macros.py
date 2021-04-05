@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 from pygls.lsp.types import Location
 from pygls.workspace import Workspace
-from galaxyls.services.tools.constants import IMPORT, NAME, TOKEN
+from galaxyls.services.tools.constants import IMPORT, MACRO, NAME, TOKEN, XML
 
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
@@ -20,17 +20,24 @@ class TokenDefinition(BaseModel):
     value: str
 
 
+class MacroDefinition(BaseModel):
+    name: str
+    location: Location
+
+
 class ImportedMacrosFile(BaseMacrosModel):
     file_name: str
     file_uri: Optional[str]
     document: Optional[XmlDocument]
     tokens: Dict[str, TokenDefinition]
+    macros: Dict[str, MacroDefinition]
 
 
 class ToolMacroDefinitions(BaseMacrosModel):
     tool_document: XmlDocument
     imported_macros: Dict[str, ImportedMacrosFile]
     tokens: Dict[str, TokenDefinition]
+    macros: Dict[str, MacroDefinition]
 
     def go_to_import_definition(self, file_name: str) -> Optional[List[Location]]:
         imported_macros = self.imported_macros.get(file_name)
@@ -48,6 +55,9 @@ class ToolMacroDefinitions(BaseMacrosModel):
     def get_token_definition(self, token: str) -> Optional[TokenDefinition]:
         return self.tokens.get(token)
 
+    def get_macro_definition(self, macro_name: str) -> Optional[MacroDefinition]:
+        return self.macros.get(macro_name)
+
 
 class MacroDefinitionsProvider:
     """Provides location information about macros imported by a tool."""
@@ -57,10 +67,17 @@ class MacroDefinitionsProvider:
 
     def load_macro_definitions(self, tool_xml: XmlDocument) -> ToolMacroDefinitions:
         tokens = self._get_token_definitions(tool_xml)
+        macros = self._get_macro_definitions(tool_xml)
         imported_macro_files = self._get_imported_macro_files_from_tool(tool_xml)
         for file in imported_macro_files.values():
             tokens.update(file.tokens)
-        return ToolMacroDefinitions(tool_document=tool_xml, imported_macros=imported_macro_files, tokens=tokens)
+            macros.update(file.macros)
+        return ToolMacroDefinitions(
+            tool_document=tool_xml,
+            imported_macros=imported_macro_files,
+            tokens=tokens,
+            macros=macros,
+        )
 
     def _get_imported_macro_files_from_tool(self, tool_xml: XmlDocument) -> Dict[str, ImportedMacrosFile]:
         tool_directory = self._get_tool_directory(tool_xml)
@@ -72,13 +89,19 @@ class MacroDefinitionsProvider:
                 path = tool_directory / name
                 file_uri = None
                 macros_document = None
-                tokens = []
+                tokens = {}
+                macros = {}
                 if path.exists():
                     file_uri = path.as_uri()
                     macros_document = self._load_macros_document(file_uri)
                     tokens = self._get_token_definitions(macros_document)
+                    macros = self._get_macro_definitions(macros_document)
                 macro_files[name] = ImportedMacrosFile(
-                    file_name=name, file_uri=file_uri, document=macros_document, tokens=tokens
+                    file_name=name,
+                    file_uri=file_uri,
+                    document=macros_document,
+                    tokens=tokens,
+                    macros=macros,
                 )
         return macro_files
 
@@ -107,4 +130,21 @@ class MacroDefinitionsProvider:
                 value=value,
             )
             rval[token_def.name] = token_def
+        return rval
+
+    def _get_macro_definitions(self, macros_xml: XmlDocument) -> Dict[str, MacroDefinition]:
+        macro_elements = macros_xml.find_all_elements_with_name(MACRO)
+        xml_elements = macros_xml.find_all_elements_with_name(XML)
+        macro_elements += xml_elements
+        rval = {}
+        for element in macro_elements:
+            name = element.get_attribute(NAME)
+            macro_def = MacroDefinition(
+                name=name,
+                location=Location(
+                    uri=macros_xml.document.uri,
+                    range=macros_xml.get_element_name_range(element),
+                ),
+            )
+            rval[macro_def.name] = macro_def
         return rval
