@@ -94,6 +94,21 @@ class XmlDocument(XmlSyntaxNode):
             return None
         return convert_document_offsets_to_range(self.document, start_offset, end_offset)
 
+    def get_element_name_range(self, element: XmlElement) -> Optional[Range]:
+        """Gets the Range positions for the given XML element's name in the document.
+
+        Args:
+            element (XmlElement): The XML element to determine it's name range positions.
+
+        Returns:
+            Optional[Range]: The range positions for the name of the given XML element.
+        """
+        start_offset = element.name_start_offset
+        end_offset = element.name_end_offset
+        if start_offset < 0 or end_offset < 0:
+            return None
+        return convert_document_offsets_to_range(self.document, start_offset, end_offset)
+
     def get_position_before(self, element: XmlElement) -> Position:
         """Return the position in the document before the given element.
 
@@ -124,3 +139,7 @@ class XmlDocument(XmlSyntaxNode):
             found = findall(self.root, filter_=lambda node: node is not None and node.name == name)
             return list(found)
         return []
+
+    def get_text_between_offsets(self, start: int, end: int) -> str:
+        """Gets the text content between the start and end offsets."""
+        return self.document.source[start:end]

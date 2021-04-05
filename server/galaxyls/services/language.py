@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from galaxyls.services.definitions import DocumentDefinitionsProvider
 from galaxyls.services.tools.common import TestsDiscoveryService, ToolParamAttributeSorter
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
@@ -16,7 +17,7 @@ from pygls.lsp.types import (
     TextEdit,
 )
 from pygls.workspace import Document, Workspace
-
+from galaxyls.services.tools.macros import MacroDefinitionsProvider
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 
 from ..config import CompletionMode
@@ -43,6 +44,9 @@ class GalaxyToolLanguageService:
         self.xml_context_service = XmlContextService(tree)
         self.sort_service: ToolParamAttributeSorter = IUCToolParamAttributeSorter()
         self.test_discovery_service: TestsDiscoveryService = ToolTestsDiscoveryService()
+
+    def set_workspace(self, workspace: Workspace):
+        self.definitions_provider = DocumentDefinitionsProvider(MacroDefinitionsProvider(workspace))
 
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list

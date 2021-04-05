@@ -1,10 +1,10 @@
 """Galaxy Tools Language Server implementation
 """
-
 from typing import List, Optional
 
 from pygls.lsp.methods import (
     COMPLETION,
+    DEFINITION,
     FORMATTING,
     HOVER,
     INITIALIZED,
@@ -27,6 +27,7 @@ from pygls.lsp.types import (
     DocumentFormattingParams,
     Hover,
     InitializeParams,
+    Location,
     MessageType,
     TextDocumentIdentifier,
     TextDocumentPositionParams,
@@ -84,6 +85,7 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
 async def initialized(server: GalaxyToolsLanguageServer, params: InitializeParams) -> None:
     """Loads the client configuration after initialization."""
     await _load_client_config_async(server)
+    server.service.set_workspace(server.workspace)
 
 
 @language_server.feature(WORKSPACE_DID_CHANGE_CONFIGURATION)
@@ -196,6 +198,15 @@ def sort_document_params_attrs_command(
 def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> List[TestSuiteInfoResult]:
     """Sorts the attributes of all the param elements contained in the document."""
     return server.service.discover_tests(server.workspace)
+
+
+@language_server.feature(DEFINITION)
+def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[List[Location]]:
+    """Provides the location of a symbol definition."""
+    document = _get_valid_document(server, params.text_document.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+        return server.service.definitions_provider.go_to_definition(xml_document, params.position)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
