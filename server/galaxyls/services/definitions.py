@@ -13,10 +13,16 @@ class DocumentDefinitionsProvider:
         self.macro_definitions_provider = macro_definitions_provider
 
     def go_to_definition(self, xml_document: XmlDocument, position: Position) -> Optional[List[Location]]:
+        macro_definitions = self.macro_definitions_provider.load_macro_definitions(xml_document)
+        word = xml_document.document.word_at_position(position)
+        token_definition = macro_definitions.get_token_definition(word)
+        if token_definition:
+            return [token_definition.location]
+
         offset = xml_document.document.offset_at_position(position)
         node = xml_document.find_node_at(offset)
         if isinstance(node, XmlContent) and node.parent.name == "import":
             content_node = cast(XmlContent, node)
             start, end = content_node.get_content_offsets()
             import_filename = xml_document.get_text_between_offsets(start, end)
-            return self.macro_definitions_provider.go_to_import_definition(xml_document, import_filename)
+            return macro_definitions.go_to_import_definition(import_filename)
