@@ -12,7 +12,10 @@ from pygls.lsp.types import (
     Diagnostic,
     DocumentFormattingParams,
     Hover,
+    MarkupContent,
+    MarkupKind,
     Position,
+    Range,
     TextDocumentPositionParams,
     TextEdit,
 )
@@ -57,10 +60,19 @@ class GalaxyToolLanguageService:
     def get_documentation(self, xml_document: XmlDocument, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
         context = self.xml_context_service.get_xml_context(xml_document, position)
-        if context.token and (context.is_tag or context.is_attribute_key):
-            documentation = self.xsd_service.get_documentation_for(context)
-            context_range = self.xml_context_service.get_range_for_context(xml_document, context)
-            return Hover(contents=documentation, range=context_range)
+        if context.node:
+            if context.is_tag or context.is_attribute_key:
+                documentation = self.xsd_service.get_documentation_for(context)
+                context_range = self.xml_context_service.get_range_for_context(xml_document, context)
+                return Hover(contents=documentation, range=context_range)
+            # Try to get token
+            word = xml_document.document.word_at_position(position)
+            token = self.definitions_provider.get_token_definition(xml_document, word)
+            if token:
+                return Hover(
+                    contents=MarkupContent(kind=MarkupKind.Markdown, value=token.value),
+                    range=Range(start=position, end=position),
+                )
         return None
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:

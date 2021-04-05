@@ -1,7 +1,7 @@
 from typing import List, Optional, cast
 
 from pygls.lsp.types import Location, Position
-from galaxyls.services.tools.macros import MacroDefinitionsProvider
+from galaxyls.services.tools.macros import MacroDefinitionsProvider, TokenDefinition
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlContent
 
@@ -26,3 +26,7 @@ class DocumentDefinitionsProvider:
             start, end = content_node.get_content_offsets()
             import_filename = xml_document.get_text_between_offsets(start, end)
             return macro_definitions.go_to_import_definition(import_filename)
+
+    def get_token_definition(self, xml_document: XmlDocument, token: str) -> Optional[TokenDefinition]:
+        macro_definitions = self.macro_definitions_provider.load_macro_definitions(xml_document)
+        return macro_definitions.get_token_definition(token)

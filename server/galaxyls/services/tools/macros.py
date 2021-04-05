@@ -17,6 +17,7 @@ class BaseMacrosModel(BaseModel):
 class TokenDefinition(BaseModel):
     name: str
     location: Location
+    value: str
 
 
 class ImportedMacrosFile(BaseMacrosModel):
@@ -94,12 +95,16 @@ class MacroDefinitionsProvider:
         token_elements = macros_xml.find_all_elements_with_name(TOKEN)
         rval = {}
         for element in token_elements:
+            token = element.get_attribute(NAME)
+            name = token.replace("@", "")
+            value = element.get_content(macros_xml.document.source)
             token_def = TokenDefinition(
-                name=element.get_attribute(NAME).replace("@", ""),
+                name=name,
                 location=Location(
                     uri=macros_xml.document.uri,
                     range=macros_xml.get_element_name_range(element),
                 ),
+                value=value,
             )
             rval[token_def.name] = token_def
         return rval

@@ -224,7 +224,7 @@ class XmlAttributeKey(XmlSyntaxNode):
         return self.start, self.end
 
 
-class XmlAttributeValue(XmlSyntaxNode):
+class XmlAttributeValue(XmlContainerNode):
     """Represents the value of a XML attribute."""
 
     def __init__(self, value: Optional[str], start: int, end: int, owner: XmlAttribute):
@@ -247,6 +247,9 @@ class XmlAttributeValue(XmlSyntaxNode):
     def get_attribute_name(self) -> Optional[str]:
         """Gets the name of this attribute (if it is an attribute node)."""
         return self.owner.name
+
+    def get_content_offsets(self) -> Tuple[int, int]:
+        return self.start, self.end
 
 
 class XmlElement(XmlContainerNode):
