@@ -45,8 +45,8 @@ class GalaxyToolXsdService:
             element = None
             if context.is_tag:
                 element = context.xsd_element
-            if context.is_attribute_key and context.token.name:
-                element = context.xsd_element.attributes.get(context.token.name)
+            if context.is_attribute_key and context.node.name:
+                element = context.xsd_element.attributes.get(context.node.name)
             if element:
                 return element.get_doc()
         return NO_DOC_MARKUP

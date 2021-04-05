@@ -31,7 +31,7 @@ class XmlCompletionService:
     def get_completion_at_context(
         self, context: XmlContext, completion_context: CompletionContext, mode: CompletionMode = CompletionMode.AUTO
     ) -> Optional[CompletionList]:
-        if isinstance(context.token, XmlCDATASection):
+        if isinstance(context.node, XmlCDATASection):
             return None
         triggerKind = completion_context.trigger_kind
         if mode == CompletionMode.AUTO and triggerKind == CompletionTriggerKind.TriggerCharacter and not context.is_attribute:
@@ -43,7 +43,7 @@ class XmlCompletionService:
             if context.is_attribute_value:
                 return self.get_attribute_value_completion(context)
             if context.is_tag and not context.is_closing_tag:
-                if context.token.name:
+                if context.node.name:
                     return self.get_attribute_completion(context)
                 return self.get_node_completion(context)
         return None
@@ -87,13 +87,13 @@ class XmlCompletionService:
             or context.is_content
             or context.is_attribute_value
             or context.is_closing_tag
-            or not context.token.name
+            or not context.node.name
         ):
             return CompletionList(is_incomplete=False)
 
         result = []
         if context.xsd_element:
-            existing_attr_names = context.token.get_attribute_names()
+            existing_attr_names = context.node.get_attribute_names()
             for attr_name in context.xsd_element.attributes:
                 if attr_name in existing_attr_names:
                     continue
@@ -121,10 +121,10 @@ class XmlCompletionService:
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
         if (
-            isinstance(context.token, XmlCDATASection)
+            isinstance(context.node, XmlCDATASection)
             or context.is_closing_tag
             or context.is_attribute
-            or context.token.is_closed
+            or context.node.is_closed
         ):
             return None
 
