@@ -136,7 +136,7 @@ class XmlDocument(XmlSyntaxNode):
     def find_all_elements_with_name(self, name: str) -> List[XmlElement]:
         """Returns a list with all the elements contained in the document matching the given name."""
         if self.root:
-            found = findall(self.root, filter_=lambda node: node is not None and node.name == name)
+            found = findall(self.root, filter_=lambda node: isinstance(node, XmlElement) and node.name == name)
             return list(found)
         return []
 
