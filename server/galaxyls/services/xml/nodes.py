@@ -125,8 +125,13 @@ class XmlContainerNode(XmlSyntaxNode):
     def get_content_offsets(self) -> Tuple[int, int]:
         return NotImplemented
 
+    def get_content(self, source: str) -> Optional[str]:
+        """Gets the text content from the source between the content offsets of this element."""
+        start, end = self.get_content_offsets()
+        return source[start:end]
 
-class XmlContent(XmlSyntaxNode):
+
+class XmlContent(XmlContainerNode):
     """Represents some content inside a XML document."""
 
     def __init__(self, start: int, end: int):
@@ -138,6 +143,9 @@ class XmlContent(XmlSyntaxNode):
     def node_type(self) -> NodeType:
         """The type of this node."""
         return NodeType.CONTENT
+
+    def get_content_offsets(self) -> Tuple[int, int]:
+        return self.start, self.end
 
 
 class XmlAttribute(XmlSyntaxNode):
@@ -216,7 +224,7 @@ class XmlAttributeKey(XmlSyntaxNode):
         return self.start, self.end
 
 
-class XmlAttributeValue(XmlSyntaxNode):
+class XmlAttributeValue(XmlContainerNode):
     """Represents the value of a XML attribute."""
 
     def __init__(self, value: Optional[str], start: int, end: int, owner: XmlAttribute):
@@ -239,6 +247,9 @@ class XmlAttributeValue(XmlSyntaxNode):
     def get_attribute_name(self) -> Optional[str]:
         """Gets the name of this attribute (if it is an attribute node)."""
         return self.owner.name
+
+    def get_content_offsets(self) -> Tuple[int, int]:
+        return self.start, self.end
 
 
 class XmlElement(XmlContainerNode):

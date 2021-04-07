@@ -15,6 +15,8 @@ class TestXmlDocumentClass:
             ("<test><a></a></test>", "a", 1),
             ("<test><a></a><a></a></test>", "a", 2),
             ("<test><a></a><other><a></a></other></test>", "a", 2),
+            ('<test a="value"><a></a></test>', "a", 1),
+            ('<test attr="a"><a></a></test>', "a", 1),
         ],
     )
     def test_find_all_elements_with_name_returns_expected_count(self, source: str, name: str, expected_count: int) -> None:

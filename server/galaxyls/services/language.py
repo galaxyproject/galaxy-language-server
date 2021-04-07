@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from galaxyls.services.definitions import DocumentDefinitionsProvider
 from galaxyls.services.tools.common import TestsDiscoveryService, ToolParamAttributeSorter
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
@@ -11,12 +12,15 @@ from pygls.lsp.types import (
     Diagnostic,
     DocumentFormattingParams,
     Hover,
+    MarkupContent,
+    MarkupKind,
     Position,
+    Range,
     TextDocumentPositionParams,
     TextEdit,
 )
 from pygls.workspace import Document, Workspace
-
+from galaxyls.services.tools.macros import MacroDefinitionsProvider
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 
 from ..config import CompletionMode
@@ -44,6 +48,9 @@ class GalaxyToolLanguageService:
         self.sort_service: ToolParamAttributeSorter = IUCToolParamAttributeSorter()
         self.test_discovery_service: TestsDiscoveryService = ToolTestsDiscoveryService()
 
+    def set_workspace(self, workspace: Workspace):
+        self.definitions_provider = DocumentDefinitionsProvider(MacroDefinitionsProvider(workspace))
+
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list
         of diagnotics if there are any problems.
@@ -53,10 +60,19 @@ class GalaxyToolLanguageService:
     def get_documentation(self, xml_document: XmlDocument, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
         context = self.xml_context_service.get_xml_context(xml_document, position)
-        if context.token and (context.is_tag or context.is_attribute_key):
-            documentation = self.xsd_service.get_documentation_for(context)
-            context_range = self.xml_context_service.get_range_for_context(xml_document, context)
-            return Hover(contents=documentation, range=context_range)
+        if context.node:
+            if context.is_tag or context.is_attribute_key:
+                documentation = self.xsd_service.get_documentation_for(context)
+                context_range = self.xml_context_service.get_range_for_context(xml_document, context)
+                return Hover(contents=documentation, range=context_range)
+            # Try to get token
+            word = xml_document.document.word_at_position(position)
+            token = self.definitions_provider.get_token_definition(xml_document, word)
+            if token:
+                return Hover(
+                    contents=MarkupContent(kind=MarkupKind.Markdown, value=token.value),
+                    range=Range(start=position, end=position),
+                )
         return None
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:

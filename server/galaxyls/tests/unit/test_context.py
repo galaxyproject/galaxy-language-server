@@ -34,7 +34,7 @@ class TestXmlContextClass:
             expected_xsd_element, exepected_token, line_text=expected_line_content, position=expected_position
         )
 
-        assert context.token == exepected_token
+        assert context.node == exepected_token
         assert context.xsd_element == expected_xsd_element
         assert context.line_text == expected_line_content
         assert context.position == expected_position
@@ -137,9 +137,9 @@ class TestXmlContextServiceClass:
         context = service.get_xml_context(xml_document, position)
 
         assert context
-        assert context.token
-        assert context.token.name == expected_token_name
-        assert context.token.node_type == expected_node_type
+        assert context.node
+        assert context.node.name == expected_token_name
+        assert context.node.node_type == expected_node_type
         assert context.stack == expected_stack
         if expected_xsd_node_name is None:
             assert context.xsd_element is None
@@ -168,7 +168,7 @@ class TestXmlContextServiceClass:
 
         actual_offsets = service.get_range_for_context(xml_document, context)
 
-        assert context.token.name == expected_token_name
+        assert context.node.name == expected_token_name
         assert actual_offsets == expected_offsets
 
     @pytest.mark.parametrize(
@@ -215,5 +215,5 @@ class TestXmlContextServiceClass:
 
         actual_offsets = service.get_range_for_context(xml_document, context)
 
-        assert context.token.name == expected_token_name
+        assert context.node.name == expected_token_name
         assert actual_offsets == expected_offsets

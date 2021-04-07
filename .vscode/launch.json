@@ -3,12 +3,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            // Launches the compound configuration by default
-            "name": "Server + Client",
-            "type": "node",
-            "request": "launch",
-        },
-        {
             "name": "Launch Client",
             "type": "extensionHost",
             "request": "launch",
@@ -21,6 +15,11 @@
                 "${workspaceFolder}/client/dist/**/*.js"
             ],
             "preLaunchTask": "npm: webpack",
+            "presentation": {
+                "hidden": false,
+                "group": "GLS",
+                "order": 2
+            }
         },
         {
             "name": "Launch Server",
@@ -36,6 +35,11 @@
             "cwd": "${workspaceFolder}/server",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
+            },
+            "presentation": {
+                "hidden": false,
+                "group": "GLS",
+                "order": 3
             }
         }
     ],
@@ -45,7 +49,12 @@
             "configurations": [
                 "Launch Server",
                 "Launch Client"
-            ]
+            ],
+            "presentation": {
+                "hidden": false,
+                "group": "GLS",
+                "order": 1
+            }
         }
     ]
 }

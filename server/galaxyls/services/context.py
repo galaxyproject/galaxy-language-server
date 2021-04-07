@@ -36,7 +36,7 @@ class XmlContext:
         self._offset = offset
 
     @property
-    def token(self) -> Optional[XmlSyntaxNode]:
+    def node(self) -> Optional[XmlSyntaxNode]:
         """The syntax node at the context position."""
         return self._node
 
@@ -183,5 +183,5 @@ class XmlContextService:
             return xsd_node
 
     def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range:
-        start_offset, end_offset = context.token.get_offsets(context.offset)
+        start_offset, end_offset = context.node.get_offsets(context.offset)
         return convert_document_offsets_to_range(xml_document.document, start_offset, end_offset)
