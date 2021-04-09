@@ -3,7 +3,7 @@ from typing import List, Optional, cast
 from anytree import find
 from pygls.lsp.types import Position, Range
 from pygls.workspace import Document
-from galaxyls.services.tools.constants import INPUTS, OUTPUTS, TESTS, TOOL
+from galaxyls.services.tools.constants import INPUTS, MACROS, OUTPUTS, TESTS, TOOL
 from galaxyls.services.tools.inputs import GalaxyToolInputTree
 from galaxyls.services.xml.nodes import XmlContainerNode, XmlElement
 
@@ -124,9 +124,17 @@ class GalaxyToolXmlDocument:
             return outputs.elements
         return []
 
+    def get_tool_element(self) -> Optional[XmlElement]:
+        """Gets the root tool element"""
+        return self.find_element(TOOL)
+
+    def get_macros_element(self) -> Optional[XmlElement]:
+        """Gets the macros element"""
+        return self.find_element(MACROS)
+
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""
-        tool_element = self.find_element(TOOL)
+        tool_element = self.get_tool_element()
         return tool_element.get_attribute("id")
 
     def get_tests(self) -> List[XmlElement]:
@@ -139,3 +147,7 @@ class GalaxyToolXmlDocument:
         if tests:
             return tests.elements
         return []
+
+    @classmethod
+    def from_xml_document(cls, xml_document: XmlDocument) -> "GalaxyToolXmlDocument":
+        return GalaxyToolXmlDocument(xml_document.document, xml_document)

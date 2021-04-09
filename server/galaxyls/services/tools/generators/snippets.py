@@ -15,8 +15,8 @@ class SnippetGenerator(ABC):
     snippets using the information of the tool document."""
 
     def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
-        self.tool_document: GalaxyToolXmlDocument = tool_document
-        self.expanded_document: GalaxyToolXmlDocument = self._get_expanded_tool_document(tool_document)
+        self.tool_document = tool_document
+        self.expanded_document = self._get_expanded_tool_document(tool_document)
         self.tabstop_count: int = 0
         self.indent_spaces: str = " " * tabSize
         super().__init__()

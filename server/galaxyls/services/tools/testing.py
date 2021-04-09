@@ -24,7 +24,7 @@ class ToolTestsDiscoveryService(TestsDiscoveryService):
 
     def _get_test_suite_from_document(self, document: Document) -> Optional[TestSuiteInfoResult]:
         xml_document = XmlDocumentParser().parse(document)
-        tool = GalaxyToolXmlDocument(xml_document.document, xml_document)
+        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         tool_id = tool.get_tool_id()
         if tool_id:
             tests = tool.get_tests()

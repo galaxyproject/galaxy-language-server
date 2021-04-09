@@ -76,6 +76,11 @@ class XmlDocument(XmlSyntaxNode):
         """Indicates if the document is a macro definition file."""
         return self.document_type == DocumentType.MACROS
 
+    @property
+    def is_tool_file(self) -> bool:
+        """Indicates if the document is a tool definition file."""
+        return self.document_type == DocumentType.TOOL
+
     def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
         """Gets the syntax node a the given offset."""
         return self.root.find_node_at(offset)
