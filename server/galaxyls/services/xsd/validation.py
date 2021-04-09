@@ -8,6 +8,8 @@ from lxml import etree
 from pygls.lsp.types import Diagnostic, Position, Range
 from pygls.workspace import Document
 
+from galaxyls.services.tools.document import GalaxyToolXmlDocument
+
 from ..xml.document import XmlDocument
 
 
@@ -20,7 +22,7 @@ class GalaxyToolValidationService:
         self.xsd_schema = xsd_schema
 
     def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
-        """Validates the XML document and returns a list of diagnotics
+        """Validates the XML document and returns a list of diagnostics
         if there are any problems.
 
         Args:
@@ -30,19 +32,23 @@ class GalaxyToolValidationService:
         Returns:
             List[Diagnostic]: The list of issues found in the document.
         """
-        try:
-            if xml_document.is_macros_file:
-                return self._check_syntax(xml_document.document)
 
+        syntax_errors = self._check_syntax(xml_document.document)
+        if syntax_errors:
+            return syntax_errors
+
+        if not xml_document.is_tool_file:
+            return []
+        try:
             xml_tree = etree.fromstring(xml_document.document.source)
             return self._validate_tree(xml_tree)
-        except ExpandMacrosFoundException as e:
-            result = self._validate_tree_with_macros(xml_document.document, e.xml_tree)
+        except ExpandMacrosFoundException:
+            result = self._validate_expanded(xml_document)
             return result
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
 
-    def _get_macros_range(self, document: Document, xml_tree: etree.ElementTree) -> Optional[Range]:
+    def _get_macros_range(self, xml_document: XmlDocument) -> Optional[Range]:
         """Given a XML document and its corresponding ElementTree, finds
         the first macro import element and returns its Range position
         inside the document.
@@ -54,18 +60,11 @@ class GalaxyToolValidationService:
         Returns:
             Optional[Range]: The Range position of the import file if it exists.
         """
-        try:
-            import_element = xml_tree.find("macros//import")
-            line_number = import_element.sourceline - 1
-            filename = import_element.text
-            start = document.lines[line_number].find(filename)
-            end = start + len(filename)
-            return Range(
-                start=Position(line=line_number, character=start),
-                end=Position(line=line_number, character=end),
-            )
-        except BaseException:
-            return None
+        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
+        element = tool.get_macros_element()
+        if element:
+            range = xml_document.get_element_name_range(element)
+            return range
 
     def _check_syntax(self, document: Document) -> List[Diagnostic]:
         """Check if the XML document contains any syntax error and returns it in a list.
@@ -82,7 +81,7 @@ class GalaxyToolValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
 
-    def _validate_tree_with_macros(self, document: Document, xml_tree: etree.ElementTree) -> List[Diagnostic]:
+    def _validate_expanded(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the document after loading all the macros referenced and expands them.
 
         Args:
@@ -94,8 +93,8 @@ class GalaxyToolValidationService:
         """
         error_range = None
         try:
-            error_range = self._get_macros_range(document, xml_tree)
-            expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
+            error_range = self._get_macros_range(xml_document)
+            expanded_tool_tree, _ = xml_macros.load_with_references(xml_document.document.path)
             expanded_xml = self._remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
             self.xsd_schema.assertValid(root)
@@ -104,7 +103,7 @@ class GalaxyToolValidationService:
             diagnostics = [
                 Diagnostic(
                     range=error_range,
-                    message=f"Validation error on macro: {error.message}",
+                    message=f"Validation error on expanded document (after replacing macros): {error.message}",
                     source=self.server_name,
                 )
                 for error in e.error_log.filter_from_errors()
@@ -114,12 +113,12 @@ class GalaxyToolValidationService:
         except etree.XMLSyntaxError as e:
             result = Diagnostic(
                 range=error_range,
-                message=f"Syntax error on macro: {e.msg}",
+                message=f"Syntax error on imported macros: {e.msg}",
                 source=self.server_name,
             )
             return [result]
 
-    def _validate_tree(self, xml_tree: etree.ElementTree) -> List[Diagnostic]:
+    def _validate_tree(self, xml_tree: etree._ElementTree) -> List[Diagnostic]:
         """Validates an XML tree against the XSD schema.
 
         Args:
@@ -134,11 +133,11 @@ class GalaxyToolValidationService:
         except etree.DocumentInvalid as e:
             return self._build_diagnostics(e.error_log, xml_tree)
 
-    def _remove_macros(self, tool_xml: etree.ElementTree) -> etree.ElementTree:
+    def _remove_macros(self, tool_xml: etree._ElementTree) -> etree._ElementTree:
         """Removes the macros section from the tool tree.
 
         Args:
-            tool_xml (etree.ElementTree): The tool element tree.
+            tool_xml (etree._ElementTree): The tool element tree.
 
         Returns:
             etree.ElementTree: The tool element tree without the macros section.
@@ -151,7 +150,7 @@ class GalaxyToolValidationService:
         return tool_xml
 
     def _build_diagnostics(
-        self, error_log: etree._ListErrorLog, xml_tree: Optional[etree.ElementTree] = None
+        self, error_log: etree._ListErrorLog, xml_tree: Optional[etree._ElementTree] = None
     ) -> List[Diagnostic]:
         """Gets a list of diagnostics from the XSD validation error log.
 
@@ -208,6 +207,3 @@ class ExpandMacrosFoundException(Exception):
     """This exceptions indicates that the current tool contains
     macros and they should be expanded before validation.
     """
-
-    def __init__(self, xml_tree: Optional[etree.ElementTree] = None):
-        self.xml_tree = xml_tree
