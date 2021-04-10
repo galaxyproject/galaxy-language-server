@@ -1,10 +1,11 @@
-from pathlib import Path
 from typing import Dict, List, Optional
+
 from pydantic import BaseModel
 from pygls.lsp.types import Location
 from pygls.workspace import Workspace
-from galaxyls.services.tools.constants import IMPORT, MACRO, NAME, TOKEN, XML
 
+from galaxyls.services.tools.constants import MACRO, NAME, TOKEN, XML
+from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
 
@@ -66,9 +67,10 @@ class MacroDefinitionsProvider:
         self.workspace = workspace
 
     def load_macro_definitions(self, tool_xml: XmlDocument) -> ToolMacroDefinitions:
+        tool = GalaxyToolXmlDocument.from_xml_document(tool_xml)
         tokens = self._get_token_definitions(tool_xml)
         macros = self._get_macro_definitions(tool_xml)
-        imported_macro_files = self._get_imported_macro_files_from_tool(tool_xml)
+        imported_macro_files = self._get_imported_macro_files_from_tool(tool)
         for file in imported_macro_files.values():
             tokens.update(file.tokens)
             macros.update(file.macros)
@@ -79,35 +81,21 @@ class MacroDefinitionsProvider:
             macros=macros,
         )
 
-    def _get_imported_macro_files_from_tool(self, tool_xml: XmlDocument) -> Dict[str, ImportedMacrosFile]:
-        tool_directory = self._get_tool_directory(tool_xml)
+    def _get_imported_macro_files_from_tool(self, tool: GalaxyToolXmlDocument) -> Dict[str, ImportedMacrosFile]:
         macro_files = {}
-        import_elements = tool_xml.find_all_elements_with_name(IMPORT)
-        for imp in import_elements:
-            name = imp.get_content(tool_xml.document.source)
-            if name:
-                path = tool_directory / name
-                file_uri = None
-                macros_document = None
-                tokens = {}
-                macros = {}
-                if path.exists():
-                    file_uri = path.as_uri()
-                    macros_document = self._load_macros_document(file_uri)
-                    tokens = self._get_token_definitions(macros_document)
-                    macros = self._get_macro_definitions(macros_document)
-                macro_files[name] = ImportedMacrosFile(
-                    file_name=name,
-                    file_uri=file_uri,
-                    document=macros_document,
-                    tokens=tokens,
-                    macros=macros,
-                )
+        uris_dict = tool.get_macro_import_uris()
+        for file_name, file_uri in uris_dict.items():
+            macros_document = self._load_macros_document(file_uri)
+            tokens = self._get_token_definitions(macros_document)
+            macros = self._get_macro_definitions(macros_document)
+            macro_files[file_name] = ImportedMacrosFile(
+                file_name=file_name,
+                file_uri=file_uri,
+                document=macros_document,
+                tokens=tokens,
+                macros=macros,
+            )
         return macro_files
-
-    def _get_tool_directory(self, tool_xml: XmlDocument):
-        tool_directory = Path(tool_xml.document.path).resolve().parent
-        return tool_directory
 
     def _load_macros_document(self, document_uri: str) -> XmlDocument:
         document = self.workspace.get_document(document_uri)
