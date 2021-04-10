@@ -13,8 +13,6 @@ from pygls.lsp.methods import (
     TEXT_DOCUMENT_DID_SAVE,
     WORKSPACE_DID_CHANGE_CONFIGURATION,
 )
-from pygls.lsp.types.language_features.completion import CompletionOptions
-from pygls.server import LanguageServer
 from pygls.lsp.types import (
     CompletionList,
     CompletionParams,
@@ -33,25 +31,17 @@ from pygls.lsp.types import (
     TextDocumentPositionParams,
     TextEdit,
 )
+from pygls.lsp.types.language_features.completion import CompletionOptions
+from pygls.server import LanguageServer
 from pygls.workspace import Document
 
+from galaxyls.config import CompletionMode, GalaxyToolsConfiguration
+from galaxyls.constants import Commands, SERVER_NAME
+from galaxyls.services.language import GalaxyToolLanguageService
 from galaxyls.services.validation import DocumentValidator
-
-from .config import CompletionMode, GalaxyToolsConfiguration
-from .features import (
-    AUTO_CLOSE_TAGS,
-    CMD_GENERATE_COMMAND,
-    CMD_GENERATE_TEST,
-    DISCOVER_TESTS,
-    SORT_DOCUMENT_PARAMS_ATTRS,
-    SORT_SINGLE_PARAM_ATTRS,
-)
-from .services.language import GalaxyToolLanguageService
-from .services.xml.document import XmlDocument
-from .services.xml.parser import XmlDocumentParser
-from .types import AutoCloseTagResult, GeneratedSnippetResult, ReplaceTextRangeResult, TestSuiteInfoResult
-
-SERVER_NAME = "Galaxy Tools LS"
+from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.parser import XmlDocumentParser
+from galaxyls.types import AutoCloseTagResult, GeneratedSnippetResult, ReplaceTextRangeResult, TestSuiteInfoResult
 
 
 class GalaxyToolsLanguageServer(LanguageServer):
@@ -106,7 +96,7 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
         return server.service.get_completion(xml_document, params, server.configuration.completion.mode)
 
 
-@language_server.feature(AUTO_CLOSE_TAGS)
+@language_server.feature(Commands.AUTO_CLOSE_TAGS)
 def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
     """Responds to a close tag request to close the currently opened node."""
     if server.configuration.completion.auto_close_tags:
@@ -152,7 +142,7 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
     # server.show_message("Xml Document Closed")
 
 
-@language_server.feature(CMD_GENERATE_TEST)
+@language_server.feature(Commands.GENERATE_TESTS)
 async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[GeneratedSnippetResult]:
@@ -162,7 +152,7 @@ async def cmd_generate_test(
         return server.service.generate_tests(document)
 
 
-@language_server.feature(CMD_GENERATE_COMMAND)
+@language_server.feature(Commands.GENERATE_COMMAND)
 async def cmd_generate_command(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[GeneratedSnippetResult]:
@@ -172,7 +162,7 @@ async def cmd_generate_command(
         return server.service.generate_command(document)
 
 
-@language_server.feature(SORT_SINGLE_PARAM_ATTRS)
+@language_server.feature(Commands.SORT_SINGLE_PARAM_ATTRS)
 def sort_single_param_attrs_command(
     server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
 ) -> Optional[ReplaceTextRangeResult]:
@@ -183,7 +173,7 @@ def sort_single_param_attrs_command(
         return server.service.sort_single_param_attrs(xml_document, params)
 
 
-@language_server.feature(SORT_DOCUMENT_PARAMS_ATTRS)
+@language_server.feature(Commands.SORT_DOCUMENT_PARAMS_ATTRS)
 def sort_document_params_attrs_command(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> Optional[List[ReplaceTextRangeResult]]:
@@ -194,7 +184,7 @@ def sort_document_params_attrs_command(
         return server.service.sort_document_param_attributes(xml_document)
 
 
-@language_server.feature(DISCOVER_TESTS)
+@language_server.feature(Commands.DISCOVER_TESTS)
 def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> List[TestSuiteInfoResult]:
     """Sorts the attributes of all the param elements contained in the document."""
     return server.service.discover_tests(server.workspace)
