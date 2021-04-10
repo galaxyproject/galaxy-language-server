@@ -3,14 +3,14 @@
 
 from typing import List, Optional
 
-from galaxy.util import xml_macros
 from lxml import etree
 from pygls.lsp.types import Diagnostic, Position, Range
 from pygls.workspace import Document
 
+from galaxy.util import xml_macros
+from galaxyls.constants import DiagnosticCodes
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
-
-from ..xml.document import XmlDocument
+from galaxyls.services.xml.document import XmlDocument
 
 
 class GalaxyToolValidationService:
@@ -86,6 +86,7 @@ class GalaxyToolValidationService:
                     range=tool.get_macros_range(),
                     message=f"Validation error on expanded document (after replacing macros): {error.message}",
                     source=self.server_name,
+                    code=DiagnosticCodes.INVALID_EXPANDED_TOOL,
                 )
                 for error in e.error_log.filter_from_errors()
             ]

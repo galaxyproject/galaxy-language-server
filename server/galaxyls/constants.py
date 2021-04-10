@@ -11,3 +11,6 @@ class Commands:
     SORT_DOCUMENT_PARAMS_ATTRS = "galaxytools.sort.documentParamsAttributes"
     DISCOVER_TESTS = "galaxytools.tests.discover"
 
+
+class DiagnosticCodes:
+    INVALID_EXPANDED_TOOL = 101
