@@ -114,6 +114,19 @@ class XmlDocument(XmlSyntaxNode):
             return None
         return convert_document_offsets_to_range(self.document, start_offset, end_offset)
 
+    def get_full_range(self, node: XmlSyntaxNode) -> Optional[Range]:
+        """Gets the Range positions for the given XML node in the document.
+
+        Args:
+            node (XmlSyntaxNode): The XML node to determine it's range positions.
+
+        Returns:
+            Optional[Range]: The range positions for the entire node.
+        """
+        if node.start < 0 or node.end < 0:
+            return None
+        return convert_document_offsets_to_range(self.document, node.start, node.end)
+
     def get_position_before(self, element: XmlElement) -> Position:
         """Return the position in the document before the given element.
 

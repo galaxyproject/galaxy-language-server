@@ -39,32 +39,15 @@ class GalaxyToolValidationService:
 
         if not xml_document.is_tool_file:
             return []
+        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         try:
-            xml_tree = etree.fromstring(xml_document.document.source)
+            xml_tree = etree.fromstring(tool.source)
             return self._validate_tree(xml_tree)
         except ExpandMacrosFoundException:
-            result = self._validate_expanded(xml_document)
+            result = self._validate_expanded(tool)
             return result
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
-
-    def _get_macros_range(self, xml_document: XmlDocument) -> Optional[Range]:
-        """Given a XML document and its corresponding ElementTree, finds
-        the first macro import element and returns its Range position
-        inside the document.
-
-        Args:
-            document (Document): The XML tool document.
-            xml_tree (etree.ElementTree): The corresponding ElementTree of the document.
-
-        Returns:
-            Optional[Range]: The Range position of the import file if it exists.
-        """
-        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
-        element = tool.get_macros_element()
-        if element:
-            range = xml_document.get_element_name_range(element)
-            return range
 
     def _check_syntax(self, document: Document) -> List[Diagnostic]:
         """Check if the XML document contains any syntax error and returns it in a list.
@@ -81,7 +64,7 @@ class GalaxyToolValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
 
-    def _validate_expanded(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def _validate_expanded(self, tool: GalaxyToolXmlDocument) -> List[Diagnostic]:
         """Validates the document after loading all the macros referenced and expands them.
 
         Args:
@@ -91,10 +74,8 @@ class GalaxyToolValidationService:
         Returns:
             List[Diagnostic]: [description]
         """
-        error_range = None
         try:
-            error_range = self._get_macros_range(xml_document)
-            expanded_tool_tree, _ = xml_macros.load_with_references(xml_document.document.path)
+            expanded_tool_tree, _ = xml_macros.load_with_references(tool.path)
             expanded_xml = self._remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
             self.xsd_schema.assertValid(root)
@@ -102,7 +83,7 @@ class GalaxyToolValidationService:
         except etree.DocumentInvalid as e:
             diagnostics = [
                 Diagnostic(
-                    range=error_range,
+                    range=tool.get_macros_range(),
                     message=f"Validation error on expanded document (after replacing macros): {error.message}",
                     source=self.server_name,
                 )
@@ -112,7 +93,7 @@ class GalaxyToolValidationService:
 
         except etree.XMLSyntaxError as e:
             result = Diagnostic(
-                range=error_range,
+                range=tool.get_import_macro_file_range(e.filename),
                 message=f"Syntax error on imported macros: {e.msg}",
                 source=self.server_name,
             )

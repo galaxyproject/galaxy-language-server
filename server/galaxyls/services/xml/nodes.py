@@ -7,7 +7,7 @@ from galaxyls.services.xml.types import NodeType
 
 
 class XmlSyntaxNode(ABC, NodeMixin):
-    """Abtract base class that represents a syntax node in the syntax tree."""
+    """Abstract base class that represents a syntax node in the syntax tree."""
 
     def __init__(self):
         self.name: Optional[str] = None

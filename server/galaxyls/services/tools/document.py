@@ -77,7 +77,7 @@ class GalaxyToolXmlDocument:
             Optional[Range]: The Range of the content block.
         """
         if element:
-        return self.xml_document.get_content_range(element)
+            return self.xml_document.get_content_range(element)
 
     def get_position_before(self, element: XmlElement) -> Position:
         """Returns the document position right before the given element opening tag.
@@ -147,6 +147,23 @@ class GalaxyToolXmlDocument:
                     file_uri = path.as_uri()
                     result[filename] = file_uri
         return result
+
+    def get_macros_range(self) -> Optional[Range]:
+        """Returns the Range position of the macros element name if it exists."""
+        element = self.get_macros_element()
+        if element:
+            range = self.xml_document.get_element_name_range(element)
+            return range
+
+    def get_import_macro_file_range(self, file_path: Optional[str]) -> Optional[Range]:
+        """Returns the Range position of the imported macro file element if it exists."""
+        if file_path:
+            filename = Path(file_path).name
+            import_elements = self.get_macro_import_elements()
+            for imp in import_elements:
+                imp_filename = imp.get_content(self.xml_document.document.source)
+                if imp_filename == filename:
+                    return self.xml_document.get_full_range(imp)
 
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""
