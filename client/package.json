@@ -125,6 +125,13 @@
         "category": "Galaxy Tools",
         "enablement": "galaxytools:isActive",
         "icon": "$(terminal-view-icon)"
+      },
+      {
+        "command": "galaxytools.preview.expandedDocument",
+        "title": "Open a preview of the tool document with all the macros expanded.",
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive",
+        "icon": "$(open-preview)"
       }
     ],
     "keybindings": [
