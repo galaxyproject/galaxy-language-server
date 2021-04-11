@@ -14,3 +14,7 @@ export namespace Constants {
 
     export const EXPAND_DOCUMENT_SCHEMA = "gls-expand"
 }
+
+export namespace DiagnosticCodes {
+    export const INVALID_EXPANDED_TOOL = 101
+}

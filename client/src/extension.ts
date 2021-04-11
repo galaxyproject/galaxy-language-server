@@ -9,6 +9,7 @@ import { Constants } from './constants';
 import { setupCommands } from './commands';
 import { setupPlanemo } from "./planemo/main";
 import { DefaultConfigurationFactory } from "./planemo/configuration";
+import { setupProviders } from "./providers/setup";
 
 let client: LanguageClient;
 
@@ -53,6 +54,8 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(activateTagClosing(tagProvider));
 
   setupCommands(client, context);
+
+  setupProviders(client, context);
 
 
   client.onReady().then(() => {
