@@ -2,6 +2,7 @@
 """
 
 from typing import List, Optional
+from pydantic.main import BaseModel
 from pygls.lsp.types import Position, Range
 
 
@@ -82,3 +83,10 @@ class TestSuiteInfoResult:
 
         self.errored: bool = False
         self.message: Optional[str] = None
+
+
+class GeneratedExpandedDocument(BaseModel):
+    """Represents a tool document with all the macros expanded."""
+
+    content: Optional[str]
+    error_message: Optional[str]

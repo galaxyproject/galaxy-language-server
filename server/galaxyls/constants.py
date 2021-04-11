@@ -10,6 +10,7 @@ class Commands:
     SORT_SINGLE_PARAM_ATTRS = "galaxytools.sort.singleParamAttributes"
     SORT_DOCUMENT_PARAMS_ATTRS = "galaxytools.sort.documentParamsAttributes"
     DISCOVER_TESTS = "galaxytools.tests.discover"
+    GENERATE_EXPANDED_DOCUMENT = "galaxytools.generate.expandedDocument"
 
 
 class DiagnosticCodes:

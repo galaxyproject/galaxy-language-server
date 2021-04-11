@@ -41,7 +41,13 @@ from galaxyls.services.language import GalaxyToolLanguageService
 from galaxyls.services.validation import DocumentValidator
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
-from galaxyls.types import AutoCloseTagResult, GeneratedSnippetResult, ReplaceTextRangeResult, TestSuiteInfoResult
+from galaxyls.types import (
+    AutoCloseTagResult,
+    GeneratedExpandedDocument,
+    GeneratedSnippetResult,
+    ReplaceTextRangeResult,
+    TestSuiteInfoResult,
+)
 
 
 class GalaxyToolsLanguageServer(LanguageServer):
@@ -184,6 +190,16 @@ def sort_document_params_attrs_command(
         return server.service.sort_document_param_attributes(xml_document)
 
 
+@language_server.feature(Commands.GENERATE_EXPANDED_DOCUMENT)
+def generate_expanded_command(
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
+) -> Optional[GeneratedExpandedDocument]:
+    """Generates a expanded version (with all macros replaced) of the tool document."""
+    document = server.workspace.get_document(params.uri)
+    if document and DocumentValidator.is_tool_document(document):
+        return server.service.macro_expander.generate_expanded_from(document.path)
+
+
 @language_server.feature(Commands.DISCOVER_TESTS)
 def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> List[TestSuiteInfoResult]:
     """Sorts the attributes of all the param elements contained in the document."""
@@ -222,4 +238,4 @@ def _get_xml_document(document: Document) -> XmlDocument:
 
 def _is_document_supported(document: Document) -> bool:
     """Returns True if the given document is supported by the server."""
-    return DocumentValidator().has_valid_root(document)
+    return DocumentValidator.has_valid_root(document)
