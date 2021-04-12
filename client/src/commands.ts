@@ -206,7 +206,7 @@ function notifyExtensionActive() {
     commands.executeCommand('setContext', 'galaxytools:isActive', true);
 }
 
-async function requestExpandedDocument(uri: Uri, client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any, any>): Promise<GeneratedExpandedDocument> {
+async function requestExpandedDocument(uri: Uri, client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any, any>): Promise<GeneratedExpandedDocument | undefined> {
     const document = await workspace.openTextDocument(uri);
     let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
     let response = await client.sendRequest(request, param);
@@ -214,7 +214,7 @@ async function requestExpandedDocument(uri: Uri, client: LanguageClient, request
         if (response.error_message) {
             window.showErrorMessage(response.error_message);
         }
-        return Promise.reject();
+        return undefined;
     }
     return response;
 }

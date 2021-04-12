@@ -198,6 +198,7 @@ def generate_expanded_command(
     document = server.workspace.get_document(params.uri)
     if document and DocumentValidator.is_tool_document(document):
         return server.service.macro_expander.generate_expanded_from(document.path)
+    return GeneratedExpandedDocument(error_message=f"The document {document.filename} is not a valid Galaxy Tool wrapper.")
 
 
 @language_server.feature(Commands.DISCOVER_TESTS)
