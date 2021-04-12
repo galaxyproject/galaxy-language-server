@@ -14,6 +14,8 @@ from galaxyls.services.macros import remove_macros
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.document import XmlDocument
 
+EXPAND_DOCUMENT_URI_SUFFIX = "%20%28Expanded%29"
+
 
 class GalaxyToolValidationService:
     """Service providing diagnostics for errors in the XML validation."""
@@ -192,11 +194,12 @@ class GalaxyToolValidationService:
                 related_information=[
                     DiagnosticRelatedInformation(
                         message=(
-                            "The validation error ocurred on the expanded version of the document, i.e. after replacing macros. "
+                            "The validation error ocurred on the expanded version of "
+                            "the document, i.e. after replacing macros. "
                             "Click here to preview the expanded document."
                         ),
                         location=Location(
-                            uri=virtual_uri,
+                            uri=f"{virtual_uri}{EXPAND_DOCUMENT_URI_SUFFIX}",
                             range=Range(
                                 start=Position(line=error.line, character=error.column),
                                 end=Position(line=error.line, character=error.column),

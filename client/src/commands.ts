@@ -3,7 +3,7 @@
 import { window, Position, SnippetString, Range, ExtensionContext, commands, TextEditor, Uri, workspace, ViewColumn, languages } from "vscode";
 import { RequestType, TextDocumentIdentifier, TextDocumentPositionParams, LanguageClient } from "vscode-languageclient";
 import { Constants } from "./constants";
-import { cloneRange } from "./utils";
+import { changeUriScheme, cloneRange } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
 
 export namespace Commands {
@@ -207,9 +207,7 @@ function notifyExtensionActive() {
 }
 
 async function requestExpandedDocument(uri: Uri, client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any, any>): Promise<GeneratedExpandedDocument> {
-    const fileUri = setUriScheme(uri, "file");
-    const document = await workspace.openTextDocument(fileUri)
-
+    const document = await workspace.openTextDocument(uri);
     let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
     let response = await client.sendRequest(request, param);
     if (!response || response.error_message) {
@@ -221,6 +219,12 @@ async function requestExpandedDocument(uri: Uri, client: LanguageClient, request
     return response;
 }
 
+function convertToExpandedDocumentUri(fileUri: Uri) {
+    const uri = changeUriScheme(fileUri, Constants.EXPAND_DOCUMENT_SCHEMA);
+    const finalUri = Uri.parse(`${uri}${Constants.EXPAND_DOCUMENT_URI_SUFFIX}`);
+    return finalUri;
+}
+
 async function previewExpandedDocument() {
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
@@ -228,13 +232,7 @@ async function previewExpandedDocument() {
     if (!isSaved) return;
 
     const document = activeEditor.document;
-    const uri = setUriScheme(document.uri, Constants.EXPAND_DOCUMENT_SCHEMA);
-    const doc = await workspace.openTextDocument(uri);
+    const expandedDocumentUri = convertToExpandedDocumentUri(document.uri);
+    const doc = await workspace.openTextDocument(expandedDocumentUri);
     await window.showTextDocument(doc, { preview: false, viewColumn: ViewColumn.Beside });
-}
-
-function setUriScheme(uri: Uri, scheme: string): Uri {
-    const uriStr = uri.toString().replace(uri.scheme, scheme)
-    const resultUri = Uri.parse(uriStr);
-    return resultUri;
 }
