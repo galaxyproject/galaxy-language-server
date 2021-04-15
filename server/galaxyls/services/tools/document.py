@@ -1,9 +1,10 @@
-from typing import List, Optional, cast
+from pathlib import Path
+from typing import Dict, List, Optional, cast
 
 from anytree import find
 from pygls.lsp.types import Position, Range
 from pygls.workspace import Document
-from galaxyls.services.tools.constants import INPUTS, OUTPUTS, TESTS, TOOL
+from galaxyls.services.tools.constants import IMPORT, INPUTS, MACROS, OUTPUTS, TESTS, TOOL
 from galaxyls.services.tools.inputs import GalaxyToolInputTree
 from galaxyls.services.xml.nodes import XmlContainerNode, XmlElement
 
@@ -42,18 +43,15 @@ class GalaxyToolXmlDocument:
         """
         return self.xml_document.uses_macros
 
-    def has_section_content(self, section_name: str) -> bool:
-        """Returns True if the given 'section_name' tag exists and
-        can hold content, i.e. is not self closed.
+    @property
+    def source(self) -> str:
+        """The contents of the tool document."""
+        return self.xml_document.document.source
 
-        Args:
-            section_name (str): The name of the tag or element.
-
-        Returns:
-            bool: True if can hold content, otherwise Fase.
-        """
-        section = self.find_element(section_name)
-        return section is not None and not section.is_self_closed
+    @property
+    def path(self) -> str:
+        """The file path of the tool."""
+        return self.xml_document.document.path
 
     def find_element(self, name: str, maxlevel: int = 3) -> Optional[XmlElement]:
         """Finds the element with the given name in the document.
@@ -78,9 +76,8 @@ class GalaxyToolXmlDocument:
         Returns:
             Optional[Range]: The Range of the content block.
         """
-        if not element:
-            return None
-        return self.xml_document.get_content_range(element)
+        if element:
+            return self.xml_document.get_content_range(element)
 
     def get_position_before(self, element: XmlElement) -> Position:
         """Returns the document position right before the given element opening tag.
@@ -124,9 +121,53 @@ class GalaxyToolXmlDocument:
             return outputs.elements
         return []
 
+    def get_tool_element(self) -> Optional[XmlElement]:
+        """Gets the root tool element"""
+        return self.find_element(TOOL)
+
+    def get_macros_element(self) -> Optional[XmlElement]:
+        """Gets the macros element"""
+        return self.find_element(MACROS)
+
+    def get_macro_import_elements(self) -> Optional[List[XmlElement]]:
+        """Gets the list of elements with macro file import declarations."""
+        return self.xml_document.find_all_elements_with_name(IMPORT)
+
+    def get_macro_import_uris(self) -> Dict[str, str]:
+        """Returns a dictionary with the file name and corresponding file uri of each
+        imported macro file."""
+        result = {}
+        tool_directory = self._get_tool_directory()
+        import_elements = self.get_macro_import_elements()
+        for imp in import_elements:
+            filename = imp.get_content(self.xml_document.document.source)
+            if filename:
+                path = tool_directory / filename
+                if path.exists():
+                    file_uri = path.as_uri()
+                    result[filename] = file_uri
+        return result
+
+    def get_macros_range(self) -> Optional[Range]:
+        """Returns the Range position of the macros element name if it exists."""
+        element = self.get_macros_element()
+        if element:
+            range = self.xml_document.get_element_name_range(element)
+            return range
+
+    def get_import_macro_file_range(self, file_path: Optional[str]) -> Optional[Range]:
+        """Returns the Range position of the imported macro file element if it exists."""
+        if file_path:
+            filename = Path(file_path).name
+            import_elements = self.get_macro_import_elements()
+            for imp in import_elements:
+                imp_filename = imp.get_content(self.xml_document.document.source)
+                if imp_filename == filename:
+                    return self.xml_document.get_full_range(imp)
+
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""
-        tool_element = self.find_element(TOOL)
+        tool_element = self.get_tool_element()
         return tool_element.get_attribute("id")
 
     def get_tests(self) -> List[XmlElement]:
@@ -139,3 +180,11 @@ class GalaxyToolXmlDocument:
         if tests:
             return tests.elements
         return []
+
+    @classmethod
+    def from_xml_document(cls, xml_document: XmlDocument) -> "GalaxyToolXmlDocument":
+        return GalaxyToolXmlDocument(xml_document.document, xml_document)
+
+    def _get_tool_directory(self):
+        tool_directory = Path(self.xml_document.document.path).resolve().parent
+        return tool_directory

@@ -76,6 +76,11 @@ class XmlDocument(XmlSyntaxNode):
         """Indicates if the document is a macro definition file."""
         return self.document_type == DocumentType.MACROS
 
+    @property
+    def is_tool_file(self) -> bool:
+        """Indicates if the document is a tool definition file."""
+        return self.document_type == DocumentType.TOOL
+
     def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
         """Gets the syntax node a the given offset."""
         return self.root.find_node_at(offset)
@@ -108,6 +113,19 @@ class XmlDocument(XmlSyntaxNode):
         if start_offset < 0 or end_offset < 0:
             return None
         return convert_document_offsets_to_range(self.document, start_offset, end_offset)
+
+    def get_full_range(self, node: XmlSyntaxNode) -> Optional[Range]:
+        """Gets the Range positions for the given XML node in the document.
+
+        Args:
+            node (XmlSyntaxNode): The XML node to determine it's range positions.
+
+        Returns:
+            Optional[Range]: The range positions for the entire node.
+        """
+        if node.start < 0 or node.end < 0:
+            return None
+        return convert_document_offsets_to_range(self.document, node.start, node.end)
 
     def get_position_before(self, element: XmlElement) -> Position:
         """Return the position in the document before the given element.

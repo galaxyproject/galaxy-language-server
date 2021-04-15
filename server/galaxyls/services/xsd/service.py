@@ -33,7 +33,7 @@ class GalaxyToolXsdService:
 
     def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list
-        of diagnotics if there are any problems.
+        of diagnostics if there are any problems.
         """
         return self.validator.validate_document(xml_document)
 

@@ -1,8 +1,9 @@
 'use strict';
 
-import { window, Position, SnippetString, Range, ExtensionContext, commands, TextEditor } from "vscode";
+import { window, Position, SnippetString, Range, ExtensionContext, commands, TextEditor, Uri, workspace, ViewColumn, languages } from "vscode";
 import { RequestType, TextDocumentIdentifier, TextDocumentPositionParams, LanguageClient } from "vscode-languageclient";
-import { cloneRange } from "./utils";
+import { Constants } from "./constants";
+import { changeUriScheme, cloneRange } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
 
 export namespace Commands {
@@ -15,6 +16,8 @@ export namespace Commands {
     export const DISCOVER_TESTS = 'galaxytools.tests.discover';
     export const PLANEMO_OPEN_SETTINGS = 'galaxytools.planemo.openSettings';
     export const OPEN_TERMINAL_AT_DIRECTORY_ITEM = 'galaxytools.openTerminalAtDirectory';
+    export const GENERATE_EXPANDED_DOCUMENT = 'galaxytools.generate.expandedDocument';
+    export const PREVIEW_EXPANDED_DOCUMENT = 'galaxytools.preview.expandedDocument';
 }
 
 namespace GeneratedTestRequest {
@@ -33,6 +36,10 @@ namespace SortDocumentParamsAttrsCommandRequest {
     export const type: RequestType<TextDocumentIdentifier, Array<ReplaceTextRangeResult>, any, any> = new RequestType(Commands.SORT_DOCUMENT_PARAMS_ATTRS);
 }
 
+namespace GeneratedExpandedDocumentRequest {
+    export const type: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any, any> = new RequestType(Commands.GENERATE_EXPANDED_DOCUMENT);
+}
+
 interface GeneratedSnippetResult {
     snippet: string;
     position: Position;
@@ -45,6 +52,10 @@ interface ReplaceTextRangeResult {
     replace_range: Range;
 }
 
+export interface GeneratedExpandedDocument {
+    content: string;
+    error_message: string;
+}
 
 
 export function setupCommands(client: LanguageClient, context: ExtensionContext) {
@@ -71,6 +82,13 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
         requestSortDocumentParamsAttrs(client, SortDocumentParamsAttrsCommandRequest.type)
     };
     context.subscriptions.push(commands.registerCommand(Commands.SORT_DOCUMENT_PARAMS_ATTRS, sortDocumentParamsAttrs));
+
+    const generateExpandedDocument = async (uri: Uri) => {
+        return requestExpandedDocument(uri, client, GeneratedExpandedDocumentRequest.type)
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_EXPANDED_DOCUMENT, generateExpandedDocument));
+
+    context.subscriptions.push(commands.registerCommand(Commands.PREVIEW_EXPANDED_DOCUMENT, previewExpandedDocument));
 
     // Open planemo settings
     context.subscriptions.push(commands.registerCommand(Commands.PLANEMO_OPEN_SETTINGS, openPlanemoSettings))
@@ -186,4 +204,35 @@ function openTerminalAtDirectoryItem(item: DirectoryTreeItem) {
 
 function notifyExtensionActive() {
     commands.executeCommand('setContext', 'galaxytools:isActive', true);
+}
+
+async function requestExpandedDocument(uri: Uri, client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any, any>): Promise<GeneratedExpandedDocument | undefined> {
+    const document = await workspace.openTextDocument(uri);
+    let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    let response = await client.sendRequest(request, param);
+    if (!response || response.error_message) {
+        if (response.error_message) {
+            window.showErrorMessage(response.error_message);
+        }
+        return undefined;
+    }
+    return response;
+}
+
+function convertToExpandedDocumentUri(fileUri: Uri) {
+    const uri = changeUriScheme(fileUri, Constants.EXPAND_DOCUMENT_SCHEMA);
+    const finalUri = Uri.parse(`${uri}${Constants.EXPAND_DOCUMENT_URI_SUFFIX}`);
+    return finalUri;
+}
+
+async function previewExpandedDocument() {
+    let activeEditor = window.activeTextEditor;
+    if (!activeEditor) return;
+    const isSaved = ensureDocumentIsSaved(activeEditor);
+    if (!isSaved) return;
+
+    const document = activeEditor.document;
+    const expandedDocumentUri = convertToExpandedDocumentUri(document.uri);
+    const doc = await workspace.openTextDocument(expandedDocumentUri);
+    await window.showTextDocument(doc, { preview: false, viewColumn: ViewColumn.Beside });
 }

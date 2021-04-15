@@ -102,7 +102,7 @@ class XmlCompletionService:
         return CompletionList(items=result, is_incomplete=False)
 
     def get_attribute_value_completion(self, context: XmlContext) -> CompletionList:
-        """Gets a list of possible values for a anumeration restricted attribute if exists.
+        """Gets a list of possible values for an enumeration restricted attribute if exists.
 
         Args:
             context (XmlContext): The XML context at an attribute value position.
