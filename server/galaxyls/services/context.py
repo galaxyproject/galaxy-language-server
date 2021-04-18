@@ -1,6 +1,6 @@
 """This module provides a service to determine position context inside an XML document."""
 
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from pygls.lsp.types import Range
 from pygls.workspace import Position
@@ -8,7 +8,7 @@ from pygls.workspace import Position
 from galaxyls.services.tools.constants import MACROS
 from galaxyls.services.xml.constants import UNDEFINED_OFFSET
 from galaxyls.services.xml.document import XmlDocument
-from galaxyls.services.xml.nodes import XmlSyntaxNode
+from galaxyls.services.xml.nodes import XmlElement, XmlSyntaxNode
 from galaxyls.services.xml.types import NodeType
 from galaxyls.services.xml.utils import convert_document_offsets_to_range
 from galaxyls.services.xsd.types import XsdNode, XsdTree
@@ -76,6 +76,14 @@ class XmlContext:
         return self._node is not None and self._node.node_type == NodeType.ELEMENT
 
     @property
+    def is_tag_name(self) -> bool:
+        """Indicates if the token in context is a start tag name."""
+        return (
+            self.is_tag
+            and cast(XmlElement, self._node).name_start_offset <= self._offset <= cast(XmlElement, self._node).name_end_offset
+        )
+
+    @property
     def is_attribute(self) -> bool:
         """Indicates if the token in context is an attribute."""
         return self._node is not None and self._node.is_attribute
@@ -116,14 +124,14 @@ class XmlContext:
 
     def has_reached_max_occurs(self, node: XsdNode) -> bool:
         """Checks if the given node has reached the maximum number
-        of ocurrences.
+        of occurrences.
 
         Args:
             child (XsdNode): The node to check.
 
         Returns:
             bool: True if the node has reached the maximum number
-            of ocurrences permitted.
+            of occurrences permitted.
         """
         if node.max_occurs < 0:
             return False
@@ -131,6 +139,12 @@ class XmlContext:
         if target:
             existing_count = sum(1 for child_node in target.children if child_node.name == node.name)
             return existing_count >= node.max_occurs
+        return False
+
+    def is_valid_tag(self) -> bool:
+        """Indicates"""
+        if self.is_tag and self._xsd_node is not None:
+            return self._node.name == self._xsd_node.name or self._node.name in [node.name for node in self._xsd_node.children]
         return False
 
 
@@ -180,6 +194,8 @@ class XmlContextService:
             if len(node_stack) > 0 and MACROS in node_stack:
                 return xsd_tree.find_node_by_name(node_stack[-1])
             xsd_node = xsd_tree.find_node_by_stack(node_stack)
+            if xsd_node is None:
+                xsd_node = xsd_tree.find_node_by_stack(node_stack[:-1])
             return xsd_node
 
     def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range:
