@@ -26,15 +26,13 @@ def fake_xsd_tree(mocker: MockerFixture) -> XsdTree:
 class TestXmlContextClass:
     def test_init_sets_properties(self, fake_xsd_tree: XsdTree) -> None:
         expected_xsd_element = fake_xsd_tree.root
-        exepected_token = XmlElement()
+        expected_token = XmlElement()
         expected_line_content = "test"
         expected_position = Position(line=0, character=0)
 
-        context = XmlContext(
-            expected_xsd_element, exepected_token, line_text=expected_line_content, position=expected_position
-        )
+        context = XmlContext(expected_xsd_element, expected_token, line_text=expected_line_content, position=expected_position)
 
-        assert context.node == exepected_token
+        assert context.node == expected_token
         assert context.xsd_element == expected_xsd_element
         assert context.line_text == expected_line_content
         assert context.position == expected_position
@@ -101,9 +99,9 @@ class TestXmlContextServiceClass:
             ('<root attr="4" ^><child ', "root", NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4"><^child ', "child", NodeType.ELEMENT, "child", ["root", "child"]),
             ('<root attr="4">\n<child/^><other', "child", NodeType.ELEMENT, "child", ["root", "child"]),
-            ('<root attr="4">\n<child/>^<other', "other", NodeType.ELEMENT, None, ["root", "other"]),
+            ('<root attr="4">\n<child/>^<other', "other", NodeType.ELEMENT, "root", ["root", "other"]),
             ('<root attr="4">\n<child/>^ <other', None, NodeType.CONTENT, "root", ["root"]),
-            ('<root attr="4">\n<child/><^other', "other", NodeType.ELEMENT, None, ["root", "other"]),
+            ('<root attr="4">\n<child/><^other', "other", NodeType.ELEMENT, "root", ["root", "other"]),
             ('<root attr="4">\n<child/><^sibling', "sibling", NodeType.ELEMENT, "sibling", ["root", "sibling"]),
             ('<root attr="4">\n    <^ \n<child', None, NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4">\n    < \n<^child', "child", NodeType.ELEMENT, "child", ["root", "child"]),
@@ -217,3 +215,36 @@ class TestXmlContextServiceClass:
 
         assert context.node.name == expected_token_name
         assert actual_offsets == expected_offsets
+
+    @pytest.mark.parametrize(
+        "source_with_mark, expected_is_tag_name",
+        [
+            ("^<root></root>", False),
+            ("<^root></root>", True),
+            ("<ro^ot></root>", True),
+            ("<root^></root>", True),
+            ("<root^ ></root>", True),
+            ("<root ^></root>", False),
+            ("<root>^</root>", False),
+            ("<root><^/root>", False),
+            ("<root></^root>", False),
+            ("<root></root^>", False),
+            ("<root ^attr=></root>", False),
+            ('<root attr="va^lue"></root>', False),
+            ('<root attr="value"^></root>', False),
+            ('<root attr="value" ^></root>', False),
+        ],
+    )
+    def test_context_returns_expected_is_tag_name(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        expected_is_tag_name: bool,
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+
+        context = service.get_xml_context(xml_document, position)
+
+        assert context.is_tag_name == expected_is_tag_name
