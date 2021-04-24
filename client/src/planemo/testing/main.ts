@@ -1,7 +1,7 @@
 'use strict';
 
 import { ExtensionContext, extensions } from "vscode";
-import { LanguageClient } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 import { TestHub, testExplorerExtensionId } from 'vscode-test-adapter-api';
 import { TestAdapterRegistrar } from 'vscode-test-adapter-util';
 import { LanguageServerTestProvider } from "../../testing/testsProvider";

@@ -1,7 +1,7 @@
 'use strict';
 
-import { window, Position, SnippetString, Range, ExtensionContext, commands, TextEditor, Uri, workspace, ViewColumn, languages } from "vscode";
-import { RequestType, TextDocumentIdentifier, TextDocumentPositionParams, LanguageClient } from "vscode-languageclient";
+import { window, Position, SnippetString, Range, ExtensionContext, commands, TextEditor, Uri, workspace, ViewColumn } from "vscode";
+import { RequestType, TextDocumentIdentifier, TextDocumentPositionParams, LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "./constants";
 import { changeUriScheme, cloneRange } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
@@ -21,23 +21,23 @@ export namespace Commands {
 }
 
 namespace GeneratedTestRequest {
-    export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any> = new RequestType(Commands.GENERATE_TEST);
+    export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any> = new RequestType(Commands.GENERATE_TEST);
 }
 
 namespace GeneratedCommandRequest {
-    export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any> = new RequestType(Commands.GENERATE_COMMAND);
+    export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any> = new RequestType(Commands.GENERATE_COMMAND);
 }
 
 namespace SortSingleParamAttrsCommandRequest {
-    export const type: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any, any> = new RequestType(Commands.SORT_SINGLE_PARAM_ATTRS);
+    export const type: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any> = new RequestType(Commands.SORT_SINGLE_PARAM_ATTRS);
 }
 
 namespace SortDocumentParamsAttrsCommandRequest {
-    export const type: RequestType<TextDocumentIdentifier, Array<ReplaceTextRangeResult>, any, any> = new RequestType(Commands.SORT_DOCUMENT_PARAMS_ATTRS);
+    export const type: RequestType<TextDocumentIdentifier, Array<ReplaceTextRangeResult>, any> = new RequestType(Commands.SORT_DOCUMENT_PARAMS_ATTRS);
 }
 
 namespace GeneratedExpandedDocumentRequest {
-    export const type: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any, any> = new RequestType(Commands.GENERATE_EXPANDED_DOCUMENT);
+    export const type: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any> = new RequestType(Commands.GENERATE_EXPANDED_DOCUMENT);
 }
 
 interface GeneratedSnippetResult {
@@ -98,7 +98,7 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
     notifyExtensionActive();
 }
 
-async function requestSortSingleParamAttrs(client: LanguageClient, request: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any, any>) {
+async function requestSortSingleParamAttrs(client: LanguageClient, request: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any>) {
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
@@ -123,7 +123,7 @@ async function requestSortSingleParamAttrs(client: LanguageClient, request: Requ
     }
 }
 
-async function requestSortDocumentParamsAttrs(client: LanguageClient, request: RequestType<TextDocumentIdentifier, Array<ReplaceTextRangeResult>, any, any>) {
+async function requestSortDocumentParamsAttrs(client: LanguageClient, request: RequestType<TextDocumentIdentifier, Array<ReplaceTextRangeResult>, any>) {
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
@@ -150,7 +150,7 @@ async function requestSortDocumentParamsAttrs(client: LanguageClient, request: R
     }
 }
 
-async function requestInsertSnippet(client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any, any>) {
+async function requestInsertSnippet(client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any>) {
     let activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
@@ -206,7 +206,7 @@ function notifyExtensionActive() {
     commands.executeCommand('setContext', 'galaxytools:isActive', true);
 }
 
-async function requestExpandedDocument(uri: Uri, client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any, any>): Promise<GeneratedExpandedDocument | undefined> {
+async function requestExpandedDocument(uri: Uri, client: LanguageClient, request: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any>): Promise<GeneratedExpandedDocument | undefined> {
     const document = await workspace.openTextDocument(uri);
     let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
     let response = await client.sendRequest(request, param);
