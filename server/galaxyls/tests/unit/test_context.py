@@ -4,6 +4,8 @@ import pytest
 from pygls.workspace import Position, Range
 from pytest_mock import MockerFixture
 
+from galaxyls.services.xml.document import XmlDocument
+
 from ...services.context import XmlContext, XmlContextService, XsdNode, XsdTree
 from ...services.xml.nodes import XmlAttribute, XmlAttributeKey, XmlAttributeValue, XmlElement
 from ...services.xml.types import NodeType
@@ -23,14 +25,25 @@ def fake_xsd_tree(mocker: MockerFixture) -> XsdTree:
     return XsdTree(root)
 
 
+@pytest.fixture()
+def fake_xml_doc(mocker: MockerFixture) -> XmlDocument:
+    return mocker.Mock(XmlDocument)
+
+
 class TestXmlContextClass:
-    def test_init_sets_properties(self, fake_xsd_tree: XsdTree) -> None:
+    def test_init_sets_properties(self, fake_xsd_tree: XsdTree, fake_xml_doc: XmlDocument) -> None:
         expected_xsd_element = fake_xsd_tree.root
         expected_token = XmlElement()
         expected_line_content = "test"
         expected_position = Position(line=0, character=0)
 
-        context = XmlContext(expected_xsd_element, expected_token, line_text=expected_line_content, position=expected_position)
+        context = XmlContext(
+            fake_xml_doc,
+            expected_xsd_element,
+            expected_token,
+            line_text=expected_line_content,
+            position=expected_position,
+        )
 
         assert context.node == expected_token
         assert context.xsd_element == expected_xsd_element
@@ -38,24 +51,28 @@ class TestXmlContextClass:
         assert context.position == expected_position
         assert not context.is_empty
 
-    def test_context_with_tag_token_type_returns_is_tag(self, fake_xsd_tree: XsdTree) -> None:
-        context = XmlContext(fake_xsd_tree.root, XmlElement())
+    def test_context_with_tag_token_type_returns_is_tag(self, fake_xsd_tree: XsdTree, fake_xml_doc: XmlDocument) -> None:
+        context = XmlContext(fake_xml_doc, fake_xsd_tree.root, XmlElement())
 
         assert context.is_tag
         assert not context.is_attribute_key
         assert not context.is_attribute_value
 
-    def test_context_with_attr_key_token_type_returns_is_attr_key(self, fake_xsd_tree: XsdTree) -> None:
+    def test_context_with_attr_key_token_type_returns_is_attr_key(
+        self, fake_xsd_tree: XsdTree, fake_xml_doc: XmlDocument
+    ) -> None:
         fake_attr = XmlAttribute("attr", 0, 0, XmlElement())
-        context = XmlContext(fake_xsd_tree.root, XmlAttributeKey("attr", 0, 0, fake_attr))
+        context = XmlContext(fake_xml_doc, fake_xsd_tree.root, XmlAttributeKey("attr", 0, 0, fake_attr))
 
         assert not context.is_tag
         assert context.is_attribute_key
         assert not context.is_attribute_value
 
-    def test_context_with_attr_value_token_type_returns_is_attr_value(self, fake_xsd_tree: XsdTree) -> None:
+    def test_context_with_attr_value_token_type_returns_is_attr_value(
+        self, fake_xsd_tree: XsdTree, fake_xml_doc: XmlDocument
+    ) -> None:
         fake_attr = XmlAttribute("attr", 0, 0, XmlElement())
-        context = XmlContext(fake_xsd_tree.root, XmlAttributeValue("val", 0, 0, fake_attr))
+        context = XmlContext(fake_xml_doc, fake_xsd_tree.root, XmlAttributeValue("val", 0, 0, fake_attr))
 
         assert not context.is_tag
         assert not context.is_attribute_key
