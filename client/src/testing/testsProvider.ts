@@ -1,4 +1,4 @@
-import { LanguageClient, RequestType0 } from "vscode-languageclient";
+import { LanguageClient, RequestType0 } from "vscode-languageclient/node";
 import { TestSuiteInfo, TestInfo } from "vscode-test-adapter-api";
 import { Commands } from "../commands";
 
@@ -21,7 +21,7 @@ export class LanguageServerTestProvider implements ITestsProvider {
     }
 
     private async requestDiscoverTests(): Promise<TestSuiteInfo | undefined> {
-        let response = await this.client.sendRequest(DiscoverTestRequest.type);
+        let response = await this.client.sendRequest(DiscoverTestRequest.type) as TestSuiteInfo[];
         if (!response) return;
 
         const testSuites: TestSuiteInfo[] = []

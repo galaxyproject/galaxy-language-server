@@ -12,7 +12,7 @@ import { Commands } from './commands'
 import { cloneRange } from './utils';
 
 export namespace TagCloseRequest {
-    export const type: RequestType<TextDocumentPositionParams, AutoCloseTagResult, any, any> = new RequestType(Commands.AUTO_CLOSE_TAGS);
+    export const type: RequestType<TextDocumentPositionParams, AutoCloseTagResult, any> = new RequestType(Commands.AUTO_CLOSE_TAGS);
 }
 
 export interface AutoCloseTagResult {

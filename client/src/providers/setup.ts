@@ -1,5 +1,5 @@
 import { ExtensionContext, languages, workspace } from "vscode";
-import { LanguageClient } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "../constants";
 import { GalaxyToolsCodeActionProvider } from "./codeActions";
 import { GalaxyToolsExpadedDocumentContentProvider } from "./contentProvider";

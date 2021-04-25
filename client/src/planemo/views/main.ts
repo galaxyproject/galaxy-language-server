@@ -1,7 +1,7 @@
 'use strict';
 
 import { ExtensionContext, workspace } from "vscode";
-import { LanguageClient } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Settings } from "../../configuration/workspaceConfiguration";
 import { IConfigurationFactory } from "../configuration";
 import { registerConfigTreeDataProvider } from "./configurationView";

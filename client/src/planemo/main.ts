@@ -1,7 +1,7 @@
 'use strict';
 
 import { ExtensionContext } from "vscode";
-import { LanguageClient } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 import { IConfigurationFactory } from "./configuration";
 import { setupTesting } from "./testing/main";
 import { registerViews } from "./views/main";
