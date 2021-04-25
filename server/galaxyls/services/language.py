@@ -43,15 +43,15 @@ class GalaxyToolLanguageService:
     def __init__(self, server_name: str):
         self.xsd_service = GalaxyToolXsdService(server_name)
         self.format_service = GalaxyToolFormatService()
-        tree = self.xsd_service.xsd_parser.get_tree()
-        self.completion_service = XmlCompletionService(tree)
-        self.xml_context_service = XmlContextService(tree)
+        self.xsd_tree = self.xsd_service.xsd_parser.get_tree()
+        self.xml_context_service = XmlContextService(self.xsd_tree)
         self.sort_service: ToolParamAttributeSorter = IUCToolParamAttributeSorter()
         self.test_discovery_service: TestsDiscoveryService = ToolTestsDiscoveryService()
         self.macro_expander = MacroExpanderService()
 
     def set_workspace(self, workspace: Workspace):
         self.definitions_provider = DocumentDefinitionsProvider(MacroDefinitionsProvider(workspace))
+        self.completion_service = XmlCompletionService(self.xsd_tree, self.definitions_provider)
 
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list

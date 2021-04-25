@@ -23,12 +23,14 @@ class XmlContext:
 
     def __init__(
         self,
+        xml_document: XmlDocument,
         xsd_node: Optional[XsdNode],
         node: Optional[XmlSyntaxNode] = None,
         line_text: str = "",
         position: Optional[Position] = None,
         offset: int = UNDEFINED_OFFSET,
     ):
+        self.xml_document = xml_document
         self._xsd_node = xsd_node
         self._node = node
         self._line_text = line_text
@@ -171,11 +173,11 @@ class XmlContextService:
         offset = xml_document.document.offset_at_position(position)
 
         if xml_document.is_empty:
-            return XmlContext(self.xsd_tree.root, node=None)
+            return XmlContext(xml_document, self.xsd_tree.root, node=None)
         node = xml_document.get_node_at(offset)
         xsd_node = self.find_matching_xsd_element(node, self.xsd_tree)
         line_text = xml_document.document.lines[position.line]
-        context = XmlContext(xsd_node, node, line_text, position, offset)
+        context = XmlContext(xml_document, xsd_node, node, line_text, position, offset)
         return context
 
     def find_matching_xsd_element(self, node: Optional[XmlSyntaxNode], xsd_tree: XsdTree) -> Optional[XsdNode]:
