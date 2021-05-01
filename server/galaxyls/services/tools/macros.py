@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from pydantic import BaseModel
 from pygls.lsp.types import Location
@@ -80,6 +80,14 @@ class MacroDefinitionsProvider:
             tokens=tokens,
             macros=macros,
         )
+
+    def get_macro_names(self, tool_xml: XmlDocument) -> Set[str]:
+        tool = GalaxyToolXmlDocument.from_xml_document(tool_xml)
+        macros = self._get_macro_definitions(tool_xml)
+        imported_macro_files = self._get_imported_macro_files_from_tool(tool)
+        for file in imported_macro_files.values():
+            macros.update(file.macros)
+        return set(macros.keys())
 
     def _get_imported_macro_files_from_tool(self, tool: GalaxyToolXmlDocument) -> Dict[str, ImportedMacrosFile]:
         macro_files = {}

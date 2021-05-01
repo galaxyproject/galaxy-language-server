@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+from galaxyls.services.definitions import DocumentDefinitionsProvider
 from galaxyls.services.xml.nodes import XmlCDATASection
 from pygls.lsp.types import (
     CompletionContext,
@@ -25,8 +26,9 @@ class XmlCompletionService:
     on the current XML context.
     """
 
-    def __init__(self, xsd_tree: XsdTree):
+    def __init__(self, xsd_tree: XsdTree, definitions_provider: DocumentDefinitionsProvider):
         self.xsd_tree: XsdTree = xsd_tree
+        self.definitions_provider = definitions_provider
 
     def get_completion_at_context(
         self, context: XmlContext, completion_context: CompletionContext, mode: CompletionMode = CompletionMode.AUTO
@@ -114,9 +116,13 @@ class XmlCompletionService:
             restriction.
         """
         if context.attribute_name:
-            attribute: Optional[XsdAttribute] = context.xsd_element.attributes.get(context.attribute_name)
+            attribute = context.xsd_element.attributes.get(context.attribute_name)
             if attribute and attribute.enumeration:
                 result = [CompletionItem(label=item, kind=CompletionItemKind.Value) for item in attribute.enumeration]
+                return CompletionList(items=result, is_incomplete=False)
+            if attribute and attribute.name == "macro":
+                macro_names = self.definitions_provider.macro_definitions_provider.get_macro_names(context.xml_document)
+                result = [CompletionItem(label=item, kind=CompletionItemKind.Value) for item in macro_names]
                 return CompletionList(items=result, is_incomplete=False)
         return CompletionList(is_incomplete=False)
 

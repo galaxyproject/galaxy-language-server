@@ -102,16 +102,6 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
         return server.service.get_completion(xml_document, params, server.configuration.completion.mode)
 
 
-@language_server.feature(Commands.AUTO_CLOSE_TAGS)
-def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[AutoCloseTagResult]:
-    """Responds to a close tag request to close the currently opened node."""
-    if server.configuration.completion.auto_close_tags:
-        document = _get_valid_document(server, params.text_document.uri)
-        if document:
-            xml_document = _get_xml_document(document)
-            return server.service.get_auto_close_tag(xml_document, params)
-
-
 @language_server.feature(HOVER)
 def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
@@ -148,6 +138,25 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
     # server.show_message("Xml Document Closed")
 
 
+@language_server.feature(DEFINITION)
+def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[List[Location]]:
+    """Provides the location of a symbol definition."""
+    document = _get_valid_document(server, params.text_document.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+        return server.service.definitions_provider.go_to_definition(xml_document, params.position)
+
+
+@language_server.feature(Commands.AUTO_CLOSE_TAGS)
+def auto_close_tag(server: GalaxyToolsLanguageServer, params) -> Optional[AutoCloseTagResult]:
+    """Responds to a close tag request to close the currently opened node."""
+    if server.configuration.completion.auto_close_tags:
+        document = _get_valid_document(server, params.textDocument.uri)
+        if document:
+            xml_document = _get_xml_document(document)
+            return server.service.get_auto_close_tag(xml_document, params)
+
+
 @language_server.feature(Commands.GENERATE_TESTS)
 async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
@@ -169,11 +178,9 @@ async def cmd_generate_command(
 
 
 @language_server.feature(Commands.SORT_SINGLE_PARAM_ATTRS)
-def sort_single_param_attrs_command(
-    server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
-) -> Optional[ReplaceTextRangeResult]:
+def sort_single_param_attrs_command(server: GalaxyToolsLanguageServer, params) -> Optional[ReplaceTextRangeResult]:
     """Sorts the attributes of the param element under the cursor."""
-    document = _get_valid_document(server, params.text_document.uri)
+    document = _get_valid_document(server, params.textDocument.uri)
     if document:
         xml_document = _get_xml_document(document)
         return server.service.sort_single_param_attrs(xml_document, params)
@@ -205,15 +212,6 @@ def generate_expanded_command(
 def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> List[TestSuiteInfoResult]:
     """Sorts the attributes of all the param elements contained in the document."""
     return server.service.discover_tests(server.workspace)
-
-
-@language_server.feature(DEFINITION)
-def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[List[Location]]:
-    """Provides the location of a symbol definition."""
-    document = _get_valid_document(server, params.text_document.uri)
-    if document:
-        xml_document = _get_xml_document(document)
-        return server.service.definitions_provider.go_to_definition(xml_document, params.position)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
