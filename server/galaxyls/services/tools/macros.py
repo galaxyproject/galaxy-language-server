@@ -7,6 +7,7 @@ from pygls.workspace import Workspace
 from galaxyls.services.tools.constants import MACRO, NAME, TOKEN, XML
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.nodes import XmlElement
 from galaxyls.services.xml.parser import XmlDocumentParser
 
 
@@ -21,9 +22,15 @@ class TokenDefinition(BaseModel):
     value: str
 
 
+class TokenParam(TokenDefinition):
+    param_name: str
+    default_value: str
+
+
 class MacroDefinition(BaseModel):
     name: str
     location: Location
+    token_params: Dict[str, TokenParam]
 
 
 class ImportedMacrosFile(BaseMacrosModel):
@@ -44,7 +51,7 @@ class ToolMacroDefinitions(BaseMacrosModel):
         imported_macros = self.imported_macros.get(file_name)
         if imported_macros and imported_macros.document and imported_macros.document.root:
             macros_file_uri = imported_macros.file_uri
-            content_range = imported_macros.document.get_element_name_range(imported_macros.document.root)
+            content_range = imported_macros.document.get_full_range(imported_macros.document.root)
             if content_range:
                 return [
                     Location(
@@ -54,7 +61,16 @@ class ToolMacroDefinitions(BaseMacrosModel):
                 ]
 
     def get_token_definition(self, token: str) -> Optional[TokenDefinition]:
-        return self.tokens.get(token)
+        definition = self.tokens.get(token)
+        if definition is None:
+            return self.get_token_param_definition(token)
+        return definition
+
+    def get_token_param_definition(self, token: str) -> Optional[TokenParam]:
+        for macro in self.macros.values():
+            if token in macro.token_params:
+                return macro.token_params.get(token)
+        return None
 
     def get_macro_definition(self, macro_name: str) -> Optional[MacroDefinition]:
         return self.macros.get(macro_name)
@@ -89,6 +105,13 @@ class MacroDefinitionsProvider:
             macros.update(file.macros)
         return set(macros.keys())
 
+    def get_macro_token_params(self, tool_xml: XmlDocument, macro_name: str) -> List[TokenParam]:
+        macro_definitions = self.load_macro_definitions(tool_xml)
+        macro = macro_definitions.get_macro_definition(macro_name)
+        if macro.token_params:
+            return list(macro.token_params.values())
+        return []
+
     def _get_imported_macro_files_from_tool(self, tool: GalaxyToolXmlDocument) -> Dict[str, ImportedMacrosFile]:
         macro_files = {}
         uris_dict = tool.get_macro_import_uris()
@@ -121,7 +144,7 @@ class MacroDefinitionsProvider:
                 name=name,
                 location=Location(
                     uri=macros_xml.document.uri,
-                    range=macros_xml.get_element_name_range(element),
+                    range=macros_xml.get_full_range(element),
                 ),
                 value=value,
             )
@@ -139,8 +162,29 @@ class MacroDefinitionsProvider:
                 name=name,
                 location=Location(
                     uri=macros_xml.document.uri,
-                    range=macros_xml.get_element_name_range(element),
+                    range=macros_xml.get_full_range(element),
                 ),
+                token_params=self.get_token_params(macros_xml, element),
             )
             rval[macro_def.name] = macro_def
         return rval
+
+    def get_token_params(self, macros_xml: XmlDocument, element: XmlElement) -> Dict[str, TokenParam]:
+        token_params = {}
+        for attr_name, attr in element.attributes.items():
+            if attr_name.startswith("token_"):
+                param_name = attr_name.replace("token_", "")
+                token_name = param_name.upper()
+                default_value = attr.get_value()
+                token_param = TokenParam(
+                    name=token_name,
+                    param_name=param_name,
+                    default_value=default_value,
+                    value=f"**Token parameter**\n- Default value: `{default_value}`",
+                    location=Location(
+                        uri=macros_xml.document.uri,
+                        range=macros_xml.get_full_range(attr),
+                    ),
+                )
+                token_params[token_name] = token_param
+        return token_params
