@@ -53,6 +53,21 @@ class TestIntegrationXmlCompletionServiceClass:
                 """,
                 ["macro_1", "macro_2"],
             ),
+            (
+                """
+                <tool id="tool" name="tool">
+                    <macros>
+                        <xml name="color_input" token_varname="myvar" token_default_color="#00ff00" token_label="Pick a color">
+                            <param name="@VARNAME@" type="color" label="@LABEL@" value="@DEFAULT_COLOR@" />
+                        </xml>
+                    </macros>
+                    <inputs>
+                        <expand macro="color_input" ^/>
+                    </inputs>
+                </tool>
+                """,
+                ["varname", "default_color", "label"],
+            ),
         ],
     )
     def test_completion_on_macro_attribute_returns_expected(

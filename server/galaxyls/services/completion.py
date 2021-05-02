@@ -1,9 +1,9 @@
 """Module in charge of the auto-completion feature."""
 
-from typing import Optional
+from typing import Optional, cast
 
 from galaxyls.services.definitions import DocumentDefinitionsProvider
-from galaxyls.services.xml.nodes import XmlCDATASection
+from galaxyls.services.xml.nodes import XmlCDATASection, XmlElement
 from pygls.lsp.types import (
     CompletionContext,
     CompletionItem,
@@ -103,6 +103,25 @@ class XmlCompletionService:
                     continue
                 attr = context.xsd_element.attributes[attr_name]
                 result.append(self._build_attribute_completion_item(attr, len(result)))
+            if context.node.name == "expand":
+                element = cast(XmlElement, context.node)
+                macro_name = element.get_attribute("macro")
+                if macro_name:
+                    token_params = self.definitions_provider.macro_definitions_provider.get_macro_token_params(
+                        context.xml_document, macro_name
+                    )
+                    for token in token_params:
+                        if token.param_name in existing_attr_names:
+                            continue
+                        result.append(
+                            CompletionItem(
+                                label=token.param_name,
+                                kind=CompletionItemKind.Variable,
+                                insert_text=f'{token.param_name}="${{1:{token.default_value}}}"',
+                                insert_text_format=InsertTextFormat.Snippet,
+                                sort_text=str(len(result)).zfill(2),
+                            )
+                        )
         return CompletionList(items=result, is_incomplete=False)
 
     def get_attribute_value_completion(self, context: XmlContext) -> CompletionList:
