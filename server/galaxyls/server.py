@@ -135,7 +135,7 @@ def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParam
 @language_server.feature(TEXT_DOCUMENT_DID_CLOSE)
 def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams) -> None:
     """Occurs when the xml document is closed."""
-    # server.show_message("Xml Document Closed")
+    server.publish_diagnostics(params.text_document.uri, [])
 
 
 @language_server.feature(DEFINITION)
