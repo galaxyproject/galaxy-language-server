@@ -150,8 +150,9 @@ class XmlCompletionService:
         if (
             isinstance(context.node, XmlCDATASection)
             or context.is_closing_tag
-            or context.is_attribute
             or context.node.is_closed
+            or (context.is_attribute and not context.is_attribute_end)
+            or context.characted_at_position == ">"
         ):
             return None
 
@@ -160,8 +161,8 @@ class XmlCompletionService:
         replace_range = None
         is_self_closing = trigger_character == "/"
         if is_self_closing:
-            start = Position(line=context.position.line, character=context.position.character)
-            end_character = context.position.character + 1
+            start = Position(line=context.position.line, character=context.position.character + 1)
+            end_character = context.position.character + 2
             if len(context.line_text) > end_character and context.line_text[end_character] == ">":
                 end_character = end_character + 1
             end = Position(line=context.position.line, character=end_character)

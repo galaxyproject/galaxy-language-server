@@ -95,7 +95,7 @@ class GalaxyToolLanguageService:
     ) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
         trigger_character = xml_document.document.lines[params.position.line][params.position.character - 1]
-        position_before_trigger = Position(line=params.position.line, character=params.position.character - 1)
+        position_before_trigger = Position(line=params.position.line, character=params.position.character - 2)
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
