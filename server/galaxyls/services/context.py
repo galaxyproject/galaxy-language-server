@@ -58,6 +58,14 @@ class XmlContext:
         return self._line_text
 
     @property
+    def characted_at_position(self) -> Optional[str]:
+        """The character at the context position."""
+        try:
+            return self._line_text[self._position.character]
+        except (IndexError, AttributeError):
+            return None
+
+    @property
     def xsd_element(self) -> Optional[XsdNode]:
         """The XSD element associated with the token in context."""
         return self._xsd_node
@@ -101,6 +109,18 @@ class XmlContext:
         return self._node is not None and self._node.node_type == NodeType.ATTRIBUTE_VALUE
 
     @property
+    def is_inside_attribute_value(self) -> bool:
+        """Indicates if the token in context is an attribute value."""
+        return self.is_attribute_value and self.offset > self.node.start and self.offset < self.node.end
+
+    @property
+    def is_attribute_end(self) -> bool:
+        """Indicates that the context position is at the ending quote character of an attribute.
+
+        Example: <tag attribute="value["] <- The context position is at " """
+        return self.is_attribute_value and self._offset == self._node.end - 1
+
+    @property
     def attribute_name(self) -> Optional[str]:
         """The name of the attribute if the context is an attribute or None."""
         return self._node and self._node.get_attribute_name()
@@ -108,14 +128,17 @@ class XmlContext:
     @property
     def is_content(self) -> bool:
         """Indicates if the token in context is within a content or CDATA block."""
-        return self._node is not None and (
-            self._node.node_type == NodeType.CONTENT or self._node.node_type == NodeType.CDATA_SECTION
-        )
+        return self._node is not None and self._node.node_type in [NodeType.CONTENT, NodeType.CDATA_SECTION]
 
     @property
     def is_closing_tag(self) -> bool:
         """Indicates if the token in context is a closing tag."""
         return self._node is not None and self._node.is_at_closing_tag(self._offset)
+
+    @property
+    def is_at_end(self) -> bool:
+        """Indicates if the context is at the last character of the node."""
+        return self._node is not None and self._node.end == self._offset
 
     @property
     def stack(self) -> List[str]:

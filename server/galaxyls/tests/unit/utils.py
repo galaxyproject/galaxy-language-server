@@ -67,7 +67,7 @@ class TestUtils:
         """
         mark_offset = source_with_mark.find(mark)
         start_line = source_with_mark.count(NEW_LINE, 0, mark_offset)
-        line_start_offset = max(source_with_mark.rfind(NEW_LINE, 0, mark_offset), 0)
+        line_start_offset = max(source_with_mark.rfind(NEW_LINE, 0, mark_offset) + 1, 0)
         start_character = mark_offset - line_start_offset
         mark_position = Position(line=start_line, character=start_character)
         source = source_with_mark.replace(mark, "")

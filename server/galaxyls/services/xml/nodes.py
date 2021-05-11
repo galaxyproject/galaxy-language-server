@@ -50,7 +50,7 @@ class XmlSyntaxNode(ABC, NodeMixin):
 
     def is_at(self, offset: int) -> bool:
         """Indicates if the offset is within this node definition."""
-        return self.start <= offset <= self.end
+        return self.start <= offset < self.end
 
     def is_at_closing_tag(self, offset: int) -> bool:
         """Indicates if the offset is within an element's closing tag."""
@@ -147,6 +147,10 @@ class XmlContent(XmlContainerNode):
     def get_content_offsets(self) -> Tuple[int, int]:
         return self.start, self.end
 
+    def is_at(self, offset: int) -> bool:
+        """Indicates if the offset is within this node definition."""
+        return self.start <= offset <= self.end
+
 
 class XmlAttribute(XmlSyntaxNode):
     """Represents an attribute of a XML element."""
@@ -173,9 +177,11 @@ class XmlAttribute(XmlSyntaxNode):
 
     def set_value(self, value: Optional[str], start: int, end: int) -> None:
         """Sets the value of this attribute."""
-        self.value = XmlAttributeValue(value, start, end, self)
+        if self.value:
+            self.value.update(value, start, end)
+        else:
+            self.value = XmlAttributeValue(value, start, end, self)
         self.end = end
-        self.value.parent = self
 
     def get_value(self) -> str:
         """Gets the value of this attribute (unquoted) or an empty str."""
@@ -233,6 +239,12 @@ class XmlAttributeValue(XmlContainerNode):
         self.start = start
         self.end = end
         self.owner = owner
+        self.parent = owner
+
+    def update(self, value: Optional[str], start: int, end: int) -> None:
+        self.quoted = value
+        self.start = start
+        self.end = end
 
     @property
     def node_type(self) -> NodeType:

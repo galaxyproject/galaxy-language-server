@@ -42,11 +42,11 @@ class XmlCompletionService:
             if completion_context.trigger_character == " ":
                 return self.get_attribute_completion(context)
         elif triggerKind == CompletionTriggerKind.Invoked:
-            if context.is_attribute_value:
+            if context.is_inside_attribute_value:
                 return self.get_attribute_value_completion(context)
             if context.is_attribute_key:
                 return self.get_attribute_completion(context)
-            if context.is_tag and not context.is_closing_tag:
+            if context.is_tag and not context.is_closing_tag and not context.is_at_end:
                 if context.is_valid_tag() and not context.is_tag_name:
                     return self.get_attribute_completion(context)
                 return self.get_node_completion(context)
