@@ -146,7 +146,10 @@ class XmlCompletionService:
         return CompletionList(is_incomplete=False)
 
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
-        """Gets the closing result for the currently opened tag in context."""
+        """Gets the closing result for the currently opened tag in context.
+
+        The `context` parameter should be placed right before the trigger_character, otherwise the context
+        information will be located at the trigger_character itself which doesn't provide the real context."""
         if (
             isinstance(context.node, XmlCDATASection)
             or context.is_closing_tag
@@ -161,7 +164,10 @@ class XmlCompletionService:
         replace_range = None
         is_self_closing = trigger_character == "/"
         if is_self_closing:
+            # Build the position Range to be replaced by the snippet
+            # Get the document position of the trigger_character => +1 character from current context.position
             start = Position(line=context.position.line, character=context.position.character + 1)
+            # Check if there is a `>` already after the `/` trigger and include it in the Range to avoid duplication
             end_character = context.position.character + 2
             if len(context.line_text) > end_character and context.line_text[end_character] == ">":
                 end_character = end_character + 1

@@ -94,7 +94,9 @@ class GalaxyToolLanguageService:
         self, xml_document: XmlDocument, params: TextDocumentPositionParams
     ) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
+        # The trigger character `/` or `>` is placed right before the actual position, so we get the position.character - 1
         trigger_character = xml_document.document.lines[params.position.line][params.position.character - 1]
+        # We want to get the context information right before the trigger character so we get position.character - 2
         position_before_trigger = Position(line=params.position.line, character=params.position.character - 2)
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
