@@ -1,6 +1,6 @@
 # Galaxy Tools (Visual Studio Code Extension)
 
-This extension provides XML validation, tags and attributes completion, help/documentation on hover, and other *smart* features to assist in **following best practices** recommended by the [Intergalactic Utilities Commission](https://galaxy-iuc-standards.readthedocs.io/en/latest/index.html) during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
+This extension provides XML validation, tags and attributes completion, help/documentation on hover, and other _smart_ features to assist in **following best practices** recommended by the [Intergalactic Utilities Commission](https://galaxy-iuc-standards.readthedocs.io/en/latest/index.html) during the development process of XML tool wrappers for [Galaxy](https://galaxyproject.org/).
 
 > Please note this is still a work in progress so **bugs and issues are expected**. If you find any, you are welcome to open a new [issue](https://github.com/galaxyproject/galaxy-language-server/issues).
 
@@ -35,8 +35,9 @@ To support testing your tools using `planemo test` inside VSCode you need to ins
   - [Embedded syntax highlighting](#embedded-syntax-highlighting)
   - [Auto-generate tests](#auto-generate-tests)
   - [Auto-generate command section](#auto-generate-command-section)
-  - [Auto-sort param attributes](#auto-sort-param-attributes). *New feature!* :rocket:
-  - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer). *New feature!* :rocket:
+  - [Auto-sort param attributes](#auto-sort-param-attributes)
+  - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer)
+  - [Improved macros support](#improved-macros-support) _New feature!_ :rocket:
 
 # Installation
 
@@ -52,7 +53,7 @@ If you encounter any problem during the language server installation, open the V
 
 Some possible errors:
 
-- ``The selected file is not a valid Python <version> path!``. This message will appear if you select a Python binary that is not compatible with the required version. You will be given a chance to select the correct version the next time the extension gets activated. You can force it by reloading the extension or restarting VScode.
+- `The selected file is not a valid Python <version> path!`. This message will appear if you select a Python binary that is not compatible with the required version. You will be given a chance to select the correct version the next time the extension gets activated. You can force it by reloading the extension or restarting VScode.
 
 # Configuration
 
@@ -60,50 +61,50 @@ You can customize some of the features with various settings either placing them
 
 ## Completion settings
 
-Property                               | Description
----------------------------------------|---------------------------------------------------------------
-`galaxyTools.completion.mode`          | This setting controls the auto-completion of tags and attributes. You can choose between three different options: `auto` shows suggestions as you type; `invoke` shows suggestions only when you request them using the key shortcut (`Ctrl + space`); `disabled` completely disables the auto-completion feature.
-`galaxyTools.completion.autoCloseTags` | This setting controls whether to auto-insert the closing tag after typing `>` or `/`.
+| Property                               | Description                                                                                                                                                                                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `galaxyTools.completion.mode`          | This setting controls the auto-completion of tags and attributes. You can choose between three different options: `auto` shows suggestions as you type; `invoke` shows suggestions only when you request them using the key shortcut (`Ctrl + space`); `disabled` completely disables the auto-completion feature. |
+| `galaxyTools.completion.autoCloseTags` | This setting controls whether to auto-insert the closing tag after typing `>` or `/`.                                                                                                                                                                                                                              |
 
 ## Planemo settings
 
 Planemo integration is currently in **experimental** phase. Please report any problems you may encounter [here](https://github.com/galaxyproject/galaxy-language-server/issues).
 
-Property                               | Description
----------------------------------------|---------------------------------------------------------------
-`galaxyTools.planemo.enabled`          | When enabled, you can use some of the `planemo` features directly from your editor. Please set `#galaxyTools.planemo.envPath#` to be able to use `planemo`.
-`galaxyTools.planemo.envPath`          | The full path to the `Python virtual environment` where `planemo` is installed. The path must end with `planemo` and be something like `/<full-path-to-virtual-env>/bin/planemo`. **This is required** to be able to use `planemo` features.
-`galaxyTools.planemo.galaxyRoot`       | The full path to the *Galaxy root directory* that will be used by `planemo`. This value will be passed to `planemo` as the parameter to `--galaxy_root`. **This is required** to be able to use *some* `planemo` features that need a `running Galaxy instance`.
+| Property                         | Description                                                                                                                                                                                                                                                      |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `galaxyTools.planemo.enabled`    | When enabled, you can use some of the `planemo` features directly from your editor. Please set `#galaxyTools.planemo.envPath#` to be able to use `planemo`.                                                                                                      |
+| `galaxyTools.planemo.envPath`    | The full path to the `Python virtual environment` where `planemo` is installed. The path must end with `planemo` and be something like `/<full-path-to-virtual-env>/bin/planemo`. **This is required** to be able to use `planemo` features.                     |
+| `galaxyTools.planemo.galaxyRoot` | The full path to the _Galaxy root directory_ that will be used by `planemo`. This value will be passed to `planemo` as the parameter to `--galaxy_root`. **This is required** to be able to use _some_ `planemo` features that need a `running Galaxy instance`. |
 
 ## Testing Configuration
 
 ### Planemo testing configuration
 
-Property                               | Description
----------------------------------------|---------------------------------------------------------------
-`galaxyTools.planemo.testing.enabled`                      | Whether to discover and run tests using `planemo test` directly from the Test Explorer.
-`galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled`| Whether to try to discover new tests when a Galaxy Tool Wrapper file is saved.
+| Property                                                    | Description                                                                             |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `galaxyTools.planemo.testing.enabled`                       | Whether to discover and run tests using `planemo test` directly from the Test Explorer. |
+| `galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled` | Whether to try to discover new tests when a Galaxy Tool Wrapper file is saved.          |
 
 ### Configuring Test Explorer UI
 
 The following additional configuration properties are provided by [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer):
 
-Property                              | Description
---------------------------------------|---------------------------------------------------------------
-`testExplorer.onStart`                | Retire or reset all test states whenever a test run is started
-`testExplorer.onReload`               | Retire or reset all test states whenever the test tree is reloaded
-`testExplorer.codeLens`               | Show a CodeLens above each test or suite for running or debugging the tests
-`testExplorer.gutterDecoration`       | Show the state of each test in the editor using Gutter Decorations
-`testExplorer.errorDecoration`        | Show error messages from test failures as decorations in the editor
-`testExplorer.errorDecorationHover`   | Provide hover messages for the error decorations in the editor
-`testExplorer.sort`                   | Sort the tests and suites by label or location. If this is not set (or set to null), they will be shown in the order that they were received from the adapter
-`testExplorer.showCollapseButton`     | Show a button for collapsing the nodes of the test tree
-`testExplorer.showExpandButton`       | Show a button for expanding the top nodes of the test tree, recursively for the given number of levels
-`testExplorer.showOnRun`              | Switch to the Test Explorer view whenever a test run is started
-`testExplorer.addToEditorContextMenu` | Add menu items for running and debugging the tests in the current file to the editor context menu
-`testExplorer.mergeSuites`            | Merge suites with the same label and parent
-`testExplorer.hideEmptyLog`           | Hide the output channel used to show a test's log when the user clicks on a test whose log is empty
-`testExplorer.hideWhen`               | Hide the Test Explorer when no test adapters have been registered or when no tests have been found by the registered adapters. The default is to never hide the Test Explorer (some test adapters only work with this default setting).
+| Property                              | Description                                                                                                                                                                                                                             |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `testExplorer.onStart`                | Retire or reset all test states whenever a test run is started                                                                                                                                                                          |
+| `testExplorer.onReload`               | Retire or reset all test states whenever the test tree is reloaded                                                                                                                                                                      |
+| `testExplorer.codeLens`               | Show a CodeLens above each test or suite for running or debugging the tests                                                                                                                                                             |
+| `testExplorer.gutterDecoration`       | Show the state of each test in the editor using Gutter Decorations                                                                                                                                                                      |
+| `testExplorer.errorDecoration`        | Show error messages from test failures as decorations in the editor                                                                                                                                                                     |
+| `testExplorer.errorDecorationHover`   | Provide hover messages for the error decorations in the editor                                                                                                                                                                          |
+| `testExplorer.sort`                   | Sort the tests and suites by label or location. If this is not set (or set to null), they will be shown in the order that they were received from the adapter                                                                           |
+| `testExplorer.showCollapseButton`     | Show a button for collapsing the nodes of the test tree                                                                                                                                                                                 |
+| `testExplorer.showExpandButton`       | Show a button for expanding the top nodes of the test tree, recursively for the given number of levels                                                                                                                                  |
+| `testExplorer.showOnRun`              | Switch to the Test Explorer view whenever a test run is started                                                                                                                                                                         |
+| `testExplorer.addToEditorContextMenu` | Add menu items for running and debugging the tests in the current file to the editor context menu                                                                                                                                       |
+| `testExplorer.mergeSuites`            | Merge suites with the same label and parent                                                                                                                                                                                             |
+| `testExplorer.hideEmptyLog`           | Hide the output channel used to show a test's log when the user clicks on a test whose log is empty                                                                                                                                     |
+| `testExplorer.hideWhen`               | Hide the Test Explorer when no test adapters have been registered or when no tests have been found by the registered adapters. The default is to never hide the Test Explorer (some test adapters only work with this default setting). |
 
 See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) documentation for the latest configuration changes.
 
@@ -120,7 +121,8 @@ The tags and attributes are suggested based on the [Galaxy.xsd](https://github.c
 ![Demo feature hover documentation](../assets/feature.hover.documentation.gif)
 
 The documentation of tags and attributes is retrieved from the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
->Please note that some elements in the schema are still missing documentation. This will probably be improved over time.
+
+> Please note that some elements in the schema are still missing documentation. This will probably be improved over time.
 
 ## Document validation
 
@@ -138,14 +140,15 @@ When the tool file is saved it gets auto-formatted to comply with the [Galaxy IU
 
 ![Demo feature auto-close tags](../assets/autoCloseTag.gif)
 
-Whenever you write a closing (``>``), the corresponding closing tag will be inserted. You can also type ``/`` in an open tag to close it.
+Whenever you write a closing (`>`), the corresponding closing tag will be inserted. You can also type `/` in an open tag to close it.
 
 ## Snippets
 
 ![Demo snippets](../assets/snippets.gif)
 
-Snippets can be really helpful to speed up your tool wrapper development. They allow you to quickly create common blocks and let you enter just the important information by pressing ``tab`` and navigating to the next available value.
->If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
+Snippets can be really helpful to speed up your tool wrapper development. They allow you to quickly create common blocks and let you enter just the important information by pressing `tab` and navigating to the next available value.
+
+> If you want to add more snippets check the [guide](./docs/CONTRIBUTING.md#adding-snippets) in the contribution guidelines.
 
 ## Embedded syntax highlighting
 
@@ -183,3 +186,13 @@ You can now run `planemo test` for the currently opened tool directly from the `
 
 The failing tests will be marked in red and the reason for failure can be seen directly beside the test definition in the same line or more detailed in the `Output`. You can also directly navigate to each of the tests XML source from the `Test Explorer`.
 This can be very convenient especially when having a large number of tests in your tool.
+
+## Improved macros support
+
+Since version `0.5.0` we added some interesting features around the use of macros. For example, you can now better troubleshoot validation errors caused by some included macro. The error messages will be more detailed and you can even navigate to a `expanded` version of the tool to see what the real tool document look like and what was causing the error.
+
+![Demo feature expanded macros](../assets/feature.expanded.macros.png)
+
+There are also a lot of features around macros auto-completion. You can now navigate to `macro` and `token` definitions with `F12` or get dynamic attribute auto-completion with parametrized macros and more.
+
+![Demo feature macros support](../assets/feature.macros.support.png)
