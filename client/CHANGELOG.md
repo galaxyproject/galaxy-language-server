@@ -1,5 +1,21 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.5.0] - 2021-05-13
+
+### Added
+
+- New Planemo Explorer configuration view ([#125](https://github.com/galaxyproject/galaxy-language-server/pull/125)).
+
+- Command to generate the expanded version of a tool document ([#128](https://github.com/galaxyproject/galaxy-language-server/pull/128)).
+
+### Changed
+
+- Improved error diagnostics when validating a tool with problems in the referenced macro files ([#128](https://github.com/galaxyproject/galaxy-language-server/pull/128)).
+
+- All dependencies were updated, including `vscode-languageclient` to version `7.0.0` which required some changes ([#130](https://github.com/galaxyproject/galaxy-language-server/pull/130)).
+
+- Updated Galaxy Language Server [v0.5.0](./server/CHANGELOG.md#050)
+
 ## [0.4.1] - 2021-02-27
 
 ### Added
@@ -95,7 +111,6 @@
 - Updated Galaxy Language Server [v0.1.1](./server/CHANGELOG.md#011).
 - Improved language server installation.
 - Updated some dependencies.
-
 
 ## [0.1.0] - 2020-10-14
 
