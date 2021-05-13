@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 PACKAGE_NAME = "galaxy-language-server"
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 AUTHOR = "David López"
 AUTHOR_EMAIL = "davelopez7391@gmail.com"
 DESCRIPTION = "A language server for Galaxy (https://galaxyproject.org) tool wrappers"
