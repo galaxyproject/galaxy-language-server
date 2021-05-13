@@ -1,26 +1,48 @@
 # Galaxy Language Server Changelog
 
+## [0.5.0] - 2021-05-13
+
+### Added
+
+- New feature to navigate to (or peek) `macro` and `token` definitions, open referenced macro files directly from the `<import>` tag and preview `token` values on hover ([#127](https://github.com/galaxyproject/galaxy-language-server/pull/127)).
+
+- A custom command to generate the expanded version of a tool document ([#128](https://github.com/galaxyproject/galaxy-language-server/pull/128)).
+
+- Existing macro names are now suggested when manually invoking IntelliSense with `Ctrl+Space` ([#132](https://github.com/galaxyproject/galaxy-language-server/pull/132)).
+
+- Support for dynamic token parameter attributes in `<expand>` elements ([#133](https://github.com/galaxyproject/galaxy-language-server/pull/133)).
+
+### Changed
+
+- Updated main dependencies to latests versions, specially `pygls=0.10.3` which introduced some backward incompatible changes ([#126](https://github.com/galaxyproject/galaxy-language-server/pull/126)).
+
+### Fixed
+
+- When manually invoking IntelliSense with `Ctrl+Space` in the middle of a tag or attribute the auto-completion was suggesting wrong values ([#129](https://github.com/galaxyproject/galaxy-language-server/pull/129)).
+
+- Auto-closing tags when writing `/` or `>` was broken in previous versions ([#137](https://github.com/galaxyproject/galaxy-language-server/pull/137)).
+
 ## [0.4.0] - 2021-02-15
 
 ### Added
 
-- A custom command for tests discovery that provides information about the test definitions of all the opened tool documents in the virtual workspace. ([#110](https://github.com/galaxyproject/galaxy-language-server/pull/110))
+- A custom command for tests discovery that provides information about the test definitions of all the opened tool documents in the virtual workspace ([#110](https://github.com/galaxyproject/galaxy-language-server/pull/110)).
 
-- A custom command to reorder `<param>` attributes according to the IUC Style Guidelines. ([#104](https://github.com/galaxyproject/galaxy-language-server/pull/104))
+- A custom command to reorder `<param>` attributes according to the IUC Style Guidelines ([#104](https://github.com/galaxyproject/galaxy-language-server/pull/104)).
 
 ### Fixed
 
-- Unexpected errors when generating code were failing silently without providing feedback to the user. Now an error notification will be displayed to the user. ([#113](https://github.com/galaxyproject/galaxy-language-server/pull/113))
+- Unexpected errors when generating code were failing silently without providing feedback to the user. Now an error notification will be displayed to the user ([#113](https://github.com/galaxyproject/galaxy-language-server/pull/113)).
 
-- Elements inside macros were not correctly associated with their XSD definition. ([#111](https://github.com/galaxyproject/galaxy-language-server/pull/111))
+- Elements inside macros were not correctly associated with their XSD definition ([#111](https://github.com/galaxyproject/galaxy-language-server/pull/111)).
 
-- An bug in the search algorithm when analyzing the tool input trees with nested conditional sharing the same 'when' value. This was causing the code generation commands to fail. ([#109](https://github.com/galaxyproject/galaxy-language-server/pull/109))
+- An bug in the search algorithm when analyzing the tool input trees with nested conditional sharing the same 'when' value. This was causing the code generation commands to fail ([#109](https://github.com/galaxyproject/galaxy-language-server/pull/109)).
 
 ## [0.3.2] - 2021-01-24
 
 ### Fixed
 
-- The server was ignoring tool wrappers with syntax errors instead of reporting those syntax errors ([#100](https://github.com/galaxyproject/galaxy-language-server/pull/100))
+- The server was ignoring tool wrappers with syntax errors instead of reporting those syntax errors ([#100](https://github.com/galaxyproject/galaxy-language-server/pull/100)).
 
 ## [0.3.1] - 2021-01-09
 
@@ -41,7 +63,7 @@
 
 ### Fixed
 
-- Avoid processing unknown XML documents (aka *not* tool wrappers) ([#75](https://github.com/galaxyproject/galaxy-language-server/pull/75)).
+- Avoid processing unknown XML documents (aka _not_ tool wrappers) ([#75](https://github.com/galaxyproject/galaxy-language-server/pull/75)).
 - Broken XML parsing when more than one comment block was present in the document ([#70](https://github.com/galaxyproject/galaxy-language-server/pull/70)).
 
 ## [0.2.1] - 2020-11-22
@@ -64,13 +86,13 @@
 
 ### Removed
 
-- Removed unused function ``XsdTree.find_node_by_name()``.
+- Removed unused function `XsdTree.find_node_by_name()`.
 
 ## [0.1.1] - 2020-10-24
 
 ### Added
 
-- Support autocompletion for ``<expand>`` element.
+- Support autocompletion for `<expand>` element.
 
 ### Changed
 
@@ -78,8 +100,7 @@
 
 ### Fixed
 
-- Fix error when hovering ``<expand>`` elements or it's atributes (#41).
-
+- Fix error when hovering `<expand>` elements or it's atributes (#41).
 
 ## [0.1.0] - 2020-10-14
 
