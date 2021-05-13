@@ -134,72 +134,6 @@ class TestXmlCompletionServiceClass:
 
         assert not actual
 
-    def test_get_completion_at_context_on_node_returns_expected_attributes(
-        self,
-        fake_tree: XsdTree,
-        fake_xml_doc: XmlDocument,
-        fake_definitions_provider: DocumentDefinitionsProvider,
-    ) -> None:
-        fake_node = XmlElement()
-        fake_node.name = "root"
-        fake_node.end_tag_open_offset = 10
-        fake_node.end_tag_close_offset = 12
-        fake_context = XmlContext(fake_xml_doc, fake_tree.root, fake_node)
-        fake_completion_context = CompletionContext(trigger_kind=CompletionTriggerKind.TriggerCharacter, trigger_character=" ")
-        service = XmlCompletionService(fake_tree, fake_definitions_provider)
-
-        actual = service.get_completion_at_context(fake_context, fake_completion_context)
-
-        assert actual
-        assert len(actual.items) == 1
-        assert actual.items[0].label == "attr"
-        assert actual.items[0].kind == CompletionItemKind.Variable
-
-    def test_get_completion_at_context_on_node_with_attribute_returns_expected_attributes(
-        self,
-        fake_tree_with_attrs: XsdTree,
-        fake_xml_doc: XmlDocument,
-        fake_definitions_provider: DocumentDefinitionsProvider,
-    ) -> None:
-        fake_node = XmlElement()
-        fake_node.name = "root"
-        fake_node.end_tag_open_offset = 10
-        fake_node.end_tag_close_offset = 12
-        fake_node.attributes["one"] = XmlAttribute("one", 0, 0, fake_node)
-        fake_context = XmlContext(fake_xml_doc, fake_tree_with_attrs.root, fake_node)
-        fake_completion_context = CompletionContext(trigger_kind=CompletionTriggerKind.TriggerCharacter, trigger_character=" ")
-        service = XmlCompletionService(fake_tree_with_attrs, fake_definitions_provider)
-
-        actual = service.get_completion_at_context(fake_context, fake_completion_context)
-
-        assert actual
-        assert len(actual.items) == 2
-        assert actual.items[0].label == "two"
-        assert actual.items[0].kind == CompletionItemKind.Variable
-        assert actual.items[1].label == "three"
-        assert actual.items[1].kind == CompletionItemKind.Variable
-
-    def test_get_completion_at_context_on_attr_value_returns_expected_enums(
-        self,
-        fake_tree: XsdTree,
-        fake_xml_doc: XmlDocument,
-        fake_definitions_provider: DocumentDefinitionsProvider,
-    ) -> None:
-        fake_attr = XmlAttribute("attr", 0, 0, XmlElement())
-        fake_attr.set_value(None, 0, 0)
-        fake_context = XmlContext(fake_xml_doc, fake_tree.root, fake_attr.value)
-        fake_completion_context = CompletionContext(trigger_kind=CompletionTriggerKind.Invoked)
-        service = XmlCompletionService(fake_tree, fake_definitions_provider)
-
-        actual = service.get_completion_at_context(fake_context, fake_completion_context)
-
-        assert actual
-        assert len(actual.items) == 2
-        assert actual.items[0].label == "v1"
-        assert actual.items[0].kind == CompletionItemKind.Value
-        assert actual.items[1].label == "v2"
-        assert actual.items[1].kind == CompletionItemKind.Value
-
     def test_return_valid_completion_with_node_context(
         self,
         fake_tree: XsdTree,
@@ -262,18 +196,6 @@ class TestXmlCompletionServiceClass:
 
         assert len(actual.items) == 0
 
-    def test_return_valid_attribute_completion_when_node_context(
-        self,
-        fake_tree: XsdTree,
-        fake_context_on_root_node,
-        fake_definitions_provider: DocumentDefinitionsProvider,
-    ) -> None:
-        service = XmlCompletionService(fake_tree, fake_definitions_provider)
-
-        actual = service.get_attribute_completion(fake_context_on_root_node)
-
-        assert len(actual.items) > 0
-
     def test_return_valid_attribute_value_completion_when_enum_context(
         self,
         fake_tree: XsdTree,
@@ -335,13 +257,13 @@ class TestXmlCompletionServiceClass:
 
         actual = service.get_auto_close_tag(fake_context, trigger)
 
-        assert not actual
+        assert actual is None
 
     @pytest.mark.parametrize(
         "line_with_mark, trigger, expected_range",
         [
             ("<root>^", ">", None),
-            ("<root^/", "/", Range(start=Position(line=0, character=5), end=Position(line=0, character=6))),
+            ("<root^/", "/", Range(start=Position(line=0, character=6), end=Position(line=0, character=7))),
         ],
     )
     def test_auto_close_returns_expected_replace_range_at_context(

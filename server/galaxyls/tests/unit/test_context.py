@@ -100,6 +100,7 @@ class TestXmlContextServiceClass:
     @pytest.mark.parametrize(
         "source_with_mark, expected_token_name, expected_node_type, expected_xsd_node_name, expected_stack",
         [
+            ("<root^>", "root", NodeType.ELEMENT, "root", ["root"]),
             ("<root>^", "root", NodeType.ELEMENT, "root", ["root"]),
             ("<root> ^", None, NodeType.CONTENT, "root", ["root"]),
             ("^<root><child", "root", NodeType.ELEMENT, "root", ["root"]),
@@ -110,14 +111,14 @@ class TestXmlContextServiceClass:
             ("<root><child ^", "child", NodeType.ELEMENT, "child", ["root", "child"]),
             ('<root ^ attr="4"><child ', "root", NodeType.ELEMENT, "root", ["root"]),
             ('<root ^attr="4"><child ', "attr", NodeType.ATTRIBUTE_KEY, "root", ["root"]),
-            ('<root attr^="4"><child ', "attr", NodeType.ATTRIBUTE_KEY, "root", ["root"]),
+            ('<root attr^="4"><child ', "attr", NodeType.ATTRIBUTE, "root", ["root"]),
             ('<root attr=^"4"><child ', None, NodeType.ATTRIBUTE_VALUE, "root", ["root"]),
-            ('<root attr="4"^><child ', None, NodeType.ATTRIBUTE_VALUE, "root", ["root"]),
+            ('<root attr="4"^><child ', "root", NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4" ^><child ', "root", NodeType.ELEMENT, "root", ["root"]),
             ('<root attr="4"><^child ', "child", NodeType.ELEMENT, "child", ["root", "child"]),
             ('<root attr="4">\n<child/^><other', "child", NodeType.ELEMENT, "child", ["root", "child"]),
-            ('<root attr="4">\n<child/>^<other', "other", NodeType.ELEMENT, "root", ["root", "other"]),
-            ('<root attr="4">\n<child/>^ <other', None, NodeType.CONTENT, "root", ["root"]),
+            ('<root attr="4">\n<child/>^<other', "child", NodeType.ELEMENT, "child", ["root", "child"]),
+            ('<root attr="4">\n<child/> ^<other', None, NodeType.CONTENT, "root", ["root"]),
             ('<root attr="4">\n<child/><^other', "other", NodeType.ELEMENT, "root", ["root", "other"]),
             ('<root attr="4">\n<child/><^sibling', "sibling", NodeType.ELEMENT, "sibling", ["root", "sibling"]),
             ('<root attr="4">\n    <^ \n<child', None, NodeType.ELEMENT, "root", ["root"]),
@@ -265,3 +266,153 @@ class TestXmlContextServiceClass:
         context = service.get_xml_context(xml_document, position)
 
         assert context.is_tag_name == expected_is_tag_name
+
+    @pytest.mark.parametrize(
+        "source_with_mark, expected_is_attribute",
+        [
+            ("^<root attr=></root>", False),
+            ("<roo^t attr=></root>", False),
+            ("<root^ attr=></root>", False),
+            ("<root ^ attr=></root>", False),
+            ("<root ^attr=></root>", True),
+            ('<root a^ttr="value"></root>', True),
+            ('<root attr^="value"></root>', True),
+            ('<root attr=^"value"></root>', True),
+            ('<root attr="^value"></root>', True),
+            ('<root attr="va^lue"></root>', True),
+            ('<root attr="value^"></root>', True),
+            ('<root attr="value"^></root>', False),
+            ('<root attr="value"^ ></root>', False),
+            ('<root attr="value" ^></root>', False),
+        ],
+    )
+    def test_context_returns_expected_is_attribute(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        expected_is_attribute: bool,
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+
+        context = service.get_xml_context(xml_document, position)
+
+        assert context.is_attribute == expected_is_attribute
+
+    @pytest.mark.parametrize(
+        "source_with_mark, expected_is_attribute_key",
+        [
+            ("<root^ attr=></root>", False),
+            ("<root ^ attr=></root>", False),
+            ("<root ^attr=></root>", True),
+            ('<root a^ttr="value"></root>', True),
+            ('<root attr^="value"></root>', False),
+            ('<root attr=^"value"></root>', False),
+            ('<root attr="^value"></root>', False),
+            ('<root attr="value" ^></root>', False),
+        ],
+    )
+    def test_context_returns_expected_is_attribute_key(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        expected_is_attribute_key: bool,
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+
+        context = service.get_xml_context(xml_document, position)
+
+        assert context.is_attribute_key == expected_is_attribute_key
+
+    @pytest.mark.parametrize(
+        "source_with_mark, expected_is_attribute_value",
+        [
+            ('<root attr^="value"></root>', False),
+            ('<root attr=^"value"></root>', True),
+            ('<root attr="^value"></root>', True),
+            ('<root attr="va^lue"></root>', True),
+            ('<root attr="va ^ lue"></root>', True),
+            ('<root attr="value^"></root>', True),
+            ('<root attr="value"^></root>', False),
+            ('<root attr="value"^ ></root>', False),
+            ('<root attr="value" ^></root>', False),
+        ],
+    )
+    def test_context_returns_expected_is_attribute_value(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        expected_is_attribute_value: bool,
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+
+        context = service.get_xml_context(xml_document, position)
+
+        assert context.is_attribute_value == expected_is_attribute_value
+
+    @pytest.mark.parametrize(
+        "source_with_mark, is_inside_attribute_value",
+        [
+            ("^<root attr=></root>", False),
+            ("<roo^t attr=></root>", False),
+            ("<root^ attr=></root>", False),
+            ("<root ^ attr=></root>", False),
+            ("<root ^attr=></root>", False),
+            ('<root a^ttr="value"></root>', False),
+            ('<root attr^="value"></root>', False),
+            ('<root attr=^"value"></root>', False),
+            ('<root attr="^value"></root>', True),
+            ('<root attr="va^lue"></root>', True),
+            ('<root attr="value^"></root>', True),
+            ('<root attr="value"^></root>', False),
+            ('<root attr="value"^ ></root>', False),
+            ('<root attr="value" ^></root>', False),
+            ('<root attr="^"></root>', True),
+        ],
+    )
+    def test_context_returns_expected_is_inside_attribute_value(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        is_inside_attribute_value: bool,
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+
+        context = service.get_xml_context(xml_document, position)
+
+        assert context.is_inside_attribute_value == is_inside_attribute_value
+
+    @pytest.mark.parametrize(
+        "source_with_mark, is_attribute_end",
+        [
+            ('<root a^ttr="value"></root>', False),
+            ('<root attr^="value"></root>', False),
+            ('<root attr=^"value"></root>', False),
+            ('<root attr="^value"></root>', False),
+            ('<root attr="va^lue"></root>', False),
+            ('<root attr="value^"></root>', True),
+            ('<root attr="value"^></root>', False),
+            ('<root attr="value"^ ></root>', False),
+            ('<root attr="value" ^></root>', False),
+        ],
+    )
+    def test_context_returns_expected_is_attribute_end(
+        self,
+        fake_xsd_tree: XsdTree,
+        source_with_mark: str,
+        is_attribute_end: bool,
+    ) -> None:
+        service = XmlContextService(fake_xsd_tree)
+        position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
+        xml_document = TestUtils.from_source_to_xml_document(source)
+
+        context = service.get_xml_context(xml_document, position)
+
+        assert context.is_attribute_end == is_attribute_end

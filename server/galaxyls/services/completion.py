@@ -42,11 +42,11 @@ class XmlCompletionService:
             if completion_context.trigger_character == " ":
                 return self.get_attribute_completion(context)
         elif triggerKind == CompletionTriggerKind.Invoked:
-            if context.is_attribute_value:
+            if context.is_inside_attribute_value:
                 return self.get_attribute_value_completion(context)
             if context.is_attribute_key:
                 return self.get_attribute_completion(context)
-            if context.is_tag and not context.is_closing_tag:
+            if context.is_tag and not context.is_closing_tag and not context.is_at_end:
                 if context.is_valid_tag() and not context.is_tag_name:
                     return self.get_attribute_completion(context)
                 return self.get_node_completion(context)
@@ -146,12 +146,16 @@ class XmlCompletionService:
         return CompletionList(is_incomplete=False)
 
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
-        """Gets the closing result for the currently opened tag in context."""
+        """Gets the closing result for the currently opened tag in context.
+
+        The `context` parameter should be placed right before the trigger_character, otherwise the context
+        information will be located at the trigger_character itself which doesn't provide the real context."""
         if (
             isinstance(context.node, XmlCDATASection)
             or context.is_closing_tag
-            or context.is_attribute
             or context.node.is_closed
+            or (context.is_attribute and not context.is_attribute_end)
+            or context.characted_at_position == ">"
         ):
             return None
 
@@ -160,8 +164,11 @@ class XmlCompletionService:
         replace_range = None
         is_self_closing = trigger_character == "/"
         if is_self_closing:
-            start = Position(line=context.position.line, character=context.position.character)
-            end_character = context.position.character + 1
+            # Build the position Range to be replaced by the snippet
+            # Get the document position of the trigger_character => +1 character from current context.position
+            start = Position(line=context.position.line, character=context.position.character + 1)
+            # Check if there is a `>` already after the `/` trigger and include it in the Range to avoid duplication
+            end_character = context.position.character + 2
             if len(context.line_text) > end_character and context.line_text[end_character] == ">":
                 end_character = end_character + 1
             end = Position(line=context.position.line, character=end_character)
