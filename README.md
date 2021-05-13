@@ -136,8 +136,8 @@ This can be very convenient especially when having a large number of tests in yo
 
 Since version `0.5.0` we added some interesting features around the use of macros. For example, you can now better troubleshoot validation errors caused by some included macro. The error messages will be more detailed and you can even navigate to a `expanded` version of the tool to see what the real tool document look like and what was causing the error.
 
-![Demo feature expanded macros](../assets/feature.expanded.macros.png)
+![Demo feature expanded macros](../assets/feature.expanded.macros.gif)
 
 There are also a lot of features around macros auto-completion. You can now navigate to `macro` and `token` definitions with `F12` or get dynamic attribute auto-completion with parametrized macros and more.
 
-![Demo feature macros support](../assets/feature.macros.support.png)
+![Demo feature macros support](../assets/feature.macros.support.gif)
