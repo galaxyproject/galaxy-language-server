@@ -123,7 +123,9 @@ def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingPara
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
 async def did_open(server: GalaxyToolsLanguageServer, params: DidOpenTextDocumentParams) -> None:
     """Occurs when a new xml document is open."""
-    _validate(server, params)
+    document = server.workspace.get_document(params.text_document.uri)
+    if not DocumentValidator.is_empty_document(document):
+        _validate(server, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_SAVE)

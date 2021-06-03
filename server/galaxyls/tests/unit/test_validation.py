@@ -70,6 +70,10 @@ class TestDocumentValidatorClass:
     @pytest.mark.parametrize(
         "source, expected",
         [
+            ("<", True),
+            ("", True),
+            ("   ", True),
+            ("  \n ", True),
             ("<tool>", True),
             ("  <tool>", True),
             ("\n<tool>", True),
@@ -82,8 +86,6 @@ class TestDocumentValidatorClass:
             ('<?xml version="1.0" encoding="UTF-8"?>\n<tool>', True),
             ("<macros>", True),
             ('<?xml version="1.0" encoding="UTF-8"?>\n<macros>', True),
-            ("", False),
-            ("   ", False),
             ("test", False),
             ("<test>", False),
         ],
