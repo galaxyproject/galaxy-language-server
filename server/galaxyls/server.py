@@ -15,9 +15,11 @@ from pygls.lsp.methods import (
 )
 from pygls.lsp.types import (
     CompletionList,
+    CompletionOptions,
     CompletionParams,
     ConfigurationItem,
     ConfigurationParams,
+    Diagnostic,
     DidChangeConfigurationParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
@@ -31,12 +33,11 @@ from pygls.lsp.types import (
     TextDocumentPositionParams,
     TextEdit,
 )
-from pygls.lsp.types.language_features.completion import CompletionOptions
 from pygls.server import LanguageServer
 from pygls.workspace import Document
 
 from galaxyls.config import CompletionMode, GalaxyToolsConfiguration
-from galaxyls.constants import Commands, SERVER_NAME
+from galaxyls.constants import SERVER_NAME, Commands
 from galaxyls.services.language import GalaxyToolLanguageService
 from galaxyls.services.validation import DocumentValidator
 from galaxyls.services.xml.document import XmlDocument
@@ -218,11 +219,12 @@ def discover_tests_command(server: GalaxyToolsLanguageServer, params: TextDocume
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
+    diagnostics: List[Diagnostic] = []
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
         diagnostics = server.service.get_diagnostics(xml_document)
-        server.publish_diagnostics(document.uri, diagnostics)
+    server.publish_diagnostics(params.text_document.uri, diagnostics)
 
 
 def _get_valid_document(server: GalaxyToolsLanguageServer, uri: str) -> Optional[Document]:
