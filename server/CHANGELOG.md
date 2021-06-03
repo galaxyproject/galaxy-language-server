@@ -1,5 +1,13 @@
 # Galaxy Language Server Changelog
 
+## [0.5.1] - 2021-06-03
+
+### Fixed
+
+- Clear diagnostics when the document is not valid ([#143](https://github.com/galaxyproject/galaxy-language-server/pull/143)).
+
+- Fix empty document validation ([#144](https://github.com/galaxyproject/galaxy-language-server/pull/144)).
+
 ## [0.5.0] - 2021-05-13
 
 ### Added

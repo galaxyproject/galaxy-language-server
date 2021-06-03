@@ -1,5 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.5.1] - 2021-06-03
+
+### Changed
+
+- Updated Galaxy Language Server [v0.5.1](./server/CHANGELOG.md#051)
+
+- Updated development dependencies ([#142](https://github.com/galaxyproject/galaxy-language-server/pull/142)).
+
+- Include new installation troubleshooting entry in the readme for `pip module not found` error ([#141](https://github.com/galaxyproject/galaxy-language-server/pull/141)).
+
 ## [0.5.0] - 2021-05-13
 
 ### Added
