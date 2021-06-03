@@ -15,12 +15,15 @@ class DocumentValidator:
 
     @classmethod
     def has_valid_root(cls, document: Document) -> bool:
-        """Checks if the document's root element matches one of the supported types."""
+        """Checks if the document's root element matches one of the supported types
+        or is an empty document."""
+        if DocumentValidator.is_empty_document(document):
+            return True
         root = DocumentValidator._get_document_root_tag(document)
         if root is not None:
             root_tag = root.upper()
             supported = [e.name for e in DocumentType if e != DocumentType.UNKNOWN]
-            return root_tag in supported
+            return root_tag == "" or root_tag in supported
         return False
 
     @classmethod
@@ -31,6 +34,11 @@ class DocumentValidator:
             root_tag = root.upper()
             return root_tag == DocumentType.TOOL.name
         return False
+
+    @classmethod
+    def is_empty_document(cls, document: Document) -> bool:
+        """Whether the document is empty or just contains spaces or empty lines."""
+        return not document.source or document.source.isspace()
 
     @classmethod
     def _get_document_root_tag(cls, document: Document) -> Optional[str]:
