@@ -3,6 +3,7 @@
 import { window, Position, SnippetString, Range, ExtensionContext, commands, TextEditor, Uri, workspace, ViewColumn } from "vscode";
 import { RequestType, TextDocumentIdentifier, TextDocumentPositionParams, LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "./constants";
+import { GalaxyToolsExpadedDocumentContentProvider } from "./providers/contentProvider";
 import { changeUriScheme, cloneRange } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
 
@@ -236,6 +237,7 @@ async function previewExpandedDocument() {
         return;
     }
     const expandedDocumentUri = convertToExpandedDocumentUri(document.uri);
+    GalaxyToolsExpadedDocumentContentProvider.getInstance().update(expandedDocumentUri);
     const doc = await workspace.openTextDocument(expandedDocumentUri);
     await window.showTextDocument(doc, { preview: false, viewColumn: ViewColumn.Beside });
 }
