@@ -2,7 +2,7 @@
 """
 
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from lxml import etree
 from pygls.lsp.types import Diagnostic, DiagnosticRelatedInformation, Location, Position, Range
@@ -82,7 +82,10 @@ class GalaxyToolValidationService:
             expanded_tool_tree, _ = xml_macros.load_with_references(tool.path)
             expanded_xml = remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
-            self.xsd_schema.assertValid(root)
+            etree.indent(root, space=" " * 4)
+            content = cast(str, etree.tostring(root, pretty_print=True, encoding=str))
+            formatted_xml = etree.fromstring(content)
+            self.xsd_schema.assertValid(formatted_xml)
             return []
         except etree.DocumentInvalid as e:
             diagnostics = self._build_diagnostics_for_expanded_macros(tool, e)
@@ -201,8 +204,8 @@ class GalaxyToolValidationService:
                         location=Location(
                             uri=f"{virtual_uri}{EXPAND_DOCUMENT_URI_SUFFIX}",
                             range=Range(
-                                start=Position(line=error.line, character=error.column),
-                                end=Position(line=error.line, character=error.column),
+                                start=Position(line=error.line - 1, character=error.column),
+                                end=Position(line=error.line - 1, character=error.column),
                             ),
                         ),
                     )
