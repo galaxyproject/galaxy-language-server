@@ -232,6 +232,9 @@ async function previewExpandedDocument() {
     if (!isSaved) return;
 
     const document = activeEditor.document;
+    if(document.uri.scheme === Constants.EXPAND_DOCUMENT_SCHEMA || document.languageId !== Constants.LANGUAGE_ID){
+        return;
+    }
     const expandedDocumentUri = convertToExpandedDocumentUri(document.uri);
     const doc = await workspace.openTextDocument(expandedDocumentUri);
     await window.showTextDocument(doc, { preview: false, viewColumn: ViewColumn.Beside });
