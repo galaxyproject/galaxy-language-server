@@ -9,16 +9,20 @@ export class GalaxyToolsCodeActionProvider implements CodeActionProvider {
     ];
 
     provideCodeActions(document: TextDocument, range: Range | Selection, context: CodeActionContext, token: CancellationToken): ProviderResult<(CodeAction | Command)[]> {
+        const resultCodeActions:CodeAction[] = [];
 
-        return context.diagnostics
-            .filter(diagnostic => diagnostic.code === DiagnosticCodes.INVALID_EXPANDED_TOOL)
-            .map(diagnostic => this.createPreviewExpandedDocumentCommand(diagnostic));
+        const expanded_tool_diagnostics = context.diagnostics.filter(diagnostic => diagnostic.code === DiagnosticCodes.INVALID_EXPANDED_TOOL);
+        if (expanded_tool_diagnostics.length){
+            resultCodeActions.push(this.createPreviewExpandedDocumentCommand(expanded_tool_diagnostics))
+        }
+
+        return resultCodeActions;
     }
 
-    private createPreviewExpandedDocumentCommand(diagnostic: Diagnostic): CodeAction {
+    private createPreviewExpandedDocumentCommand(diagnostics: Diagnostic[]): CodeAction {
         const action = new CodeAction('Preview expanded tool document...', CodeActionKind.Empty);
         action.command = { command: Commands.PREVIEW_EXPANDED_DOCUMENT, title: 'Preview expanded tool document', tooltip: 'This will open a preview of the tool document with all the macros expanded.' };
-        action.diagnostics = [diagnostic];
+        action.diagnostics = diagnostics;
         action.isPreferred = true;
         return action;
     }
