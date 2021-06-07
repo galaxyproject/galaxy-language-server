@@ -13,7 +13,7 @@ export function setupProviders(client: LanguageClient, context: ExtensionContext
         })
     );
 
-    const expandedDocumentProvider = new GalaxyToolsExpadedDocumentContentProvider();
+    const expandedDocumentProvider = GalaxyToolsExpadedDocumentContentProvider.getInstance();
     context.subscriptions.push(
         workspace.registerTextDocumentContentProvider(Constants.EXPAND_DOCUMENT_SCHEMA, expandedDocumentProvider)
     );
