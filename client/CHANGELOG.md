@@ -1,5 +1,17 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.5.2] - 2021-06-08
+
+### Fixed
+
+- Duplicated CodeActions for the same expand document command ([#152](https://github.com/galaxyproject/galaxy-language-server/pull/152)).
+
+- The expanded document preview was not updating with the source document changes ([#148](https://github.com/galaxyproject/galaxy-language-server/pull/148)).
+
+### Changed
+
+- Updated Galaxy Language Server [v0.5.2](./server/CHANGELOG.md#052)
+
 ## [0.5.1] - 2021-06-03
 
 ### Changed
