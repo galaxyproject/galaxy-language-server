@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.5.2] - 2021-06-08
+
+### Fixed
+
+- Line offset mismatch between diagnostic line and expanded document ([#150](https://github.com/galaxyproject/galaxy-language-server/pull/150)).
+
 ## [0.5.1] - 2021-06-03
 
 ### Fixed
