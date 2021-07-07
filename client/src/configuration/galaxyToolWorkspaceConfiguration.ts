@@ -1,3 +1,4 @@
+import { join } from "path";
 import { lookpath } from "lookpath"
 import { workspace, WorkspaceConfiguration } from 'vscode';
 
@@ -66,7 +67,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
 
     private async isValidGalaxyRoot(): Promise<boolean> {
         const galaxyRoot = this.galaxyRoot();
-        if (galaxyRoot === null || !galaxyRoot.endsWith("galaxy") || !await exists(galaxyRoot)) {
+        if (galaxyRoot === null || !await exists(join(galaxyRoot, "lib", "galaxy"))) {
             return false;
         }
         return true;
