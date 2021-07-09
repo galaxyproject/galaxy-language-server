@@ -1,5 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.5.3] - 2021-07-09
+
+### Fixed
+
+- The `galaxy_root` setting validation now checks for the existence of `<galaxy_root>/lib/galaxy` instead of relying on how the root directory is named. ([#158](https://github.com/galaxyproject/galaxy-language-server/pull/158)).
+
+### Changed
+
+- Updated Galaxy Language Server [v0.5.3](./server/CHANGELOG.md#053)
+
 ## [0.5.2] - 2021-06-08
 
 ### Fixed

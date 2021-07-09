@@ -86,6 +86,7 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
+        result = []
         if (
             context.is_empty
             or context.is_content
@@ -93,9 +94,8 @@ class XmlCompletionService:
             or context.is_closing_tag
             or not context.node.name
         ):
-            return CompletionList(is_incomplete=False)
+            return CompletionList(items=result, is_incomplete=False)
 
-        result = []
         if context.xsd_element:
             existing_attr_names = context.node.get_attribute_names()
             for attr_name in context.xsd_element.attributes:
@@ -143,7 +143,7 @@ class XmlCompletionService:
                 macro_names = self.definitions_provider.macro_definitions_provider.get_macro_names(context.xml_document)
                 result = [CompletionItem(label=item, kind=CompletionItemKind.Value) for item in macro_names]
                 return CompletionList(items=result, is_incomplete=False)
-        return CompletionList(is_incomplete=False)
+        return CompletionList(items=[], is_incomplete=False)
 
     def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context.

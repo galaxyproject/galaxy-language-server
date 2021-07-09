@@ -105,7 +105,7 @@ Basic support for `Cheetah` and `reStructuredText` syntax highlighting inside th
 
 ![Demo feature auto-generate tests](../assets/feature.generate.tests.gif)
 
-After you define the `<inputs>` and `<outputs>` of the tool, you can press `Ctrl+Alt+t` (or `Cmd+Alt+t` in Mac) to create a `<tests>` section with a basic structure and some test cases. This is especially useful when using conditionals and other nested parameters since you can get right away most of the boilerplate XML.
+After you define the `<inputs>` and `<outputs>` of the tool, you can press `Ctrl+Alt+t` (or `Cmd+Alt+t` in Mac) to create a `<tests>` section with a basic structure and some test cases. This is especially useful when using conditionals and other nested parameters since you can get right away most of the boilerplate XML. You can always change the key bindings to your personal preference, see [the documentation](https://code.visualstudio.com/docs/getstarted/keybindings).
 
 ## Auto-generate command section
 
