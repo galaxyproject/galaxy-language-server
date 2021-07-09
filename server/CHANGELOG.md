@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.5.3] - 2021-07-09
+
+### Fixed
+
+- An error when generating tests from inputs that contained boolean values different than `true` or `false` like `True` or `False` ([#156](https://github.com/galaxyproject/galaxy-language-server/pull/156)).
+
 ## [0.5.2] - 2021-06-08
 
 ### Fixed
