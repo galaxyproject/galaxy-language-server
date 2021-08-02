@@ -46,7 +46,11 @@ export class PlanemoTestRunner implements ITestRunner {
             const testExecution = this.runPlanemoTest(planemoConfig, testRunArguments);
 
             this.testExecutions.set(testSuiteId, testExecution);
-            await testExecution.complete();
+            const result = await testExecution.complete();
+
+            if (result.exitCode !== 0) {
+                return [];
+            }
 
             const states = await parseTestStates(output_json_file, testSuite, htmlReportFile);
 
@@ -71,7 +75,7 @@ export class PlanemoTestRunner implements ITestRunner {
                 console.log(`Cancelling execution of ${test} failed: ${error}`);
             }
         });
-        this._channel.appendLine("Tests run cancelled.");
+        this._channel.appendLine("\nTests run cancelled.\n");
     }
 
     public isRunning(): boolean {
