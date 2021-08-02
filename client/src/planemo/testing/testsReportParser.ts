@@ -3,14 +3,14 @@ import { TestEvent, TestInfo, TestSuiteInfo } from "vscode-test-adapter-api";
 import { TestState } from "../../testing/common";
 import { readFile } from "../../utils";
 
-type PlanemoTestState = 'success' | 'failure' | 'skip' | 'error';
+type PlanemoTestState = "success" | "failure" | "skip" | "error";
 
 const stateMap: Map<PlanemoTestState, TestState> = new Map<PlanemoTestState, TestState>([
-    ['success', 'passed'],
-    ['failure', 'failed'],
-    ['skip', 'skipped'],
-    ['error', 'errored'],
-])
+    ["success", "passed"],
+    ["failure", "failed"],
+    ["skip", "skipped"],
+    ["error", "errored"],
+]);
 
 interface ITestSuiteResult {
     tests: ITestCaseResult[];
@@ -46,7 +46,11 @@ interface ITestCaseJobInfo {
     tool_stdout: string;
 }
 
-export async function parseTestStates(outputJsonFile: string, testSuite: TestSuiteInfo, htmlReportFile: string): Promise<TestEvent[]> {
+export async function parseTestStates(
+    outputJsonFile: string,
+    testSuite: TestSuiteInfo,
+    htmlReportFile: string
+): Promise<TestEvent[]> {
     const content = await readFile(outputJsonFile);
     const parseResult = await JSON.parse(content);
     return parseTestResults(parseResult, testSuite, htmlReportFile);
@@ -58,8 +62,8 @@ function parseTestResults(parserResult: any, testSuite: TestSuiteInfo, htmlRepor
     }
     const testSuiteResults: ITestSuiteResult = parserResult;
 
-    const testResults: TestEvent[] = []
-    testSuiteResults.tests.forEach(testCaseResult => {
+    const testResults: TestEvent[] = [];
+    testSuiteResults.tests.forEach((testCaseResult) => {
         const testInfo = getTestInfo(testCaseResult, testSuite);
         const adatedResult = adaptTestResult(testCaseResult, testInfo);
         if (adatedResult !== undefined) {
@@ -68,15 +72,14 @@ function parseTestResults(parserResult: any, testSuite: TestSuiteInfo, htmlRepor
         }
     });
 
-    return testResults
+    return testResults;
 }
 
 function getTestInfo(result: ITestCaseResult, suite: TestSuiteInfo): TestInfo | undefined {
     try {
         const testInfo = suite.children[result.data.test_index] as TestInfo;
         return testInfo;
-    }
-    catch {
+    } catch {
         return undefined;
     }
 }
@@ -90,25 +93,25 @@ function adaptTestResult(testResult: ITestCaseResult, testInfo: TestInfo | undef
     const message = adaptTestMessage(testResult);
     const line = testInfo ? testInfo.line : 0;
     const result: TestEvent = {
-        type: 'test',
+        type: "test",
         state: state,
         test: testId,
         message: message,
         decorations: getDecorations(state, line, message),
         description: adaptDescription(testResult),
-    }
+    };
     return result;
 }
 
 function adapTestState(testResult: ITestCaseResult): TestState {
     const adapted = stateMap.get(testResult.data.status);
-    if (adapted === undefined) return 'errored'
-    return adapted
+    if (adapted === undefined) return "errored";
+    return adapted;
 }
 
 function adaptTestId(testResult: ITestCaseResult): string {
     const testIndex = testResult.data.test_index + 1;
-    return `${testResult.data.tool_id}:${testIndex}`
+    return `${testResult.data.tool_id}:${testIndex}`;
 }
 
 function adaptTestMessage(testResult: ITestCaseResult): string {
@@ -117,26 +120,31 @@ function adaptTestMessage(testResult: ITestCaseResult): string {
             return testResult.data.output_problems.join(EOL);
         }
         return testResult.data.status;
-    }
-    catch (err) {
+    } catch (err) {
         return err;
     }
 }
 
 function adaptDescription(testResult: ITestCaseResult): string | undefined {
     const time = testResult.data.time_seconds.toPrecision(2);
-    return time ? `(${time}s)` : undefined
+    return time ? `(${time}s)` : undefined;
 }
 
-function getDecorations(state: TestState, line: number | undefined, message: string): { line: number, message: string }[] {
-    if (state === 'passed') {
+function getDecorations(
+    state: TestState,
+    line: number | undefined,
+    message: string
+): { line: number; message: string }[] {
+    if (state === "passed") {
         return [];
     }
     if (!line) {
         return [];
     }
-    return [{
-        line: line,
-        message,
-    }];
+    return [
+        {
+            line: line,
+            message,
+        },
+    ];
 }

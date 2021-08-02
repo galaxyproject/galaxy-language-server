@@ -5,11 +5,10 @@ import { GalaxyToolsCodeActionProvider } from "./codeActions";
 import { GalaxyToolsExpadedDocumentContentProvider } from "./contentProvider";
 
 export function setupProviders(client: LanguageClient, context: ExtensionContext) {
-
     const codeActionProvider = new GalaxyToolsCodeActionProvider();
     context.subscriptions.push(
         languages.registerCodeActionsProvider(Constants.LANGUAGE_ID, codeActionProvider, {
-            providedCodeActionKinds: GalaxyToolsCodeActionProvider.providedCodeActionKinds
+            providedCodeActionKinds: GalaxyToolsCodeActionProvider.providedCodeActionKinds,
         })
     );
 
@@ -17,5 +16,4 @@ export function setupProviders(client: LanguageClient, context: ExtensionContext
     context.subscriptions.push(
         workspace.registerTextDocumentContentProvider(Constants.EXPAND_DOCUMENT_SCHEMA, expandedDocumentProvider)
     );
-
 }

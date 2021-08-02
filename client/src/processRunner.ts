@@ -1,8 +1,8 @@
 // Based on https://github.com/kondratyev-nv/vscode-python-test-adapter/blob/master/src/processRunner.ts
 
-import { ChildProcess, spawn } from 'child_process';
-import * as iconv from 'iconv-lite';
-import { EOL } from 'os';
+import { ChildProcess, spawn } from "child_process";
+import * as iconv from "iconv-lite";
+import { EOL } from "os";
 
 export interface IProcessRunConfiguration {
     cwd?: string;
@@ -13,7 +13,7 @@ export interface IProcessRunConfiguration {
 export interface IProcessExecution {
     pid: number;
 
-    complete(): Promise<{ exitCode: number, output: string }>;
+    complete(): Promise<{ exitCode: number; output: string }>;
 
     cancel(): void;
 }
@@ -24,33 +24,26 @@ class CommandProcessExecution implements IProcessExecution {
     private readonly commandProcess: ChildProcess;
     private readonly acceptedExitCodes: readonly number[];
 
-    constructor(
-        command: string,
-        args?: string[],
-        configuration?: IProcessRunConfiguration
-    ) {
-        this.commandProcess = spawn(
-            command,
-            args,
-            {
-                cwd: configuration?.cwd,
-                env: {
-                    ...process.env,
-                    ...configuration?.environment,
-                },
-            });
+    constructor(command: string, args?: string[], configuration?: IProcessRunConfiguration) {
+        this.commandProcess = spawn(command, args, {
+            cwd: configuration?.cwd,
+            env: {
+                ...process.env,
+                ...configuration?.environment,
+            },
+        });
         this.pid = this.commandProcess.pid;
         this.acceptedExitCodes = configuration?.acceptedExitCodes || [0, 1];
     }
 
-    public async complete(): Promise<{ exitCode: number; output: string; }> {
-        return new Promise<{ exitCode: number, output: string }>((resolve, reject) => {
+    public async complete(): Promise<{ exitCode: number; output: string }> {
+        return new Promise<{ exitCode: number; output: string }>((resolve, reject) => {
             const stdoutBuffer: Buffer[] = [];
             const stderrBuffer: Buffer[] = [];
-            this.commandProcess.stdout!.on('data', chunk => stdoutBuffer.push(chunk));
-            this.commandProcess.stderr!.on('data', chunk => stderrBuffer.push(chunk));
+            this.commandProcess.stdout!.on("data", (chunk) => stdoutBuffer.push(chunk));
+            this.commandProcess.stderr!.on("data", (chunk) => stderrBuffer.push(chunk));
 
-            this.commandProcess.once('close', exitCode => {
+            this.commandProcess.once("close", (exitCode) => {
                 if (exitCode === null) {
                     reject(new Error(`Process exit code was null`));
                     return;
@@ -65,7 +58,7 @@ class CommandProcessExecution implements IProcessExecution {
                 const output = decode(stdoutBuffer);
                 if (!output) {
                     if (stdoutBuffer.length > 0) {
-                        reject(new Error('Can not decode output from the process'));
+                        reject(new Error("Can not decode output from the process"));
                     } else if (stderrBuffer.length > 0 && !this.commandProcess.killed) {
                         reject(new Error(`Process returned an error:${EOL}${decode(stderrBuffer)}`));
                     }
@@ -73,13 +66,13 @@ class CommandProcessExecution implements IProcessExecution {
                 resolve({ exitCode, output });
             });
 
-            this.commandProcess.once('error', error => {
+            this.commandProcess.once("error", (error) => {
                 reject(new Error(`Error occurred during process execution: ${error}`));
             });
         });
     }
     public cancel(): void {
-        this.commandProcess.kill('SIGINT');
+        this.commandProcess.kill("SIGINT");
     }
 }
 
@@ -92,5 +85,5 @@ export function runProcess(
 }
 
 function decode(buffers: Buffer[]) {
-    return iconv.decode(Buffer.concat(buffers), 'utf8');
+    return iconv.decode(Buffer.concat(buffers), "utf8");
 }

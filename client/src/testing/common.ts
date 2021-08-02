@@ -1,1 +1,1 @@
-export type TestState = 'running' | 'passed' | 'failed' | 'skipped' | 'errored';
+export type TestState = "running" | "passed" | "failed" | "skipped" | "errored";

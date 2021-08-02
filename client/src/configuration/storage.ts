@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 import { Memento } from "vscode";
 
@@ -6,8 +6,7 @@ const PYTHON_STORED_PATH = "galaxytools.python.stored.path";
 const SERVER_INSTALLED = "galaxytools.server.installed";
 
 export class LocalStorageService {
-
-    constructor(private storage: Memento) { }
+    constructor(private storage: Memento) {}
 
     public getStoredPython(): string | null {
         const result = this.getValue<string>(PYTHON_STORED_PATH);

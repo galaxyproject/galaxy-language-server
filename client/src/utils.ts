@@ -1,9 +1,8 @@
 "use strict";
 
-import * as fs from 'fs';
+import * as fs from "fs";
 import { exec } from "child_process";
 import { Position, Range, Uri } from "vscode";
-
 
 export async function execAsync(command: string, options: object = {}): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -32,7 +31,7 @@ export function cloneRange(range: Range): Range {
 
 export function readFile(file: fs.PathLike): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        fs.readFile(file, 'utf-8', (error, content) => {
+        fs.readFile(file, "utf-8", (error, content) => {
             if (error) {
                 reject(error);
             }
@@ -43,7 +42,8 @@ export function readFile(file: fs.PathLike): Promise<string> {
 }
 
 export async function exists(path: string): Promise<boolean> {
-    return fs.promises.access(path, fs.constants.F_OK)
+    return fs.promises
+        .access(path, fs.constants.F_OK)
         .then(() => true)
         .catch(() => false);
 }
@@ -52,7 +52,7 @@ export function changeUriScheme(uri: Uri, scheme: string): Uri {
     if (uri.scheme === scheme) {
         return uri;
     }
-    const uriStr = uri.toString().replace(uri.scheme, scheme)
+    const uriStr = uri.toString().replace(uri.scheme, scheme);
     const resultUri = Uri.parse(uriStr);
     return resultUri;
 }
