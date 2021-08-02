@@ -1,6 +1,7 @@
 import { unlinkSync } from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
+import { OutputChannel, window } from "vscode";
 import { TestEvent, TestSuiteInfo } from "vscode-test-adapter-api";
 import { Constants } from "../../constants";
 import { IProcessExecution, runProcess } from "../../processRunner";
@@ -10,6 +11,7 @@ import { parseTestStates } from "./testsReportParser";
 
 export class PlanemoTestRunner implements ITestRunner {
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
+    private _channel: OutputChannel = window.createOutputChannel(Constants.PLANEMO_TEST_OUTPUT_CHANNEL);
 
     constructor(public readonly adapterId: string) {}
 
@@ -35,10 +37,11 @@ export class PlanemoTestRunner implements ITestRunner {
                 `${output_json_file}`,
                 `--test_output`,
                 `${htmlReportFile}`,
-                `${testFile}`,
             ];
 
-            const testRunArguments = baseArguments.concat(extraParams);
+            const testRunArguments = baseArguments.concat(extraParams).concat(`${testFile}`);
+
+            this._channel.appendLine(`Running planemo ${testRunArguments.join(" ")}`);
 
             const testExecution = this.runPlanemoTest(planemoConfig, testRunArguments);
 
@@ -49,9 +52,11 @@ export class PlanemoTestRunner implements ITestRunner {
 
             cleanupCallback();
 
+            this.showSummaryLog(states);
+
             return states;
         } catch (err) {
-            console.log(err);
+            this.showErrorLog(err);
             return [];
         } finally {
             this.testExecutions.delete(testSuiteId);
@@ -66,6 +71,7 @@ export class PlanemoTestRunner implements ITestRunner {
                 console.log(`Cancelling execution of ${test} failed: ${error}`);
             }
         });
+        this._channel.appendLine("Tests run cancelled.");
     }
 
     public isRunning(): boolean {
@@ -113,11 +119,30 @@ export class PlanemoTestRunner implements ITestRunner {
         return reportFile;
     }
 
-    private getTestExtraParams(planemoConfig: IPlanemoConfiguration) {
+    private getTestExtraParams(planemoConfig: IPlanemoConfiguration): string[] {
         const extraParams = planemoConfig.testing().extraParams();
         if (extraParams != "") {
             return extraParams.split(" ");
         }
         return [];
+    }
+
+    private showErrorLog(errorMessage: string) {
+        this._channel.appendLine(errorMessage);
+        this._channel.show();
+    }
+
+    private showSummaryLog(states: TestEvent[]) {
+        let statesMap = new Map<string, number>();
+        states.forEach((test) => {
+            let stateCount = statesMap.get(test.state);
+            stateCount = stateCount === undefined ? 1 : stateCount + 1;
+            statesMap.set(test.state, stateCount);
+        });
+        this._channel.appendLine(`\n${states.length} tests completed:`);
+        statesMap.forEach((count, state) => {
+            this._channel.appendLine(`  ${count} ${state}`);
+        });
+        this._channel.append("\n");
     }
 }
