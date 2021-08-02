@@ -1,20 +1,32 @@
-'use strict';
+"use strict";
 
-import { EOL } from 'os';
-import * as path from 'path';
-import { lookpath } from "lookpath"
-import { Event, EventEmitter, ExtensionContext, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window } from "vscode";
-import { execAsync, readFile } from '../../utils';
+import { EOL } from "os";
+import * as path from "path";
+import { lookpath } from "lookpath";
+import {
+    Event,
+    EventEmitter,
+    ExtensionContext,
+    ThemeIcon,
+    TreeDataProvider,
+    TreeItem,
+    TreeItemCollapsibleState,
+    Uri,
+    window,
+} from "vscode";
+import { execAsync, readFile } from "../../utils";
 import { IConfigurationFactory, IPlanemoConfiguration } from "../configuration";
-import { DirectoryTreeItem } from '../../views/common';
+import { DirectoryTreeItem } from "../../views/common";
 
 const PLANEMO_LABEL = "Planemo";
 const GALAXY_LABEL = "Galaxy";
 const UNKNOWN = "Unknown";
 const PLANEMO_BINARY = "planemo";
 
-export function registerConfigTreeDataProvider(context: ExtensionContext, configFactory: IConfigurationFactory): PlanemoConfigTreeDataProvider {
-
+export function registerConfigTreeDataProvider(
+    context: ExtensionContext,
+    configFactory: IConfigurationFactory
+): PlanemoConfigTreeDataProvider {
     const treeDataProvider = new PlanemoConfigTreeDataProvider(configFactory);
     const treeView = window.createTreeView("planemo-config", {
         showCollapseAll: true,
@@ -26,24 +38,22 @@ export function registerConfigTreeDataProvider(context: ExtensionContext, config
 }
 
 export class PlanemoConfigTreeItem extends TreeItem {
-
     constructor(
         public readonly label: string,
         public readonly collapsibleState: TreeItemCollapsibleState = TreeItemCollapsibleState.Collapsed,
-        public getItemChildren?: (planemoConfig: IPlanemoConfiguration) => Promise<TreeItem[]>,
+        public getItemChildren?: (planemoConfig: IPlanemoConfiguration) => Promise<TreeItem[]>
     ) {
         super(label, collapsibleState);
     }
-
 }
 
-export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>{
-
-    private _onDidChangeTreeData: EventEmitter<TreeItem | undefined | void> = new EventEmitter<TreeItem | undefined | void>();
+export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem> {
+    private _onDidChangeTreeData: EventEmitter<TreeItem | undefined | void> = new EventEmitter<
+        TreeItem | undefined | void
+    >();
     readonly onDidChangeTreeData: Event<TreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    constructor(private configFactory: IConfigurationFactory) {
-    }
+    constructor(private configFactory: IConfigurationFactory) {}
 
     refresh(): void {
         this._onDidChangeTreeData.fire();
@@ -54,7 +64,6 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
     }
 
     async getChildren(element?: PlanemoConfigTreeItem): Promise<TreeItem[]> {
-
         const planemoConfig = this.configFactory.getConfiguration().planemo();
         const planemoConfigValidation = await planemoConfig.validate();
         if (!planemoConfigValidation.isValidPlanemo()) {
@@ -67,27 +76,22 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             const rootItem: PlanemoConfigTreeItem = {
                 label: PLANEMO_LABEL,
                 collapsibleState: TreeItemCollapsibleState.Expanded,
-                description: 'configuration details',
-                contextValue: 'planemoConfigItem',
+                description: "configuration details",
+                contextValue: "planemoConfigItem",
                 iconPath: {
-                    light: path.join(__filename, '..', '..', 'resources', 'light', 'planemo.svg'),
-                    dark: path.join(__filename, '..', '..', 'resources', 'dark', 'planemo.svg')
+                    light: path.join(__filename, "..", "..", "resources", "light", "planemo.svg"),
+                    dark: path.join(__filename, "..", "..", "resources", "dark", "planemo.svg"),
                 },
-                getItemChildren: async planemoConfig => {
+                getItemChildren: async (planemoConfig) => {
                     const versionItem = await this.getPlanemoVersionItem(planemoConfig);
                     const pathItem = await this.getPlanemoPathItem(planemoConfig);
                     const galaxyItem = await this.getPlanemoGalaxyItem(planemoConfig);
 
-                    return [
-                        versionItem,
-                        pathItem,
-                        galaxyItem,
-                    ]
-                }
+                    return [versionItem, pathItem, galaxyItem];
+                },
             };
             return Promise.resolve([rootItem]);
         }
-
     }
 
     private async getPlanemoVersionItem(planemoConfig: IPlanemoConfiguration): Promise<TreeItem> {
@@ -96,7 +100,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             label: "Version",
             description: planemoVersion,
             collapsibleState: TreeItemCollapsibleState.None,
-            tooltip: planemoConfig.binaryPath()
+            tooltip: planemoConfig.binaryPath(),
         };
         return item;
     }
@@ -121,8 +125,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
                 }
             }
             return planemoPathInConfig;
-        }
-        catch (err) {
+        } catch (err) {
             return UNKNOWN;
         }
     }
@@ -146,7 +149,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             label: GALAXY_LABEL,
             description: "instance used by Planemo",
             collapsibleState: TreeItemCollapsibleState.Collapsed,
-            getItemChildren: async planemoConfig => {
+            getItemChildren: async (planemoConfig) => {
                 const children = new Array<TreeItem>();
                 const version = await this.getGalaxyVersionItem(planemoConfig);
                 children.push(version);
@@ -157,7 +160,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
                 }
 
                 return children;
-            }
+            },
         };
         return item;
     }
@@ -178,7 +181,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
     private async getGalaxyVersion(planemoConfig: IPlanemoConfiguration): Promise<string> {
         try {
             const galaxyRootPath = planemoConfig.galaxyRoot();
-            const versionFilePath = path.join(galaxyRootPath!, 'lib', 'galaxy', 'version.py');
+            const versionFilePath = path.join(galaxyRootPath!, "lib", "galaxy", "version.py");
             const content = await readFile(versionFilePath);
             const lines = content.split(EOL);
             let version = undefined;
@@ -202,10 +205,3 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
         return item;
     }
 }
-
-
-
-
-
-
-

@@ -2,7 +2,6 @@ import { GalaxyToolsWorkspaceConfiguration } from "../configuration/galaxyToolWo
 import { ConfigValidationResult, IWorkspaceConfiguration } from "../configuration/workspaceConfiguration";
 
 export interface IPlanemoConfiguration {
-
     enabled(): boolean;
 
     binaryPath(): string;
@@ -13,11 +12,10 @@ export interface IPlanemoConfiguration {
 
     testing(): IPlanemoTestingConfiguration;
 
-    validate(): Promise<ConfigValidationResult>
+    validate(): Promise<ConfigValidationResult>;
 }
 
 export interface IPlanemoTestingConfiguration {
-
     enabled(): boolean;
 
     autoTestDiscoverOnSaveEnabled(): boolean;
@@ -28,7 +26,7 @@ export interface IConfigurationFactory {
 }
 
 export class DefaultConfigurationFactory implements IConfigurationFactory {
-    constructor() { }
+    constructor() {}
 
     public getConfiguration(): IWorkspaceConfiguration {
         return new GalaxyToolsWorkspaceConfiguration();

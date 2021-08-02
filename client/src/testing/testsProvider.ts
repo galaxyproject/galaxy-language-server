@@ -3,9 +3,7 @@ import { TestSuiteInfo, TestInfo } from "vscode-test-adapter-api";
 import { Commands } from "../commands";
 
 export interface ITestsProvider {
-
     discoverTests(): Promise<TestSuiteInfo | undefined>;
-
 }
 
 namespace DiscoverTestRequest {
@@ -13,21 +11,20 @@ namespace DiscoverTestRequest {
 }
 
 export class LanguageServerTestProvider implements ITestsProvider {
-
-    constructor(private readonly client: LanguageClient) { }
+    constructor(private readonly client: LanguageClient) {}
 
     async discoverTests(): Promise<TestSuiteInfo | undefined> {
         return await this.requestDiscoverTests();
     }
 
     private async requestDiscoverTests(): Promise<TestSuiteInfo | undefined> {
-        let response = await this.client.sendRequest(DiscoverTestRequest.type) as TestSuiteInfo[];
+        let response = (await this.client.sendRequest(DiscoverTestRequest.type)) as TestSuiteInfo[];
         if (!response) return;
 
-        const testSuites: TestSuiteInfo[] = []
-        response.forEach(suite => {
+        const testSuites: TestSuiteInfo[] = [];
+        response.forEach((suite) => {
             const tests: TestInfo[] = [];
-            suite.children.forEach(test => {
+            suite.children.forEach((test) => {
                 const testInfo: TestInfo = {
                     type: "test",
                     id: test.id,
@@ -39,11 +36,11 @@ export class LanguageServerTestProvider implements ITestsProvider {
                     debuggable: test.debuggable,
                     errored: test.errored,
                     message: test.message,
-                }
-                tests.push(testInfo)
+                };
+                tests.push(testInfo);
             });
             const suiteInfo: TestSuiteInfo = {
-                type: 'suite',
+                type: "suite",
                 id: suite.id,
                 label: suite.label,
                 file: suite.file,
@@ -53,17 +50,17 @@ export class LanguageServerTestProvider implements ITestsProvider {
                 debuggable: suite.debuggable,
                 errored: suite.errored,
                 message: suite.message,
-                children: tests
-            }
+                children: tests,
+            };
             testSuites.push(suiteInfo);
-        })
+        });
 
         const result: TestSuiteInfo = {
-            type: 'suite',
-            id: 'root',
-            label: 'planemo',
-            children: testSuites
-        }
+            type: "suite",
+            id: "root",
+            label: "planemo",
+            children: testSuites,
+        };
         return result;
     }
 }

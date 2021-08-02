@@ -1,15 +1,12 @@
 import { join } from "path";
-import { lookpath } from "lookpath"
-import { workspace, WorkspaceConfiguration } from 'vscode';
+import { lookpath } from "lookpath";
+import { workspace, WorkspaceConfiguration } from "vscode";
 
 import { IPlanemoConfiguration, IPlanemoTestingConfiguration } from "../planemo/configuration";
 import { exists } from "../utils";
 import { ConfigValidationResult, IWorkspaceConfiguration } from "./workspaceConfiguration";
 
-
-
 export class GalaxyToolsWorkspaceConfiguration implements IWorkspaceConfiguration {
-
     private readonly config: WorkspaceConfiguration;
     private readonly planemoConfig: IPlanemoConfiguration;
 
@@ -27,7 +24,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
     private readonly planemoTestingConfig: IPlanemoTestingConfiguration;
 
     constructor(private readonly config: WorkspaceConfiguration) {
-        this.planemoTestingConfig = new GalaxyToolsPlanemoTestingConfiguration(this.config)
+        this.planemoTestingConfig = new GalaxyToolsPlanemoTestingConfiguration(this.config);
     }
 
     public enabled(): boolean {
@@ -41,7 +38,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
     }
 
     public getCwd(): string | undefined {
-        return workspace.workspaceFolders ? workspace.workspaceFolders[0].uri.fsPath : undefined
+        return workspace.workspaceFolders ? workspace.workspaceFolders[0].uri.fsPath : undefined;
     }
 
     public testing(): IPlanemoTestingConfiguration {
@@ -55,11 +52,11 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
         const result = new ConfigValidationResult(validPlanemo, validGalaxyRoot);
 
         if (!validPlanemo) {
-            result.addErrorMessage("Please set a valid `envPath` value for planemo in the configuration.")
+            result.addErrorMessage("Please set a valid `envPath` value for planemo in the configuration.");
         }
 
         if (!validGalaxyRoot) {
-            result.addErrorMessage("Please set a valid `galaxyRoot` for planemo in the configuration.")
+            result.addErrorMessage("Please set a valid `galaxyRoot` for planemo in the configuration.");
         }
 
         return result;
@@ -67,7 +64,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
 
     private async isValidGalaxyRoot(): Promise<boolean> {
         const galaxyRoot = this.galaxyRoot();
-        if (galaxyRoot === null || !await exists(join(galaxyRoot, "lib", "galaxy"))) {
+        if (galaxyRoot === null || !(await exists(join(galaxyRoot, "lib", "galaxy")))) {
             return false;
         }
         return true;
@@ -76,18 +73,16 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
     private async isPlanemoInstalled(): Promise<boolean> {
         try {
             const envPath = this.binaryPath();
-            const isOnPath = await lookpath('planemo') !== undefined;
-            return envPath !== null && envPath.endsWith("planemo") && (isOnPath || await exists(envPath));
-        }
-        catch (err) {
+            const isOnPath = (await lookpath("planemo")) !== undefined;
+            return envPath !== null && envPath.endsWith("planemo") && (isOnPath || (await exists(envPath)));
+        } catch (err) {
             return false;
         }
     }
 }
 
 class GalaxyToolsPlanemoTestingConfiguration implements IPlanemoTestingConfiguration {
-
-    constructor(private readonly config: WorkspaceConfiguration) { }
+    constructor(private readonly config: WorkspaceConfiguration) {}
 
     enabled(): boolean {
         return this.config.get("planemo.testing.enabled", true);

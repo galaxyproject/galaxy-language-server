@@ -1,6 +1,5 @@
-import { TestEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
-import { IPlanemoConfiguration } from '../planemo/configuration';
-
+import { TestEvent, TestSuiteInfo } from "vscode-test-adapter-api";
+import { IPlanemoConfiguration } from "../planemo/configuration";
 
 export interface ITestRunner {
     readonly adapterId: string;

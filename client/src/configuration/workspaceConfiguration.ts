@@ -1,37 +1,31 @@
 import { IPlanemoConfiguration } from "../planemo/configuration";
 
-
 export namespace Settings {
-
     export namespace Completion {
-        export const MODE = 'galaxyTools.completion.mode';
-        export const AUTO_CLOSE_TAGS = 'galaxytools.completion.autoCloseTags';
+        export const MODE = "galaxyTools.completion.mode";
+        export const AUTO_CLOSE_TAGS = "galaxytools.completion.autoCloseTags";
     }
 
     export namespace Planemo {
-        export const ENABLED = 'galaxyTools.planemo.enabled';
-        export const ENV_PATH = 'galaxyTools.planemo.envPath';
-        export const GALAXY_ROOT = 'galaxyTools.planemo.galaxyRoot';
+        export const ENABLED = "galaxyTools.planemo.enabled";
+        export const ENV_PATH = "galaxyTools.planemo.envPath";
+        export const GALAXY_ROOT = "galaxyTools.planemo.galaxyRoot";
 
         export namespace Testing {
-            export const ENABLED = 'galaxyTools.planemo.testing.enabled';
-            export const AUTO_DISCOVERY_ON_SAVE_ENABLED = 'galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled';
+            export const ENABLED = "galaxyTools.planemo.testing.enabled";
+            export const AUTO_DISCOVERY_ON_SAVE_ENABLED = "galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled";
         }
     }
 }
 
-
 export interface IWorkspaceConfiguration {
-
     planemo(): IPlanemoConfiguration;
 }
 
 export class ConfigValidationResult {
-    private readonly errorMessages: string[] = []
+    private readonly errorMessages: string[] = [];
 
-    constructor(private validPlanemo: boolean, private validGalaxyRoot: boolean) {
-
-    }
+    constructor(private validPlanemo: boolean, private validGalaxyRoot: boolean) {}
 
     public isValidPlanemo(): boolean {
         return this.validPlanemo;
