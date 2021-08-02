@@ -25,8 +25,9 @@ export class PlanemoTestRunner implements ITestRunner {
         try {
             const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(testFile);
             const htmlReportFile = this.getTestHtmlReportFilePath(testFile);
+            const extraParams = this.getTestExtraParams(planemoConfig);
 
-            const testRunArguments = [
+            const baseArguments = [
                 `test`,
                 `--galaxy_root`,
                 `${planemoConfig.galaxyRoot()}`,
@@ -36,6 +37,8 @@ export class PlanemoTestRunner implements ITestRunner {
                 `${htmlReportFile}`,
                 `${testFile}`,
             ];
+
+            const testRunArguments = baseArguments.concat(extraParams);
 
             const testExecution = this.runPlanemoTest(planemoConfig, testRunArguments);
 
@@ -108,5 +111,13 @@ export class PlanemoTestRunner implements ITestRunner {
         const testFileName = path.basename(testFile, Constants.TOOL_DOCUMENT_EXTENSION).replace(".", "");
         const reportFile = path.resolve(baseDir, `${testFileName}_test_report.html`);
         return reportFile;
+    }
+
+    private getTestExtraParams(planemoConfig: IPlanemoConfiguration) {
+        const extraParams = planemoConfig.testing().extraParams();
+        if (extraParams != "") {
+            return extraParams.split(" ");
+        }
+        return [];
     }
 }

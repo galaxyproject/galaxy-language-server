@@ -19,6 +19,8 @@ export interface IPlanemoTestingConfiguration {
     enabled(): boolean;
 
     autoTestDiscoverOnSaveEnabled(): boolean;
+
+    extraParams(): string;
 }
 
 export interface IConfigurationFactory {

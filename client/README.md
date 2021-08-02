@@ -20,24 +20,24 @@ To support testing your tools using `planemo test` inside VSCode you need to ins
 
 # Table of Content
 
-- [Installation](#installation)
-  - [Troubleshooting](#troubleshooting)
-- [Configuration](#configuration)
-  - [Completion settings](#completion-settings)
-  - [Planemo settings](#planemo-settings)
-- [Features](#features)
-  - [Tag and attribute auto-completion](#tag-and-attribute-auto-completion)
-  - [Documentation on Hover](#documentation-on-hover)
-  - [Document validation](#document-validation)
-  - [Document auto-formatting](#document-auto-formatting)
-  - [Tag auto-closing](#tag-auto-closing)
-  - [Snippets](#snippets)
-  - [Embedded syntax highlighting](#embedded-syntax-highlighting)
-  - [Auto-generate tests](#auto-generate-tests)
-  - [Auto-generate command section](#auto-generate-command-section)
-  - [Auto-sort param attributes](#auto-sort-param-attributes)
-  - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer)
-  - [Improved macros support](#improved-macros-support) _New feature!_ :rocket:
+-   [Installation](#installation)
+    -   [Troubleshooting](#troubleshooting)
+-   [Configuration](#configuration)
+    -   [Completion settings](#completion-settings)
+    -   [Planemo settings](#planemo-settings)
+-   [Features](#features)
+    -   [Tag and attribute auto-completion](#tag-and-attribute-auto-completion)
+    -   [Documentation on Hover](#documentation-on-hover)
+    -   [Document validation](#document-validation)
+    -   [Document auto-formatting](#document-auto-formatting)
+    -   [Tag auto-closing](#tag-auto-closing)
+    -   [Snippets](#snippets)
+    -   [Embedded syntax highlighting](#embedded-syntax-highlighting)
+    -   [Auto-generate tests](#auto-generate-tests)
+    -   [Auto-generate command section](#auto-generate-command-section)
+    -   [Auto-sort param attributes](#auto-sort-param-attributes)
+    -   [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer)
+    -   [Improved macros support](#improved-macros-support) _New feature!_ :rocket:
 
 # Installation
 
@@ -53,9 +53,9 @@ If you encounter any problem during the language server installation, open the V
 
 Some possible errors:
 
-- `The selected file is not a valid Python <version> path!`. This message will appear if you select a Python binary that is not compatible with the required version. You will be given a chance to select the correct version the next time the extension gets activated. You can force it by reloading the extension or restarting VScode.
+-   `The selected file is not a valid Python <version> path!`. This message will appear if you select a Python binary that is not compatible with the required version. You will be given a chance to select the correct version the next time the extension gets activated. You can force it by reloading the extension or restarting VScode.
 
-- `Error installing the Galaxy Language Server: pip module not found`. The extension needs to create a virtual environment to install the `galaxy-language-server` package and its dependencies. To create a proper environment with `pip` included, in some systems you need to install the `python3-venv` package using the following command: `apt install python3-venv` (you may need to use `sudo`). Once you have `python3-venv` installed, you may need to remove the `glsenv` directory inside the extension installation directory and then restart or reload VSCode to recreate the environment.
+-   `Error installing the Galaxy Language Server: pip module not found`. The extension needs to create a virtual environment to install the `galaxy-language-server` package and its dependencies. To create a proper environment with `pip` included, in some systems you need to install the `python3-venv` package using the following command: `apt install python3-venv` (you may need to use `sudo`). Once you have `python3-venv` installed, you may need to remove the `glsenv` directory inside the extension installation directory and then restart or reload VSCode to recreate the environment.
 
 # Configuration
 
@@ -86,6 +86,7 @@ Planemo integration is currently in **experimental** phase. Please report any pr
 | ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `galaxyTools.planemo.testing.enabled`                       | Whether to discover and run tests using `planemo test` directly from the Test Explorer. |
 | `galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled` | Whether to try to discover new tests when a Galaxy Tool Wrapper file is saved.          |
+| `galaxyTools.planemo.testing.extraParams`                   | Additional arguments that will be passed to `planemo test` command.                     |
 
 ### Configuring Test Explorer UI
 
@@ -182,9 +183,9 @@ Now you can automatically sort the attributes of param elements according to the
 
 You can now run `planemo test` for the currently opened tool directly from the `Test Explorer`.
 
-- The tests are automatically discovered by the `galaxy-language-server` when you open a tool or save the document (this can be controlled by the settings).
-- You can then run all the tests from the `Test Explorer` by using `planemo test` in the background. Currently running individual tests is not supported as AFAIK `planemo` does not have an option to do so at the moment.
-- After successfully running the tests, the results will be displayed in a convenient way directly on your source XML.
+-   The tests are automatically discovered by the `galaxy-language-server` when you open a tool or save the document (this can be controlled by the settings).
+-   You can then run all the tests from the `Test Explorer` by using `planemo test` in the background. Currently running individual tests is not supported as AFAIK `planemo` does not have an option to do so at the moment.
+-   After successfully running the tests, the results will be displayed in a convenient way directly on your source XML.
 
 The failing tests will be marked in red and the reason for failure can be seen directly beside the test definition in the same line or more detailed in the `Output`. You can also directly navigate to each of the tests XML source from the `Test Explorer`.
 This can be very convenient especially when having a large number of tests in your tool.

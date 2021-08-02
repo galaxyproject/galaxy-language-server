@@ -211,6 +211,12 @@
           "type": "boolean",
           "markdownDescription": "Whether to try to discover new tests when a Galaxy Tool Wrapper file is saved.",
           "default": true
+        },
+        "galaxyTools.planemo.testing.extraParams": {
+          "scope": "resource",
+          "type": "string",
+          "markdownDescription": "String with additional arguments that will be passed to `planemo test` command. Example: `--no_cleanup --update_test_data`",
+          "default": ""
         }
       }
     },
