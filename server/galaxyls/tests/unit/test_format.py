@@ -38,20 +38,20 @@ class TestGalaxyToolFormatServiceClass:
     def test_format_document_returns_expected_format(self):
         service = GalaxyToolFormatService()
 
-        actual = service._format_document(FAKE_UNFORMATTED_DOCUMENT, tabSize=4)
+        actual = service.format_content(FAKE_UNFORMATTED_DOCUMENT, tabSize=4)
 
         assert actual == EXPECTED_FORMATTED_DOCUMENT
 
     def test_format_document_maintains_cdata(self):
         service = GalaxyToolFormatService()
 
-        actual = service._format_document(FAKE_UNFORMATTED_DOCUMENT, tabSize=4)
+        actual = service.format_content(FAKE_UNFORMATTED_DOCUMENT, tabSize=4)
 
         assert "<![CDATA[This is a test.]]>" in actual
 
     def test_format_document_do_not_change_invalid_xml(self):
         service = GalaxyToolFormatService()
 
-        actual = service._format_document(FAKE_INVALID_DOCUMENT, tabSize=4)
+        actual = service.format_content(FAKE_INVALID_DOCUMENT, tabSize=4)
 
         assert actual == FAKE_INVALID_DOCUMENT

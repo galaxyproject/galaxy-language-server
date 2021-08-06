@@ -4,6 +4,7 @@ from lxml import etree
 from pydantic.main import BaseModel
 from pygls.lsp.types import CodeAction, CodeActionKind, CodeActionParams, TextEdit, WorkspaceEdit
 from pygls.lsp.types.basic_structures import Position, Range
+from galaxyls.services.format import GalaxyToolFormatService
 
 from galaxyls.services.tools.constants import DESCRIPTION, MACRO, MACROS, TOOL, XML, XREF
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
@@ -17,8 +18,9 @@ class MacroData(BaseModel):
 
 
 class RefactorMacrosService:
-    def __init__(self, macro_definitions_provider: MacroDefinitionsProvider) -> None:
+    def __init__(self, macro_definitions_provider: MacroDefinitionsProvider, format_service: GalaxyToolFormatService) -> None:
         self.definitions_provider = macro_definitions_provider
+        self.format_service = format_service
 
     def create_extract_to_local_macro_actions(
         self, xml_document: XmlDocument, macro: MacroData, params: CodeActionParams
@@ -32,7 +34,7 @@ class RefactorMacrosService:
         ]
 
     def create_extract_to_macros_file_actions(
-        self, macro_definitions: ToolMacroDefinitions, macro: MacroData, params: CodeActionParams
+        self, xml_document: XmlDocument, macro_definitions: ToolMacroDefinitions, macro: MacroData, params: CodeActionParams
     ) -> List[CodeAction]:
         code_actions = []
 
@@ -42,7 +44,7 @@ class RefactorMacrosService:
                     title=f"Extract to macro in {file_name}",
                     kind=CodeActionKind.RefactorExtract,
                     edit=WorkspaceEdit(
-                        changes=self._calculate_external_changes_for_macro(macro_file_definition, macro, params)
+                        changes=self._calculate_external_changes_for_macro(xml_document, macro_file_definition, macro, params)
                     ),
                 )
             )
@@ -59,48 +61,55 @@ class RefactorMacrosService:
             edits.append(self._edit_create_with_macros_section(tool, macro))
         else:
             edits.append(self._edit_add_macro_to_macros_section(tool, macro))
-        edits.append(self._edit_replace_range_with_macro_expand(macro, params.range))
+        edits.append(self._edit_replace_range_with_macro_expand(xml_document, macro, params.range))
         changes = {params.text_document.uri: edits}
         return changes
 
     def _calculate_external_changes_for_macro(
-        self, macro_file_definition: ImportedMacrosFile, macro: MacroData, params: CodeActionParams
+        self, xml_document: XmlDocument, macro_file_definition: ImportedMacrosFile, macro: MacroData, params: CodeActionParams
     ) -> Dict[str, TextEdit]:
         macros_xml_doc = macro_file_definition.document
         macros_root = macros_xml_doc.root
-        macros_content_range = macros_xml_doc.get_content_range(macros_root)
-        insert_range = Range(start=macros_content_range.end, end=macros_content_range.end)
+        insert_position = macros_xml_doc.get_position_after_last_child(macros_root)
+        insert_range = Range(start=insert_position, end=insert_position)
+        macro_xml = f'<xml name="{macro.name}">\n{macro.content}\n</xml>'
+        final_macro_xml = self._adapt_format(macros_xml_doc, insert_range, macro_xml)
         external_edit = TextEdit(
             range=insert_range,
-            new_text=f'<xml name="{macro.name}">\n{macro.content}\n</xml>\n',
+            new_text=final_macro_xml,
         )
         changes = {
-            params.text_document.uri: [self._edit_replace_range_with_macro_expand(macro, params.range)],
+            params.text_document.uri: [self._edit_replace_range_with_macro_expand(xml_document, macro, params.range)],
             macro_file_definition.file_uri: [external_edit],
         }
         return changes
 
-    def _edit_replace_range_with_macro_expand(self, macro: MacroData, range: Range) -> TextEdit:
+    def _edit_replace_range_with_macro_expand(self, xml_document: XmlDocument, macro: MacroData, range: Range) -> TextEdit:
+        indentation = xml_document.get_line_indentation(range.start.line)
         return TextEdit(
-            range=range,
-            new_text=f'<expand macro="{macro.name}"/>',
+            range=self._get_range_from_line_start(range),
+            new_text=f'{indentation}<expand macro="{macro.name}"/>',
         )
 
     def _edit_create_with_macros_section(self, tool: GalaxyToolXmlDocument, macro: MacroData) -> TextEdit:
         insert_position = self._find_macros_insert_position(tool)
         insert_range = Range(start=insert_position, end=insert_position)
+        macro_xml = f'<macros>\n<xml name="{macro.name}">\n{macro.content}\n</xml>\n</macros>'
+        final_macro_xml = self._adapt_format(tool.xml_document, insert_range, macro_xml)
         return TextEdit(
             range=insert_range,
-            new_text=f'\n<macros>\n<xml name="{macro.name}">\n{macro.content}\n</xml>\n</macros>',
+            new_text=final_macro_xml,
         )
 
     def _edit_add_macro_to_macros_section(self, tool: GalaxyToolXmlDocument, macro: MacroData) -> TextEdit:
         macros_element = tool.get_macros_element()
-        macros_content_range = tool.get_content_range(macros_element)
-        insert_range = Range(start=macros_content_range.end, end=macros_content_range.end)
+        insert_position = tool.get_position_after_last_child(macros_element)
+        insert_range = Range(start=insert_position, end=insert_position)
+        macro_xml = f'<xml name="{macro.name}">\n{macro.content}\n</xml>'
+        final_macro_xml = self._adapt_format(tool.xml_document, insert_range, macro_xml)
         return TextEdit(
             range=insert_range,
-            new_text=f'<xml name="{macro.name}">\n{macro.content}\n</xml>\n',
+            new_text=final_macro_xml,
         )
 
     def _find_macros_insert_position(self, tool: GalaxyToolXmlDocument) -> Position:
@@ -118,6 +127,26 @@ class RefactorMacrosService:
             return tool.get_position_after(section)
         return tool.get_content_range(TOOL).start
 
+    def _get_range_from_line_start(self, range: Range) -> Range:
+        return Range(start=Position(line=range.start.line, character=0), end=range.end)
+
+    def _apply_indent(self, text: str, indent: str) -> str:
+        indented = indent + text.replace("\n", "\n" + indent)
+        return indented
+
+    def _adapt_format(
+        self, xml_document: XmlDocument, insert_range: Range, xml_text: str, insert_in_new_line: bool = True
+    ) -> str:
+        formatted_macro = self.format_service.format_content(xml_text).rstrip()
+        reference_line = insert_range.start.line
+        if not insert_in_new_line:
+            reference_line -= 1
+        indent = xml_document.get_line_indentation(reference_line)
+        final_macro_text = self._apply_indent(formatted_macro, indent)
+        if insert_in_new_line:
+            return f"\n{final_macro_text}"
+        return final_macro_text
+
 
 class RefactoringService:
     def __init__(self, macros_refactoring_service: RefactorMacrosService) -> None:
@@ -130,7 +159,9 @@ class RefactoringService:
         if target_element_tag is not None:
             macro = MacroData(name=target_element_tag, content=text_in_range.strip())
             macro_definitions = self.macros.definitions_provider.load_macro_definitions(xml_document)
-            code_actions.extend(self.macros.create_extract_to_macros_file_actions(macro_definitions, macro, params))
+            code_actions.extend(
+                self.macros.create_extract_to_macros_file_actions(xml_document, macro_definitions, macro, params)
+            )
             code_actions.extend(self.macros.create_extract_to_local_macro_actions(xml_document, macro, params))
         return code_actions
 

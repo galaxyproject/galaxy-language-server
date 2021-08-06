@@ -151,6 +151,22 @@ class XmlDocument(XmlSyntaxNode):
             return convert_document_offset_to_position(self.document, element.end)
         return convert_document_offset_to_position(self.document, element.end_offset)
 
+    def get_position_after_last_child(self, element: XmlElement) -> Position:
+        """Return the position in the document after the last child of the given element.
+
+        Args:
+            element (XmlElement): The element used to find the position.
+
+        Returns:
+            Position: The position just after the last child element declaration.
+        """
+        if element.is_self_closed:
+            return convert_document_offset_to_position(self.document, element.end)
+        if element.elements:
+            last = element.elements[-1]
+            return self.get_position_after(last)
+        return convert_document_offset_to_position(self.document, element.start_tag_close_offset)
+
     def find_all_elements_with_name(self, name: str) -> List[XmlElement]:
         """Returns a list with all the elements contained in the document matching the given name."""
         if self.root:
@@ -167,3 +183,9 @@ class XmlDocument(XmlSyntaxNode):
         start = self.document.offset_at_position(range.start)
         end = self.document.offset_at_position(range.end)
         return self.get_text_between_offsets(start, end)
+
+    def get_line_indentation(self, line_number: int) -> str:
+        """Gets the string containing the number of spaces at the beginning of the given line in the document."""
+        line_text = self.document.lines[line_number]
+        indentation = line_text[: len(line_text) - len(line_text.lstrip())]
+        return indentation
