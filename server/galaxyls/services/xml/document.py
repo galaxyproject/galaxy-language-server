@@ -161,3 +161,9 @@ class XmlDocument(XmlSyntaxNode):
     def get_text_between_offsets(self, start: int, end: int) -> str:
         """Gets the text content between the start and end offsets."""
         return self.document.source[start:end]
+
+    def get_text_in_range(self, range: Range) -> str:
+        """Gets the document text contained in the given range."""
+        start = self.document.offset_at_position(range.start)
+        end = self.document.offset_at_position(range.end)
+        return self.get_text_between_offsets(start, end)
