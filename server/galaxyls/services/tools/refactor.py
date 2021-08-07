@@ -1,15 +1,31 @@
+from pathlib import Path
 from typing import Dict, List, Optional
+from urllib.parse import urlparse
 
 from lxml import etree
 from pydantic.main import BaseModel
-from pygls.lsp.types import CodeAction, CodeActionKind, CodeActionParams, TextEdit, WorkspaceEdit
-from pygls.lsp.types.basic_structures import Position, Range
-from galaxyls.services.format import GalaxyToolFormatService
+from pygls.lsp.types import (
+    CodeAction,
+    CodeActionKind,
+    CodeActionParams,
+    CreateFile,
+    Position,
+    Range,
+    ResourceOperationKind,
+    TextDocumentEdit,
+    TextEdit,
+    VersionedTextDocumentIdentifier,
+    WorkspaceEdit,
+)
+from pygls.workspace import Workspace
 
+from galaxyls.services.format import GalaxyToolFormatService
 from galaxyls.services.tools.constants import DESCRIPTION, MACRO, MACROS, TOOL, XML, XREF
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.macros import ImportedMacrosFile, MacroDefinitionsProvider, ToolMacroDefinitions
 from galaxyls.services.xml.document import XmlDocument
+
+DEFAULT_MACROS_FILENAME = "macros.xml"
 
 
 class MacroData(BaseModel):
@@ -18,33 +34,50 @@ class MacroData(BaseModel):
 
 
 class RefactorMacrosService:
-    def __init__(self, macro_definitions_provider: MacroDefinitionsProvider, format_service: GalaxyToolFormatService) -> None:
+    def __init__(
+        self,
+        workspace: Workspace,
+        macro_definitions_provider: MacroDefinitionsProvider,
+        format_service: GalaxyToolFormatService,
+    ) -> None:
+        self.workspace = workspace
         self.definitions_provider = macro_definitions_provider
         self.format_service = format_service
 
     def create_extract_to_local_macro_actions(
-        self, xml_document: XmlDocument, macro: MacroData, params: CodeActionParams
+        self, tool: GalaxyToolXmlDocument, macro: MacroData, params: CodeActionParams
     ) -> List[CodeAction]:
         return [
             CodeAction(
                 title="Extract to local macro",
                 kind=CodeActionKind.RefactorExtract,
-                edit=WorkspaceEdit(changes=self._calculate_local_changes_for_macro(xml_document, macro, params)),
+                edit=WorkspaceEdit(changes=self._calculate_local_changes_for_macro(tool, macro, params)),
             )
         ]
 
     def create_extract_to_macros_file_actions(
-        self, xml_document: XmlDocument, macro_definitions: ToolMacroDefinitions, macro: MacroData, params: CodeActionParams
+        self, tool: GalaxyToolXmlDocument, macro_definitions: ToolMacroDefinitions, macro: MacroData, params: CodeActionParams
     ) -> List[CodeAction]:
+        if not macro_definitions.imported_macros:
+            return [
+                CodeAction(
+                    title=f"Extract to macro, create and import {DEFAULT_MACROS_FILENAME}",
+                    kind=CodeActionKind.RefactorExtract,
+                    edit=WorkspaceEdit(
+                        document_changes=self._calculate_external_changes_for_macro_in_new_file(
+                            tool, DEFAULT_MACROS_FILENAME, macro, params
+                        )
+                    ),
+                )
+            ]
         code_actions = []
-
         for file_name, macro_file_definition in macro_definitions.imported_macros.items():
             code_actions.append(
                 CodeAction(
                     title=f"Extract to macro in {file_name}",
                     kind=CodeActionKind.RefactorExtract,
                     edit=WorkspaceEdit(
-                        changes=self._calculate_external_changes_for_macro(xml_document, macro_file_definition, macro, params)
+                        changes=self._calculate_external_changes_for_macro(tool, macro_file_definition, macro, params)
                     ),
                 )
             )
@@ -52,21 +85,24 @@ class RefactorMacrosService:
         return code_actions
 
     def _calculate_local_changes_for_macro(
-        self, xml_document: XmlDocument, macro: MacroData, params: CodeActionParams
+        self, tool: GalaxyToolXmlDocument, macro: MacroData, params: CodeActionParams
     ) -> Dict[str, TextEdit]:
-        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         macros_element = tool.get_macros_element()
         edits: List[TextEdit] = []
         if macros_element is None:
             edits.append(self._edit_create_with_macros_section(tool, macro))
         else:
             edits.append(self._edit_add_macro_to_macros_section(tool, macro))
-        edits.append(self._edit_replace_range_with_macro_expand(xml_document, macro, params.range))
+        edits.append(self._edit_replace_range_with_macro_expand(tool, macro, params.range))
         changes = {params.text_document.uri: edits}
         return changes
 
     def _calculate_external_changes_for_macro(
-        self, xml_document: XmlDocument, macro_file_definition: ImportedMacrosFile, macro: MacroData, params: CodeActionParams
+        self,
+        tool: GalaxyToolXmlDocument,
+        macro_file_definition: ImportedMacrosFile,
+        macro: MacroData,
+        params: CodeActionParams,
     ) -> Dict[str, TextEdit]:
         macros_xml_doc = macro_file_definition.document
         macros_root = macros_xml_doc.root
@@ -79,16 +115,67 @@ class RefactorMacrosService:
             new_text=final_macro_xml,
         )
         changes = {
-            params.text_document.uri: [self._edit_replace_range_with_macro_expand(xml_document, macro, params.range)],
+            params.text_document.uri: [self._edit_replace_range_with_macro_expand(tool, macro, params.range)],
             macro_file_definition.file_uri: [external_edit],
         }
         return changes
 
-    def _edit_replace_range_with_macro_expand(self, xml_document: XmlDocument, macro: MacroData, range: Range) -> TextEdit:
-        indentation = xml_document.get_line_indentation(range.start.line)
+    def _calculate_external_changes_for_macro_in_new_file(
+        self, tool: GalaxyToolXmlDocument, new_file_name: str, macro: MacroData, params: CodeActionParams
+    ):
+        base_path = Path(urlparse(tool.xml_document.document.uri).path).parent
+        new_file_uri = (base_path / new_file_name).as_uri()
+        xml_content = f'<macros>\n<xml name="{macro.name}">\n{macro.content}\n</xml>\n</macros>'
+        final_xml_content = self.format_service.format_content(xml_content)
+        new_doc_insert_position = Position(line=0, character=0)
+        tool_document = self.workspace.get_document(params.text_document.uri)
+        changes = [
+            CreateFile(uri=new_file_uri, kind=ResourceOperationKind.Create),
+            TextDocumentEdit(
+                text_document=VersionedTextDocumentIdentifier(
+                    uri=new_file_uri,
+                    version=0,
+                ),
+                edits=[
+                    TextEdit(
+                        range=Range(start=new_doc_insert_position, end=new_doc_insert_position),
+                        new_text=final_xml_content,
+                    ),
+                ],
+            ),
+            TextDocumentEdit(
+                text_document=VersionedTextDocumentIdentifier(
+                    uri=tool_document.uri,
+                    version=tool_document.version,
+                ),
+                edits=[
+                    self._edit_create_import_macros_section(tool, DEFAULT_MACROS_FILENAME),
+                    self._edit_replace_range_with_macro_expand(tool, macro, params.range),
+                ],
+            ),
+        ]
+        return changes
+
+    def _edit_replace_range_with_macro_expand(self, tool: GalaxyToolXmlDocument, macro: MacroData, range: Range) -> TextEdit:
+        indentation = tool.xml_document.get_line_indentation(range.start.line)
         return TextEdit(
             range=self._get_range_from_line_start(range),
             new_text=f'{indentation}<expand macro="{macro.name}"/>',
+        )
+
+    def _edit_create_import_macros_section(self, tool: GalaxyToolXmlDocument, macros_file_name: str) -> TextEdit:
+        macros_element = tool.find_element(MACROS)
+        if macros_element:
+            insert_position = tool.get_position_before_first_child(macros_element)
+            macro_xml = f"<import>{macros_file_name}</import>"
+        else:
+            insert_position = self._find_macros_insert_position(tool)
+            macro_xml = f"<macros>\n<import>{macros_file_name}</import>\n</macros>"
+        insert_range = Range(start=insert_position, end=insert_position)
+        final_macro_xml = self._adapt_format(tool.xml_document, insert_range, macro_xml)
+        return TextEdit(
+            range=insert_range,
+            new_text=final_macro_xml,
         )
 
     def _edit_create_with_macros_section(self, tool: GalaxyToolXmlDocument, macro: MacroData) -> TextEdit:
@@ -159,10 +246,9 @@ class RefactoringService:
         if target_element_tag is not None:
             macro = MacroData(name=target_element_tag, content=text_in_range.strip())
             macro_definitions = self.macros.definitions_provider.load_macro_definitions(xml_document)
-            code_actions.extend(
-                self.macros.create_extract_to_macros_file_actions(xml_document, macro_definitions, macro, params)
-            )
-            code_actions.extend(self.macros.create_extract_to_local_macro_actions(xml_document, macro, params))
+            tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
+            code_actions.extend(self.macros.create_extract_to_macros_file_actions(tool, macro_definitions, macro, params))
+            code_actions.extend(self.macros.create_extract_to_local_macro_actions(tool, macro, params))
         return code_actions
 
     def get_valid_full_element_tag(self, xml_text: str) -> Optional[str]:

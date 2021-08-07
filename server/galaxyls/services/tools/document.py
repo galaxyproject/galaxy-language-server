@@ -112,6 +112,17 @@ class GalaxyToolXmlDocument:
         """
         return self.xml_document.get_position_after_last_child(element)
 
+    def get_position_before_first_child(self, element: XmlElement) -> Position:
+        """Return the position in the document before the first child of the given element.
+
+        Args:
+            element (XmlElement): The element used to find the position.
+
+        Returns:
+            Position: The position just before the first child element declaration.
+        """
+        return self.xml_document.get_position_before_first_child(element)
+
     def analyze_inputs(self) -> GalaxyToolInputTree:
         """Gets the inputs in the document and builds the input tree.
 

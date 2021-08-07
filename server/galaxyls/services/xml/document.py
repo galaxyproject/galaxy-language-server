@@ -165,7 +165,20 @@ class XmlDocument(XmlSyntaxNode):
         if element.elements:
             last = element.elements[-1]
             return self.get_position_after(last)
-        return convert_document_offset_to_position(self.document, element.start_tag_close_offset)
+        return convert_document_offset_to_position(self.document, element.end_tag_open_offset)
+
+    def get_position_before_first_child(self, element: XmlElement) -> Position:
+        """Return the position in the document before the first child of the given element.
+
+        Args:
+            element (XmlElement): The element used to find the position.
+
+        Returns:
+            Position: The position just before the first child element declaration.
+        """
+        if element.is_self_closed:
+            return convert_document_offset_to_position(self.document, element.end)
+        return convert_document_offset_to_position(self.document, element.end_tag_open_offset)
 
     def find_all_elements_with_name(self, name: str) -> List[XmlElement]:
         """Returns a list with all the elements contained in the document matching the given name."""

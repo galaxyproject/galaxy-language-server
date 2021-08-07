@@ -57,7 +57,9 @@ class GalaxyToolLanguageService:
         macro_definitions_provider = MacroDefinitionsProvider(workspace)
         self.definitions_provider = DocumentDefinitionsProvider(macro_definitions_provider)
         self.completion_service = XmlCompletionService(self.xsd_tree, self.definitions_provider)
-        self.refactoring_service = RefactoringService(RefactorMacrosService(macro_definitions_provider, self.format_service))
+        self.refactoring_service = RefactoringService(
+            RefactorMacrosService(workspace, macro_definitions_provider, self.format_service)
+        )
 
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list
