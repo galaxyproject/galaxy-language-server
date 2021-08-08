@@ -3,6 +3,7 @@
 from typing import List, Optional
 
 from pygls.lsp.methods import (
+    CODE_ACTION,
     COMPLETION,
     DEFINITION,
     FORMATTING,
@@ -14,6 +15,10 @@ from pygls.lsp.methods import (
     WORKSPACE_DID_CHANGE_CONFIGURATION,
 )
 from pygls.lsp.types import (
+    CodeAction,
+    CodeActionParams,
+    CodeActionKind,
+    CodeActionOptions,
     CompletionList,
     CompletionOptions,
     CompletionParams,
@@ -148,6 +153,22 @@ def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionPa
     if document:
         xml_document = _get_xml_document(document)
         return server.service.definitions_provider.go_to_definition(xml_document, params.position)
+
+
+@language_server.feature(
+    CODE_ACTION,
+    CodeActionOptions(
+        code_action_kinds=[
+            CodeActionKind.RefactorExtract,
+        ],
+    ),
+)
+def process_code_actions(server: GalaxyToolsLanguageServer, params: CodeActionParams) -> Optional[List[CodeAction]]:
+    document = _get_valid_document(server, params.text_document.uri)
+    if document is None:
+        return None
+    xml_document = _get_xml_document(document)
+    return server.service.get_available_refactoring_actions(xml_document, params)
 
 
 @language_server.feature(Commands.AUTO_CLOSE_TAGS)

@@ -1,6 +1,7 @@
 from typing import cast
 
 from galaxy.util import xml_macros
+from galaxyls.services.format import DEFAULT_INDENTATION
 from galaxyls.types import GeneratedExpandedDocument
 from lxml import etree
 
@@ -29,7 +30,7 @@ class MacroExpanderService:
             expanded_tool_tree, _ = xml_macros.load_with_references(tool_path)
             expanded_xml = remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
-            etree.indent(root, space=" " * 4)
+            etree.indent(root, space=DEFAULT_INDENTATION)
             content = cast(str, etree.tostring(root, pretty_print=True, encoding=str))
             result.content = content
         except BaseException as e:

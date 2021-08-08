@@ -10,6 +10,7 @@ from pygls.workspace import Document
 
 from galaxy.util import xml_macros
 from galaxyls.constants import DiagnosticCodes
+from galaxyls.services.format import DEFAULT_INDENTATION
 from galaxyls.services.macros import remove_macros
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.document import XmlDocument
@@ -82,7 +83,7 @@ class GalaxyToolValidationService:
             expanded_tool_tree, _ = xml_macros.load_with_references(tool.path)
             expanded_xml = remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
-            etree.indent(root, space=" " * 4)
+            etree.indent(root, space=DEFAULT_INDENTATION)
             content = cast(str, etree.tostring(root, pretty_print=True, encoding=str))
             formatted_xml = etree.fromstring(content)
             self.xsd_schema.assertValid(formatted_xml)

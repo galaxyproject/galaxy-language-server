@@ -7,6 +7,8 @@ from typing import List, cast
 
 from pygls.lsp.types import DocumentFormattingParams, Position, Range, TextEdit
 
+DEFAULT_INDENTATION = " " * 4
+
 
 class GalaxyToolFormatService:
     """Galaxy tool format service.
@@ -19,15 +21,15 @@ class GalaxyToolFormatService:
         """Given the document contents returns the list of TextEdits
         needed to properly layout the document.
         """
-        formatted_result = self._format_document(content, params.options.tab_size)
+        formatted_result = self.format_content(content, params.options.tab_size)
 
         lines = content.count("\n")
         start = Position(line=0, character=0)
         end = Position(line=lines + 1, character=0)
         return [TextEdit(range=Range(start=start, end=end), new_text=formatted_result)]
 
-    def _format_document(self, content: str, tabSize: int) -> str:
-        """Formats the whole XML document."""
+    def format_content(self, content: str, tabSize: int = 4) -> str:
+        """Formats the given XML content."""
         try:
             parser = etree.XMLParser(strip_cdata=False)
             xml = etree.fromstring(content, parser=parser)

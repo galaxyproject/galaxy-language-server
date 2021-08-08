@@ -8,6 +8,8 @@ from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetG
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
 from pygls.lsp.types import (
+    CodeAction,
+    CodeActionParams,
     CompletionList,
     CompletionParams,
     Diagnostic,
@@ -22,6 +24,7 @@ from pygls.lsp.types import (
 )
 from pygls.workspace import Document, Workspace
 from galaxyls.services.tools.macros import MacroDefinitionsProvider
+from galaxyls.services.tools.refactor import RefactorMacrosService, RefactoringService
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 
 from ..config import CompletionMode
@@ -48,10 +51,15 @@ class GalaxyToolLanguageService:
         self.sort_service: ToolParamAttributeSorter = IUCToolParamAttributeSorter()
         self.test_discovery_service: TestsDiscoveryService = ToolTestsDiscoveryService()
         self.macro_expander = MacroExpanderService()
+        self.refactoring_service: Optional[RefactoringService] = None
 
     def set_workspace(self, workspace: Workspace):
-        self.definitions_provider = DocumentDefinitionsProvider(MacroDefinitionsProvider(workspace))
+        macro_definitions_provider = MacroDefinitionsProvider(workspace)
+        self.definitions_provider = DocumentDefinitionsProvider(macro_definitions_provider)
         self.completion_service = XmlCompletionService(self.xsd_tree, self.definitions_provider)
+        self.refactoring_service = RefactoringService(
+            RefactorMacrosService(workspace, macro_definitions_provider, self.format_service)
+        )
 
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list
@@ -132,3 +140,10 @@ class GalaxyToolLanguageService:
     def discover_tests(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
         """Sorts the attributes of all the param elements contained in the document."""
         return self.test_discovery_service.discover_tests_in_workspace(workspace)
+
+    def get_available_refactoring_actions(
+        self, xml_document: XmlDocument, params: CodeActionParams
+    ) -> Optional[List[CodeAction]]:
+        if self.refactoring_service is None:
+            return None
+        return self.refactoring_service.get_available_refactoring_actions(xml_document, params)
