@@ -65,10 +65,10 @@ function parseTestResults(parserResult: any, testSuite: TestSuiteInfo, htmlRepor
     const testResults: TestEvent[] = [];
     testSuiteResults.tests.forEach((testCaseResult) => {
         const testInfo = getTestInfo(testCaseResult, testSuite);
-        const adatedResult = adaptTestResult(testCaseResult, testInfo);
-        if (adatedResult !== undefined) {
-            adatedResult.message += `${EOL}${EOL}See full test report: ${htmlReportFile}`;
-            testResults.push(adatedResult);
+        const adaptedResult = adaptTestResult(testCaseResult, testInfo);
+        if (adaptedResult !== undefined) {
+            adaptedResult.message += `${EOL}${EOL}See full test report: ${htmlReportFile}`;
+            testResults.push(adaptedResult);
         }
     });
 
@@ -88,7 +88,7 @@ function adaptTestResult(testResult: ITestCaseResult, testInfo: TestInfo | undef
     if (!testResult.has_data) {
         return undefined;
     }
-    const state = adapTestState(testResult);
+    const state = adaptTestState(testResult);
     const testId = adaptTestId(testResult);
     const message = adaptTestMessage(testResult);
     const line = testInfo ? testInfo.line : 0;
@@ -103,7 +103,7 @@ function adaptTestResult(testResult: ITestCaseResult, testInfo: TestInfo | undef
     return result;
 }
 
-function adapTestState(testResult: ITestCaseResult): TestState {
+function adaptTestState(testResult: ITestCaseResult): TestState {
     const adapted = stateMap.get(testResult.data.status);
     if (adapted === undefined) return "errored";
     return adapted;

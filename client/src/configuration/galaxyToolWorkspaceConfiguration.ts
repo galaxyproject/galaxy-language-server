@@ -30,9 +30,11 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
     public enabled(): boolean {
         return this.config.get("planemo.enabled", true);
     }
+
     public binaryPath(): string {
         return this.config.get("planemo.envPath", "planemo");
     }
+
     public galaxyRoot(): string | null {
         return this.config.get("planemo.galaxyRoot", null);
     }
@@ -87,7 +89,12 @@ class GalaxyToolsPlanemoTestingConfiguration implements IPlanemoTestingConfigura
     enabled(): boolean {
         return this.config.get("planemo.testing.enabled", true);
     }
+
     autoTestDiscoverOnSaveEnabled(): boolean {
         return this.config.get("planemo.testing.autoTestDiscoverOnSaveEnabled", true);
+    }
+
+    extraParams(): string {
+        return this.config.get("planemo.testing.extraParams", "");
     }
 }

@@ -14,6 +14,7 @@ export namespace Settings {
         export namespace Testing {
             export const ENABLED = "galaxyTools.planemo.testing.enabled";
             export const AUTO_DISCOVERY_ON_SAVE_ENABLED = "galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled";
+            export const EXTRA_PARAMS = "galaxyTools.planemo.testing.extraParams";
         }
     }
 }
