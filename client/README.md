@@ -203,6 +203,6 @@ There are also a lot of features around macros auto-completion. You can now navi
 
 ## Extract macro
 
-You can select (a complete) XML element and then extract it to a local macro (directly in the tool wrapper) or into an external macro file. If there are several imported macro files you can choose where to put them or if there is no imported file it will be created and imported directly.
+You can select (a complete) XML element and then extract it to a local macro (directly in the tool wrapper) or into an external macro file. If there are several imported macro files, you can choose where to put them or if there is no imported file it will be created and imported directly.
 
 ![Demo feature expanded macros](../assets/feature.extract.macro.gif)
