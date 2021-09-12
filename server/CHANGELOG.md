@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.6.0] - 2021-09-12
+
+### Added
+
+- Code Action language feature to be able to extract macros out of valid blocks of XML ([#165](https://github.com/galaxyproject/galaxy-language-server/pull/165)).
+
 ## [0.5.3] - 2021-07-09
 
 ### Fixed
