@@ -37,7 +37,8 @@ To support testing your tools using `planemo test` inside VSCode you need to ins
     -   [Auto-generate command section](#auto-generate-command-section)
     -   [Auto-sort param attributes](#auto-sort-param-attributes)
     -   [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer)
-    -   [Improved macros support](#improved-macros-support) _New feature!_ :rocket:
+    -   [Improved macros support](#improved-macros-support)
+    -   [Extract macro](#extract-macro) _New feature!_ :rocket:
 
 # Installation
 
@@ -199,3 +200,9 @@ Since version `0.5.0` we added some interesting features around the use of macro
 There are also a lot of features around macros auto-completion. You can now navigate to `macro` and `token` definitions with `F12` or get dynamic attribute auto-completion with parametrized macros and more.
 
 ![Demo feature macros support](../assets/feature.macros.support.gif)
+
+## Extract macro
+
+You can select (a complete) XML element and then extract it to a local macro (directly in the tool wrapper) or into an external macro file. If there are several imported macro files, you can choose where to put them or if there is no imported file it will be created and imported directly.
+
+![Demo feature expanded macros](../assets/feature.extract.macro.gif)
