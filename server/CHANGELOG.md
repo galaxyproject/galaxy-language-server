@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.6.1] - 2021-09-26
+
+### Changed
+
+- Revert `pygls` version to `0.11.1`. This should temporarily fix an issue that prevents using any custom command in the language server ([#172](https://github.com/galaxyproject/galaxy-language-server/pull/172)).
+
 ## [0.6.0] - 2021-09-12
 
 ### Added
