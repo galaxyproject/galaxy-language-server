@@ -104,7 +104,7 @@
     "Boolean parameter": {
         "prefix": "gx-boolean-param",
         "body": [
-            "<param argument=\"${1:--}\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" label=\"$3\" help=\"${4:TODO}\" />"
+            "<param argument=\"${1:--}\" type=\"boolean\" truevalue=\"$1\" falsevalue=\"$2\" checked=\"false\" label=\"$3\" help=\"${4:TODO}\" />"
         ],
         "description": "Boolean parameter"
     },
@@ -125,14 +125,14 @@
     "Data parameter with single required dataset": {
         "prefix": "gx-data-single-param",
         "body": [
-            "<param argument=\"--$1\" type=\"data\" format=\"$2\" label=\"$3\" help=\"${4:TODO}\" />"
+            "<param name=\"$1\" argument=\"--$2\" type=\"data\" format=\"$3\" label=\"$4\" help=\"${5:TODO}\" />"
         ],
         "description": "Data parameter with single required dataset"
     },
     "Data parameter with multiple required datasets": {
         "prefix": "gx-data-multiple-param",
         "body": [
-            "<param argument=\"--$1\" type=\"data\" format=\"$2\" multiple=\"true\" label=\"$3\" help=\"${4:TODO}\" />"
+            "<param name=\"$1\" argument=\"--$2\" type=\"data\" format=\"$3\" multiple=\"true\" label=\"$4\" help=\"${5:TODO}\" />"
         ],
         "description": "Data parameter with multiple required datasets"
     },
@@ -145,6 +145,7 @@
             "            <add value=\"_\" />",
             "        </valid>",
             "    </sanitizer>",
+            "    <validator type=\"regex\">[0-9a-zA-Z_]+</validator>",
             "</param>"
         ],
         "description": "Text parameter with sanitizer"
