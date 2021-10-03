@@ -125,14 +125,14 @@
     "Data parameter with single required dataset": {
         "prefix": "gx-data-single-param",
         "body": [
-            "<param argument=\"--${1:}\" type=\"data\" format=\"$2\" label=\"$3\" help=\"${4:TODO}\" />"
+            "<param  argument=\"--$1\" type=\"data\" format=\"$2\" label=\"$3\" help=\"${4:TODO}\" />"
         ],
         "description": "Data parameter with single required dataset"
     },
     "Data parameter with multiple required datasets": {
         "prefix": "gx-data-multiple-param",
         "body": [
-            "<param argument=\"--${1:}\" type=\"data\" format=\"$2\" multiple=\"true\" label=\"$3\" help=\"${4:TODO}\" />"
+            "<param  argument=\"--$1\" type=\"data\" format=\"$2\" multiple=\"true\" label=\"$3\" help=\"${4:TODO}\" />"
         ],
         "description": "Data parameter with multiple required datasets"
     },
