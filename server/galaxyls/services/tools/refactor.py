@@ -231,7 +231,8 @@ class RefactorMacrosService:
         section = tool.find_element(DESCRIPTION)
         if section:
             return tool.get_position_after(section)
-        return tool.get_content_range(TOOL).start
+        root = tool.find_element(TOOL)
+        return tool.get_content_range(root).start
 
     def _get_range_from_line_start(self, range: Range) -> Range:
         """Given an arbitrary document range, returns the same range but with the start offset always at the
