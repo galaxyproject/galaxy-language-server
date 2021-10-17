@@ -77,7 +77,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
             const envPath = this.binaryPath();
             const isOnPath = (await lookpath("planemo")) !== undefined;
             return envPath !== null && envPath.endsWith("planemo") && (isOnPath || (await exists(envPath)));
-        } catch (err) {
+        } catch (err: any) {
             return false;
         }
     }

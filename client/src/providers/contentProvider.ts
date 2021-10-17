@@ -20,7 +20,7 @@ export class GalaxyToolsExpadedDocumentContentProvider implements TextDocumentCo
     async provideTextDocumentContent(uri: Uri): Promise<string> {
         const finalUri = this.convertToFileUri(uri);
         const result = await commands.executeCommand<GeneratedExpandedDocument>(
-            Commands.GENERATE_EXPANDED_DOCUMENT,
+            Commands.GENERATE_EXPANDED_DOCUMENT.internal,
             finalUri
         );
         if (result === undefined) {

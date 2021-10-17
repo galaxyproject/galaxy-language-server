@@ -3,6 +3,7 @@
 import * as fs from "fs";
 import { exec } from "child_process";
 import { Position, Range, Uri } from "vscode";
+import { ICommand } from "./interfaces";
 
 export async function execAsync(command: string, options: object = {}): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -55,4 +56,11 @@ export function changeUriScheme(uri: Uri, scheme: string): Uri {
     const uriStr = uri.toString().replace(uri.scheme, scheme);
     const resultUri = Uri.parse(uriStr);
     return resultUri;
+}
+
+export function getCommands(command: string): ICommand {
+    return {
+        external: `gls.${command}`,
+        internal: `galaxytools.${command}`,
+    };
 }

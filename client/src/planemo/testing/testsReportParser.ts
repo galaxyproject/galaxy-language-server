@@ -120,7 +120,7 @@ function adaptTestMessage(testResult: ITestCaseResult): string {
             return testResult.data.output_problems.join(EOL);
         }
         return testResult.data.status;
-    } catch (err) {
+    } catch (err: any) {
         return err;
     }
 }

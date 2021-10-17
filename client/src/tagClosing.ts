@@ -16,16 +16,7 @@ import {
     SnippetString,
     Range,
 } from "vscode";
-import { RequestType, TextDocumentPositionParams } from "vscode-languageclient";
-import { Commands } from "./commands";
 import { cloneRange } from "./utils";
-
-export namespace TagCloseRequest {
-    export const type: RequestType<TextDocumentPositionParams, AutoCloseTagResult, any> = new RequestType(
-        Commands.AUTO_CLOSE_TAGS
-    );
-}
-
 export interface AutoCloseTagResult {
     snippet: string;
     range: Range;
