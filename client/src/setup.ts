@@ -125,7 +125,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
                     }
 
                     resolve(venvPython);
-                } catch (err) {
+                } catch (err: any) {
                     window.showErrorMessage(err);
                     console.error(`[gls] installLSWithProgress err: ${err}`);
                     reject(err);
@@ -163,7 +163,7 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
         const match = packageInfo.match(new RegExp(pattern));
         console.log(`[gls] Version found: ${packageName} - ${match?.groups?.version}`);
         return version === match?.groups?.version;
-    } catch (err) {
+    } catch (err: any) {
         console.error(`[gls] isPythonPackageInstalled err: ${err}`);
         return false;
     }
@@ -174,7 +174,7 @@ async function intallPythonPackage(python: string, packageName: string, version:
     try {
         await execAsync(installPipPackageCmd);
         return isPythonPackageInstalled(python, packageName, version);
-    } catch (err) {
+    } catch (err: any) {
         console.error(`[gls] intallPythonPackage err: ${err}`);
         return false;
     }

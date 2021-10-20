@@ -98,14 +98,12 @@ class GalaxyToolLanguageService:
         context = self.xml_context_service.get_xml_context(xml_document, params.position)
         return self.completion_service.get_completion_at_context(context, params.context, mode)
 
-    def get_auto_close_tag(
-        self, xml_document: XmlDocument, params: TextDocumentPositionParams
-    ) -> Optional[AutoCloseTagResult]:
+    def get_auto_close_tag(self, xml_document: XmlDocument, position: Position) -> Optional[AutoCloseTagResult]:
         """Gets the closing result for the currently opened tag in context."""
         # The trigger character `/` or `>` is placed right before the actual position, so we get the position.character - 1
-        trigger_character = xml_document.document.lines[params.position.line][params.position.character - 1]
+        trigger_character = xml_document.document.lines[position.line][position.character - 1]
         # We want to get the context information right before the trigger character so we get position.character - 2
-        position_before_trigger = Position(line=params.position.line, character=params.position.character - 2)
+        position_before_trigger = Position(line=position.line, character=position.character - 2)
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
@@ -123,11 +121,9 @@ class GalaxyToolLanguageService:
         generator = GalaxyToolCommandSnippetGenerator(tool)
         return generator.generate_snippet()
 
-    def sort_single_param_attrs(
-        self, xml_document: XmlDocument, params: TextDocumentPositionParams
-    ) -> Optional[ReplaceTextRangeResult]:
+    def sort_single_param_attrs(self, xml_document: XmlDocument, position: Position) -> Optional[ReplaceTextRangeResult]:
         """Sorts the attributes of the param element under the cursor."""
-        offset = xml_document.document.offset_at_position(params.position)
+        offset = xml_document.document.offset_at_position(position)
         param_element = xml_document.find_element_at(offset)
         if param_element:
             return self.sort_service.sort_param_attributes(param_element, xml_document)

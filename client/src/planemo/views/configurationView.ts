@@ -125,7 +125,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
                 }
             }
             return planemoPathInConfig;
-        } catch (err) {
+        } catch (err: any) {
             return UNKNOWN;
         }
     }

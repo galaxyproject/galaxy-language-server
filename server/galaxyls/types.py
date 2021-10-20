@@ -1,9 +1,11 @@
 """This module contains shared types across all modules.
 """
 
-from typing import List, Optional
+from typing import Any, List, Optional
 from pydantic.main import BaseModel
 from pygls.lsp.types import Position, Range
+
+CommandParameters = List[Any]
 
 
 class AutoCloseTagResult:

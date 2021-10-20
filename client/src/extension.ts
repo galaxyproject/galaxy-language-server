@@ -1,18 +1,8 @@
 "use strict";
 
 import * as net from "net";
-import {
-    ExtensionContext,
-    window,
-    TextDocument,
-    Position,
-    IndentAction,
-    LanguageConfiguration,
-    languages,
-    ExtensionMode,
-} from "vscode";
+import { ExtensionContext, window, IndentAction, LanguageConfiguration, languages, ExtensionMode } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
-import { activateTagClosing, TagCloseRequest } from "./tagClosing";
 import { installLanguageServer } from "./setup";
 import { Constants } from "./constants";
 import { setupCommands } from "./commands";
@@ -40,7 +30,7 @@ export async function activate(context: ExtensionContext) {
             }
 
             client = startLanguageServer(python, ["-m", Constants.GALAXY_LS], context.extensionPath);
-        } catch (err) {
+        } catch (err: any) {
             window.showErrorMessage(err);
         }
     }
@@ -51,14 +41,6 @@ export async function activate(context: ExtensionContext) {
     context.subscriptions.push(client.start());
 
     const configFactory = new DefaultConfigurationFactory();
-
-    // Setup auto close tags
-    const tagProvider = (document: TextDocument, position: Position) => {
-        let param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
-        let text = client.sendRequest(TagCloseRequest.type, param);
-        return text;
-    };
-    context.subscriptions.push(activateTagClosing(tagProvider));
 
     setupCommands(client, context);
 

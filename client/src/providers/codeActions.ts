@@ -38,7 +38,7 @@ export class GalaxyToolsCodeActionProvider implements CodeActionProvider {
     private createPreviewExpandedDocumentCommand(diagnostics: Diagnostic[]): CodeAction {
         const action = new CodeAction("Preview expanded tool document...", CodeActionKind.Empty);
         action.command = {
-            command: Commands.PREVIEW_EXPANDED_DOCUMENT,
+            command: Commands.PREVIEW_EXPANDED_DOCUMENT.internal,
             title: "Preview expanded tool document",
             tooltip: "This will open a preview of the tool document with all the macros expanded.",
         };

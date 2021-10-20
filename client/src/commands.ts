@@ -11,59 +11,27 @@ import {
     Uri,
     workspace,
     ViewColumn,
+    TextDocument,
 } from "vscode";
-import {
-    RequestType,
-    TextDocumentIdentifier,
-    TextDocumentPositionParams,
-    LanguageClient,
-} from "vscode-languageclient/node";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "./constants";
+import { ICommand } from "./interfaces";
 import { GalaxyToolsExpadedDocumentContentProvider } from "./providers/contentProvider";
-import { changeUriScheme, cloneRange } from "./utils";
+import { activateTagClosing, AutoCloseTagResult } from "./tagClosing";
+import { changeUriScheme, cloneRange, getCommands } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
 
 export namespace Commands {
-    export const AUTO_CLOSE_TAGS = "galaxytools.completion.autoCloseTags";
-    export const GENERATE_TEST = "galaxytools.generate.tests";
-    export const GENERATE_COMMAND = "galaxytools.generate.command";
-    export const SORT_SINGLE_PARAM_ATTRS = "galaxytools.sort.singleParamAttributes";
-    export const SORT_DOCUMENT_PARAMS_ATTRS = "galaxytools.sort.documentParamsAttributes";
-    export const DISCOVER_TESTS = "galaxytools.tests.discover";
-    export const PLANEMO_OPEN_SETTINGS = "galaxytools.planemo.openSettings";
-    export const OPEN_TERMINAL_AT_DIRECTORY_ITEM = "galaxytools.openTerminalAtDirectory";
-    export const GENERATE_EXPANDED_DOCUMENT = "galaxytools.generate.expandedDocument";
-    export const PREVIEW_EXPANDED_DOCUMENT = "galaxytools.preview.expandedDocument";
-}
-
-namespace GeneratedTestRequest {
-    export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any> = new RequestType(
-        Commands.GENERATE_TEST
-    );
-}
-
-namespace GeneratedCommandRequest {
-    export const type: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any> = new RequestType(
-        Commands.GENERATE_COMMAND
-    );
-}
-
-namespace SortSingleParamAttrsCommandRequest {
-    export const type: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any> = new RequestType(
-        Commands.SORT_SINGLE_PARAM_ATTRS
-    );
-}
-
-namespace SortDocumentParamsAttrsCommandRequest {
-    export const type: RequestType<TextDocumentIdentifier, Array<ReplaceTextRangeResult>, any> = new RequestType(
-        Commands.SORT_DOCUMENT_PARAMS_ATTRS
-    );
-}
-
-namespace GeneratedExpandedDocumentRequest {
-    export const type: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any> = new RequestType(
-        Commands.GENERATE_EXPANDED_DOCUMENT
-    );
+    export const AUTO_CLOSE_TAGS: ICommand = getCommands("completion.autoCloseTags");
+    export const GENERATE_TEST: ICommand = getCommands("generate.tests");
+    export const GENERATE_COMMAND: ICommand = getCommands("generate.command");
+    export const SORT_SINGLE_PARAM_ATTRS: ICommand = getCommands("sort.singleParamAttributes");
+    export const SORT_DOCUMENT_PARAMS_ATTRS: ICommand = getCommands("sort.documentParamsAttributes");
+    export const DISCOVER_TESTS: ICommand = getCommands("tests.discover");
+    export const PLANEMO_OPEN_SETTINGS: ICommand = getCommands("planemo.openSettings");
+    export const OPEN_TERMINAL_AT_DIRECTORY_ITEM: ICommand = getCommands("openTerminalAtDirectory");
+    export const GENERATE_EXPANDED_DOCUMENT: ICommand = getCommands("generate.expandedDocument");
+    export const PREVIEW_EXPANDED_DOCUMENT: ICommand = getCommands("preview.expandedDocument");
 }
 
 interface GeneratedSnippetResult {
@@ -84,42 +52,26 @@ export interface GeneratedExpandedDocument {
 }
 
 export function setupCommands(client: LanguageClient, context: ExtensionContext) {
-    // Setup generate test command
-    const generateTest = async () => {
-        requestInsertSnippet(client, GeneratedTestRequest.type);
-    };
-    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST, generateTest));
+    setupAutoCloseTags(client, context);
 
-    // Setup generate command section command
-    const generateCommand = async () => {
-        requestInsertSnippet(client, GeneratedCommandRequest.type);
-    };
-    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_COMMAND, generateCommand));
+    setupGenerateTestCases(client, context);
 
-    // Setup sort param attributes command
-    const sortSingleParamAttrs = async () => {
-        requestSortSingleParamAttrs(client, SortSingleParamAttrsCommandRequest.type);
-    };
-    context.subscriptions.push(commands.registerCommand(Commands.SORT_SINGLE_PARAM_ATTRS, sortSingleParamAttrs));
+    setupGenerateCommandSection(client, context);
 
-    // Setup sort all document param attributes command
-    const sortDocumentParamsAttrs = async () => {
-        requestSortDocumentParamsAttrs(client, SortDocumentParamsAttrsCommandRequest.type);
-    };
-    context.subscriptions.push(commands.registerCommand(Commands.SORT_DOCUMENT_PARAMS_ATTRS, sortDocumentParamsAttrs));
+    setupSortSingleParamAttributes(client, context);
 
-    const generateExpandedDocument = async (uri: Uri) => {
-        return requestExpandedDocument(uri, client, GeneratedExpandedDocumentRequest.type);
-    };
-    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_EXPANDED_DOCUMENT, generateExpandedDocument));
+    setupSortDocumentParams(client, context);
 
-    context.subscriptions.push(commands.registerCommand(Commands.PREVIEW_EXPANDED_DOCUMENT, previewExpandedDocument));
-
-    // Open planemo settings
-    context.subscriptions.push(commands.registerCommand(Commands.PLANEMO_OPEN_SETTINGS, openPlanemoSettings));
+    setupGenerateExpandedDocument(client, context);
 
     context.subscriptions.push(
-        commands.registerCommand(Commands.OPEN_TERMINAL_AT_DIRECTORY_ITEM, (item: DirectoryTreeItem) =>
+        commands.registerCommand(Commands.PREVIEW_EXPANDED_DOCUMENT.internal, previewExpandedDocument)
+    );
+
+    context.subscriptions.push(commands.registerCommand(Commands.PLANEMO_OPEN_SETTINGS.internal, openPlanemoSettings));
+
+    context.subscriptions.push(
+        commands.registerCommand(Commands.OPEN_TERMINAL_AT_DIRECTORY_ITEM.internal, (item: DirectoryTreeItem) =>
             openTerminalAtDirectoryItem(item)
         )
     );
@@ -127,21 +79,68 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
     notifyExtensionActive();
 }
 
-async function requestSortSingleParamAttrs(
-    client: LanguageClient,
-    request: RequestType<TextDocumentPositionParams, ReplaceTextRangeResult, any>
-) {
-    let activeEditor = window.activeTextEditor;
+function setupGenerateExpandedDocument(client: LanguageClient, context: ExtensionContext) {
+    const generateExpandedDocument = async (uri: Uri) => {
+        return requestExpandedDocument(uri, client);
+    };
+    context.subscriptions.push(
+        commands.registerCommand(Commands.GENERATE_EXPANDED_DOCUMENT.internal, generateExpandedDocument)
+    );
+}
+
+function setupSortDocumentParams(client: LanguageClient, context: ExtensionContext) {
+    const sortDocumentParamsAttrs = async () => {
+        requestSortDocumentParamsAttrs(client, Commands.SORT_DOCUMENT_PARAMS_ATTRS.external);
+    };
+    context.subscriptions.push(
+        commands.registerCommand(Commands.SORT_DOCUMENT_PARAMS_ATTRS.internal, sortDocumentParamsAttrs)
+    );
+}
+
+function setupSortSingleParamAttributes(client: LanguageClient, context: ExtensionContext) {
+    const sortSingleParamAttrs = async () => {
+        requestSortSingleParamAttrs(client, Commands.SORT_SINGLE_PARAM_ATTRS.external);
+    };
+    context.subscriptions.push(
+        commands.registerCommand(Commands.SORT_SINGLE_PARAM_ATTRS.internal, sortSingleParamAttrs)
+    );
+}
+
+function setupGenerateCommandSection(client: LanguageClient, context: ExtensionContext) {
+    const generateCommand = async () => {
+        requestInsertSnippet(client, Commands.GENERATE_COMMAND.external);
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_COMMAND.internal, generateCommand));
+}
+
+function setupGenerateTestCases(client: LanguageClient, context: ExtensionContext) {
+    const generateTest = async () => {
+        requestInsertSnippet(client, Commands.GENERATE_TEST.external);
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST.internal, generateTest));
+}
+
+function setupAutoCloseTags(client: LanguageClient, context: ExtensionContext) {
+    const tagProvider = async (document: TextDocument, position: Position) => {
+        let param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
+        let text = (await commands.executeCommand(Commands.AUTO_CLOSE_TAGS.external, param)) as AutoCloseTagResult;
+        return text;
+    };
+    context.subscriptions.push(activateTagClosing(tagProvider));
+}
+
+async function requestSortSingleParamAttrs(client: LanguageClient, command: string) {
+    const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
     const isSaved = ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;
 
-    let document = activeEditor.document;
+    const document = activeEditor.document;
 
     const position = activeEditor.selection.active;
-    let param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
-    let response = await client.sendRequest(request, param);
+    const param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
+    const response = (await commands.executeCommand(command, param)) as ReplaceTextRangeResult;
     if (!response) return;
 
     try {
@@ -149,25 +148,22 @@ async function requestSortSingleParamAttrs(
         activeEditor.edit((builder) => {
             builder.replace(range, response.text);
         });
-    } catch (err) {
+    } catch (err: any) {
         window.showErrorMessage(err);
     }
 }
 
-async function requestSortDocumentParamsAttrs(
-    client: LanguageClient,
-    request: RequestType<TextDocumentIdentifier, Array<ReplaceTextRangeResult>, any>
-) {
-    let activeEditor = window.activeTextEditor;
+async function requestSortDocumentParamsAttrs(client: LanguageClient, command: string) {
+    const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
     const isSaved = ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;
 
-    let document = activeEditor.document;
+    const document = activeEditor.document;
 
-    let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
-    let response = await client.sendRequest(request, param);
+    const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    const response = (await commands.executeCommand(command, param)) as Array<ReplaceTextRangeResult>;
     if (!response) return;
 
     try {
@@ -178,25 +174,22 @@ async function requestSortDocumentParamsAttrs(
                 builder.replace(range, element.text);
             }
         });
-    } catch (err) {
+    } catch (err: any) {
         window.showErrorMessage(err);
     }
 }
 
-async function requestInsertSnippet(
-    client: LanguageClient,
-    request: RequestType<TextDocumentIdentifier, GeneratedSnippetResult, any>
-) {
-    let activeEditor = window.activeTextEditor;
+async function requestInsertSnippet(client: LanguageClient, command: string) {
+    const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
     const isSaved = ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;
 
-    let document = activeEditor.document;
+    const document = activeEditor.document;
 
-    let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
-    let response = await client.sendRequest(request, param);
+    const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    const response = (await commands.executeCommand(command, param)) as GeneratedSnippetResult;
     if (!response || !response.snippet || response.error_message) {
         if (response.error_message) {
             window.showErrorMessage(response.error_message);
@@ -213,7 +206,7 @@ async function requestInsertSnippet(
             const position = new Position(response.position.line, response.position.character);
             activeEditor.insertSnippet(snippet, position);
         }
-    } catch (err) {
+    } catch (err: any) {
         window.showErrorMessage(err);
     }
 }
@@ -230,7 +223,7 @@ function openPlanemoSettings() {
 }
 
 function openTerminalAtDirectoryItem(item: DirectoryTreeItem) {
-    let terminal = window.createTerminal({
+    const terminal = window.createTerminal({
         cwd: item.directoryUri.fsPath,
     });
     terminal.show(false);
@@ -242,12 +235,14 @@ function notifyExtensionActive() {
 
 async function requestExpandedDocument(
     uri: Uri,
-    client: LanguageClient,
-    request: RequestType<TextDocumentIdentifier, GeneratedExpandedDocument, any>
+    client: LanguageClient
 ): Promise<GeneratedExpandedDocument | undefined> {
     const document = await workspace.openTextDocument(uri);
-    let param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
-    let response = await client.sendRequest(request, param);
+    const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    const response = (await commands.executeCommand(
+        Commands.GENERATE_EXPANDED_DOCUMENT.external,
+        param
+    )) as GeneratedExpandedDocument;
     if (!response || response.error_message) {
         if (response.error_message) {
             window.showErrorMessage(response.error_message);
@@ -264,7 +259,7 @@ function convertToExpandedDocumentUri(fileUri: Uri) {
 }
 
 async function previewExpandedDocument() {
-    let activeEditor = window.activeTextEditor;
+    const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
     const isSaved = ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;

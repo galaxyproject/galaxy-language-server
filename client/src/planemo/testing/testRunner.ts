@@ -59,7 +59,7 @@ export class PlanemoTestRunner implements ITestRunner {
             this.showSummaryLog(states);
 
             return states;
-        } catch (err) {
+        } catch (err: any) {
             this.showErrorLog(err);
             return [];
         } finally {

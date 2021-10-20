@@ -1,4 +1,4 @@
-import { LanguageClient, RequestType0 } from "vscode-languageclient/node";
+import { commands } from "vscode";
 import { TestSuiteInfo, TestInfo } from "vscode-test-adapter-api";
 import { Commands } from "../commands";
 
@@ -6,19 +6,13 @@ export interface ITestsProvider {
     discoverTests(): Promise<TestSuiteInfo | undefined>;
 }
 
-namespace DiscoverTestRequest {
-    export const type: RequestType0<TestSuiteInfo[], any> = new RequestType0(Commands.DISCOVER_TESTS);
-}
-
 export class LanguageServerTestProvider implements ITestsProvider {
-    constructor(private readonly client: LanguageClient) {}
-
     async discoverTests(): Promise<TestSuiteInfo | undefined> {
         return await this.requestDiscoverTests();
     }
 
     private async requestDiscoverTests(): Promise<TestSuiteInfo | undefined> {
-        let response = (await this.client.sendRequest(DiscoverTestRequest.type)) as TestSuiteInfo[];
+        const response = (await commands.executeCommand(Commands.DISCOVER_TESTS.external)) as TestSuiteInfo[];
         if (!response) return;
 
         const testSuites: TestSuiteInfo[] = [];
