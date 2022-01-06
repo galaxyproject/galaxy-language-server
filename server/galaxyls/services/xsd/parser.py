@@ -188,3 +188,4 @@ class GalaxyToolXsdParser:
             return []
         if simple_type.tag == XS_SIMPLE_TYPE:
             return simple_type.xpath(".//xs:enumeration/@value", namespaces=simple_type.nsmap)
+        return None

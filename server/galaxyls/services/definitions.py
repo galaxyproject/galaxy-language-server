@@ -30,6 +30,7 @@ class DocumentDefinitionsProvider:
             start, end = content_node.get_content_offsets()
             import_filename = xml_document.get_text_between_offsets(start, end)
             return macro_definitions.go_to_import_definition(import_filename)
+        return None
 
     def get_token_definition(self, xml_document: XmlDocument, token: str) -> Optional[TokenDefinition]:
         macro_definitions = self.macro_definitions_provider.load_macro_definitions(xml_document)

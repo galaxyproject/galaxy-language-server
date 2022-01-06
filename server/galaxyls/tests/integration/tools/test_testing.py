@@ -18,6 +18,7 @@ TEST_DOCUMENTS = [
 def get_document_by_name(name: str) -> Optional[Document]:
     if name in TEST_DOCUMENTS:
         return TestUtils.get_test_document_from_file(name)
+    return None
 
 
 @pytest.fixture()

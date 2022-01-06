@@ -59,6 +59,7 @@ class ToolMacroDefinitions(BaseMacrosModel):
                         range=content_range,
                     )
                 ]
+        return None
 
     def get_token_definition(self, token: str) -> Optional[TokenDefinition]:
         definition = self.tokens.get(token)

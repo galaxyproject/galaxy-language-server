@@ -222,6 +222,7 @@ class XmlContextService:
             if xsd_node is None:
                 xsd_node = xsd_tree.find_node_by_stack(node_stack[:-1])
             return xsd_node
+        return None
 
     def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range:
         start_offset, end_offset = context.node.get_offsets(context.offset)

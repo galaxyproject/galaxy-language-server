@@ -134,6 +134,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             ancestor_names = [node.name for node in node.ancestors[1:]]  # Skip the 'inputs' root node
             result = ".".join(ancestor_names)
             return result
+        return None
 
     def _param_to_cheetah(self, param: XmlElement, name_path: Optional[str] = None, indent_level: int = 0) -> str:
         """Converts the given param element to it's Cheetah representation."""

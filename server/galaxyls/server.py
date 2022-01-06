@@ -108,6 +108,7 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
     if document:
         xml_document = _get_xml_document(document)
         return server.service.get_completion(xml_document, params, server.configuration.completion.mode)
+    return None
 
 
 @language_server.feature(HOVER)
@@ -117,6 +118,7 @@ def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams)
     if document:
         xml_document = _get_xml_document(document)
         return server.service.get_documentation(xml_document, params.position)
+    return None
 
 
 @language_server.feature(FORMATTING)
@@ -126,6 +128,7 @@ def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingPara
     if document:
         content = document.source
         return server.service.format_document(content, params)
+    return None
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
@@ -137,13 +140,13 @@ async def did_open(server: GalaxyToolsLanguageServer, params: DidOpenTextDocumen
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_SAVE)
-def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParams) -> None:
+def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParams):
     """Occurs when the xml document is saved to disk."""
     _validate(server, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_CLOSE)
-def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams) -> None:
+def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams):
     """Occurs when the xml document is closed."""
     server.publish_diagnostics(params.text_document.uri, [])
 
@@ -155,6 +158,7 @@ def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionPa
     if document:
         xml_document = _get_xml_document(document)
         return server.service.definitions_provider.go_to_definition(xml_document, params.position)
+    return None
 
 
 @language_server.feature(
@@ -182,6 +186,7 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, parameters: CommandParamet
         if document:
             xml_document = _get_xml_document(document)
             return server.service.get_auto_close_tag(xml_document, params.position)
+    return None
 
 
 @language_server.command(Commands.GENERATE_TESTS)
@@ -193,6 +198,7 @@ async def cmd_generate_test(
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.generate_tests(document)
+    return None
 
 
 @language_server.command(Commands.GENERATE_COMMAND)
@@ -204,6 +210,7 @@ async def cmd_generate_command(
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.generate_command(document)
+    return None
 
 
 @language_server.command(Commands.SORT_SINGLE_PARAM_ATTRS)
@@ -216,6 +223,7 @@ def sort_single_param_attrs_command(
     if document:
         xml_document = _get_xml_document(document)
         return server.service.sort_single_param_attrs(xml_document, params.position)
+    return None
 
 
 @language_server.command(Commands.SORT_DOCUMENT_PARAMS_ATTRS)
@@ -228,6 +236,7 @@ def sort_document_params_attrs_command(
     if document:
         xml_document = _get_xml_document(document)
         return server.service.sort_document_param_attributes(xml_document)
+    return None
 
 
 @language_server.command(Commands.GENERATE_EXPANDED_DOCUMENT)
@@ -248,7 +257,7 @@ def discover_tests_command(server: GalaxyToolsLanguageServer, params) -> List[Te
     return server.service.discover_tests(server.workspace)
 
 
-def _validate(server: GalaxyToolsLanguageServer, params) -> None:
+def _validate(server: GalaxyToolsLanguageServer, params):
     """Validates the Galaxy tool and reports any problem found."""
     diagnostics: List[Diagnostic] = []
     document = _get_valid_document(server, params.text_document.uri)
@@ -262,6 +271,7 @@ def _get_valid_document(server: GalaxyToolsLanguageServer, uri: str) -> Optional
     document = server.workspace.get_document(uri)
     if _is_document_supported(document):
         return document
+    return None
 
 
 def _get_xml_document(document: Document) -> XmlDocument:

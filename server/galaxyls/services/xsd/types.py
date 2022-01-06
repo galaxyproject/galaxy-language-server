@@ -176,3 +176,4 @@ class XsdTree:
         )
         if len(result) > 0:
             return result[0]
+        return None
