@@ -2,10 +2,11 @@
 # But imports the runtime ones too
 -r requirements.txt
 
+black
+flake8
+flake8-bugbear
+lxml-stubs
+mypy
 pytest
 pytest-cov
 pytest-mock
-flake8
-flake8-bugbear
-black
-lxml-stubs
