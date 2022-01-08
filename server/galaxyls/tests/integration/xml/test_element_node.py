@@ -19,7 +19,7 @@ class TestXmlElementClass:
     def test_get_attributes_offsets_returns_expected(self, source: str, expected_offsets: Tuple[int, int]) -> None:
         xml_document = TestUtils.from_source_to_xml_document(source)
         node = xml_document.get_node_at(1)
-
+        assert node
         assert node.is_element
         element = cast(XmlElement, node)
 
@@ -36,9 +36,9 @@ class TestXmlElementClass:
     def test_get_attribute_content_returns_expected(self, source: str, expected_contents: List[str]) -> None:
         xml_document = TestUtils.from_source_to_xml_document(source)
         node = xml_document.get_node_at(1)
-
+        assert node
         assert node.is_element
         element = cast(XmlElement, node)
 
-        actual_contents = [attr.value.get_content(source) for attr in element.attributes.values()]
+        actual_contents = [attr.value.get_content(source) for attr in element.attributes.values() if attr.value is not None]
         assert actual_contents == expected_contents

@@ -144,11 +144,11 @@ class GalaxyToolValidationService:
             diagnostics.append(result)
         return diagnostics
 
-    def _build_diagnostics_from_syntax_error(self, error: etree.XMLSyntaxError) -> List[Diagnostic]:
-        """Builds a Diagnostic element from a XMLSyntaxError.
+    def _build_diagnostics_from_syntax_error(self, error) -> List[Diagnostic]:
+        """Builds a Diagnostic element from a lxml syntax error.
 
         Args:
-            error (etree.XMLSyntaxError): The syntax error.
+            error: The syntax error.
 
         Returns:
             Diagnostic: The converted Diagnostic item.
@@ -185,9 +185,7 @@ class GalaxyToolValidationService:
         )
         return [result]
 
-    def _build_diagnostics_for_expanded_macros(
-        self, tool: GalaxyToolXmlDocument, e: etree.DocumentInvalid
-    ) -> List[Diagnostic]:
+    def _build_diagnostics_for_expanded_macros(self, tool: GalaxyToolXmlDocument, invalid_document_error) -> List[Diagnostic]:
         virtual_uri = tool.xml_document.document.uri.replace("file", "gls-expand")
         diagnostics = [
             Diagnostic(
@@ -212,7 +210,7 @@ class GalaxyToolValidationService:
                     )
                 ],
             )
-            for error in e.error_log.filter_from_errors()
+            for error in invalid_document_error.error_log.filter_from_errors()
         ]
         return diagnostics
 

@@ -162,13 +162,14 @@ class GalaxyToolXmlDocument:
         result = {}
         tool_directory = self._get_tool_directory()
         import_elements = self.get_macro_import_elements()
-        for imp in import_elements:
-            filename = imp.get_content(self.xml_document.document.source)
-            if filename:
-                path = tool_directory / filename
-                if path.exists():
-                    file_uri = path.as_uri()
-                    result[filename] = file_uri
+        if import_elements:
+            for imp in import_elements:
+                filename = imp.get_content(self.xml_document.document.source)
+                if filename:
+                    path = tool_directory / filename
+                    if path.exists():
+                        file_uri = path.as_uri()
+                        result[filename] = file_uri
         return result
 
     def get_macros_range(self) -> Optional[Range]:
@@ -184,16 +185,17 @@ class GalaxyToolXmlDocument:
         if file_path:
             filename = Path(file_path).name
             import_elements = self.get_macro_import_elements()
-            for imp in import_elements:
-                imp_filename = imp.get_content(self.xml_document.document.source)
-                if imp_filename == filename:
-                    return self.xml_document.get_full_range(imp)
+            if import_elements:
+                for imp in import_elements:
+                    imp_filename = imp.get_content(self.xml_document.document.source)
+                    if imp_filename == filename:
+                        return self.xml_document.get_full_range(imp)
         return None
 
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""
         tool_element = self.get_tool_element()
-        return tool_element.get_attribute("id")
+        return tool_element.get_attribute("id") if tool_element else None
 
     def get_tests(self) -> List[XmlElement]:
         """Gets the tests of this document as a list of elements.

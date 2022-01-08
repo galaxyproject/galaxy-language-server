@@ -233,6 +233,7 @@ class TestXmlCompletionServiceClass:
 
         actual = service.get_auto_close_tag(fake_context, trigger)
 
+        assert actual
         assert actual.snippet == expected
 
     @pytest.mark.parametrize(
@@ -280,6 +281,7 @@ class TestXmlCompletionServiceClass:
 
         actual = service.get_auto_close_tag(fake_context, trigger)
 
+        assert actual
         assert actual.range == expected_range
 
     def test_auto_close_returns_none_when_at_node_content(

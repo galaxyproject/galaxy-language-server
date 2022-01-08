@@ -109,7 +109,9 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
                 return tool.get_position_after(section)
             section = tool.find_element(TOOL)
             if section:
-                return tool.get_content_range(section).end
+                content_range = tool.get_content_range(section)
+                if content_range:
+                    return content_range.end
             return Position(line=0, character=0)
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:
@@ -221,11 +223,12 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         given input <conditional> XML element."""
         conditional = etree.Element(CONDITIONAL)
         conditional.attrib[NAME] = input_conditional.name
-        # add the option param
-        param_element = self._build_param_test_element(input_conditional.option_param, input_conditional.option)
-        if input_conditional.option_param.get_attribute(TYPE) == BOOLEAN:
-            conditional.append(etree.Comment(BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT))
-        conditional.append(param_element)
+        if input_conditional.option_param:
+            # add the option param
+            param_element = self._build_param_test_element(input_conditional.option_param, input_conditional.option)
+            if input_conditional.option_param.get_attribute(TYPE) == BOOLEAN:
+                conditional.append(etree.Comment(BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT))
+            conditional.append(param_element)
         # add the rest of params in the corresponding when element
         self._build_test_tree(input_conditional, conditional)
         return conditional

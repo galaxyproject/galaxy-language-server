@@ -51,6 +51,7 @@ class TestIntegrationXmlContextServiceClass:
 
         context = service.get_xml_context(document, position)
 
+        assert context.xsd_element
         assert context.xsd_element.name == expected_element_name
 
     def test_unknown_element_context_xsd_node_inside_macros_is_none(

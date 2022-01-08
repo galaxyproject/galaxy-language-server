@@ -109,7 +109,7 @@ class MacroDefinitionsProvider:
     def get_macro_token_params(self, tool_xml: XmlDocument, macro_name: str) -> List[TokenParam]:
         macro_definitions = self.load_macro_definitions(tool_xml)
         macro = macro_definitions.get_macro_definition(macro_name)
-        if macro.token_params:
+        if macro and macro.token_params:
             return list(macro.token_params.values())
         return []
 
@@ -139,6 +139,8 @@ class MacroDefinitionsProvider:
         rval = {}
         for element in token_elements:
             token = element.get_attribute(NAME)
+            if token is None:
+                continue
             name = token.replace("@", "")
             value = element.get_content(macros_xml.document.source)
             token_def = TokenDefinition(

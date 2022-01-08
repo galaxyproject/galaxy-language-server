@@ -83,7 +83,7 @@ class XmlDocument(XmlSyntaxNode):
 
     def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
         """Gets the syntax node a the given offset."""
-        return self.root.find_node_at(offset)
+        return self.root.find_node_at(offset) if self.root else None
 
     def get_content_range(self, element: XmlContainerNode) -> Optional[Range]:
         """Gets the Range positions for the given XML element's content in the document.

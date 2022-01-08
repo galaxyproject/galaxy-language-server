@@ -90,6 +90,7 @@ class TestXsdParserClass:
 
         node = tree.find_node_by_stack(stack)
 
+        assert node
         assert node.name == expected
 
     @pytest.mark.parametrize(
@@ -107,6 +108,7 @@ class TestXsdParserClass:
 
         node = tree.find_node_by_stack(stack)
 
+        assert node
         assert node.name == expected
 
     def test_get_documentation_returns_valid_when_exists(self, xsd_parser: GalaxyToolXsdParser) -> None:

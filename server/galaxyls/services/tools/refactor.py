@@ -116,6 +116,8 @@ class RefactorMacrosService:
         The edits will add the macro definition to the given imported macros file and replace the refactored macro with the
         corresponding <expand> element in the tool wrapper."""
         macros_xml_doc = macro_file_definition.document
+        if macros_xml_doc is None:
+            return {}
         macros_root = macros_xml_doc.root
         insert_position = macros_xml_doc.get_position_after_last_child(macros_root)
         insert_range = Range(start=insert_position, end=insert_position)
@@ -232,7 +234,10 @@ class RefactorMacrosService:
         if section:
             return tool.get_position_after(section)
         root = tool.find_element(TOOL)
-        return tool.get_content_range(root).start
+        content_range = tool.get_content_range(root)
+        if content_range:
+            return content_range.start
+        return Position(line=0, character=0)
 
     def _get_range_from_line_start(self, range: Range) -> Range:
         """Given an arbitrary document range, returns the same range but with the start offset always at the

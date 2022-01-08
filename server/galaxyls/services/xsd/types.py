@@ -1,7 +1,7 @@
 """ Type definitions for XSD processing.
 """
 
-from typing import Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 
 from anytree import NodeMixin, RenderTree, Resolver, ResolverError, findall
 from lxml import etree
@@ -46,16 +46,18 @@ class XsdBase:
             return MarkupContent(kind=MarkupKind.Markdown, value=doc)
         return MarkupContent(kind=MarkupKind.Markdown, value=MSG_NO_DOCUMENTATION_AVAILABLE)
 
-    def _get_doc_text_of_element(self, element: Optional[etree._Element], lang: str = "en") -> str:
+    def _get_doc_text_of_element(self, element: Optional[Any], lang: str = "en") -> str:
         try:
-            doc_annotation = element.xpath(
-                "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()",
-                namespaces=element.nsmap,
-                lang=lang,
-            )
-            return cast(List[str], doc_annotation)[0].strip()
+            if element:
+                doc_annotation = element.xpath(
+                    "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()",
+                    namespaces=element.nsmap,
+                    lang=lang,
+                )
+                return cast(List[str], doc_annotation)[0].strip()
         except BaseException:
-            return ""
+            pass
+        return ""
 
 
 class XsdAttribute(XsdBase):

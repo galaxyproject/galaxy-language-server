@@ -47,7 +47,7 @@ class ConditionalInputNode(InputNode):
 
     def __init__(self, name: str, option: str, element: Optional[XmlElement] = None, parent: InputNode = None):
         super().__init__(name, element, parent)
-        self.option_param: XmlElement = element.elements[0]
+        self.option_param: Optional[XmlElement] = element.elements[0] if element else None
         self.option: str = option
         self.options: List[str] = self._get_options()
 
@@ -68,22 +68,23 @@ class ConditionalInputNode(InputNode):
 
     def _get_options(self) -> List[str]:
         try:
-            type_attr = self.option_param.get_attribute(TYPE)
-            if type_attr == SELECT:
-                options = self.option_param.get_children_with_name(OPTION)
-                return list(filter(None, [option.get_attribute(VALUE) for option in options]))
-            elif type_attr == BOOLEAN:
-                options = []
-                true_value = self.option_param.get_attribute(TRUEVALUE)
-                if true_value:
-                    options.append(true_value)
-                false_value = self.option_param.get_attribute(FALSEVALUE)
-                if false_value:
-                    options.append(false_value)
-                return options
-            return []
+            if self.option_param:
+                type_attr = self.option_param.get_attribute(TYPE)
+                if type_attr == SELECT:
+                    options = self.option_param.get_children_with_name(OPTION)
+                    return list(filter(None, [option.get_attribute(VALUE) for option in options]))
+                elif type_attr == BOOLEAN:
+                    options = []
+                    true_value = self.option_param.get_attribute(TRUEVALUE)
+                    if true_value:
+                        options.append(true_value)
+                    false_value = self.option_param.get_attribute(FALSEVALUE)
+                    if false_value:
+                        options.append(false_value)
+                    return options
         except BaseException:
-            return []
+            pass
+        return []
 
 
 class RepeatInputNode(InputNode):

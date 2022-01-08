@@ -99,7 +99,7 @@ class XmlSyntaxNode(ABC, NodeMixin):
         if self.is_element:
             return cast(XmlElement, self)
         if self.parent:
-            parent: Optional[XmlSyntaxNode] = cast(XmlSyntaxNode, self.parent)
+            parent: XmlSyntaxNode = cast(XmlSyntaxNode, self.parent)
             return parent.get_parent_element()
         return None
 
@@ -185,10 +185,7 @@ class XmlAttribute(XmlSyntaxNode):
 
     def get_value(self) -> str:
         """Gets the value of this attribute (unquoted) or an empty str."""
-        try:
-            return self.value.unquoted
-        except BaseException:
-            return ""
+        return self.value.unquoted if self.value else ""
 
     def get_attribute_nodes(self) -> List["XmlAttribute"]:
         """Gets the lists of attributes of this node if it has any."""
@@ -254,7 +251,7 @@ class XmlAttributeValue(XmlContainerNode):
     @property
     def unquoted(self) -> str:
         """The value without quoting marks."""
-        return self.quoted.strip("\"'")
+        return self.quoted.strip("\"'") if self.quoted else ""
 
     def get_attribute_name(self) -> Optional[str]:
         """Gets the name of this attribute (if it is an attribute node)."""

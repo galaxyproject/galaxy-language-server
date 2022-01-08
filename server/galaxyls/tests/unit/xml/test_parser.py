@@ -19,7 +19,9 @@ from ..utils import TestUtils
 def assert_element_has_attribute(element: Optional[XmlElement], key: str, value: str) -> None:
     assert element
     assert element.attributes[key].key.name == key
-    assert element.attributes[key].value.unquoted == value
+    attr_value = element.attributes[key].value
+    assert attr_value
+    assert attr_value.unquoted == value
 
 
 def assert_element_has_offsets(element: Optional[XmlElement], start: int, end: int) -> None:
@@ -70,6 +72,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert xml_document.root.name == "tool"
         assert len(xml_document.root.elements) == 4
         assert xml_document.root.elements[0].name == "command"
@@ -83,6 +86,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert len(xml_document.root.attributes) == 3
         assert xml_document.root.has_attributes
         assert_element_has_attribute(xml_document.root, "id", "test")
@@ -101,6 +105,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert_attribute_has_offsets(xml_document.root.attributes["id"], 6, 15)
         assert_attribute_has_key_offsets(xml_document.root.attributes["id"], 6, 8)
         assert_attribute_has_value_offsets(xml_document.root.attributes["id"], 9, 15)
@@ -117,6 +122,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert_element_has_offsets(xml_document.root, 0, 286)
         assert_element_has_offsets(xml_document.root.elements[0], 57, 159)
         assert_element_has_offsets(xml_document.root.elements[1], 164, 186)
@@ -129,6 +135,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert type(xml_document.root.elements[0].children[1]) is XmlCDATASection
         assert type(xml_document.root.elements[3].children[0]) is XmlCDATASection
 
@@ -138,6 +145,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert xml_document.root.name == "macros"
         assert len(xml_document.root.elements) == 2
         assert xml_document.root.elements[0].name == "token"
@@ -152,6 +160,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert xml_document.root.name == "tool"
         assert len(xml_document.root.elements) == 2
         assert xml_document.root.elements[0].name == "inputs"
@@ -163,6 +172,7 @@ class TestXmlDocumentParserClass:
 
         xml_document = parser.parse(test_document)
 
+        assert xml_document.root
         assert_element_has_offsets(xml_document.root, 39, 125)
         assert_element_has_offsets(xml_document.root.elements[0], 93, 102)
         assert_element_has_offsets(xml_document.root.elements[1], 107, 117)
@@ -216,6 +226,7 @@ class TestXmlDocumentParserClass:
 
         actual = xml_document.get_node_at(offset)
 
+        assert actual
         assert actual.node_type == expected
 
     @pytest.mark.parametrize(

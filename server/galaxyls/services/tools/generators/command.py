@@ -84,7 +84,8 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 cdata = section.get_cdata_section()
                 if cdata:
                     content_range = tool.get_content_range(cdata)
-                return content_range.end
+                if content_range:
+                    return content_range.end
             else:  # is self closed <tests/>
                 start = tool.get_position_before(section)
                 end = tool.get_position_after(section)
@@ -101,7 +102,9 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 return tool.get_position_before(section)
             section = tool.find_element(TOOL)
             if section:
-                return tool.get_content_range(section).end
+                content_range = tool.get_content_range(section)
+                if content_range:
+                    return content_range.end
             return Position(line=0, character=0)
 
     def _generate_command_snippet(self, input_tree: GalaxyToolInputTree, outputs: List[XmlElement]) -> str:
@@ -179,28 +182,30 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         cond_name = conditional.name
         if name_path:
             cond_name = f"{name_path}.{cond_name}"
-        param_name = conditional.option_param.get_attribute(NAME)
-        option = conditional.option
-        directive = "#elif"
-        if conditional.is_first_option:
-            directive = "#if"
-        result.append(f'{indentation}{directive} str( \\${cond_name}.{param_name} ) == "{option}":')
-        result.extend(self._node_to_cheetah(conditional, cond_name, indent_level + 1))
-        if conditional.is_last_option:
-            result.append(f"{indentation}#end if")
+        if conditional.option_param:
+            param_name = conditional.option_param.get_attribute(NAME)
+            option = conditional.option
+            directive = "#elif"
+            if conditional.is_first_option:
+                directive = "#if"
+            result.append(f'{indentation}{directive} str( \\${cond_name}.{param_name} ) == "{option}":')
+            result.extend(self._node_to_cheetah(conditional, cond_name, indent_level + 1))
+            if conditional.is_last_option:
+                result.append(f"{indentation}#end if")
         return result
 
     def _repeat_to_cheetah(self, repeat: RepeatInputNode, name_path: Optional[str] = None, indent_level: int = 0) -> List[str]:
         """Converts the given repeat node to it's Cheetah representation using the #for directive."""
         indentation = self._get_indentation(indent_level)
         result: List[str] = []
-        repeat_name = repeat.element.get_attribute(NAME)
-        if name_path:
-            repeat_name = f"{name_path}.{repeat_name}"
-        var_placeholder = self._get_next_tabstop_with_placeholder(REPEAT_VAR)
-        result.append(f"{indentation}#for \\${REPEAT_INDEX}, \\${var_placeholder} in enumerate(\\${repeat_name}):")
-        result.extend(self._node_to_cheetah(repeat, var_placeholder, indent_level + 1))
-        result.append(f"{indentation}#end for")
+        if repeat.element:
+            repeat_name = repeat.element.get_attribute(NAME)
+            if name_path:
+                repeat_name = f"{name_path}.{repeat_name}"
+            var_placeholder = self._get_next_tabstop_with_placeholder(REPEAT_VAR)
+            result.append(f"{indentation}#for \\${REPEAT_INDEX}, \\${var_placeholder} in enumerate(\\${repeat_name}):")
+            result.extend(self._node_to_cheetah(repeat, var_placeholder, indent_level + 1))
+            result.append(f"{indentation}#end for")
         return result
 
     def _section_to_cheetah(
@@ -208,10 +213,11 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
     ) -> List[str]:
         """Converts the given section node to it's Cheetah representation."""
         result: List[str] = []
-        section_name = section.element.get_attribute(NAME)
-        if name_path:
-            section_name = f"{name_path}.{section_name}"
-        result.extend(self._node_to_cheetah(section, section_name, indent_level))
+        if section.element:
+            section_name = section.element.get_attribute(NAME)
+            if name_path:
+                section_name = f"{name_path}.{section_name}"
+            result.extend(self._node_to_cheetah(section, section_name, indent_level))
         return result
 
     def _output_to_cheetah(self, output: XmlElement) -> Optional[str]:

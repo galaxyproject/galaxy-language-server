@@ -160,6 +160,7 @@ class TestXmlContextServiceClass:
         if expected_xsd_node_name is None:
             assert context.xsd_element is None
         else:
+            assert context.xsd_element
             assert context.xsd_element.name == expected_xsd_node_name
 
     @pytest.mark.parametrize(
@@ -184,6 +185,7 @@ class TestXmlContextServiceClass:
 
         actual_offsets = service.get_range_for_context(xml_document, context)
 
+        assert context.node
         assert context.node.name == expected_token_name
         assert actual_offsets == expected_offsets
 
@@ -231,6 +233,7 @@ class TestXmlContextServiceClass:
 
         actual_offsets = service.get_range_for_context(xml_document, context)
 
+        assert context.node
         assert context.node.name == expected_token_name
         assert actual_offsets == expected_offsets
 
