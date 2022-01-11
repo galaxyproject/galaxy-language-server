@@ -71,8 +71,8 @@ class ConditionalInputNode(InputNode):
             if self.option_param:
                 type_attr = self.option_param.get_attribute(TYPE)
                 if type_attr == SELECT:
-                    options = self.option_param.get_children_with_name(OPTION)
-                    return list(filter(None, [option.get_attribute(VALUE) for option in options]))
+                    option_elements = self.option_param.get_children_with_name(OPTION)
+                    return list(filter(None, [option_element.get_attribute(VALUE) for option_element in option_elements]))
                 elif type_attr == BOOLEAN:
                     options = []
                     true_value = self.option_param.get_attribute(TRUEVALUE)

@@ -91,7 +91,7 @@ class RefactorMacrosService:
 
     def _calculate_local_changes_for_macro(
         self, tool: GalaxyToolXmlDocument, macro: MacroData, params: CodeActionParams
-    ) -> Dict[str, TextEdit]:
+    ) -> Dict[str, List[TextEdit]]:
         """Returns a dictionary with the file uri and the TextEdit operations that will add a macro definition to
         the <macros> section of a tool wrapper. If the <macros> section doesn't exists it will also be created."""
         macros_element = tool.get_macros_element()
@@ -110,13 +110,13 @@ class RefactorMacrosService:
         macro_file_definition: ImportedMacrosFile,
         macro: MacroData,
         params: CodeActionParams,
-    ) -> Dict[str, TextEdit]:
+    ) -> Dict[str, List[TextEdit]]:
         """Returns a dictionary with the document uri and the collection of TextEdit operations for that particular document.
 
         The edits will add the macro definition to the given imported macros file and replace the refactored macro with the
         corresponding <expand> element in the tool wrapper."""
         macros_xml_doc = macro_file_definition.document
-        if macros_xml_doc is None:
+        if macros_xml_doc is None or macro_file_definition.file_uri is None:
             return {}
         macros_root = macros_xml_doc.root
         insert_position = macros_xml_doc.get_position_after_last_child(macros_root)
@@ -144,7 +144,7 @@ class RefactorMacrosService:
         final_xml_content = self.format_service.format_content(xml_content)
         new_doc_insert_position = Position(line=0, character=0)
         tool_document = self.workspace.get_document(params.text_document.uri)
-        changes = [
+        changes: List[Union[CreateFile, TextDocumentEdit]] = [
             CreateFile(uri=new_file_uri, kind=ResourceOperationKind.Create),
             TextDocumentEdit(
                 text_document=VersionedTextDocumentIdentifier(

@@ -187,5 +187,6 @@ class GalaxyToolXsdParser:
         if simple_type is None:
             return []
         if simple_type.tag == XS_SIMPLE_TYPE:
-            return simple_type.xpath(".//xs:enumeration/@value", namespaces=simple_type.nsmap)
+            enumeration_values = simple_type.xpath(".//xs:enumeration/@value", namespaces=simple_type.nsmap)
+            return cast(List[str], enumeration_values)
         return None

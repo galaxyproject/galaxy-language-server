@@ -113,14 +113,16 @@ class XmlContext:
     @property
     def is_inside_attribute_value(self) -> bool:
         """Indicates if the token in context is an attribute value."""
-        return self.is_attribute_value and self.node and self.offset > self.node.start and self.offset < self.node.end
+        return (
+            self.is_attribute_value and self.node is not None and self.offset > self.node.start and self.offset < self.node.end
+        )
 
     @property
     def is_attribute_end(self) -> bool:
         """Indicates that the context position is at the ending quote character of an attribute.
 
         Example: <tag attribute="value["] <- The context position is at " """
-        return self.is_attribute_value and self._node and self._offset == self._node.end - 1
+        return self.is_attribute_value and self._node is not None and self._offset == self._node.end - 1
 
     @property
     def attribute_name(self) -> Optional[str]:
