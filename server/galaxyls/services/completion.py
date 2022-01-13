@@ -86,7 +86,7 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
-        result = []
+        result: List[CompletionItem] = []
         if (
             context.is_empty
             or context.is_content

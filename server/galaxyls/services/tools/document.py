@@ -21,12 +21,8 @@ class GalaxyToolXmlDocument:
     """
 
     def __init__(self, document: Document, xml_document: Optional[XmlDocument] = None) -> None:
-        if xml_document:
-            self.xml_document = xml_document
-            self.document: Document = xml_document.document
-        else:
-            self.document: Document = document
-            self.xml_document = XmlDocumentParser().parse(document)
+        self.xml_document = xml_document or XmlDocumentParser().parse(document)
+        self.document = document
 
     @property
     def is_valid(self) -> bool:

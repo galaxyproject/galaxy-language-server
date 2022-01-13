@@ -2,16 +2,17 @@
 information from the XSD schema.
 """
 
-from typing import List
+from typing import List, Optional
 
 from lxml import etree
 from pygls.lsp.types import Diagnostic, MarkupContent, MarkupKind
 
-from ..context import XmlContext
-from ..xml.document import XmlDocument
-from .constants import MSG_NO_DOCUMENTATION_AVAILABLE, TOOL_XSD_FILE
-from .parser import GalaxyToolXsdParser
-from .validation import GalaxyToolValidationService
+from galaxyls.services.context import XmlContext
+from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xsd.constants import MSG_NO_DOCUMENTATION_AVAILABLE, TOOL_XSD_FILE
+from galaxyls.services.xsd.parser import GalaxyToolXsdParser
+from galaxyls.services.xsd.types import XsdBase
+from galaxyls.services.xsd.validation import GalaxyToolValidationService
 
 NO_DOC_MARKUP = MarkupContent(kind=MarkupKind.Markdown, value=MSG_NO_DOCUMENTATION_AVAILABLE)
 
@@ -42,10 +43,10 @@ class GalaxyToolXsdService:
         given element name (node or attribute).
         """
         if context.xsd_element:
-            element = None
+            element: Optional[XsdBase]
             if context.is_tag:
                 element = context.xsd_element
-            if context.is_attribute_key and context.node and context.node.name:
+            elif context.is_attribute_key and context.node and context.node.name:
                 element = context.xsd_element.attributes.get(context.node.name)
             if element:
                 return element.get_doc()

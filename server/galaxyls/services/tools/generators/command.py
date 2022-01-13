@@ -105,7 +105,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 content_range = tool.get_content_range(section)
                 if content_range:
                     return content_range.end
-            return Position(line=0, character=0)
+        return Position(line=0, character=0)
 
     def _generate_command_snippet(self, input_tree: GalaxyToolInputTree, outputs: List[XmlElement]) -> str:
         snippets = [

@@ -181,14 +181,12 @@ class GalaxyToolXsdParser:
         attr.enumeration = self._get_enumeration_restrictions_from_type(attr_type)
         node.attributes[attr_name] = attr
 
-    def _get_enumeration_restrictions_from_type(self, type_name: str) -> Optional[List[str]]:
+    def _get_enumeration_restrictions_from_type(self, type_name: str) -> List[str]:
         simple_type = self._named_type_map.get(type_name)
-        if simple_type is None:
-            return []
-        if simple_type.tag == XS_SIMPLE_TYPE:
+        if simple_type is not None and simple_type.tag == XS_SIMPLE_TYPE:
             enumeration_values = simple_type.xpath(".//xs:enumeration/@value", namespaces=simple_type.nsmap)  # type: ignore
             return cast(List[str], enumeration_values)
-        return None
+        return []
 
     def _get_attribute_value_by_name(self, element: etree._Element, name: str) -> str:
         return cast(str, element.attrib.get(name, ""))
