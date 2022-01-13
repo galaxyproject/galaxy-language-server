@@ -24,6 +24,7 @@ from galaxyls.services.tools.constants import DESCRIPTION, MACRO, MACROS, TOOL, 
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.macros import ImportedMacrosFile, MacroDefinitionsProvider, ToolMacroDefinitions
 from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.nodes import XmlElement
 
 DEFAULT_MACROS_FILENAME = "macros.xml"
 EXCLUDED_TAGS = {TOOL, MACROS, MACRO, XML}
@@ -99,7 +100,7 @@ class RefactorMacrosService:
         if macros_element is None:
             edits.append(self._edit_create_with_macros_section(tool, macro))
         else:
-            edits.append(self._edit_add_macro_to_macros_section(tool, macro))
+            edits.append(self._edit_add_macro_to_macros_section(tool, macros_element, macro))
         edits.append(self._edit_replace_range_with_macro_expand(tool, macro, params.range))
         changes = {params.text_document.uri: edits}
         return changes
@@ -116,7 +117,7 @@ class RefactorMacrosService:
         The edits will add the macro definition to the given imported macros file and replace the refactored macro with the
         corresponding <expand> element in the tool wrapper."""
         macros_xml_doc = macro_file_definition.document
-        if macros_xml_doc is None or macro_file_definition.file_uri is None:
+        if macro_file_definition.file_uri is None or macros_xml_doc is None or macros_xml_doc.root is None:
             return {}
         macros_root = macros_xml_doc.root
         insert_position = macros_xml_doc.get_position_after_last_child(macros_root)
@@ -208,9 +209,10 @@ class RefactorMacrosService:
             new_text=final_macro_xml,
         )
 
-    def _edit_add_macro_to_macros_section(self, tool: GalaxyToolXmlDocument, macro: MacroData) -> TextEdit:
+    def _edit_add_macro_to_macros_section(
+        self, tool: GalaxyToolXmlDocument, macros_element: XmlElement, macro: MacroData
+    ) -> TextEdit:
         """Returns the TextEdit operation that will add a macro definition to the <macros> section of a tool wrapper."""
-        macros_element = tool.get_macros_element()
         insert_position = tool.get_position_after_last_child(macros_element)
         insert_range = Range(start=insert_position, end=insert_position)
         macro_xml = f'<xml name="{macro.name}">\n{macro.content}\n</xml>'

@@ -95,7 +95,7 @@ class GalaxyToolValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_for_macros_file_syntax_error(tool, e)
 
-    def _validate_tree(self, xml_tree: etree._ElementTree) -> List[Diagnostic]:
+    def _validate_tree(self, xml_tree) -> List[Diagnostic]:
         """Validates an XML tree against the XSD schema.
 
         Args:
@@ -163,21 +163,19 @@ class GalaxyToolValidationService:
         )
         return [result]
 
-    def _build_diagnostics_for_macros_file_syntax_error(
-        self, tool: GalaxyToolXmlDocument, e: etree.XMLSyntaxError
-    ) -> List[Diagnostic]:
+    def _build_diagnostics_for_macros_file_syntax_error(self, tool: GalaxyToolXmlDocument, syntax_error) -> List[Diagnostic]:
         result = Diagnostic(
-            range=tool.get_import_macro_file_range(e.filename),
-            message=e.msg,
+            range=tool.get_import_macro_file_range(syntax_error.filename),
+            message=syntax_error.msg,
             source=self.server_name,
             related_information=[
                 DiagnosticRelatedInformation(
                     message="Syntax error found on imported file.",
                     location=Location(
-                        uri=Path(e.filename).as_uri(),
+                        uri=Path(syntax_error.filename).as_uri(),
                         range=Range(
-                            start=Position(line=e.lineno - 1, character=e.offset),
-                            end=Position(line=e.lineno - 1, character=e.offset),
+                            start=Position(line=syntax_error.lineno - 1, character=syntax_error.offset),
+                            end=Position(line=syntax_error.lineno - 1, character=syntax_error.offset),
                         ),
                     ),
                 )

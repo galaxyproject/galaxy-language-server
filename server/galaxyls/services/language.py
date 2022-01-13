@@ -95,6 +95,8 @@ class GalaxyToolLanguageService:
         self, xml_document: XmlDocument, params: CompletionParams, mode: CompletionMode
     ) -> Optional[CompletionList]:
         """Gets completion items depending on the current document context."""
+        if params.context is None:
+            return None
         context = self.xml_context_service.get_xml_context(xml_document, params.position)
         return self.completion_service.get_completion_at_context(context, params.context, mode)
 
