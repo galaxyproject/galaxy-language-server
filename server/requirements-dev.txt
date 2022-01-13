@@ -10,3 +10,4 @@ mypy
 pytest
 pytest-cov
 pytest-mock
+types-setuptools
