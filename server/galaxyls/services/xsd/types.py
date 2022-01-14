@@ -177,5 +177,5 @@ class XsdTree:
             filter_=lambda node: node.name == name,
         )
         if len(result) > 0:
-            return result[0]
+            return cast(XsdNode, result[0])
         return None

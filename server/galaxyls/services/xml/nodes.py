@@ -68,17 +68,17 @@ class XmlSyntaxNode(ABC, NodeMixin):
         """Gets the name of this attribute (if it is an attribute node)."""
         return None
 
-    def find_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
+    def find_node_at(self, offset: int) -> "XmlSyntaxNode":
         """Finds the syntax node at the given document offset."""
         try:
-            child = next(child for child in self.children if child.is_at(offset))
+            child = cast(XmlSyntaxNode, next(child for child in self.children if child.is_at(offset)))
             return child.find_node_at(offset)
         except StopIteration:
             if self.is_at(offset):
                 return self.find_attr_node_at(offset)
             return self
 
-    def find_attr_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
+    def find_attr_node_at(self, offset: int) -> "XmlSyntaxNode":
         """Finds the attribute node at the given document offset."""
         if self.has_attributes:
             attr_nodes = self.get_attribute_nodes()

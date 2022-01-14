@@ -240,9 +240,7 @@ def sort_document_params_attrs_command(
 
 
 @language_server.command(Commands.GENERATE_EXPANDED_DOCUMENT)
-def generate_expanded_command(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[GeneratedExpandedDocument]:
+def generate_expanded_command(server: GalaxyToolsLanguageServer, parameters: CommandParameters) -> GeneratedExpandedDocument:
     """Generates a expanded version (with all macros replaced) of the tool document."""
     params = deserialize_command_param(parameters[0], TextDocumentIdentifier)
     document = server.workspace.get_document(params.uri)

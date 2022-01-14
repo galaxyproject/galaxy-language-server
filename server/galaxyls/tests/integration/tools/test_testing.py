@@ -22,7 +22,7 @@ def get_document_by_name(name: str) -> Optional[Document]:
 
 
 @pytest.fixture()
-def fake_workspace(mocker: MockerFixture) -> Workspace:
+def fake_workspace(mocker: MockerFixture):
     workspace_documents: Dict[str, Document] = {}
     for doc_name in TEST_DOCUMENTS:
         doc = get_document_by_name(doc_name)

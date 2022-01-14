@@ -45,9 +45,9 @@ class GalaxyToolXmlDocument:
         return self.xml_document.document.source
 
     @property
-    def path(self) -> str:
+    def path(self) -> Optional[str]:
         """The file path of the tool."""
-        return self.xml_document.document.path
+        return cast(Optional[str], self.xml_document.document.path)
 
     def find_element(self, name: str, maxlevel: int = 3) -> Optional[XmlElement]:
         """Finds the element with the given name in the document.

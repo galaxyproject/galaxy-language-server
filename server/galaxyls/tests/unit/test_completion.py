@@ -36,12 +36,12 @@ def fake_tree(mocker: MockerFixture) -> XsdTree:
 
 
 @pytest.fixture()
-def fake_xml_doc(mocker: MockerFixture) -> XmlDocument:
+def fake_xml_doc(mocker: MockerFixture):
     return mocker.Mock(XmlDocument)
 
 
 @pytest.fixture()
-def fake_definitions_provider(mocker: MockerFixture) -> DocumentDefinitionsProvider:
+def fake_definitions_provider(mocker: MockerFixture):
     return mocker.Mock(DocumentDefinitionsProvider)
 
 
