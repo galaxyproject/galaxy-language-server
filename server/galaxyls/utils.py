@@ -1,9 +1,9 @@
-from typing import NamedTuple, Type, TypeVar
+from typing import Dict, List, NamedTuple, Tuple, Type, TypeVar, Union
 
 T = TypeVar("T")
 
 
-def is_namedtuple_instance(x):
+def is_namedtuple_instance(x) -> bool:
     _type = type(x)
     bases = _type.__bases__
     if len(bases) != 1 or bases[0] != tuple:

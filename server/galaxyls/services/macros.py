@@ -31,7 +31,7 @@ class MacroExpanderService:
             expanded_xml = remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
             etree.indent(root, space=DEFAULT_INDENTATION)
-            content = cast(str, etree.tostring(root, pretty_print=True, encoding=str))
+            content = etree.tostring(root, pretty_print=True, encoding=str)
             result.content = content
         except BaseException as e:
             result.error_message = f"{e}"

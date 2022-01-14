@@ -9,7 +9,7 @@ from galaxyls.services.xml.types import NodeType
 class XmlSyntaxNode(ABC, NodeMixin):
     """Abstract base class that represents a syntax node in the syntax tree."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.name: Optional[str] = None
         self.start: int = UNDEFINED_OFFSET
         self.end: int = UNDEFINED_OFFSET
@@ -134,7 +134,7 @@ class XmlContainerNode(XmlSyntaxNode):
 class XmlContent(XmlContainerNode):
     """Represents some content inside a XML document."""
 
-    def __init__(self, start: int, end: int):
+    def __init__(self, start: int, end: int) -> None:
         super().__init__()
         self.start = start
         self.end = end

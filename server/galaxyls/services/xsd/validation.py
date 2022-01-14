@@ -84,7 +84,7 @@ class GalaxyToolValidationService:
             expanded_xml = remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
             etree.indent(root, space=DEFAULT_INDENTATION)
-            content = cast(str, etree.tostring(root, pretty_print=True, encoding=str))
+            content = etree.tostring(root, pretty_print=True, encoding=str)
             formatted_xml = etree.fromstring(content)
             self.xsd_schema.assertValid(formatted_xml)
             return []

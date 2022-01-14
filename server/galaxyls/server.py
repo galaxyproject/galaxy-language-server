@@ -61,7 +61,7 @@ from galaxyls.utils import deserialize_command_param
 class GalaxyToolsLanguageServer(LanguageServer):
     """Galaxy Tools Language Server."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.service = GalaxyToolLanguageService(SERVER_NAME)
         self.configuration: GalaxyToolsConfiguration = GalaxyToolsConfiguration()
@@ -140,13 +140,13 @@ async def did_open(server: GalaxyToolsLanguageServer, params: DidOpenTextDocumen
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_SAVE)
-def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParams):
+def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParams) -> None:
     """Occurs when the xml document is saved to disk."""
     _validate(server, params)
 
 
 @language_server.feature(TEXT_DOCUMENT_DID_CLOSE)
-def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams):
+def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams) -> None:
     """Occurs when the xml document is closed."""
     server.publish_diagnostics(params.text_document.uri, [])
 
@@ -255,7 +255,7 @@ def discover_tests_command(server: GalaxyToolsLanguageServer, params) -> List[Te
     return server.service.discover_tests(server.workspace)
 
 
-def _validate(server: GalaxyToolsLanguageServer, params):
+def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
     diagnostics: List[Diagnostic] = []
     document = _get_valid_document(server, params.text_document.uri)

@@ -57,7 +57,7 @@ class GalaxyToolXsdParser:
             self._build_tree_recursive(self._root, self._tree)
             if self._tree is None:
                 self._tree = self._build_empty_tree()
-        return cast(XsdTree, self._tree)
+        return self._tree
 
     def _build_empty_tree(self) -> XsdTree:
         return XsdTree(XsdNode(""))

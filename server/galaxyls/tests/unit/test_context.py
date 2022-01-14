@@ -1,15 +1,14 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 
 import pytest
 from pygls.workspace import Position, Range
 from pytest_mock import MockerFixture
 
+from galaxyls.services.context import XmlContext, XmlContextService, XsdNode, XsdTree
 from galaxyls.services.xml.document import XmlDocument
-
-from ...services.context import XmlContext, XmlContextService, XsdNode, XsdTree
-from ...services.xml.nodes import XmlAttribute, XmlAttributeKey, XmlAttributeValue, XmlElement
-from ...services.xml.types import NodeType
-from .utils import TestUtils
+from galaxyls.services.xml.nodes import XmlAttribute, XmlAttributeKey, XmlAttributeValue, XmlElement
+from galaxyls.services.xml.types import NodeType
+from galaxyls.tests.unit.utils import TestUtils
 
 
 # [root]
@@ -26,8 +25,8 @@ def fake_xsd_tree(mocker: MockerFixture) -> XsdTree:
 
 
 @pytest.fixture()
-def fake_xml_doc(mocker: MockerFixture):
-    return mocker.Mock(XmlDocument)
+def fake_xml_doc(mocker: MockerFixture) -> XmlDocument:
+    return cast(XmlDocument, mocker.Mock(XmlDocument))
 
 
 class TestXmlContextClass:

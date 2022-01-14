@@ -131,7 +131,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         self._add_outputs_to_test_element(outputs, test_element)
         etree.indent(test_element, space=self.indent_spaces)
         snippet = etree.tostring(test_element, pretty_print=True, encoding=str)
-        return cast(str, snippet)
+        return snippet
 
     def _create_test_element(self) -> etree._Element:
         """Returns a XML element representing a <test> tag with the basic information.
@@ -250,8 +250,8 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         self._build_test_tree(input_section, section_node)
         return section_node
 
-    def _build_test_tree(self, input: InputNode, parent: etree._Element):
-        """Recursevely adds to the 'parent' XML element all the input nodes from the given 'input'.
+    def _build_test_tree(self, input: InputNode, parent: etree._Element) -> None:
+        """Recursively adds to the 'parent' XML element all the input nodes from the given 'input'.
 
         Args:
             input (InputNode): The InputNode to extract the node information.

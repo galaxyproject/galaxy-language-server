@@ -1,4 +1,4 @@
-from ...services.format import GalaxyToolFormatService
+from galaxyls.services.format import GalaxyToolFormatService
 from pygls.lsp.types import (
     DocumentFormattingParams,
     TextDocumentIdentifier,
@@ -20,7 +20,7 @@ EXPECTED_FORMATTED_DOCUMENT = """<tool id="1">
 
 
 class TestGalaxyToolFormatServiceClass:
-    def test_format_should_return_whole_file_text_edit(self):
+    def test_format_should_return_whole_file_text_edit(self) -> None:
         service = GalaxyToolFormatService()
         params = DocumentFormattingParams(
             text_document=TextDocumentIdentifier(uri="test"),
@@ -35,21 +35,21 @@ class TestGalaxyToolFormatServiceClass:
         assert actual[0].range.end.line == 3
         assert actual[0].range.end.character == 0
 
-    def test_format_document_returns_expected_format(self):
+    def test_format_document_returns_expected_format(self) -> None:
         service = GalaxyToolFormatService()
 
         actual = service.format_content(FAKE_UNFORMATTED_DOCUMENT, tabSize=4)
 
         assert actual == EXPECTED_FORMATTED_DOCUMENT
 
-    def test_format_document_maintains_cdata(self):
+    def test_format_document_maintains_cdata(self) -> None:
         service = GalaxyToolFormatService()
 
         actual = service.format_content(FAKE_UNFORMATTED_DOCUMENT, tabSize=4)
 
         assert "<![CDATA[This is a test.]]>" in actual
 
-    def test_format_document_do_not_change_invalid_xml(self):
+    def test_format_document_do_not_change_invalid_xml(self) -> None:
         service = GalaxyToolFormatService()
 
         actual = service.format_content(FAKE_INVALID_DOCUMENT, tabSize=4)

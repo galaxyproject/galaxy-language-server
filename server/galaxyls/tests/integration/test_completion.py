@@ -76,7 +76,7 @@ class TestIntegrationXmlCompletionServiceClass:
         source_with_mark: str,
         expected_item_names: List[str],
         mocker: MockerFixture,
-    ):
+    ) -> None:
         position, source_without_mark = TestUtils.extract_mark_from_source("^", source_with_mark)
         document = TestUtils.from_source_to_xml_document(source_without_mark)
         context_service = XmlContextService(galaxy_xsd_tree)

@@ -36,6 +36,6 @@ class GalaxyToolFormatService:
             spaces = " " * tabSize
             etree.indent(xml, space=spaces)
             result = etree.tostring(xml, pretty_print=True, encoding=str)
-            return cast(str, result)
+            return result
         except etree.XMLSyntaxError:
             return content  # Do not auto-format if there are syntax errors

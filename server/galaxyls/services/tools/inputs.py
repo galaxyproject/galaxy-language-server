@@ -45,7 +45,7 @@ class ConditionalInputNode(InputNode):
     value is set to the 'option' field of one of the possible 'when' definitions.
     """
 
-    def __init__(self, name: str, option: str, element: Optional[XmlElement] = None, parent: InputNode = None):
+    def __init__(self, name: str, option: str, element: Optional[XmlElement] = None, parent: Optional[InputNode] = None):
         super().__init__(name, element, parent)
         self.option_param: Optional[XmlElement] = element.elements[0] if element else None
         self.option: str = option

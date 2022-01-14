@@ -48,7 +48,7 @@ class XsdBase:
 
     def _get_doc_text_of_element(self, element: Optional[Any], lang: str = "en") -> str:
         try:
-            if element:
+            if element is not None:
                 doc_annotation = element.xpath(
                     "./xs:annotation/xs:documentation[@xml:lang=$lang]/text()",
                     namespaces=element.nsmap,

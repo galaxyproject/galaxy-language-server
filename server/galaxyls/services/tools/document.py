@@ -208,6 +208,6 @@ class GalaxyToolXmlDocument:
     def from_xml_document(cls, xml_document: XmlDocument) -> "GalaxyToolXmlDocument":
         return GalaxyToolXmlDocument(xml_document.document, xml_document)
 
-    def _get_tool_directory(self):
+    def _get_tool_directory(self) -> Path:
         tool_directory = Path(self.xml_document.document.path).resolve().parent
         return tool_directory
