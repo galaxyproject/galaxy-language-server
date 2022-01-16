@@ -6,7 +6,7 @@ black
 flake8
 flake8-bugbear
 lxml-stubs
-mypy
+mypy==0.931
 pytest
 pytest-cov
 pytest-mock
