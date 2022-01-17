@@ -1,15 +1,14 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 
 import pytest
 from pygls.workspace import Position, Range
 from pytest_mock import MockerFixture
 
+from galaxyls.services.context import XmlContext, XmlContextService, XsdNode, XsdTree
 from galaxyls.services.xml.document import XmlDocument
-
-from ...services.context import XmlContext, XmlContextService, XsdNode, XsdTree
-from ...services.xml.nodes import XmlAttribute, XmlAttributeKey, XmlAttributeValue, XmlElement
-from ...services.xml.types import NodeType
-from .utils import TestUtils
+from galaxyls.services.xml.nodes import XmlAttribute, XmlAttributeKey, XmlAttributeValue, XmlElement
+from galaxyls.services.xml.types import NodeType
+from galaxyls.tests.unit.utils import TestUtils
 
 
 # [root]
@@ -27,7 +26,7 @@ def fake_xsd_tree(mocker: MockerFixture) -> XsdTree:
 
 @pytest.fixture()
 def fake_xml_doc(mocker: MockerFixture) -> XmlDocument:
-    return mocker.Mock(XmlDocument)
+    return cast(XmlDocument, mocker.Mock(XmlDocument))
 
 
 class TestXmlContextClass:
@@ -160,6 +159,7 @@ class TestXmlContextServiceClass:
         if expected_xsd_node_name is None:
             assert context.xsd_element is None
         else:
+            assert context.xsd_element
             assert context.xsd_element.name == expected_xsd_node_name
 
     @pytest.mark.parametrize(
@@ -184,6 +184,7 @@ class TestXmlContextServiceClass:
 
         actual_offsets = service.get_range_for_context(xml_document, context)
 
+        assert context.node
         assert context.node.name == expected_token_name
         assert actual_offsets == expected_offsets
 
@@ -231,6 +232,7 @@ class TestXmlContextServiceClass:
 
         actual_offsets = service.get_range_for_context(xml_document, context)
 
+        assert context.node
         assert context.node.name == expected_token_name
         assert actual_offsets == expected_offsets
 

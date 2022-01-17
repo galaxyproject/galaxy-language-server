@@ -19,7 +19,6 @@ from pygls.lsp.types import (
     MarkupKind,
     Position,
     Range,
-    TextDocumentPositionParams,
     TextEdit,
 )
 from pygls.workspace import Document, Workspace
@@ -43,7 +42,7 @@ class GalaxyToolLanguageService:
     by the LSP.
     """
 
-    def __init__(self, server_name: str):
+    def __init__(self, server_name: str) -> None:
         self.xsd_service = GalaxyToolXsdService(server_name)
         self.format_service = GalaxyToolFormatService()
         self.xsd_tree = self.xsd_service.xsd_parser.get_tree()
@@ -53,7 +52,7 @@ class GalaxyToolLanguageService:
         self.macro_expander = MacroExpanderService()
         self.refactoring_service: Optional[RefactoringService] = None
 
-    def set_workspace(self, workspace: Workspace):
+    def set_workspace(self, workspace: Workspace) -> None:
         macro_definitions_provider = MacroDefinitionsProvider(workspace)
         self.definitions_provider = DocumentDefinitionsProvider(macro_definitions_provider)
         self.completion_service = XmlCompletionService(self.xsd_tree, self.definitions_provider)
@@ -95,6 +94,8 @@ class GalaxyToolLanguageService:
         self, xml_document: XmlDocument, params: CompletionParams, mode: CompletionMode
     ) -> Optional[CompletionList]:
         """Gets completion items depending on the current document context."""
+        if params.context is None:
+            return None
         context = self.xml_context_service.get_xml_context(xml_document, params.position)
         return self.completion_service.get_completion_at_context(context, params.context, mode)
 

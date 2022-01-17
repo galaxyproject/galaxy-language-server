@@ -21,12 +21,8 @@ class GalaxyToolXmlDocument:
     """
 
     def __init__(self, document: Document, xml_document: Optional[XmlDocument] = None) -> None:
-        if xml_document:
-            self.xml_document = xml_document
-            self.document: Document = xml_document.document
-        else:
-            self.document: Document = document
-            self.xml_document = XmlDocumentParser().parse(document)
+        self.xml_document = xml_document or XmlDocumentParser().parse(document)
+        self.document = document
 
     @property
     def is_valid(self) -> bool:
@@ -49,9 +45,9 @@ class GalaxyToolXmlDocument:
         return self.xml_document.document.source
 
     @property
-    def path(self) -> str:
+    def path(self) -> Optional[str]:
         """The file path of the tool."""
-        return self.xml_document.document.path
+        return cast(Optional[str], self.xml_document.document.path)
 
     def find_element(self, name: str, maxlevel: int = 3) -> Optional[XmlElement]:
         """Finds the element with the given name in the document.
@@ -78,6 +74,7 @@ class GalaxyToolXmlDocument:
         """
         if element:
             return self.xml_document.get_content_range(element)
+        return None
 
     def get_position_before(self, element: XmlElement) -> Position:
         """Returns the document position right before the given element opening tag.
@@ -161,13 +158,14 @@ class GalaxyToolXmlDocument:
         result = {}
         tool_directory = self._get_tool_directory()
         import_elements = self.get_macro_import_elements()
-        for imp in import_elements:
-            filename = imp.get_content(self.xml_document.document.source)
-            if filename:
-                path = tool_directory / filename
-                if path.exists():
-                    file_uri = path.as_uri()
-                    result[filename] = file_uri
+        if import_elements:
+            for imp in import_elements:
+                filename = imp.get_content(self.xml_document.document.source)
+                if filename:
+                    path = tool_directory / filename
+                    if path.exists():
+                        file_uri = path.as_uri()
+                        result[filename] = file_uri
         return result
 
     def get_macros_range(self) -> Optional[Range]:
@@ -176,21 +174,24 @@ class GalaxyToolXmlDocument:
         if element:
             range = self.xml_document.get_element_name_range(element)
             return range
+        return None
 
     def get_import_macro_file_range(self, file_path: Optional[str]) -> Optional[Range]:
         """Returns the Range position of the imported macro file element if it exists."""
         if file_path:
             filename = Path(file_path).name
             import_elements = self.get_macro_import_elements()
-            for imp in import_elements:
-                imp_filename = imp.get_content(self.xml_document.document.source)
-                if imp_filename == filename:
-                    return self.xml_document.get_full_range(imp)
+            if import_elements:
+                for imp in import_elements:
+                    imp_filename = imp.get_content(self.xml_document.document.source)
+                    if imp_filename == filename:
+                        return self.xml_document.get_full_range(imp)
+        return None
 
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""
         tool_element = self.get_tool_element()
-        return tool_element.get_attribute("id")
+        return tool_element.get_attribute("id") if tool_element else None
 
     def get_tests(self) -> List[XmlElement]:
         """Gets the tests of this document as a list of elements.
@@ -207,6 +208,6 @@ class GalaxyToolXmlDocument:
     def from_xml_document(cls, xml_document: XmlDocument) -> "GalaxyToolXmlDocument":
         return GalaxyToolXmlDocument(xml_document.document, xml_document)
 
-    def _get_tool_directory(self):
+    def _get_tool_directory(self) -> Path:
         tool_directory = Path(self.xml_document.document.path).resolve().parent
         return tool_directory

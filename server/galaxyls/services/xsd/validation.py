@@ -2,7 +2,7 @@
 """
 
 from pathlib import Path
-from typing import List, Optional, cast
+from typing import List, Optional
 
 from lxml import etree
 from pygls.lsp.types import Diagnostic, DiagnosticRelatedInformation, Location, Position, Range
@@ -84,7 +84,7 @@ class GalaxyToolValidationService:
             expanded_xml = remove_macros(expanded_tool_tree)
             root = expanded_xml.getroot()
             etree.indent(root, space=DEFAULT_INDENTATION)
-            content = cast(str, etree.tostring(root, pretty_print=True, encoding=str))
+            content = etree.tostring(root, pretty_print=True, encoding=str)
             formatted_xml = etree.fromstring(content)
             self.xsd_schema.assertValid(formatted_xml)
             return []
@@ -95,7 +95,7 @@ class GalaxyToolValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_for_macros_file_syntax_error(tool, e)
 
-    def _validate_tree(self, xml_tree: etree._ElementTree) -> List[Diagnostic]:
+    def _validate_tree(self, xml_tree) -> List[Diagnostic]:
         """Validates an XML tree against the XSD schema.
 
         Args:
@@ -144,11 +144,11 @@ class GalaxyToolValidationService:
             diagnostics.append(result)
         return diagnostics
 
-    def _build_diagnostics_from_syntax_error(self, error: etree.XMLSyntaxError) -> List[Diagnostic]:
-        """Builds a Diagnostic element from a XMLSyntaxError.
+    def _build_diagnostics_from_syntax_error(self, error) -> List[Diagnostic]:
+        """Builds a Diagnostic element from a lxml syntax error.
 
         Args:
-            error (etree.XMLSyntaxError): The syntax error.
+            error: The syntax error.
 
         Returns:
             Diagnostic: The converted Diagnostic item.
@@ -163,21 +163,19 @@ class GalaxyToolValidationService:
         )
         return [result]
 
-    def _build_diagnostics_for_macros_file_syntax_error(
-        self, tool: GalaxyToolXmlDocument, e: etree.XMLSyntaxError
-    ) -> List[Diagnostic]:
+    def _build_diagnostics_for_macros_file_syntax_error(self, tool: GalaxyToolXmlDocument, syntax_error) -> List[Diagnostic]:
         result = Diagnostic(
-            range=tool.get_import_macro_file_range(e.filename),
-            message=e.msg,
+            range=tool.get_import_macro_file_range(syntax_error.filename),
+            message=syntax_error.msg,
             source=self.server_name,
             related_information=[
                 DiagnosticRelatedInformation(
                     message="Syntax error found on imported file.",
                     location=Location(
-                        uri=Path(e.filename).as_uri(),
+                        uri=Path(syntax_error.filename).as_uri(),
                         range=Range(
-                            start=Position(line=e.lineno - 1, character=e.offset),
-                            end=Position(line=e.lineno - 1, character=e.offset),
+                            start=Position(line=syntax_error.lineno - 1, character=syntax_error.offset),
+                            end=Position(line=syntax_error.lineno - 1, character=syntax_error.offset),
                         ),
                     ),
                 )
@@ -185,9 +183,7 @@ class GalaxyToolValidationService:
         )
         return [result]
 
-    def _build_diagnostics_for_expanded_macros(
-        self, tool: GalaxyToolXmlDocument, e: etree.DocumentInvalid
-    ) -> List[Diagnostic]:
+    def _build_diagnostics_for_expanded_macros(self, tool: GalaxyToolXmlDocument, invalid_document_error) -> List[Diagnostic]:
         virtual_uri = tool.xml_document.document.uri.replace("file", "gls-expand")
         diagnostics = [
             Diagnostic(
@@ -212,7 +208,7 @@ class GalaxyToolValidationService:
                     )
                 ],
             )
-            for error in e.error_log.filter_from_errors()
+            for error in invalid_document_error.error_log.filter_from_errors()
         ]
         return diagnostics
 

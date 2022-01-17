@@ -9,7 +9,7 @@ from galaxyls.services.xml.types import NodeType
 class XmlSyntaxNode(ABC, NodeMixin):
     """Abstract base class that represents a syntax node in the syntax tree."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.name: Optional[str] = None
         self.start: int = UNDEFINED_OFFSET
         self.end: int = UNDEFINED_OFFSET
@@ -68,17 +68,17 @@ class XmlSyntaxNode(ABC, NodeMixin):
         """Gets the name of this attribute (if it is an attribute node)."""
         return None
 
-    def find_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
+    def find_node_at(self, offset: int) -> "XmlSyntaxNode":
         """Finds the syntax node at the given document offset."""
         try:
-            child = next(child for child in self.children if child.is_at(offset))
+            child = cast(XmlSyntaxNode, next(child for child in self.children if child.is_at(offset)))
             return child.find_node_at(offset)
         except StopIteration:
             if self.is_at(offset):
                 return self.find_attr_node_at(offset)
             return self
 
-    def find_attr_node_at(self, offset: int) -> Optional["XmlSyntaxNode"]:
+    def find_attr_node_at(self, offset: int) -> "XmlSyntaxNode":
         """Finds the attribute node at the given document offset."""
         if self.has_attributes:
             attr_nodes = self.get_attribute_nodes()
@@ -99,7 +99,7 @@ class XmlSyntaxNode(ABC, NodeMixin):
         if self.is_element:
             return cast(XmlElement, self)
         if self.parent:
-            parent: Optional[XmlSyntaxNode] = cast(XmlSyntaxNode, self.parent)
+            parent: XmlSyntaxNode = cast(XmlSyntaxNode, self.parent)
             return parent.get_parent_element()
         return None
 
@@ -134,7 +134,7 @@ class XmlContainerNode(XmlSyntaxNode):
 class XmlContent(XmlContainerNode):
     """Represents some content inside a XML document."""
 
-    def __init__(self, start: int, end: int):
+    def __init__(self, start: int, end: int) -> None:
         super().__init__()
         self.start = start
         self.end = end
@@ -185,10 +185,7 @@ class XmlAttribute(XmlSyntaxNode):
 
     def get_value(self) -> str:
         """Gets the value of this attribute (unquoted) or an empty str."""
-        try:
-            return self.value.unquoted
-        except BaseException:
-            return ""
+        return self.value.unquoted if self.value else ""
 
     def get_attribute_nodes(self) -> List["XmlAttribute"]:
         """Gets the lists of attributes of this node if it has any."""
@@ -254,7 +251,7 @@ class XmlAttributeValue(XmlContainerNode):
     @property
     def unquoted(self) -> str:
         """The value without quoting marks."""
-        return self.quoted.strip("\"'")
+        return self.quoted.strip("\"'") if self.quoted else ""
 
     def get_attribute_name(self) -> Optional[str]:
         """Gets the name of this attribute (if it is an attribute node)."""

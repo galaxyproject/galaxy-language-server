@@ -73,7 +73,7 @@ class TestInfoResult:
 class TestSuiteInfoResult:
     """Contains information about all the tests for a tool wrapper."""
 
-    def __init__(self, tool_id: str, file: str, children: List[TestInfoResult] = None) -> None:
+    def __init__(self, tool_id: str, file: str, children: Optional[List[TestInfoResult]] = None) -> None:
         self.id = tool_id
         self.label = f"{tool_id} tests"
         self.file = file

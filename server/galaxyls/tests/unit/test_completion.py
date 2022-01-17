@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 
 import pytest
 from pytest_mock import MockerFixture
@@ -7,7 +7,7 @@ from galaxyls.services.context import XmlContextService
 from galaxyls.services.definitions import DocumentDefinitionsProvider
 from galaxyls.services.xml.document import XmlDocument
 
-from ...services.completion import (
+from galaxyls.services.completion import (
     AutoCloseTagResult,
     CompletionContext,
     CompletionItemKind,
@@ -20,8 +20,8 @@ from ...services.completion import (
     XsdNode,
     XsdTree,
 )
-from ...services.xml.nodes import XmlAttribute, XmlCDATASection, XmlContent, XmlElement
-from .utils import TestUtils
+from galaxyls.services.xml.nodes import XmlAttribute, XmlCDATASection, XmlContent, XmlElement
+from galaxyls.tests.unit.utils import TestUtils
 
 
 @pytest.fixture()
@@ -37,12 +37,12 @@ def fake_tree(mocker: MockerFixture) -> XsdTree:
 
 @pytest.fixture()
 def fake_xml_doc(mocker: MockerFixture) -> XmlDocument:
-    return mocker.Mock(XmlDocument)
+    return cast(XmlDocument, mocker.Mock(XmlDocument))
 
 
 @pytest.fixture()
 def fake_definitions_provider(mocker: MockerFixture) -> DocumentDefinitionsProvider:
-    return mocker.Mock(DocumentDefinitionsProvider)
+    return cast(DocumentDefinitionsProvider, mocker.Mock(DocumentDefinitionsProvider))
 
 
 @pytest.fixture()
@@ -233,6 +233,7 @@ class TestXmlCompletionServiceClass:
 
         actual = service.get_auto_close_tag(fake_context, trigger)
 
+        assert actual
         assert actual.snippet == expected
 
     @pytest.mark.parametrize(
@@ -280,6 +281,7 @@ class TestXmlCompletionServiceClass:
 
         actual = service.get_auto_close_tag(fake_context, trigger)
 
+        assert actual
         assert actual.range == expected_range
 
     def test_auto_close_returns_none_when_at_node_content(

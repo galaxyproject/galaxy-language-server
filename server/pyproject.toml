@@ -1,3 +1,15 @@
 [tool.black]
 line-length = 127
 target-version = ['py38']
+
+[tool.mypy]
+warn_return_any = false
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "galaxy.*",
+    "anytree.*",
+]
+ignore_missing_imports = true
+

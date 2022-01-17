@@ -76,17 +76,17 @@ class TestIntegrationXmlCompletionServiceClass:
         source_with_mark: str,
         expected_item_names: List[str],
         mocker: MockerFixture,
-    ):
+    ) -> None:
         position, source_without_mark = TestUtils.extract_mark_from_source("^", source_with_mark)
         document = TestUtils.from_source_to_xml_document(source_without_mark)
-        service = XmlContextService(galaxy_xsd_tree)
-        context = service.get_xml_context(document, position)
+        context_service = XmlContextService(galaxy_xsd_tree)
+        context = context_service.get_xml_context(document, position)
         fake_completion_context = CompletionContext(trigger_kind=CompletionTriggerKind.Invoked)
         workspace = mocker.Mock()
         definitions_provider = DocumentDefinitionsProvider(MacroDefinitionsProvider(workspace))
-        service = XmlCompletionService(galaxy_xsd_tree, definitions_provider)
+        completion_service = XmlCompletionService(galaxy_xsd_tree, definitions_provider)
 
-        completion_result = service.get_completion_at_context(context, fake_completion_context)
+        completion_result = completion_service.get_completion_at_context(context, fake_completion_context)
 
         assert completion_result
         assert sorted([item.label for item in completion_result.items]) == sorted(expected_item_names)

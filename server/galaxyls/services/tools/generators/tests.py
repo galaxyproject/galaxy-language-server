@@ -109,7 +109,9 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
                 return tool.get_position_after(section)
             section = tool.find_element(TOOL)
             if section:
-                return tool.get_content_range(section).end
+                content_range = tool.get_content_range(section)
+                if content_range:
+                    return content_range.end
             return Position(line=0, character=0)
 
     def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:
@@ -129,7 +131,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         self._add_outputs_to_test_element(outputs, test_element)
         etree.indent(test_element, space=self.indent_spaces)
         snippet = etree.tostring(test_element, pretty_print=True, encoding=str)
-        return cast(str, snippet)
+        return snippet
 
     def _create_test_element(self) -> etree._Element:
         """Returns a XML element representing a <test> tag with the basic information.
@@ -221,11 +223,12 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         given input <conditional> XML element."""
         conditional = etree.Element(CONDITIONAL)
         conditional.attrib[NAME] = input_conditional.name
-        # add the option param
-        param_element = self._build_param_test_element(input_conditional.option_param, input_conditional.option)
-        if input_conditional.option_param.get_attribute(TYPE) == BOOLEAN:
-            conditional.append(etree.Comment(BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT))
-        conditional.append(param_element)
+        if input_conditional.option_param:
+            # add the option param
+            param_element = self._build_param_test_element(input_conditional.option_param, input_conditional.option)
+            if input_conditional.option_param.get_attribute(TYPE) == BOOLEAN:
+                conditional.append(etree.Comment(BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT))
+            conditional.append(param_element)
         # add the rest of params in the corresponding when element
         self._build_test_tree(input_conditional, conditional)
         return conditional
@@ -247,8 +250,8 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         self._build_test_tree(input_section, section_node)
         return section_node
 
-    def _build_test_tree(self, input: InputNode, parent: etree._Element):
-        """Recursevely adds to the 'parent' XML element all the input nodes from the given 'input'.
+    def _build_test_tree(self, input: InputNode, parent: etree._Element) -> None:
+        """Recursively adds to the 'parent' XML element all the input nodes from the given 'input'.
 
         Args:
             input (InputNode): The InputNode to extract the node information.

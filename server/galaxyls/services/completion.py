@@ -1,6 +1,6 @@
 """Module in charge of the auto-completion feature."""
 
-from typing import Optional, cast
+from typing import List, Optional, cast
 
 from galaxyls.services.definitions import DocumentDefinitionsProvider
 from galaxyls.services.xml.nodes import XmlCDATASection, XmlElement
@@ -86,13 +86,13 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
-        result = []
+        result: List[CompletionItem] = []
         if (
             context.is_empty
             or context.is_content
             or context.is_attribute_value
             or context.is_closing_tag
-            or not context.node.name
+            or not (context.node is not None and context.node.name)
         ):
             return CompletionList(items=result, is_incomplete=False)
 
@@ -134,7 +134,7 @@ class XmlCompletionService:
             CompletionList: The list of possible values of the attribute if it has an enumeration
             restriction.
         """
-        if context.attribute_name:
+        if context.xsd_element and context.attribute_name:
             attribute = context.xsd_element.attributes.get(context.attribute_name)
             if attribute and attribute.enumeration:
                 result = [CompletionItem(label=item, kind=CompletionItemKind.Value) for item in attribute.enumeration]
@@ -153,9 +153,10 @@ class XmlCompletionService:
         if (
             isinstance(context.node, XmlCDATASection)
             or context.is_closing_tag
-            or context.node.is_closed
+            or (context.node is not None and context.node.is_closed)
             or (context.is_attribute and not context.is_attribute_end)
             or context.characted_at_position == ">"
+            or context.xsd_element is None
         ):
             return None
 
@@ -163,7 +164,7 @@ class XmlCompletionService:
         snippet = f"$0</{tag}>"
         replace_range = None
         is_self_closing = trigger_character == "/"
-        if is_self_closing:
+        if is_self_closing and context.position is not None:
             # Build the position Range to be replaced by the snippet
             # Get the document position of the trigger_character => +1 character from current context.position
             start = Position(line=context.position.line, character=context.position.character + 1)

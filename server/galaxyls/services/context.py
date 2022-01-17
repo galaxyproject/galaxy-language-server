@@ -61,9 +61,11 @@ class XmlContext:
     def characted_at_position(self) -> Optional[str]:
         """The character at the context position."""
         try:
-            return self._line_text[self._position.character]
+            if self._position:
+                return self._line_text[self._position.character]
         except (IndexError, AttributeError):
-            return None
+            pass
+        return None
 
     @property
     def xsd_element(self) -> Optional[XsdNode]:
@@ -111,14 +113,16 @@ class XmlContext:
     @property
     def is_inside_attribute_value(self) -> bool:
         """Indicates if the token in context is an attribute value."""
-        return self.is_attribute_value and self.offset > self.node.start and self.offset < self.node.end
+        return (
+            self.is_attribute_value and self.node is not None and self.offset > self.node.start and self.offset < self.node.end
+        )
 
     @property
     def is_attribute_end(self) -> bool:
         """Indicates that the context position is at the ending quote character of an attribute.
 
         Example: <tag attribute="value["] <- The context position is at " """
-        return self.is_attribute_value and self._offset == self._node.end - 1
+        return self.is_attribute_value and self._node is not None and self._offset == self._node.end - 1
 
     @property
     def attribute_name(self) -> Optional[str]:
@@ -160,15 +164,16 @@ class XmlContext:
         """
         if node.max_occurs < 0:
             return False
-        target = self._node.parent or self._node
-        if target:
-            existing_count = sum(1 for child_node in target.children if child_node.name == node.name)
-            return existing_count >= node.max_occurs
+        if self._node:
+            target = self._node.parent or self._node
+            if target:
+                existing_count = sum(1 for child_node in target.children if child_node.name == node.name)
+                return existing_count >= node.max_occurs
         return False
 
     def is_valid_tag(self) -> bool:
         """Indicates"""
-        if self.is_tag and self._xsd_node is not None:
+        if self.is_tag and self._xsd_node is not None and self._node is not None:
             return self._node.name == self._xsd_node.name or self._node.name in [node.name for node in self._xsd_node.children]
         return False
 
@@ -222,7 +227,10 @@ class XmlContextService:
             if xsd_node is None:
                 xsd_node = xsd_tree.find_node_by_stack(node_stack[:-1])
             return xsd_node
+        return None
 
     def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range:
+        if context.node is None:
+            return Range()
         start_offset, end_offset = context.node.get_offsets(context.offset)
         return convert_document_offsets_to_range(xml_document.document, start_offset, end_offset)

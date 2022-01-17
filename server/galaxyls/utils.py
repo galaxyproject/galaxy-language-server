@@ -3,7 +3,7 @@ from typing import NamedTuple, Type, TypeVar
 T = TypeVar("T")
 
 
-def is_namedtuple_instance(x):
+def is_namedtuple_instance(x) -> bool:
     _type = type(x)
     bases = _type.__bases__
     if len(bases) != 1 or bases[0] != tuple:
@@ -32,5 +32,5 @@ def unpack(obj):
 def deserialize_command_param(params: NamedTuple, type: Type[T]) -> T:
     """Given a namedtuple, converts it into the given type of pydantic model."""
     params_dict = unpack(params)
-    obj = type(**params_dict)
+    obj = type(**params_dict)  # type: ignore [call-arg]
     return obj

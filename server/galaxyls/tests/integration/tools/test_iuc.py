@@ -11,6 +11,7 @@ class TestIUCToolParamAttributeSorterClass:
     def test_sort_param_without_attributes_returns_none(self) -> None:
         xml_document = TestUtils.from_source_to_xml_document("<param>")
         node = xml_document.get_node_at(1)
+        assert node
         assert node.is_element
         element = cast(XmlElement, node)
 
@@ -23,6 +24,7 @@ class TestIUCToolParamAttributeSorterClass:
     def test_sort_param_with_single_attribute_returns_none(self) -> None:
         xml_document = TestUtils.from_source_to_xml_document('<param format="val1">')
         node = xml_document.get_node_at(1)
+        assert node
         assert node.is_element
         element = cast(XmlElement, node)
 
@@ -35,6 +37,7 @@ class TestIUCToolParamAttributeSorterClass:
     def test_sort_param_with_sorted_attributes_returns_none(self) -> None:
         xml_document = TestUtils.from_source_to_xml_document('<param name="n" format="f">')
         node = xml_document.get_node_at(1)
+        assert node
         assert node.is_element
         element = cast(XmlElement, node)
 
@@ -89,6 +92,7 @@ class TestIUCToolParamAttributeSorterClass:
     ) -> None:
         xml_document = TestUtils.from_source_to_xml_document(source)
         node = xml_document.get_node_at(1)
+        assert node
         assert node.is_element
         element = cast(XmlElement, node)
 

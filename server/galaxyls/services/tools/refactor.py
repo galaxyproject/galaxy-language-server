@@ -24,6 +24,7 @@ from galaxyls.services.tools.constants import DESCRIPTION, MACRO, MACROS, TOOL, 
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.macros import ImportedMacrosFile, MacroDefinitionsProvider, ToolMacroDefinitions
 from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.nodes import XmlElement
 
 DEFAULT_MACROS_FILENAME = "macros.xml"
 EXCLUDED_TAGS = {TOOL, MACROS, MACRO, XML}
@@ -91,7 +92,7 @@ class RefactorMacrosService:
 
     def _calculate_local_changes_for_macro(
         self, tool: GalaxyToolXmlDocument, macro: MacroData, params: CodeActionParams
-    ) -> Dict[str, TextEdit]:
+    ) -> Dict[str, List[TextEdit]]:
         """Returns a dictionary with the file uri and the TextEdit operations that will add a macro definition to
         the <macros> section of a tool wrapper. If the <macros> section doesn't exists it will also be created."""
         macros_element = tool.get_macros_element()
@@ -99,7 +100,7 @@ class RefactorMacrosService:
         if macros_element is None:
             edits.append(self._edit_create_with_macros_section(tool, macro))
         else:
-            edits.append(self._edit_add_macro_to_macros_section(tool, macro))
+            edits.append(self._edit_add_macro_to_macros_section(tool, macros_element, macro))
         edits.append(self._edit_replace_range_with_macro_expand(tool, macro, params.range))
         changes = {params.text_document.uri: edits}
         return changes
@@ -110,12 +111,14 @@ class RefactorMacrosService:
         macro_file_definition: ImportedMacrosFile,
         macro: MacroData,
         params: CodeActionParams,
-    ) -> Dict[str, TextEdit]:
+    ) -> Dict[str, List[TextEdit]]:
         """Returns a dictionary with the document uri and the collection of TextEdit operations for that particular document.
 
         The edits will add the macro definition to the given imported macros file and replace the refactored macro with the
         corresponding <expand> element in the tool wrapper."""
         macros_xml_doc = macro_file_definition.document
+        if macro_file_definition.file_uri is None or macros_xml_doc is None or macros_xml_doc.root is None:
+            return {}
         macros_root = macros_xml_doc.root
         insert_position = macros_xml_doc.get_position_after_last_child(macros_root)
         insert_range = Range(start=insert_position, end=insert_position)
@@ -142,7 +145,7 @@ class RefactorMacrosService:
         final_xml_content = self.format_service.format_content(xml_content)
         new_doc_insert_position = Position(line=0, character=0)
         tool_document = self.workspace.get_document(params.text_document.uri)
-        changes = [
+        changes: List[Union[CreateFile, TextDocumentEdit]] = [
             CreateFile(uri=new_file_uri, kind=ResourceOperationKind.Create),
             TextDocumentEdit(
                 text_document=VersionedTextDocumentIdentifier(
@@ -206,9 +209,10 @@ class RefactorMacrosService:
             new_text=final_macro_xml,
         )
 
-    def _edit_add_macro_to_macros_section(self, tool: GalaxyToolXmlDocument, macro: MacroData) -> TextEdit:
+    def _edit_add_macro_to_macros_section(
+        self, tool: GalaxyToolXmlDocument, macros_element: XmlElement, macro: MacroData
+    ) -> TextEdit:
         """Returns the TextEdit operation that will add a macro definition to the <macros> section of a tool wrapper."""
-        macros_element = tool.get_macros_element()
         insert_position = tool.get_position_after_last_child(macros_element)
         insert_range = Range(start=insert_position, end=insert_position)
         macro_xml = f'<xml name="{macro.name}">\n{macro.content}\n</xml>'
@@ -232,7 +236,10 @@ class RefactorMacrosService:
         if section:
             return tool.get_position_after(section)
         root = tool.find_element(TOOL)
-        return tool.get_content_range(root).start
+        content_range = tool.get_content_range(root)
+        if content_range:
+            return content_range.start
+        return Position(line=0, character=0)
 
     def _get_range_from_line_start(self, range: Range) -> Range:
         """Given an arbitrary document range, returns the same range but with the start offset always at the

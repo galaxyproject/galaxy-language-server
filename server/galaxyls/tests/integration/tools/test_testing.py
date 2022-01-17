@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, cast
+from typing import Dict, Optional, cast
 import pytest
 from pytest_mock import MockerFixture
 
@@ -6,7 +6,6 @@ from pygls.workspace import Document, Workspace
 
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 from galaxyls.tests.unit.utils import TestUtils
-from galaxyls.types import TestInfoResult
 
 
 TEST_DOCUMENTS = [
@@ -18,6 +17,7 @@ TEST_DOCUMENTS = [
 def get_document_by_name(name: str) -> Optional[Document]:
     if name in TEST_DOCUMENTS:
         return TestUtils.get_test_document_from_file(name)
+    return None
 
 
 @pytest.fixture()
@@ -34,7 +34,7 @@ def fake_workspace(mocker: MockerFixture) -> Workspace:
     workspace = mocker.Mock()
     workspace.documents = workspace_documents.keys()
     workspace.get_document.side_effect = get_document
-    return workspace
+    return cast(Workspace, workspace)
 
 
 class TestToolTestsDiscoveryServiceClass:
@@ -48,6 +48,6 @@ class TestToolTestsDiscoveryServiceClass:
 
         assert len(actual) == expected_number_of_suites
         assert actual[0].children is not None
-        assert len(cast(List[TestInfoResult], actual[0].children)) == expected_number_of_tests_in_suite_01
+        assert len(actual[0].children) == expected_number_of_tests_in_suite_01
         assert actual[1].children is not None
-        assert len(cast(List[TestInfoResult], actual[1].children)) == expected_number_of_tests_in_suite_02
+        assert len(actual[1].children) == expected_number_of_tests_in_suite_02

@@ -46,3 +46,4 @@ class ToolTestsDiscoveryService(TestsDiscoveryService):
                 file=xml_document.document.path,
                 children=suite_tests,
             )
+        return None
