@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, cast
+from typing import Dict, Optional, cast
 import pytest
 from pytest_mock import MockerFixture
 
@@ -6,7 +6,6 @@ from pygls.workspace import Document, Workspace
 
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 from galaxyls.tests.unit.utils import TestUtils
-from galaxyls.types import TestInfoResult
 
 
 TEST_DOCUMENTS = [

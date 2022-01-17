@@ -3,7 +3,7 @@ best practices.
 """
 
 from lxml import etree
-from typing import List, cast
+from typing import List
 
 from pygls.lsp.types import DocumentFormattingParams, Position, Range, TextEdit
 

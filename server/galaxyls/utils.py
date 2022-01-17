@@ -1,4 +1,4 @@
-from typing import Dict, List, NamedTuple, Tuple, Type, TypeVar, Union
+from typing import NamedTuple, Type, TypeVar
 
 T = TypeVar("T")
 

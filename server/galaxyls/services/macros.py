@@ -1,5 +1,3 @@
-from typing import cast
-
 from galaxy.util import xml_macros
 from galaxyls.services.format import DEFAULT_INDENTATION
 from galaxyls.types import GeneratedExpandedDocument

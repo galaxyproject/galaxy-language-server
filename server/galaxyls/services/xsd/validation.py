@@ -2,7 +2,7 @@
 """
 
 from pathlib import Path
-from typing import List, Optional, cast
+from typing import List, Optional
 
 from lxml import etree
 from pygls.lsp.types import Diagnostic, DiagnosticRelatedInformation, Location, Position, Range

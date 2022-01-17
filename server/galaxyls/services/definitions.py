@@ -1,4 +1,4 @@
-from typing import List, Optional, cast
+from typing import List, Optional
 
 from pygls.lsp.types import Location, Position
 from galaxyls.services.tools.macros import MacroDefinitionsProvider, TokenDefinition
