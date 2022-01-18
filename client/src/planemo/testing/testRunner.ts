@@ -1,8 +1,8 @@
+import { EOL } from "os";
 import { unlinkSync } from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
-import { OutputChannel, window } from "vscode";
-import { TestEvent, TestSuiteInfo } from "vscode-test-adapter-api";
+import { OutputChannel, TestItem, TestMessage, TestRun, window } from "vscode";
 import { Constants } from "../../constants";
 import { IProcessExecution, runProcess } from "../../processRunner";
 import { ITestRunner } from "../../testing/testRunner";
@@ -13,17 +13,16 @@ export class PlanemoTestRunner implements ITestRunner {
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
     private _channel: OutputChannel = window.createOutputChannel(Constants.PLANEMO_TEST_OUTPUT_CHANNEL);
 
-    constructor(public readonly adapterId: string) {}
+    public async run(planemoConfig: IPlanemoConfiguration, item: TestItem, options: TestRun): Promise<void> {
+        const testSuiteId = item.id;
+        const testFileUri = item.uri;
 
-    public async run(planemoConfig: IPlanemoConfiguration, testSuite: TestSuiteInfo): Promise<TestEvent[]> {
-        if (!planemoConfig.enabled() || !planemoConfig.testing().enabled()) {
-            return [];
+        if (testFileUri === undefined) {
+            options.errored(item, new TestMessage("Target tool XML file not found."));
+            return;
         }
 
-        const testSuiteId = testSuite.id;
-        const testFile = testSuite.file
-            ? testSuite.file
-            : `${planemoConfig.getCwd()}/${testSuiteId}.${Constants.TOOL_DOCUMENT_EXTENSION}`;
+        const testFile = testFileUri.fsPath;
         try {
             const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(testFile);
             const htmlReportFile = this.getTestHtmlReportFilePath(testFile);
@@ -49,19 +48,21 @@ export class PlanemoTestRunner implements ITestRunner {
             const result = await testExecution.complete();
 
             if (result.exitCode !== 0) {
-                return [];
+                options.errored(
+                    item,
+                    new TestMessage(`Test execution returned code ${result.exitCode}:\n${result.output}`)
+                );
+                return;
             }
 
-            const states = await parseTestStates(output_json_file, testSuite, htmlReportFile);
+            await parseTestStates(item, options, output_json_file);
 
             cleanupCallback();
 
-            this.showSummaryLog(states);
-
-            return states;
+            options.appendOutput(`${EOL}${EOL}See full test report: ${htmlReportFile}`);
         } catch (err: any) {
+            options.errored(item, new TestMessage(`Unexpected error when running the test:\n${err}`));
             this.showErrorLog(err);
-            return [];
         } finally {
             this.testExecutions.delete(testSuiteId);
         }
@@ -134,19 +135,5 @@ export class PlanemoTestRunner implements ITestRunner {
     private showErrorLog(errorMessage: string) {
         this._channel.appendLine(errorMessage);
         this._channel.show();
-    }
-
-    private showSummaryLog(states: TestEvent[]) {
-        let statesMap = new Map<string, number>();
-        states.forEach((test) => {
-            let stateCount = statesMap.get(test.state);
-            stateCount = stateCount === undefined ? 1 : stateCount + 1;
-            statesMap.set(test.state, stateCount);
-        });
-        this._channel.appendLine(`\n${states.length} tests completed:`);
-        statesMap.forEach((count, state) => {
-            this._channel.appendLine(`  ${count} ${state}`);
-        });
-        this._channel.append("\n");
     }
 }
