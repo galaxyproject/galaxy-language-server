@@ -134,8 +134,8 @@ class GalaxyToolLanguageService:
         """Sorts the attributes of all the param elements contained in the document."""
         return self.sort_service.sort_document_param_attributes(xml_document)
 
-    def discover_tests(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
-        """Sorts the attributes of all the param elements contained in the document."""
+    def discover_tests_in_workspace(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
+        """Returns a list of test suites, one for each tool file in the workspace."""
         return self.test_discovery_service.discover_tests_in_workspace(workspace)
 
     def get_available_refactoring_actions(

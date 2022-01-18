@@ -4,7 +4,6 @@ from pygls.workspace import Document, Workspace
 from galaxyls.services.tools.common import TestsDiscoveryService
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
-from galaxyls.services.xml.utils import convert_document_offset_to_line
 from galaxyls.types import TestInfoResult, TestSuiteInfoResult
 from galaxyls.services.validation import DocumentValidator
 
@@ -26,24 +25,26 @@ class ToolTestsDiscoveryService(TestsDiscoveryService):
         xml_document = XmlDocumentParser().parse(document)
         tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         tool_id = tool.get_tool_id()
-        if tool_id:
+        tests_range = tool.get_tests_range()
+        if tool_id and tests_range:
             tests = tool.get_tests()
             suite_tests: List[TestInfoResult] = []
             id = 1
             for test in tests:
-                line = convert_document_offset_to_line(xml_document.document, test.start_tag_open_offset)
+                range = xml_document.get_full_range(test)
                 suite_tests.append(
                     TestInfoResult(
                         tool_id=tool_id,
                         test_id=str(id),
-                        file=xml_document.document.path,
-                        line=line,
+                        uri=xml_document.document.uri,
+                        range=range,
                     ),
                 )
                 id += 1
             return TestSuiteInfoResult(
                 tool_id=tool_id,
-                file=xml_document.document.path,
+                uri=xml_document.document.uri,
+                range=tests_range,
                 children=suite_tests,
             )
         return None

@@ -204,6 +204,14 @@ class GalaxyToolXmlDocument:
             return tests.elements
         return []
 
+    def get_tests_range(self) -> Optional[Range]:
+        """Returns the Range position of the tests element name if it exists."""
+        element = self.find_element(TESTS)
+        if element:
+            range = self.xml_document.get_element_name_range(element)
+            return range
+        return None
+
     @classmethod
     def from_xml_document(cls, xml_document: XmlDocument) -> "GalaxyToolXmlDocument":
         return GalaxyToolXmlDocument(xml_document.document, xml_document)

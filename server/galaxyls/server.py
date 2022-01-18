@@ -251,8 +251,8 @@ def generate_expanded_command(server: GalaxyToolsLanguageServer, parameters: Com
 
 @language_server.command(Commands.DISCOVER_TESTS)
 def discover_tests_command(server: GalaxyToolsLanguageServer, params) -> List[TestSuiteInfoResult]:
-    """Sorts the attributes of all the param elements contained in the document."""
-    return server.service.discover_tests(server.workspace)
+    """Returns a list of test suites, one for each tool file in the workspace."""
+    return server.service.discover_tests_in_workspace(server.workspace)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
