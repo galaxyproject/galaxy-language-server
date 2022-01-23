@@ -1,86 +1,72 @@
-import { EOL } from "os";
 import { unlinkSync } from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
-import { OutputChannel, TestItem, TestMessage, TestRun, window } from "vscode";
+import { TestItem, TestMessage, TestRun } from "vscode";
 import { Constants } from "../../constants";
 import { IProcessExecution, runProcess } from "../../processRunner";
+import { CRLF } from "../../testing/common";
 import { ITestRunner } from "../../testing/testRunner";
 import { IPlanemoConfiguration } from "../configuration";
 import { parseTestStates } from "./testsReportParser";
 
 export class PlanemoTestRunner implements ITestRunner {
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
-    private _channel: OutputChannel = window.createOutputChannel(Constants.PLANEMO_TEST_OUTPUT_CHANNEL);
 
-    public async run(planemoConfig: IPlanemoConfiguration, item: TestItem, options: TestRun): Promise<void> {
-        const testSuiteId = item.id;
-        const testFileUri = item.uri;
+    public async run(planemoConfig: IPlanemoConfiguration, testNode: TestItem, runInstance: TestRun): Promise<void> {
+        runInstance.appendOutput(`Running ${this.highlight(testNode.id)} tool test suite${CRLF}`);
+
+        const testSuiteId = testNode.id;
+        const testFileUri = testNode.uri;
 
         if (testFileUri === undefined) {
-            options.errored(item, new TestMessage("Target tool XML file not found."));
+            runInstance.errored(testNode, new TestMessage("Target tool XML file not found."));
             return;
         }
+
+        testNode.children.forEach((node) => runInstance.started(node));
 
         const testFile = testFileUri.fsPath;
         try {
             const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(testFile);
             const htmlReportFile = this.getTestHtmlReportFilePath(testFile);
-            const extraParams = this.getTestExtraParams(planemoConfig);
 
-            const baseArguments = [
-                `test`,
-                `--galaxy_root`,
-                `${planemoConfig.galaxyRoot()}`,
-                `--test_output_json`,
-                `${output_json_file}`,
-                `--test_output`,
-                `${htmlReportFile}`,
-            ];
+            const testRunArguments = this.buildTestArguments(planemoConfig, output_json_file, htmlReportFile, testFile);
 
-            const testRunArguments = baseArguments.concat(extraParams).concat(`${testFile}`);
-
-            this._channel.appendLine(`Running planemo ${testRunArguments.join(" ")}`);
+            runInstance.appendOutput(
+                `with:${CRLF}${CRLF}${this.highlight("planemo " + testRunArguments.join(" "), 36)}${CRLF}${CRLF}`
+            );
 
             const testExecution = this.runPlanemoTest(planemoConfig, testRunArguments);
 
             this.testExecutions.set(testSuiteId, testExecution);
             const result = await testExecution.complete();
 
-            if (result.exitCode !== 0) {
-                options.errored(
-                    item,
-                    new TestMessage(`Test execution returned code ${result.exitCode}:\n${result.output}`)
-                );
-                return;
-            }
-
-            await parseTestStates(item, options, output_json_file);
+            await parseTestStates(testNode, runInstance, output_json_file);
 
             cleanupCallback();
 
-            options.appendOutput(`${EOL}${EOL}See full test report: ${htmlReportFile}`);
+            runInstance.appendOutput(`Completed ${this.highlight(testNode.id)} tool testing${CRLF}${CRLF}`);
+            runInstance.appendOutput(`See full test report: ${this.highlight(htmlReportFile, 33)}${CRLF}${CRLF}`);
         } catch (err: any) {
-            options.errored(item, new TestMessage(`Unexpected error when running the test:\n${err}`));
-            this.showErrorLog(err);
+            runInstance.errored(testNode, new TestMessage(`Unexpected error when running tests:\n${err}`));
         } finally {
             this.testExecutions.delete(testSuiteId);
         }
     }
 
-    public cancel(): void {
+    public cancel(runInstance: TestRun): void {
         this.testExecutions.forEach((execution, test) => {
             try {
+                runInstance.appendOutput(
+                    this.highlight(`${CRLF}Cancelling test run for ${this.highlight(test)} tool${CRLF}`, 33)
+                );
                 execution.cancel();
             } catch (error) {
-                console.log(`Cancelling execution of ${test} failed: ${error}`);
+                runInstance.appendOutput(
+                    `${CRLF}Cancelling execution of ${this.highlight(test)} tests failed: ${error}${CRLF}`
+                );
             }
         });
-        this._channel.appendLine("\nTests run cancelled.\n");
-    }
-
-    public isRunning(): boolean {
-        return this.testExecutions.size > 0;
     }
 
     private runPlanemoTest(planemoConfig: IPlanemoConfiguration, args: string[]): IProcessExecution {
@@ -132,8 +118,29 @@ export class PlanemoTestRunner implements ITestRunner {
         return [];
     }
 
-    private showErrorLog(errorMessage: string) {
-        this._channel.appendLine(errorMessage);
-        this._channel.show();
+    //TODO use 'chalk'?
+    private highlight(message: string, color: Number = 32) {
+        return `\u001b[${color}m${message}\u001b[0m`;
+    }
+
+    private buildTestArguments(
+        planemoConfig: IPlanemoConfiguration,
+        output_json_file: string,
+        htmlReportFile: string,
+        testFile: string
+    ) {
+        const extraParams = this.getTestExtraParams(planemoConfig);
+        const baseArguments = [
+            `test`,
+            `--galaxy_root`,
+            `${planemoConfig.galaxyRoot()}`,
+            `--test_output_json`,
+            `${output_json_file}`,
+            `--test_output`,
+            `${htmlReportFile}`,
+        ];
+
+        const testRunArguments = baseArguments.concat(extraParams).concat(`${testFile}`);
+        return testRunArguments;
     }
 }

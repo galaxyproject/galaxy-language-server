@@ -1,10 +1,13 @@
 "use strict";
 
 import * as vscode from "vscode";
+import { TestTag } from "vscode";
 import { testDataMap, ToolTestSuite } from "../../testing/common";
-import { LanguageServerTestProvider } from "../../testing/testsProvider";
+import { ITestsProvider, LanguageServerTestProvider } from "../../testing/testsProvider";
 import { IConfigurationFactory } from "../configuration";
 import { PlanemoTestRunner } from "./testRunner";
+
+const runnableTag = new TestTag("runnable");
 
 export function setupTesting(context: vscode.ExtensionContext, configFactory: IConfigurationFactory) {
     const testProvider = new LanguageServerTestProvider();
@@ -19,61 +22,62 @@ export function setupTesting(context: vscode.ExtensionContext, configFactory: IC
 
     controller.resolveHandler = async (item) => {
         if (!item) {
-            const result = await testProvider.discoverWorkspaceTests();
-            const suites: vscode.TestItem[] = [];
-            result.forEach((toolTestSuite) => {
-                const suite = controller.createTestItem(toolTestSuite.id, toolTestSuite.label, toolTestSuite.uri);
-                suite.range = toolTestSuite.range;
-                toolTestSuite.children.forEach((toolTestCase) => {
-                    const testCase = controller.createTestItem(toolTestCase.id, toolTestCase.label, toolTestCase.uri);
-                    testCase.range = toolTestCase.range;
-                    testDataMap.set(testCase, toolTestCase);
-                    suite.children.add(testCase);
-                });
-                testDataMap.set(suite, toolTestSuite);
-                suites.push(suite);
-            });
-            controller.items.replace(suites);
+            await resolveAllTestsInWorkspace(testProvider, controller);
         } else {
             // TODO resolve tests for a particular tool file
         }
     };
 
     const runHandler = (request: vscode.TestRunRequest, cancellation: vscode.CancellationToken) => {
-        const queue: { test: vscode.TestItem; data: ToolTestSuite }[] = [];
+        const queue: Array<vscode.TestItem> = [];
         const run = controller.createTestRun(request);
-        const discoverTests = async (tests: Iterable<vscode.TestItem>) => {
-            for (const test of tests) {
-                if (request.exclude?.includes(test)) {
+
+        const enqueueTests = async (tests: Iterable<vscode.TestItem>) => {
+            for (const testNode of tests) {
+                if (request.exclude?.includes(testNode)) {
                     continue;
                 }
-
-                const data = testDataMap.get(test);
-                if (data instanceof ToolTestSuite) {
-                    run.enqueued(test);
-                    queue.push({ test, data });
-                }
+                run.enqueued(testNode);
+                queue.push(testNode);
             }
         };
 
         const runTestQueue = async () => {
-            for (const { test, data } of queue) {
-                run.appendOutput(`Running ${test.id}\r\n`);
-                if (cancellation.isCancellationRequested) {
-                    run.skipped(test);
-                } else {
-                    run.started(test);
-                    await planemoTestRunner.run(planemoConfig, test, run);
+            for (const testNode of queue) {
+                if (!cancellation.isCancellationRequested) {
+                    await planemoTestRunner.run(planemoConfig, testNode, run);
                 }
-                run.appendOutput(`Completed ${test.id}\r\n`);
             }
             run.end();
         };
 
-        discoverTests(request.include ?? gatherTestItems(controller.items)).then(runTestQueue);
+        cancellation?.onCancellationRequested(() => {
+            planemoTestRunner.cancel(run);
+        });
+
+        enqueueTests(request.include ?? gatherTestItems(controller.items)).then(runTestQueue);
     };
 
-    controller.createRunProfile("Run Tests", vscode.TestRunProfileKind.Run, runHandler, true);
+    controller.createRunProfile("Run Tests", vscode.TestRunProfileKind.Run, runHandler, true, runnableTag);
+}
+
+async function resolveAllTestsInWorkspace(testProvider: ITestsProvider, controller: vscode.TestController) {
+    const result = await testProvider.discoverWorkspaceTests();
+    const suites: vscode.TestItem[] = [];
+    result.forEach((toolTestSuite) => {
+        const suite = controller.createTestItem(toolTestSuite.id, toolTestSuite.label, toolTestSuite.uri);
+        suite.range = toolTestSuite.range;
+        suite.tags = [...suite.tags, runnableTag]; // Only suites are runnable for now
+        toolTestSuite.children.forEach((toolTestCase) => {
+            const testCase = controller.createTestItem(toolTestCase.id, toolTestCase.label, toolTestCase.uri);
+            testCase.range = toolTestCase.range;
+            testDataMap.set(testCase, toolTestCase);
+            suite.children.add(testCase);
+        });
+        testDataMap.set(suite, toolTestSuite);
+        suites.push(suite);
+    });
+    controller.items.replace(suites);
 }
 
 function gatherTestItems(collection: vscode.TestItemCollection) {

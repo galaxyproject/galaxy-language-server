@@ -1,5 +1,7 @@
 import { Range, TestItem, Uri } from "vscode";
 
+export const CRLF = "\r\n";
+
 export type TestState = "running" | "passed" | "failed" | "skipped" | "errored";
 
 export type ToolTestData = ToolTestSuite | ToolTestCase;
