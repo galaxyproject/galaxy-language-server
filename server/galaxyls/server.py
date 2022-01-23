@@ -249,10 +249,24 @@ def generate_expanded_command(server: GalaxyToolsLanguageServer, parameters: Com
     return GeneratedExpandedDocument(error_message=f"The document {document.filename} is not a valid Galaxy Tool wrapper.")
 
 
-@language_server.command(Commands.DISCOVER_TESTS)
-def discover_tests_command(server: GalaxyToolsLanguageServer, params) -> List[TestSuiteInfoResult]:
+@language_server.command(Commands.DISCOVER_TESTS_IN_WORKSPACE)
+def discover_tests_in_workspace_command(
+    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+) -> List[TestSuiteInfoResult]:
     """Returns a list of test suites, one for each tool file in the workspace."""
-    return server.service.discover_tests_in_workspace(server.workspace)
+    return server.service.test_discovery_service.discover_tests_in_workspace(server.workspace)
+
+
+@language_server.command(Commands.DISCOVER_TESTS_IN_DOCUMENT)
+def discover_tests_in_document_command(
+    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+) -> Optional[TestSuiteInfoResult]:
+    """Returns a test suite containing all tests for a particular XML tool document."""
+    params = deserialize_command_param(parameters[0], TextDocumentIdentifier)
+    document = _get_valid_document(server, params.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+    return server.service.test_discovery_service.discover_tests_in_document(xml_document)
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:

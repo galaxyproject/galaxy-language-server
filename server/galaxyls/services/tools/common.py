@@ -31,3 +31,7 @@ class TestsDiscoveryService(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def discover_tests_in_workspace(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def discover_tests_in_document(self, xml_document: XmlDocument) -> Optional[TestSuiteInfoResult]:
+        raise NotImplementedError
