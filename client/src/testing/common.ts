@@ -1,4 +1,4 @@
-import { Range, TestItem, Uri } from "vscode";
+import { Range, TestItem, TextDocument, Uri } from "vscode";
 
 export const CRLF = "\r\n";
 
@@ -7,6 +7,11 @@ export type TestState = "running" | "passed" | "failed" | "skipped" | "errored";
 export type ToolTestData = ToolTestSuite | ToolTestCase;
 
 export const testDataMap = new WeakMap<TestItem, ToolTestData>();
+
+export interface ITestsProvider {
+    discoverWorkspaceTests(): Promise<Array<ToolTestSuite>>;
+    discoverTestsInDocument(document: TextDocument): Promise<ToolTestSuite | undefined>;
+}
 
 /**
  * Information about a test suite for a particular tool.

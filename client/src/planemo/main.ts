@@ -9,5 +9,5 @@ import { registerViews } from "./views/main";
 export function setupPlanemo(client: LanguageClient, context: ExtensionContext, configFactory: IConfigurationFactory) {
     registerViews(client, context, configFactory);
 
-    setupTesting(context, configFactory);
+    setupTesting(client, context, configFactory);
 }
