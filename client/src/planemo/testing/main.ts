@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { TestTag } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { ITestsProvider, testDataMap, ToolTestSuite } from "../../testing/common";
+import { ITestsProvider, testDataMap, testSuiteByUriPath, ToolTestSuite } from "../../testing/common";
 import { LanguageServerTestProvider } from "../../testing/testsProvider";
 import { IConfigurationFactory } from "../configuration";
 import { PlanemoTestRunner } from "./testRunner";
@@ -25,7 +25,7 @@ export function setupTesting(
         if (!configFactory.getConfiguration().planemo().testing().enabled()) return;
 
         if (!item) {
-            await resolveAllTestsInWorkspace(testProvider, controller);
+            await refreshAllTestsInWorkspace(testProvider, controller);
         } else {
             // TODO resolve tests for a particular tool file
         }
@@ -74,6 +74,10 @@ export function setupTesting(
         vscode.workspace.onDidSaveTextDocument(async (document) => {
             if (!configFactory.getConfiguration().planemo().testing().autoTestDiscoverOnSaveEnabled()) return;
             await updateTestNodeFromDocument(testProvider, document, controller);
+        }),
+        vscode.workspace.onDidCloseTextDocument(async (document) => {
+            if (!configFactory.getConfiguration().planemo().testing().enabled()) return;
+            await removeTestNodeFromDocument(document, controller);
         })
     );
 }
@@ -85,23 +89,41 @@ async function updateTestNodeFromDocument(
 ) {
     const result = await testProvider.discoverTestsInDocument(document);
     if (result) {
-        const suite = resolveTestSuite(controller, result);
-        controller.items.add(suite);
+        const suite = refreshTestsFromSuite(controller, result);
+        if (suite) {
+            controller.items.add(suite);
+        }
     }
 }
 
-async function resolveAllTestsInWorkspace(testProvider: ITestsProvider, controller: vscode.TestController) {
+async function removeTestNodeFromDocument(document: vscode.TextDocument, controller: vscode.TestController) {
+    const suite = testSuiteByUriPath.get(document.uri.fsPath);
+    if (suite) {
+        controller.items.delete(suite.id);
+        testSuiteByUriPath.delete(document.uri.fsPath);
+    }
+}
+
+async function refreshAllTestsInWorkspace(testProvider: ITestsProvider, controller: vscode.TestController) {
+    testSuiteByUriPath.clear();
     const result = await testProvider.discoverWorkspaceTests();
     const suites: vscode.TestItem[] = [];
     result.forEach((toolTestSuite) => {
-        const suite = resolveTestSuite(controller, toolTestSuite);
-        suites.push(suite);
+        const suite = refreshTestsFromSuite(controller, toolTestSuite);
+        if (suite) {
+            suites.push(suite);
+        }
     });
     controller.items.replace(suites);
 }
 
-function resolveTestSuite(controller: vscode.TestController, toolTestSuite: ToolTestSuite) {
+function refreshTestsFromSuite(
+    controller: vscode.TestController,
+    toolTestSuite: ToolTestSuite
+): vscode.TestItem | undefined {
     const suite = controller.createTestItem(toolTestSuite.id, toolTestSuite.label, toolTestSuite.uri);
+    if (!suite.uri) return undefined;
+
     suite.range = toolTestSuite.range;
     suite.tags = [...suite.tags, runnableTag]; // Only suites are runnable for now
     toolTestSuite.children.forEach((toolTestCase) => {
@@ -111,6 +133,7 @@ function resolveTestSuite(controller: vscode.TestController, toolTestSuite: Tool
         suite.children.add(testCase);
     });
     testDataMap.set(suite, toolTestSuite);
+    testSuiteByUriPath.set(suite.uri.fsPath, suite);
     return suite;
 }
 

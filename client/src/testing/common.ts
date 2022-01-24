@@ -7,6 +7,7 @@ export type TestState = "running" | "passed" | "failed" | "skipped" | "errored";
 export type ToolTestData = ToolTestSuite | ToolTestCase;
 
 export const testDataMap = new WeakMap<TestItem, ToolTestData>();
+export const testSuiteByUriPath = new Map<String, TestItem>();
 
 export interface ITestsProvider {
     discoverWorkspaceTests(): Promise<Array<ToolTestSuite>>;
