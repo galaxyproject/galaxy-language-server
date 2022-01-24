@@ -41,6 +41,9 @@ export function setupTesting(
                     continue;
                 }
                 run.enqueued(testNode);
+                testNode.children.forEach((node) => {
+                    run.enqueued(node);
+                });
                 queue.push(testNode);
             }
         };

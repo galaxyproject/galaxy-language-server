@@ -20,6 +20,7 @@ export class PlanemoTestRunner implements ITestRunner {
 
         if (testFileUri === undefined) {
             runInstance.errored(testNode, new TestMessage("Target tool XML file not found."));
+            testNode.children.forEach((node) => runInstance.skipped(node));
             return;
         }
 
