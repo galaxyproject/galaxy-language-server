@@ -76,7 +76,7 @@ function adaptTestResult(testResult: ITestCaseResult, item: TestItem | undefined
     }
     const state = adaptTestState(testResult);
     const message = new TestMessage(adaptTestMessage(testResult));
-    const duration = testResult.data.time_seconds;
+    const duration = testResult.data.time_seconds * 1000;
 
     switch (state) {
         case "passed":
