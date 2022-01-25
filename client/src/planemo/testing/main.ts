@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 import { TestTag } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { Settings } from "../../configuration/workspaceConfiguration";
 import { ITestsProvider, testDataMap, testSuiteByUriPath, ToolTestSuite } from "../../testing/common";
 import { LanguageServerTestProvider } from "../../testing/testsProvider";
 import { IConfigurationFactory } from "../configuration";
@@ -22,10 +23,8 @@ export function setupTesting(
     context.subscriptions.push(controller);
 
     controller.resolveHandler = async (item) => {
-        if (!configFactory.getConfiguration().planemo().testing().enabled()) return;
-
         if (!item) {
-            await refreshAllTestsInWorkspace(testProvider, controller);
+            await refreshAllTestsInWorkspace(testProvider, controller, configFactory);
         } else {
             // TODO resolve tests for a particular tool file
         }
@@ -61,7 +60,7 @@ export function setupTesting(
             planemoTestRunner.cancel(run);
         });
 
-        enqueueTests(request.include ?? gatherTestItems(controller.items)).then(runTestQueue);
+        enqueueTests(request.include ?? gatherRunnableTestItems(controller.items)).then(runTestQueue);
     };
 
     controller.createRunProfile("Run Tests", vscode.TestRunProfileKind.Run, runHandler, true, runnableTag);
@@ -78,6 +77,18 @@ export function setupTesting(
         vscode.workspace.onDidCloseTextDocument(async (document) => {
             if (!configFactory.getConfiguration().planemo().testing().enabled()) return;
             await removeTestNodeFromDocument(document, controller);
+        }),
+        vscode.workspace.onDidChangeConfiguration(async (configurationChange) => {
+            const sectionsToReload = [
+                Settings.Planemo.ENV_PATH,
+                Settings.Planemo.GALAXY_ROOT,
+                Settings.Planemo.Testing.ENABLED,
+            ];
+
+            const needsReload = sectionsToReload.some((section) => configurationChange.affectsConfiguration(section));
+            if (needsReload) {
+                await refreshAllTestsInWorkspace(testProvider, controller, configFactory);
+            }
         })
     );
 }
@@ -104,8 +115,14 @@ async function removeTestNodeFromDocument(document: vscode.TextDocument, control
     }
 }
 
-async function refreshAllTestsInWorkspace(testProvider: ITestsProvider, controller: vscode.TestController) {
-    testSuiteByUriPath.clear();
+async function refreshAllTestsInWorkspace(
+    testProvider: ITestsProvider,
+    controller: vscode.TestController,
+    configFactory: IConfigurationFactory
+) {
+    clearAllTestItems(controller);
+    if (!configFactory.getConfiguration().planemo().testing().enabled()) return;
+
     const result = await testProvider.discoverWorkspaceTests();
     const suites: vscode.TestItem[] = [];
     result.forEach((toolTestSuite) => {
@@ -115,6 +132,14 @@ async function refreshAllTestsInWorkspace(testProvider: ITestsProvider, controll
         }
     });
     controller.items.replace(suites);
+}
+
+function clearAllTestItems(controller: vscode.TestController) {
+    testSuiteByUriPath.clear();
+    const runnableTests = gatherRunnableTestItems(controller.items);
+    runnableTests.forEach((test) => {
+        controller.items.delete(test.id);
+    });
 }
 
 function refreshTestsFromSuite(
@@ -137,7 +162,7 @@ function refreshTestsFromSuite(
     return suite;
 }
 
-function gatherTestItems(collection: vscode.TestItemCollection) {
+function gatherRunnableTestItems(collection: vscode.TestItemCollection) {
     const runnableItems: vscode.TestItem[] = [];
     collection.forEach((item) => {
         const data = testDataMap.get(item);
