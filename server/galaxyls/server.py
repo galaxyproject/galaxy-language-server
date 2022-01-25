@@ -266,7 +266,8 @@ def discover_tests_in_document_command(
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
-    return server.service.test_discovery_service.discover_tests_in_document(xml_document)
+        return server.service.test_discovery_service.discover_tests_in_document(xml_document)
+    return None
 
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
