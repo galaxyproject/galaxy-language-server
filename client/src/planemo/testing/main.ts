@@ -1,7 +1,7 @@
 "use strict";
 
 import * as vscode from "vscode";
-import { TestTag } from "vscode";
+import { TestTag, window } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Settings } from "../../configuration/workspaceConfiguration";
 import { ITestsProvider, testDataMap, testSuiteByUriPath, ToolTestSuite } from "../../testing/common";
@@ -121,7 +121,14 @@ async function refreshAllTestsInWorkspace(
     configFactory: IConfigurationFactory
 ) {
     clearAllTestItems(controller);
-    if (!configFactory.getConfiguration().planemo().testing().enabled()) return;
+    const planemoConfig = configFactory.getConfiguration().planemo();
+    if (!planemoConfig.testing().enabled()) return;
+
+    const validationResult = await planemoConfig.validate();
+    if (validationResult.hasErrors()) {
+        window.showErrorMessage(validationResult.getErrorsAsString());
+        return;
+    }
 
     const result = await testProvider.discoverWorkspaceTests();
     const suites: vscode.TestItem[] = [];
