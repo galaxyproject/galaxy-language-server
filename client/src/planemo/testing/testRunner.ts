@@ -6,6 +6,7 @@ import { Constants } from "../../constants";
 import { IProcessExecution, runProcess } from "../../processRunner";
 import { CRLF } from "../../testing/common";
 import { ITestRunner } from "../../testing/testRunner";
+import { OutputHighlight } from "../../utils";
 import { IPlanemoConfiguration } from "../configuration";
 import { parseTestStates } from "./testsReportParser";
 
@@ -13,7 +14,7 @@ export class PlanemoTestRunner implements ITestRunner {
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
 
     public async run(planemoConfig: IPlanemoConfiguration, testNode: TestItem, runInstance: TestRun): Promise<void> {
-        runInstance.appendOutput(`Running ${this.highlight(testNode.id)} tool test suite${CRLF}`);
+        runInstance.appendOutput(`Running ${OutputHighlight.green(testNode.id)} tool test suite${CRLF}`);
 
         const testSuiteId = testNode.id;
         const testFileUri = testNode.uri;
@@ -34,7 +35,7 @@ export class PlanemoTestRunner implements ITestRunner {
             const testRunArguments = this.buildTestArguments(planemoConfig, output_json_file, htmlReportFile, testFile);
 
             runInstance.appendOutput(
-                `with:${CRLF}${CRLF}${this.highlight("planemo " + testRunArguments.join(" "), 36)}${CRLF}${CRLF}`
+                `with:${CRLF}${CRLF}${OutputHighlight.cyan("planemo " + testRunArguments.join(" "))}${CRLF}${CRLF}`
             );
 
             const testExecution = this.runPlanemoTest(planemoConfig, testRunArguments);
@@ -46,8 +47,8 @@ export class PlanemoTestRunner implements ITestRunner {
 
             cleanupCallback();
 
-            runInstance.appendOutput(`Completed ${this.highlight(testNode.id)} tool testing${CRLF}${CRLF}`);
-            runInstance.appendOutput(`See full test report: ${this.highlight(htmlReportFile, 33)}${CRLF}${CRLF}`);
+            runInstance.appendOutput(`Completed ${OutputHighlight.green(testNode.id)} tool testing${CRLF}${CRLF}`);
+            runInstance.appendOutput(`See full test report: ${OutputHighlight.yellow(htmlReportFile)}${CRLF}`);
         } catch (err: any) {
             runInstance.errored(testNode, new TestMessage(`Unexpected error when running tests:\n${err}`));
         } finally {
@@ -58,13 +59,11 @@ export class PlanemoTestRunner implements ITestRunner {
     public cancel(runInstance: TestRun): void {
         this.testExecutions.forEach((execution, test) => {
             try {
-                runInstance.appendOutput(
-                    this.highlight(`${CRLF}Cancelling test run for ${this.highlight(test)} tool${CRLF}`, 33)
-                );
+                runInstance.appendOutput(`${CRLF}Cancelling test run for ${OutputHighlight.green(test)} tool${CRLF}`);
                 execution.cancel();
             } catch (error) {
                 runInstance.appendOutput(
-                    `${CRLF}Cancelling execution of ${this.highlight(test)} tests failed: ${error}${CRLF}`
+                    `${CRLF}Cancelling execution of ${OutputHighlight.green(test)} tests failed: ${error}${CRLF}`
                 );
             }
         });
@@ -117,11 +116,6 @@ export class PlanemoTestRunner implements ITestRunner {
             return extraParams.split(" ");
         }
         return [];
-    }
-
-    //TODO use 'chalk'?
-    private highlight(message: string, color: Number = 32) {
-        return `\u001b[${color}m${message}\u001b[0m`;
     }
 
     private buildTestArguments(
