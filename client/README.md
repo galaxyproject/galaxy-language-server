@@ -14,10 +14,6 @@ To use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-ser
 
 Since version `0.4.0` you can use some of the cool features of [planemo](https://github.com/galaxyproject/planemo) directly from the extension. You only need to provide the required path to your planemo installation (see [configuration](#planemo-settings)) and the necessary parameters.
 
-## Test Explorer UI (extension)
-
-To support testing your tools using `planemo test` inside VSCode you need to install the [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) extension. This is a new requirement since version `0.4.0`.
-
 # Table of Content
 
 -   [Installation](#installation)
@@ -88,29 +84,6 @@ Planemo integration is currently in **experimental** phase. Please report any pr
 | `galaxyTools.planemo.testing.enabled`                       | Whether to discover and run tests using `planemo test` directly from the Test Explorer. |
 | `galaxyTools.planemo.testing.autoTestDiscoverOnSaveEnabled` | Whether to try to discover new tests when a Galaxy Tool Wrapper file is saved.          |
 | `galaxyTools.planemo.testing.extraParams`                   | Additional arguments that will be passed to `planemo test` command.                     |
-
-### Configuring Test Explorer UI
-
-The following additional configuration properties are provided by [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer):
-
-| Property                              | Description                                                                                                                                                                                                                             |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `testExplorer.onStart`                | Retire or reset all test states whenever a test run is started                                                                                                                                                                          |
-| `testExplorer.onReload`               | Retire or reset all test states whenever the test tree is reloaded                                                                                                                                                                      |
-| `testExplorer.codeLens`               | Show a CodeLens above each test or suite for running or debugging the tests                                                                                                                                                             |
-| `testExplorer.gutterDecoration`       | Show the state of each test in the editor using Gutter Decorations                                                                                                                                                                      |
-| `testExplorer.errorDecoration`        | Show error messages from test failures as decorations in the editor                                                                                                                                                                     |
-| `testExplorer.errorDecorationHover`   | Provide hover messages for the error decorations in the editor                                                                                                                                                                          |
-| `testExplorer.sort`                   | Sort the tests and suites by label or location. If this is not set (or set to null), they will be shown in the order that they were received from the adapter                                                                           |
-| `testExplorer.showCollapseButton`     | Show a button for collapsing the nodes of the test tree                                                                                                                                                                                 |
-| `testExplorer.showExpandButton`       | Show a button for expanding the top nodes of the test tree, recursively for the given number of levels                                                                                                                                  |
-| `testExplorer.showOnRun`              | Switch to the Test Explorer view whenever a test run is started                                                                                                                                                                         |
-| `testExplorer.addToEditorContextMenu` | Add menu items for running and debugging the tests in the current file to the editor context menu                                                                                                                                       |
-| `testExplorer.mergeSuites`            | Merge suites with the same label and parent                                                                                                                                                                                             |
-| `testExplorer.hideEmptyLog`           | Hide the output channel used to show a test's log when the user clicks on a test whose log is empty                                                                                                                                     |
-| `testExplorer.hideWhen`               | Hide the Test Explorer when no test adapters have been registered or when no tests have been found by the registered adapters. The default is to never hide the Test Explorer (some test adapters only work with this default setting). |
-
-See [Test Explorer UI](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-test-explorer) documentation for the latest configuration changes.
 
 # Features
 
@@ -188,7 +161,7 @@ You can now run `planemo test` for the currently opened tool directly from the `
 -   You can then run all the tests from the `Test Explorer` by using `planemo test` in the background. Currently running individual tests is not supported as AFAIK `planemo` does not have an option to do so at the moment.
 -   After successfully running the tests, the results will be displayed in a convenient way directly on your source XML.
 
-The failing tests will be marked in red and the reason for failure can be seen directly beside the test definition in the same line or more detailed in the `Output`. You can also directly navigate to each of the tests XML source from the `Test Explorer`.
+The failing tests will be marked in red and the reason for failure can be seen directly beside the test definition (or you can right click the icon next to your test definition and choose `Peek Error`). You can also directly navigate to each of the tests XML source from the `Test Explorer`.
 This can be very convenient especially when having a large number of tests in your tool.
 
 ## Improved macros support
