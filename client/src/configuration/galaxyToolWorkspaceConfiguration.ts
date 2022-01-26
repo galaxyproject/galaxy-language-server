@@ -54,11 +54,17 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
         const result = new ConfigValidationResult(validPlanemo, validGalaxyRoot);
 
         if (!validPlanemo) {
-            result.addErrorMessage("Please set a valid `envPath` value for planemo in the configuration.");
+            result.addErrorMessage(
+                "Please set a valid [Env Path](command:galaxytools.planemo.openSettings)" +
+                    " value for planemo in the [Settings](command:galaxytools.planemo.openSettings)."
+            );
         }
 
         if (!validGalaxyRoot) {
-            result.addErrorMessage("Please set a valid `galaxyRoot` for planemo in the configuration.");
+            result.addErrorMessage(
+                "Please set a valid [Galaxy Root](command:galaxyTools.planemo.openSettings)" +
+                    " for planemo in the [Settings](command:galaxytools.planemo.openSettings)."
+            );
         }
 
         return result;
