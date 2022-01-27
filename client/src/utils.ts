@@ -64,3 +64,55 @@ export function getCommands(command: string): ICommand {
         internal: `galaxytools.${command}`,
     };
 }
+
+/**
+ * Utility class for wrapping strings with ANSI
+ * scape codes.
+ * Used for terminal text coloring.
+ */
+export abstract class OutputHighlight {
+    private static readonly Black = 30;
+    private static readonly Red = 31;
+    private static readonly Green = 32;
+    private static readonly Yellow = 33;
+    private static readonly Blue = 34;
+    private static readonly Magenta = 35;
+    private static readonly Cyan = 36;
+    private static readonly White = 37;
+
+    public static black(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.Black);
+    }
+
+    public static red(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.Red);
+    }
+
+    public static green(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.Green);
+    }
+
+    public static yellow(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.Yellow);
+    }
+
+    public static blue(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.Blue);
+    }
+
+    public static magenta(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.Magenta);
+    }
+
+    public static cyan(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.Cyan);
+    }
+
+    public static white(text: string): string {
+        return OutputHighlight.printColored(text, OutputHighlight.White);
+    }
+
+    private static printColored(text: string, color: number): string {
+        return `\u001b[${color}m${text}\u001b[0m`;
+    }
+}

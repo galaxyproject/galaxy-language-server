@@ -27,7 +27,8 @@ export namespace Commands {
     export const GENERATE_COMMAND: ICommand = getCommands("generate.command");
     export const SORT_SINGLE_PARAM_ATTRS: ICommand = getCommands("sort.singleParamAttributes");
     export const SORT_DOCUMENT_PARAMS_ATTRS: ICommand = getCommands("sort.documentParamsAttributes");
-    export const DISCOVER_TESTS: ICommand = getCommands("tests.discover");
+    export const DISCOVER_TESTS_IN_WORKSPACE: ICommand = getCommands("tests.discoverInWorkspace");
+    export const DISCOVER_TESTS_IN_DOCUMENT: ICommand = getCommands("tests.discoverInDocument");
     export const PLANEMO_OPEN_SETTINGS: ICommand = getCommands("planemo.openSettings");
     export const OPEN_TERMINAL_AT_DIRECTORY_ITEM: ICommand = getCommands("openTerminalAtDirectory");
     export const GENERATE_EXPANDED_DOCUMENT: ICommand = getCommands("generate.expandedDocument");

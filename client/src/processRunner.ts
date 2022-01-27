@@ -11,7 +11,7 @@ export interface IProcessRunConfiguration {
 }
 
 export interface IProcessExecution {
-    pid: number;
+    pid: number | undefined;
 
     complete(): Promise<{ exitCode: number; output: string }>;
 
@@ -19,7 +19,7 @@ export interface IProcessExecution {
 }
 
 class CommandProcessExecution implements IProcessExecution {
-    public readonly pid: number;
+    public readonly pid: number | undefined;
 
     private readonly commandProcess: ChildProcess;
     private readonly acceptedExitCodes: readonly number[];

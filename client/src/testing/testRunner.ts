@@ -1,12 +1,8 @@
-import { TestEvent, TestSuiteInfo } from "vscode-test-adapter-api";
+import { TestItem, TestRun } from "vscode";
 import { IPlanemoConfiguration } from "../planemo/configuration";
 
 export interface ITestRunner {
-    readonly adapterId: string;
+    run(config: IPlanemoConfiguration, testNode: TestItem, runInstance: TestRun): Promise<void>;
 
-    run(config: IPlanemoConfiguration, testSuite: TestSuiteInfo): Promise<TestEvent[]>;
-
-    cancel(): void;
-
-    isRunning(): boolean;
+    cancel(runInstance: TestRun): void;
 }

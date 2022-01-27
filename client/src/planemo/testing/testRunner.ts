@@ -1,85 +1,72 @@
 import { unlinkSync } from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
-import { OutputChannel, window } from "vscode";
-import { TestEvent, TestSuiteInfo } from "vscode-test-adapter-api";
+import { TestItem, TestMessage, TestRun } from "vscode";
 import { Constants } from "../../constants";
 import { IProcessExecution, runProcess } from "../../processRunner";
+import { CRLF } from "../../testing/common";
 import { ITestRunner } from "../../testing/testRunner";
+import { OutputHighlight } from "../../utils";
 import { IPlanemoConfiguration } from "../configuration";
 import { parseTestStates } from "./testsReportParser";
 
 export class PlanemoTestRunner implements ITestRunner {
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
-    private _channel: OutputChannel = window.createOutputChannel(Constants.PLANEMO_TEST_OUTPUT_CHANNEL);
 
-    constructor(public readonly adapterId: string) {}
+    public async run(planemoConfig: IPlanemoConfiguration, testNode: TestItem, runInstance: TestRun): Promise<void> {
+        runInstance.appendOutput(`Running ${OutputHighlight.green(testNode.id)} tool test suite${CRLF}`);
 
-    public async run(planemoConfig: IPlanemoConfiguration, testSuite: TestSuiteInfo): Promise<TestEvent[]> {
-        if (!planemoConfig.enabled() || !planemoConfig.testing().enabled()) {
-            return [];
+        const testSuiteId = testNode.id;
+        const testFileUri = testNode.uri;
+
+        if (testFileUri === undefined) {
+            runInstance.errored(testNode, new TestMessage("Target tool XML file not found."));
+            testNode.children.forEach((node) => runInstance.skipped(node));
+            return;
         }
 
-        const testSuiteId = testSuite.id;
-        const testFile = testSuite.file
-            ? testSuite.file
-            : `${planemoConfig.getCwd()}/${testSuiteId}.${Constants.TOOL_DOCUMENT_EXTENSION}`;
+        testNode.children.forEach((node) => runInstance.started(node));
+
+        const testFile = testFileUri.fsPath;
         try {
             const { file: output_json_file, cleanupCallback } = await this.getJsonReportPath(testFile);
             const htmlReportFile = this.getTestHtmlReportFilePath(testFile);
-            const extraParams = this.getTestExtraParams(planemoConfig);
 
-            const baseArguments = [
-                `test`,
-                `--galaxy_root`,
-                `${planemoConfig.galaxyRoot()}`,
-                `--test_output_json`,
-                `${output_json_file}`,
-                `--test_output`,
-                `${htmlReportFile}`,
-            ];
+            const testRunArguments = this.buildTestArguments(planemoConfig, output_json_file, htmlReportFile, testFile);
 
-            const testRunArguments = baseArguments.concat(extraParams).concat(`${testFile}`);
-
-            this._channel.appendLine(`Running planemo ${testRunArguments.join(" ")}`);
+            runInstance.appendOutput(
+                `with:${CRLF}${CRLF}${OutputHighlight.cyan("planemo " + testRunArguments.join(" "))}${CRLF}${CRLF}`
+            );
 
             const testExecution = this.runPlanemoTest(planemoConfig, testRunArguments);
 
             this.testExecutions.set(testSuiteId, testExecution);
             const result = await testExecution.complete();
 
-            if (result.exitCode !== 0) {
-                return [];
-            }
-
-            const states = await parseTestStates(output_json_file, testSuite, htmlReportFile);
+            await parseTestStates(testNode, runInstance, output_json_file);
 
             cleanupCallback();
 
-            this.showSummaryLog(states);
-
-            return states;
+            runInstance.appendOutput(`Completed ${OutputHighlight.green(testNode.id)} tool testing${CRLF}${CRLF}`);
+            runInstance.appendOutput(`See full test report: ${OutputHighlight.yellow(htmlReportFile)}${CRLF}`);
         } catch (err: any) {
-            this.showErrorLog(err);
-            return [];
+            runInstance.errored(testNode, new TestMessage(`Unexpected error when running tests:\n${err}`));
         } finally {
             this.testExecutions.delete(testSuiteId);
         }
     }
 
-    public cancel(): void {
+    public cancel(runInstance: TestRun): void {
         this.testExecutions.forEach((execution, test) => {
             try {
+                runInstance.appendOutput(`${CRLF}Cancelling test run for ${OutputHighlight.green(test)} tool${CRLF}`);
                 execution.cancel();
             } catch (error) {
-                console.log(`Cancelling execution of ${test} failed: ${error}`);
+                runInstance.appendOutput(
+                    `${CRLF}Cancelling execution of ${OutputHighlight.green(test)} tests failed: ${error}${CRLF}`
+                );
             }
         });
-        this._channel.appendLine("\nTests run cancelled.\n");
-    }
-
-    public isRunning(): boolean {
-        return this.testExecutions.size > 0;
     }
 
     private runPlanemoTest(planemoConfig: IPlanemoConfiguration, args: string[]): IProcessExecution {
@@ -131,22 +118,24 @@ export class PlanemoTestRunner implements ITestRunner {
         return [];
     }
 
-    private showErrorLog(errorMessage: string) {
-        this._channel.appendLine(errorMessage);
-        this._channel.show();
-    }
+    private buildTestArguments(
+        planemoConfig: IPlanemoConfiguration,
+        output_json_file: string,
+        htmlReportFile: string,
+        testFile: string
+    ) {
+        const extraParams = this.getTestExtraParams(planemoConfig);
+        const baseArguments = [
+            `test`,
+            `--galaxy_root`,
+            `${planemoConfig.galaxyRoot()}`,
+            `--test_output_json`,
+            `${output_json_file}`,
+            `--test_output`,
+            `${htmlReportFile}`,
+        ];
 
-    private showSummaryLog(states: TestEvent[]) {
-        let statesMap = new Map<string, number>();
-        states.forEach((test) => {
-            let stateCount = statesMap.get(test.state);
-            stateCount = stateCount === undefined ? 1 : stateCount + 1;
-            statesMap.set(test.state, stateCount);
-        });
-        this._channel.appendLine(`\n${states.length} tests completed:`);
-        statesMap.forEach((count, state) => {
-            this._channel.appendLine(`  ${count} ${state}`);
-        });
-        this._channel.append("\n");
+        const testRunArguments = baseArguments.concat(extraParams).concat(`${testFile}`);
+        return testRunArguments;
     }
 }

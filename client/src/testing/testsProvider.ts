@@ -1,60 +1,49 @@
-import { commands } from "vscode";
-import { TestSuiteInfo, TestInfo } from "vscode-test-adapter-api";
+import { commands, TextDocument, Uri } from "vscode";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Commands } from "../commands";
-
-export interface ITestsProvider {
-    discoverTests(): Promise<TestSuiteInfo | undefined>;
-}
+import { cloneRange } from "../utils";
+import { ITestsProvider, IToolTestSuite, ToolTestCase, ToolTestSuite } from "./common";
 
 export class LanguageServerTestProvider implements ITestsProvider {
-    async discoverTests(): Promise<TestSuiteInfo | undefined> {
-        return await this.requestDiscoverTests();
+    constructor(private readonly client: LanguageClient) {}
+
+    async discoverWorkspaceTests(): Promise<Array<ToolTestSuite>> {
+        const response = (await commands.executeCommand(
+            Commands.DISCOVER_TESTS_IN_WORKSPACE.external
+        )) as Array<IToolTestSuite>;
+        if (!response) return [];
+
+        const testSuites: Array<ToolTestSuite> = [];
+        response.forEach((suite) => {
+            const suiteData = this.buildSuiteData(suite);
+            testSuites.push(suiteData);
+        });
+        return testSuites;
     }
 
-    private async requestDiscoverTests(): Promise<TestSuiteInfo | undefined> {
-        const response = (await commands.executeCommand(Commands.DISCOVER_TESTS.external)) as TestSuiteInfo[];
-        if (!response) return;
+    async discoverTestsInDocument(document: TextDocument): Promise<ToolTestSuite | undefined> {
+        const param = this.client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+        const response = (await commands.executeCommand(
+            Commands.DISCOVER_TESTS_IN_DOCUMENT.external,
+            param
+        )) as IToolTestSuite;
+        if (!response) return undefined;
 
-        const testSuites: TestSuiteInfo[] = [];
-        response.forEach((suite) => {
-            const tests: TestInfo[] = [];
-            suite.children.forEach((test) => {
-                const testInfo: TestInfo = {
-                    type: "test",
-                    id: test.id,
-                    label: test.label,
-                    file: test.file,
-                    line: test.line,
-                    description: test.description,
-                    tooltip: test.tooltip,
-                    debuggable: test.debuggable,
-                    errored: test.errored,
-                    message: test.message,
-                };
-                tests.push(testInfo);
-            });
-            const suiteInfo: TestSuiteInfo = {
-                type: "suite",
-                id: suite.id,
-                label: suite.label,
-                file: suite.file,
-                line: suite.line,
-                description: suite.description,
-                tooltip: suite.tooltip,
-                debuggable: suite.debuggable,
-                errored: suite.errored,
-                message: suite.message,
-                children: tests,
-            };
-            testSuites.push(suiteInfo);
-        });
+        const suiteData = this.buildSuiteData(response);
+        return suiteData;
+    }
 
-        const result: TestSuiteInfo = {
-            type: "suite",
-            id: "root",
-            label: "planemo",
-            children: testSuites,
-        };
-        return result;
+    private buildSuiteData(suite: IToolTestSuite) {
+        const testCases = suite.children.map(
+            (test) => new ToolTestCase(test.id, test.label, Uri.parse(test.uri), cloneRange(test.range))
+        );
+        const suiteData = new ToolTestSuite(
+            suite.id,
+            suite.label,
+            Uri.parse(suite.uri),
+            cloneRange(suite.range),
+            testCases
+        );
+        return suiteData;
     }
 }

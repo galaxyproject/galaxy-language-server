@@ -1,10 +1,10 @@
 from typing import List, Optional
 
-from pygls.workspace import Document, Workspace
+from pygls.workspace import Workspace
 from galaxyls.services.tools.common import TestsDiscoveryService
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
-from galaxyls.services.xml.utils import convert_document_offset_to_line
 from galaxyls.types import TestInfoResult, TestSuiteInfoResult
 from galaxyls.services.validation import DocumentValidator
 
@@ -17,33 +17,40 @@ class ToolTestsDiscoveryService(TestsDiscoveryService):
         for doc_uri in workspace.documents:
             document = workspace.get_document(doc_uri)
             if self.document_validator.is_tool_document(document):
-                test_suite = self._get_test_suite_from_document(document)
+                xml_document = XmlDocumentParser().parse(document)
+                test_suite = self._get_test_suite_from_document(xml_document)
                 if test_suite:
                     rval.append(test_suite)
         return rval
 
-    def _get_test_suite_from_document(self, document: Document) -> Optional[TestSuiteInfoResult]:
-        xml_document = XmlDocumentParser().parse(document)
+    def discover_tests_in_document(self, xml_document: XmlDocument) -> Optional[TestSuiteInfoResult]:
+        test_suite = self._get_test_suite_from_document(xml_document)
+        return test_suite
+
+    def _get_test_suite_from_document(self, xml_document: XmlDocument) -> Optional[TestSuiteInfoResult]:
         tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         tool_id = tool.get_tool_id()
-        if tool_id:
+        tests_range = tool.get_tests_range()
+        if tool_id and tests_range:
             tests = tool.get_tests()
-            suite_tests: List[TestInfoResult] = []
+            test_cases: List[TestInfoResult] = []
             id = 1
             for test in tests:
-                line = convert_document_offset_to_line(xml_document.document, test.start_tag_open_offset)
-                suite_tests.append(
-                    TestInfoResult(
-                        tool_id=tool_id,
-                        test_id=str(id),
-                        file=xml_document.document.path,
-                        line=line,
-                    ),
-                )
-                id += 1
+                range = xml_document.get_full_range(test)
+                if range:
+                    test_cases.append(
+                        TestInfoResult(
+                            tool_id=tool_id,
+                            test_id=str(id),
+                            uri=xml_document.document.uri,
+                            range=range,
+                        ),
+                    )
+                    id += 1
             return TestSuiteInfoResult(
                 tool_id=tool_id,
-                file=xml_document.document.path,
-                children=suite_tests,
+                uri=xml_document.document.uri,
+                range=tests_range,
+                children=test_cases,
             )
         return None

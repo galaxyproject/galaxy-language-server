@@ -57,34 +57,22 @@ class ReplaceTextRangeResult:
 class TestInfoResult:
     """Contains information about a particular test case."""
 
-    def __init__(self, tool_id: str, test_id: str, file: str, line: int, skipped: bool = False) -> None:
+    def __init__(self, tool_id: str, test_id: str, uri: str, range: Range, skipped: bool = False) -> None:
         self.id = f"{tool_id}:{test_id}"
         self.label = f"{tool_id}:Test #{test_id}"
-        self.file = file
-        self.line = line
-        self.skipped = skipped
-        self.description: Optional[str] = None
-        self.tooltip: Optional[str] = None
-        self.debuggable: bool = False
-        self.errored: bool = False
-        self.message: Optional[str] = None
+        self.uri = uri
+        self.range = range
 
 
 class TestSuiteInfoResult:
     """Contains information about all the tests for a tool wrapper."""
 
-    def __init__(self, tool_id: str, file: str, children: Optional[List[TestInfoResult]] = None) -> None:
+    def __init__(self, tool_id: str, uri: str, range: Range, children: Optional[List[TestInfoResult]] = None) -> None:
         self.id = tool_id
         self.label = f"{tool_id} tests"
-        self.file = file
+        self.uri = uri
+        self.range = range
         self.children = children
-        self.line: int = 0
-        self.debuggable: bool = False
-        self.description: Optional[str] = None
-        self.tooltip: Optional[str] = None
-
-        self.errored: bool = False
-        self.message: Optional[str] = None
 
 
 class GeneratedExpandedDocument(BaseModel):

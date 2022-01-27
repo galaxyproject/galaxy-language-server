@@ -7,6 +7,9 @@ from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
+from galaxyls.services.tools.macros import MacroDefinitionsProvider
+from galaxyls.services.tools.refactor import RefactoringService, RefactorMacrosService
+from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 from pygls.lsp.types import (
     CodeAction,
     CodeActionParams,
@@ -22,12 +25,9 @@ from pygls.lsp.types import (
     TextEdit,
 )
 from pygls.workspace import Document, Workspace
-from galaxyls.services.tools.macros import MacroDefinitionsProvider
-from galaxyls.services.tools.refactor import RefactorMacrosService, RefactoringService
-from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 
 from ..config import CompletionMode
-from ..types import GeneratedSnippetResult, ReplaceTextRangeResult, TestSuiteInfoResult
+from ..types import GeneratedSnippetResult, ReplaceTextRangeResult
 from .completion import AutoCloseTagResult, XmlCompletionService
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
@@ -133,10 +133,6 @@ class GalaxyToolLanguageService:
     def sort_document_param_attributes(self, xml_document: XmlDocument) -> List[ReplaceTextRangeResult]:
         """Sorts the attributes of all the param elements contained in the document."""
         return self.sort_service.sort_document_param_attributes(xml_document)
-
-    def discover_tests(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
-        """Sorts the attributes of all the param elements contained in the document."""
-        return self.test_discovery_service.discover_tests_in_workspace(workspace)
 
     def get_available_refactoring_actions(
         self, xml_document: XmlDocument, params: CodeActionParams
