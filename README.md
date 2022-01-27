@@ -7,8 +7,8 @@
 
 This repository contains two projects:
 
-- [**Galaxy Language Server**](https://github.com/davelopez/galaxy-language-server/tree/master/server): [Python](https://www.python.org/) implementation of the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
-- [**Galaxy Tools extension**](https://github.com/davelopez/galaxy-language-server/tree/master/client): [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
+- [**Galaxy Language Server**](https://github.com/davelopez/galaxy-language-server/tree/main/server): [Python](https://www.python.org/) implementation of the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
+- [**Galaxy Tools extension**](https://github.com/davelopez/galaxy-language-server/tree/main/client): [Visual Studio Code](https://code.visualstudio.com/) [extension](https://marketplace.visualstudio.com/VSCode) in [Node.js](https://nodejs.org/en/).
 
 This project has the following main goals:
 

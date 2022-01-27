@@ -11,7 +11,7 @@ AUTHOR_EMAIL = "davelopez7391@gmail.com"
 DESCRIPTION = "A language server for Galaxy (https://galaxyproject.org) tool wrappers"
 KEYWORDS = ["galaxy", "python", "language server"]
 LICENSE = "Apache License 2.0"
-URL = "https://github.com/davelopez/galaxy-language-server/tree/master/server"
+URL = "https://github.com/davelopez/galaxy-language-server/tree/main/server"
 
 base_directory = pathlib.Path(__file__).parent
 

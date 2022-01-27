@@ -4,11 +4,11 @@ name: Language Server CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - "server/**"
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - "server/**"
 

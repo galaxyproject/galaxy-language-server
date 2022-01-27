@@ -45,7 +45,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
             commands.executeCommand(
                 "vscode.open",
                 Uri.parse(
-                    "https://github.com/galaxyproject/galaxy-language-server/blob/master/client/README.md#installation"
+                    "https://github.com/galaxyproject/galaxy-language-server/blob/main/client/README.md#installation"
                 )
             );
         }
