@@ -15,11 +15,11 @@
 
 # Getting Started
 
-Check the [Getting Started](https://github.com/galaxyproject/galaxy-language-server/blob/master/docs/CONTRIBUTING.md#getting-started) section in the [contributing](https://github.com/galaxyproject/galaxy-language-server/blob/master/docs/CONTRIBUTING.md) docs.
+Check the [Getting Started](https://github.com/galaxyproject/galaxy-language-server/blob/main/docs/CONTRIBUTING.md#getting-started) section in the [contributing](https://github.com/galaxyproject/galaxy-language-server/blob/main/docs/CONTRIBUTING.md) docs.
 
 # How to manually run the server
 
-Usually, the [client](https://github.com/galaxyproject/galaxy-language-server/tree/master/client) will be in charge of running the server when it is needed, but, in case you want to run it manually for some reason, you can use the following commands:
+Usually, the [client](https://github.com/galaxyproject/galaxy-language-server/tree/main/client) will be in charge of running the server when it is needed, but, in case you want to run it manually for some reason, you can use the following commands:
 
 In any case, it is recommended to create a Python virtual environment first (assuming you are using `Python3.8+`):
 
