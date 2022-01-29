@@ -1,5 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.7.0] - 2022-01-29
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.7.0](./server/CHANGELOG.md#070)
+
+-   Adapt how custom external (server) and internal commands are handled ([#179](https://github.com/galaxyproject/galaxy-language-server/pull/179)).
+
+-   Migrate to native VSCode Testing API and drop dependency on `Test Explorer UI extension` (you can now safely uninstall this extension if no other extensions depends on it) ([#183](https://github.com/galaxyproject/galaxy-language-server/pull/183)).
+
 ## [0.6.1] - 2021-09-26
 
 ### Changed

@@ -1,5 +1,19 @@
 # Galaxy Language Server Changelog
 
+## [0.7.0] - 2022-01-29
+
+### Added
+
+- New custom command to discover tests in a single tool file to support the new Testing API in the client ([#183](https://github.com/galaxyproject/galaxy-language-server/pull/183)).
+
+### Changed
+
+- Update `pygls` dependency and fix how custom commands are registered ([#179](https://github.com/galaxyproject/galaxy-language-server/pull/179)).
+
+### Fixed
+
+- An error creating `Code Actions` to extract macros when selecting a text range in some situations ([#178](https://github.com/galaxyproject/galaxy-language-server/pull/178)).
+
 ## [0.6.1] - 2021-09-26
 
 ### Changed
