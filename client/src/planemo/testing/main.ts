@@ -20,7 +20,7 @@ export function setupTesting(
     const testProvider = new LanguageServerTestProvider(client);
     const planemoTestRunner = new PlanemoTestRunner();
 
-    const controller = vscode.tests.createTestController("planemo-test-adapter", "Planemo Test Controller");
+    const controller = vscode.tests.createTestController("planemo-test-adapter", "Galaxy Tools - Planemo Tests");
     context.subscriptions.push(controller);
 
     controller.resolveHandler = async (item) => {
