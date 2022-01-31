@@ -6,6 +6,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { Settings } from "../../configuration/workspaceConfiguration";
 import { ITestsProvider, testDataMap, testSuiteByUriPath, ToolTestSuite } from "../../testing/common";
 import { LanguageServerTestProvider } from "../../testing/testsProvider";
+import { isGalaxyToolDocument } from "../../utils";
 import { IConfigurationFactory } from "../configuration";
 import { PlanemoTestRunner } from "./testRunner";
 
@@ -98,6 +99,9 @@ async function updateTestNodeFromDocument(
     document: vscode.TextDocument,
     controller: vscode.TestController
 ) {
+    if (!isGalaxyToolDocument(document)) {
+        return;
+    }
     const result = await testProvider.discoverTestsInDocument(document);
     if (result) {
         const suite = refreshTestsFromSuite(controller, result);
@@ -108,6 +112,9 @@ async function updateTestNodeFromDocument(
 }
 
 async function removeTestNodeFromDocument(document: vscode.TextDocument, controller: vscode.TestController) {
+    if (!isGalaxyToolDocument(document)) {
+        return;
+    }
     const suite = testSuiteByUriPath.get(document.uri.fsPath);
     if (suite) {
         controller.items.delete(suite.id);
