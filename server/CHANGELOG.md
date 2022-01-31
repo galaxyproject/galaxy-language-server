@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.7.1] - 2022-01-31
+
+### Fixed
+
+- Check valid document extension before checking contents when validating documents ([#189](https://github.com/galaxyproject/galaxy-language-server/pull/189)).
+
 ## [0.7.0] - 2022-01-29
 
 ### Added
