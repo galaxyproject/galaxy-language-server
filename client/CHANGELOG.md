@@ -1,5 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.7.1] - 2022-01-31
+
+### Fixed
+
+-   Error when trying to discover tests in non-Galaxy tool documents ([#189](https://github.com/galaxyproject/galaxy-language-server/pull/189)).
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.7.1](./server/CHANGELOG.md#071)
+
 ## [0.7.0] - 2022-01-29
 
 ### Changed
