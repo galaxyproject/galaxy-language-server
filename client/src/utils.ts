@@ -2,8 +2,9 @@
 
 import * as fs from "fs";
 import { exec } from "child_process";
-import { Position, Range, Uri } from "vscode";
+import { Position, Range, TextDocument, Uri } from "vscode";
 import { ICommand } from "./interfaces";
+import { Constants } from "./constants";
 
 export async function execAsync(command: string, options: object = {}): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -63,6 +64,13 @@ export function getCommands(command: string): ICommand {
         external: `gls.${command}`,
         internal: `galaxytools.${command}`,
     };
+}
+
+export function isGalaxyToolDocument(document: TextDocument): boolean {
+    return (
+        document.uri.path.endsWith(`.${Constants.TOOL_DOCUMENT_EXTENSION}`) &&
+        document.languageId === Constants.LANGUAGE_ID
+    );
 }
 
 /**

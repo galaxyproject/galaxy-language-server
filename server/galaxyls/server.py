@@ -295,4 +295,6 @@ def _get_xml_document(document: Document) -> XmlDocument:
 
 def _is_document_supported(document: Document) -> bool:
     """Returns True if the given document is supported by the server."""
+    if not document.uri.lower().endswith(".xml"):
+        return False
     return DocumentValidator.has_valid_root(document)
