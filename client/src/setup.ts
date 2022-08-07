@@ -2,7 +2,7 @@ import { join } from "path";
 import { existsSync } from "fs";
 import { commands, ExtensionContext, ProgressLocation, Uri, window, workspace } from "vscode";
 import { Constants } from "./constants";
-import { execAsync } from "./utils";
+import { execAsync, forceDeleteDirectory as removeDirectory } from "./utils";
 import { LocalStorageService } from "./configuration/storage";
 
 /**
@@ -115,6 +115,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
                     if (!isInstalled) {
                         const errorMessage = "There was a problem trying to install the Galaxy language server.";
                         window.showErrorMessage(errorMessage);
+                        removeDirectory(venvPath);
                         throw new Error(errorMessage);
                     }
 
