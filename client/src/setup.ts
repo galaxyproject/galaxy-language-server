@@ -17,7 +17,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
     // Check if the LS is already installed
     let venvPath = getVirtualEnvironmentPath(context.extensionPath, Constants.LS_VENV_NAME);
     if (existsSync(venvPath)) {
-        const venvPython = getPythonFromVenvPath(venvPath);
+        const venvPython = getPythonFromVirtualEnvPath(venvPath);
         const isInstalled = await isPythonPackageInstalled(
             venvPython,
             Constants.GALAXY_LS_PACKAGE,
@@ -102,11 +102,11 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
                         );
                     }
 
-                    const venvPython = getPythonFromVenvPath(venvPath);
+                    const venvPython = getPythonFromVirtualEnvPath(venvPath);
                     console.log(`[gls] Using Python from: ${venvPython}`);
 
                     console.log(`[gls] Installing ${Constants.GALAXY_LS_PACKAGE}...`);
-                    const isInstalled = await intallPythonPackage(
+                    const isInstalled = await installPythonPackage(
                         venvPython,
                         Constants.GALAXY_LS_PACKAGE,
                         Constants.GALAXY_LS_VERSION
@@ -135,7 +135,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
     );
 }
 
-function getPythonFromVenvPath(venvPath: string): string {
+function getPythonFromVirtualEnvPath(venvPath: string): string {
     return Constants.IS_WIN
         ? join(venvPath, "Scripts", Constants.PYTHON_WIN)
         : join(venvPath, "bin", Constants.PYTHON_UNIX);
@@ -157,9 +157,9 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
     }
 
     const pattern = /Version: (?<version>\d+.\d+.\d+)/m;
-    const getPacakgeInfoCmd = `"${python}" -m pip show ${packageName}`;
+    const getPackageInfoCmd = `"${python}" -m pip show ${packageName}`;
     try {
-        const packageInfo = await execAsync(getPacakgeInfoCmd);
+        const packageInfo = await execAsync(getPackageInfoCmd);
         const match = packageInfo.match(new RegExp(pattern));
         console.log(`[gls] Version found: ${packageName} - ${match?.groups?.version}`);
         return version === match?.groups?.version;
@@ -169,13 +169,13 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
     }
 }
 
-async function intallPythonPackage(python: string, packageName: string, version: string): Promise<boolean> {
+async function installPythonPackage(python: string, packageName: string, version: string): Promise<boolean> {
     const installPipPackageCmd = `"${python}" -m pip install ${packageName}==${version}`;
     try {
         await execAsync(installPipPackageCmd);
         return isPythonPackageInstalled(python, packageName, version);
     } catch (err: any) {
-        console.error(`[gls] intallPythonPackage err: ${err}`);
+        console.error(`[gls] installPythonPackage err: ${err}`);
         return false;
     }
 }
@@ -231,8 +231,8 @@ async function selectPythonUsingFileDialog(): Promise<string | undefined> {
 async function createVirtualEnvironment(python: string, name: string, cwd: string): Promise<string> {
     const path = getVirtualEnvironmentPath(cwd, name);
     if (!existsSync(path)) {
-        const createVenvCmd = `"${python}" -m venv ${name}`;
-        await execAsync(createVenvCmd, { cwd });
+        const createVirtualEnvCmd = `"${python}" -m venv ${name}`;
+        await execAsync(createVirtualEnvCmd, { cwd });
     }
     return path;
 }
