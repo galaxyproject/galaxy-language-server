@@ -52,7 +52,7 @@ Some possible errors:
 
 -   `The selected file is not a valid Python <version> path!`. This message will appear if you select a Python binary that is not compatible with the required version. You will be given a chance to select the correct version the next time the extension gets activated. You can force it by reloading the extension or restarting VScode.
 
--   `Error installing the Galaxy Language Server: pip module not found`. The extension needs to create a virtual environment to install the `galaxy-language-server` package and its dependencies. To create a proper environment with `pip` included, in some systems you need to install the `python3-venv` package using the following command: `apt install python3-venv` (you may need to use `sudo`). Once you have `python3-venv` installed, you may need to remove the `glsenv` directory inside the extension installation directory and then restart or reload VSCode to recreate the environment.
+-   `Error installing the Galaxy Language Server: pip module not found`. The extension needs to create a virtual environment to install the `galaxy-language-server` package and its dependencies. To create a proper environment with `pip` included, in some systems you need to install the `python3-venv` package using the following command: `apt install python3-venv` (you might need to use `sudo`). Once you have `python3-venv` installed, if the extension installation keeps failing, you need to remove the `glsenv` directory inside the extension installation directory (usually `~/.vscode/extensions/davelopez.galaxy-tools-X.X.X/glsenv`) and then restart or reload VSCode to recreate the environment.
 
 # Configuration
 
