@@ -50,6 +50,10 @@ export async function exists(path: string): Promise<boolean> {
         .catch(() => false);
 }
 
+export function forceDeleteDirectory(directory: string) {
+    fs.rmSync(directory, { recursive: true, force: true });
+}
+
 export function changeUriScheme(uri: Uri, scheme: string): Uri {
     if (uri.scheme === scheme) {
         return uri;
