@@ -2,12 +2,12 @@
 # But imports the runtime ones too
 -r requirements.txt
 
-black==21.12b0
-flake8==4.0.1
-flake8-bugbear==22.1.11
-lxml-stubs==0.3.1
-mypy==0.931
-pytest==6.2.5
+black==22.6.0
+flake8==5.0.4
+flake8-bugbear==22.7.1
+lxml-stubs==0.4.0
+mypy==0.971
+pytest==7.1.2
 pytest-cov==3.0.0
-pytest-mock==3.7.0
+pytest-mock==3.8.2
 types-setuptools==57.4.7
