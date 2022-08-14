@@ -1,5 +1,11 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.7.2] - 2022-08-14
+
+### Fixed
+
+- Remove local virtual environment when install fails ([#196](https://github.com/galaxyproject/galaxy-language-server/pull/196)).
+
 ## [0.7.1] - 2022-01-31
 
 ### Fixed
