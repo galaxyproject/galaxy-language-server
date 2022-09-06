@@ -185,6 +185,7 @@ async function getPythonVersion(python: string): Promise<number[]> {
     const getPythonVersionCmd = `"${python}" --version`;
     const version = await execAsync(getPythonVersionCmd);
     console.log(`[gls] Python version found: ${version}`);
+    const numbers = version.match(new RegExp(/\d+/g));
     if (numbers === null) return [0, 0];
     return numbers.map((v) => Number.parseInt(v));
 }
