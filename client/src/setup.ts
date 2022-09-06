@@ -184,7 +184,7 @@ async function installPythonPackage(python: string, packageName: string, version
 async function getPythonVersion(python: string): Promise<number[]> {
     const getPythonVersionCmd = `"${python}" --version`;
     const version = await execAsync(getPythonVersionCmd);
-    const numbers = version.match(new RegExp(/\d/g));
+    console.log(`[gls] Python version found: ${version}`);
     if (numbers === null) return [0, 0];
     return numbers.map((v) => Number.parseInt(v));
 }
@@ -192,6 +192,7 @@ async function getPythonVersion(python: string): Promise<number[]> {
 async function checkPythonVersion(python: string): Promise<boolean> {
     try {
         const [major, minor] = await getPythonVersion(python);
+        console.log(`[gls] Checking Python version requirement... major[${major}] minor[${minor}]`);
         return major === 3 && minor >= 8;
     } catch {
         return false;
