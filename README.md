@@ -3,7 +3,9 @@
 [![Actions Status](https://github.com/davelopez/galaxy-language-server/workflows/Language%20Server%20CI/badge.svg)](https://github.com/davelopez/galaxy-language-server/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
-[![PyPI](https://img.shields.io/pypi/v/galaxy-language-server?color=green)](https://pypi.org/project/galaxy-language-server/)
+[![PyPI](https://img.shields.io/pypi/v/galaxy-language-server?color=green)](https://pypi.org/project/galaxy-language-server)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davelopez/galaxy-language-server?label=Extension%20Release)
+[![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/davelopez/galaxy-language-server)
 
 This repository contains two projects:
 
