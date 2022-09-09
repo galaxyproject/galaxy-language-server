@@ -1,6 +1,14 @@
-from typing import List, Optional, cast
+from typing import (
+    cast,
+    List,
+    Optional,
+)
 
-from anytree import NodeMixin, find
+from anytree import (
+    find,
+    NodeMixin,
+)
+
 from galaxyls.services.tools.constants import (
     BOOLEAN,
     CONDITIONAL,

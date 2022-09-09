@@ -1,9 +1,11 @@
 """Module in charge of the auto-completion feature."""
 
-from typing import List, Optional, cast
+from typing import (
+    cast,
+    List,
+    Optional,
+)
 
-from galaxyls.services.definitions import DocumentDefinitionsProvider
-from galaxyls.services.xml.nodes import XmlCDATASection, XmlElement
 from pygls.lsp.types import (
     CompletionContext,
     CompletionItem,
@@ -15,10 +17,19 @@ from pygls.lsp.types import (
     Range,
 )
 
+from galaxyls.services.definitions import DocumentDefinitionsProvider
+from galaxyls.services.xml.nodes import (
+    XmlCDATASection,
+    XmlElement,
+)
 from ..config import CompletionMode
 from ..types import AutoCloseTagResult
 from .context import XmlContext
-from .xsd.parser import XsdAttribute, XsdNode, XsdTree
+from .xsd.parser import (
+    XsdAttribute,
+    XsdNode,
+    XsdTree,
+)
 
 
 class XmlCompletionService:

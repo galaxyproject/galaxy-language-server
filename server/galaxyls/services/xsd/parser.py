@@ -2,9 +2,14 @@
 to simplify access to definitions.
 """
 
+from typing import (
+    cast,
+    Dict,
+    List,
+    Optional,
+)
+
 from lxml import etree
-from typing import List, Optional, Dict, cast
-from .types import XsdNode, XsdAttribute, XsdTree
 
 from .constants import (
     MAX_RECURSION_DEPTH,
@@ -12,14 +17,19 @@ from .constants import (
     XS_ATTRIBUTE,
     XS_ATTRIBUTE_GROUP,
     XS_CHOICE,
+    XS_COMPLEX_CONTENT,
     XS_COMPLEX_TYPE,
     XS_ELEMENT,
+    XS_EXTENSION,
     XS_GROUP,
     XS_SEQUENCE,
-    XS_SIMPLE_TYPE,
     XS_SIMPLE_CONTENT,
-    XS_COMPLEX_CONTENT,
-    XS_EXTENSION,
+    XS_SIMPLE_TYPE,
+)
+from .types import (
+    XsdAttribute,
+    XsdNode,
+    XsdTree,
 )
 
 

@@ -1,10 +1,20 @@
-from typing import Dict, List, Optional, Set
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Set,
+)
 
 from pydantic import BaseModel
 from pygls.lsp.types import Location
 from pygls.workspace import Workspace
 
-from galaxyls.services.tools.constants import MACRO, NAME, TOKEN, XML
+from galaxyls.services.tools.constants import (
+    MACRO,
+    NAME,
+    TOKEN,
+    XML,
+)
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement

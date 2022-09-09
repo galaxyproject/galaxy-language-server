@@ -1,12 +1,29 @@
-from typing import Dict, List, Optional
+from typing import (
+    Dict,
+    List,
+    Optional,
+)
 
 from anytree.search import findall
-from pygls.lsp.types import Position, Range
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
 from pygls.workspace import Document
 
-from .nodes import XmlContainerNode, XmlElement, XmlSyntaxNode
-from .types import DocumentType, NodeType
-from .utils import convert_document_offset_to_position, convert_document_offsets_to_range
+from .nodes import (
+    XmlContainerNode,
+    XmlElement,
+    XmlSyntaxNode,
+)
+from .types import (
+    DocumentType,
+    NodeType,
+)
+from .utils import (
+    convert_document_offset_to_position,
+    convert_document_offsets_to_range,
+)
 
 
 class XmlDocument(XmlSyntaxNode):

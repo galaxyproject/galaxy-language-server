@@ -1,7 +1,14 @@
 import pytest
-from galaxyls.services.xml.utils import convert_document_offset_to_position, convert_document_offsets_to_range
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
+
+from galaxyls.services.xml.utils import (
+    convert_document_offset_to_position,
+    convert_document_offsets_to_range,
+)
 from galaxyls.tests.unit.utils import TestUtils
-from pygls.lsp.types import Position, Range
 
 
 class TestXmlUtils:

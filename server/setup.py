@@ -1,8 +1,11 @@
 """Galaxy Language Server Setup"""
 
 import pathlib
-from setuptools import setup, find_packages
 
+from setuptools import (
+    find_packages,
+    setup,
+)
 
 PACKAGE_NAME = "galaxy-language-server"
 VERSION = "0.7.1"

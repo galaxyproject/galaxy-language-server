@@ -2,10 +2,15 @@
 best practices.
 """
 
-from lxml import etree
 from typing import List
 
-from pygls.lsp.types import DocumentFormattingParams, Position, Range, TextEdit
+from lxml import etree
+from pygls.lsp.types import (
+    DocumentFormattingParams,
+    Position,
+    Range,
+    TextEdit,
+)
 
 DEFAULT_INDENTATION = " " * 4
 

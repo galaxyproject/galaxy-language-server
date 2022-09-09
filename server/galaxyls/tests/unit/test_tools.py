@@ -1,10 +1,14 @@
 import pytest
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
+
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from galaxyls.tests.unit.sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
 from galaxyls.tests.unit.utils import TestUtils
-from pygls.lsp.types import Position, Range
 
 
 class TestGalaxyToolXmlDocumentClass:

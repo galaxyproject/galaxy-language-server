@@ -1,13 +1,29 @@
-from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Union, cast
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from typing import (
+    cast,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from galaxy.util import xml_macros
-from galaxyls.services.tools.constants import DASH, UNDERSCORE
+from lxml import etree
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
+from pygls.workspace import Document
+
+from galaxyls.services.tools.constants import (
+    DASH,
+    UNDERSCORE,
+)
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.types import GeneratedSnippetResult
-from lxml import etree
-from pygls.lsp.types import Position, Range
-from pygls.workspace import Document
 
 
 class SnippetGenerator(ABC):

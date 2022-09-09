@@ -1,11 +1,17 @@
 import abc
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
 from pygls.workspace import Workspace
 
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement
-from galaxyls.types import ReplaceTextRangeResult, TestSuiteInfoResult
+from galaxyls.types import (
+    ReplaceTextRangeResult,
+    TestSuiteInfoResult,
+)
 
 
 class ToolParamAttributeSorter(metaclass=abc.ABCMeta):

@@ -1,12 +1,19 @@
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
 from pygls.workspace import Workspace
+
 from galaxyls.services.tools.common import TestsDiscoveryService
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.validation import DocumentValidator
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
-from galaxyls.types import TestInfoResult, TestSuiteInfoResult
-from galaxyls.services.validation import DocumentValidator
+from galaxyls.types import (
+    TestInfoResult,
+    TestSuiteInfoResult,
+)
 
 
 class ToolTestsDiscoveryService(TestsDiscoveryService):

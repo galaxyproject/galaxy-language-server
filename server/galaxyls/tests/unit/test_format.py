@@ -1,9 +1,10 @@
-from galaxyls.services.format import GalaxyToolFormatService
 from pygls.lsp.types import (
     DocumentFormattingParams,
-    TextDocumentIdentifier,
     FormattingOptions,
+    TextDocumentIdentifier,
 )
+
+from galaxyls.services.format import GalaxyToolFormatService
 
 FAKE_INVALID_DOCUMENT = """
 <invalid> XML content

@@ -1,16 +1,34 @@
 from pathlib import Path
-from typing import Dict, List, Optional, cast
+from typing import (
+    cast,
+    Dict,
+    List,
+    Optional,
+)
 
 from anytree import find
-from pygls.lsp.types import Position, Range
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
 from pygls.workspace import Document
-from galaxyls.services.tools.constants import IMPORT, INPUTS, MACROS, OUTPUTS, TESTS, TOOL
-from galaxyls.services.tools.inputs import GalaxyToolInputTree
-from galaxyls.services.xml.nodes import XmlContainerNode, XmlElement
 
-from galaxyls.services.xml.types import DocumentType
+from galaxyls.services.tools.constants import (
+    IMPORT,
+    INPUTS,
+    MACROS,
+    OUTPUTS,
+    TESTS,
+    TOOL,
+)
+from galaxyls.services.tools.inputs import GalaxyToolInputTree
 from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.nodes import (
+    XmlContainerNode,
+    XmlElement,
+)
 from galaxyls.services.xml.parser import XmlDocumentParser
+from galaxyls.services.xml.types import DocumentType
 
 
 class GalaxyToolXmlDocument:

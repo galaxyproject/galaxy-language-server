@@ -1,7 +1,8 @@
 from galaxy.util import xml_macros
+from lxml import etree
+
 from galaxyls.services.format import DEFAULT_INDENTATION
 from galaxyls.types import GeneratedExpandedDocument
-from lxml import etree
 
 
 def remove_macros(xml_tree: etree._ElementTree) -> etree._ElementTree:

@@ -1,6 +1,17 @@
-from typing import List, Optional, Tuple, Union, cast
+from typing import (
+    cast,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 from anytree import PreOrderIter
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
+
 from galaxyls.services.tools.constants import (
     ARGUMENT,
     BOOLEAN,
@@ -29,7 +40,6 @@ from galaxyls.services.tools.inputs import (
     SectionInputNode,
 )
 from galaxyls.services.xml.nodes import XmlElement
-from pygls.lsp.types import Position, Range
 
 ARG_PLACEHOLDER = "TODO_argument"
 REPEAT_VAR = "item"

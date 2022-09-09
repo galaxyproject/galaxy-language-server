@@ -21,7 +21,10 @@ from .constants import (
     PI_END_CHAR_SEQ,
     QUOTE_CHARS,
 )
-from .types import ScannerState, TokenType
+from .types import (
+    ScannerState,
+    TokenType,
+)
 from .utils import MultiLineStream
 
 ERROR_UNEXPECTED_WHITESPACE = "Unexpected whitespace. Tag name must directly follow the open angle bracket."

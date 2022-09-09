@@ -1,11 +1,26 @@
 """ Type definitions for XSD processing.
 """
 
-from typing import Any, Dict, List, Optional, cast
+from typing import (
+    Any,
+    cast,
+    Dict,
+    List,
+    Optional,
+)
 
-from anytree import NodeMixin, RenderTree, Resolver, ResolverError, findall
+from anytree import (
+    findall,
+    NodeMixin,
+    RenderTree,
+    Resolver,
+    ResolverError,
+)
 from lxml import etree
-from pygls.lsp.types import MarkupContent, MarkupKind
+from pygls.lsp.types import (
+    MarkupContent,
+    MarkupKind,
+)
 
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 

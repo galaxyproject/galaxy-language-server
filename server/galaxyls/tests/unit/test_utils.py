@@ -1,6 +1,7 @@
 import pytest
-from galaxyls.tests.unit.utils import TestUtils
 from pygls.lsp.types.basic_structures import Position
+
+from galaxyls.tests.unit.utils import TestUtils
 
 
 @pytest.mark.parametrize(

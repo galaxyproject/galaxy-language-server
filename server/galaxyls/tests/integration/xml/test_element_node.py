@@ -1,4 +1,9 @@
-from typing import List, Tuple, cast
+from typing import (
+    cast,
+    List,
+    Tuple,
+)
+
 import pytest
 
 from galaxyls.services.xml.nodes import XmlElement

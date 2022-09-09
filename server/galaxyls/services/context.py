@@ -1,6 +1,10 @@
 """This module provides a service to determine position context inside an XML document."""
 
-from typing import List, Optional, cast
+from typing import (
+    cast,
+    List,
+    Optional,
+)
 
 from pygls.lsp.types import Range
 from pygls.workspace import Position
@@ -8,10 +12,16 @@ from pygls.workspace import Position
 from galaxyls.services.tools.constants import MACROS
 from galaxyls.services.xml.constants import UNDEFINED_OFFSET
 from galaxyls.services.xml.document import XmlDocument
-from galaxyls.services.xml.nodes import XmlElement, XmlSyntaxNode
+from galaxyls.services.xml.nodes import (
+    XmlElement,
+    XmlSyntaxNode,
+)
 from galaxyls.services.xml.types import NodeType
 from galaxyls.services.xml.utils import convert_document_offsets_to_range
-from galaxyls.services.xsd.types import XsdNode, XsdTree
+from galaxyls.services.xsd.types import (
+    XsdNode,
+    XsdTree,
+)
 
 
 class XmlContext:
