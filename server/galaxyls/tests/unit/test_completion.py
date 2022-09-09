@@ -1,11 +1,10 @@
-from typing import Optional, cast
+from typing import (
+    cast,
+    Optional,
+)
 
 import pytest
 from pytest_mock import MockerFixture
-
-from galaxyls.services.context import XmlContextService
-from galaxyls.services.definitions import DocumentDefinitionsProvider
-from galaxyls.services.xml.document import XmlDocument
 
 from galaxyls.services.completion import (
     AutoCloseTagResult,
@@ -20,7 +19,15 @@ from galaxyls.services.completion import (
     XsdNode,
     XsdTree,
 )
-from galaxyls.services.xml.nodes import XmlAttribute, XmlCDATASection, XmlContent, XmlElement
+from galaxyls.services.context import XmlContextService
+from galaxyls.services.definitions import DocumentDefinitionsProvider
+from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.nodes import (
+    XmlAttribute,
+    XmlCDATASection,
+    XmlContent,
+    XmlElement,
+)
 from galaxyls.tests.unit.utils import TestUtils
 
 

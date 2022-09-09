@@ -1,5 +1,11 @@
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Set,
+    Union,
+)
 from urllib.parse import urlparse
 
 from lxml import etree
@@ -20,9 +26,20 @@ from pygls.lsp.types import (
 from pygls.workspace import Workspace
 
 from galaxyls.services.format import GalaxyToolFormatService
-from galaxyls.services.tools.constants import DESCRIPTION, MACRO, MACROS, TOOL, XML, XREF
+from galaxyls.services.tools.constants import (
+    DESCRIPTION,
+    MACRO,
+    MACROS,
+    TOOL,
+    XML,
+    XREF,
+)
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
-from galaxyls.services.tools.macros import ImportedMacrosFile, MacroDefinitionsProvider, ToolMacroDefinitions
+from galaxyls.services.tools.macros import (
+    ImportedMacrosFile,
+    MacroDefinitionsProvider,
+    ToolMacroDefinitions,
+)
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement
 

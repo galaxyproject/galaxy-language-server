@@ -2,14 +2,24 @@
 information from the XSD schema.
 """
 
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
 from lxml import etree
-from pygls.lsp.types import Diagnostic, MarkupContent, MarkupKind
+from pygls.lsp.types import (
+    Diagnostic,
+    MarkupContent,
+    MarkupKind,
+)
 
 from galaxyls.services.context import XmlContext
 from galaxyls.services.xml.document import XmlDocument
-from galaxyls.services.xsd.constants import MSG_NO_DOCUMENTATION_AVAILABLE, TOOL_XSD_FILE
+from galaxyls.services.xsd.constants import (
+    MSG_NO_DOCUMENTATION_AVAILABLE,
+    TOOL_XSD_FILE,
+)
 from galaxyls.services.xsd.parser import GalaxyToolXsdParser
 from galaxyls.services.xsd.types import XsdBase
 from galaxyls.services.xsd.validation import GalaxyToolValidationService

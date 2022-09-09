@@ -1,11 +1,14 @@
-import pytest
-
 from typing import List
+
+import pytest
 from lxml import etree
 
-from .sample_data import TEST_XSD, RECURSIVE_XSD
-from ...services.xsd.parser import GalaxyToolXsdParser
 from ...services.xsd.constants import MSG_NO_DOCUMENTATION_AVAILABLE
+from ...services.xsd.parser import GalaxyToolXsdParser
+from .sample_data import (
+    RECURSIVE_XSD,
+    TEST_XSD,
+)
 
 
 @pytest.fixture(scope="module")

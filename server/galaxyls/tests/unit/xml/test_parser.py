@@ -1,12 +1,19 @@
 from typing import Optional
-from pygls.lsp.types import Position
 
 import pytest
+from pygls.lsp.types import Position
 from pygls.workspace import Document
 
-from ....services.xml.nodes import XmlAttribute, XmlCDATASection, XmlElement
+from ....services.xml.nodes import (
+    XmlAttribute,
+    XmlCDATASection,
+    XmlElement,
+)
 from ....services.xml.parser import XmlDocumentParser
-from ....services.xml.types import DocumentType, NodeType
+from ....services.xml.types import (
+    DocumentType,
+    NodeType,
+)
 from ..sample_data import (
     TEST_MACRO_01_DOCUMENT,
     TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT,

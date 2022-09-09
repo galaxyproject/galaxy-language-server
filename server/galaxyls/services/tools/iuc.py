@@ -1,4 +1,7 @@
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
 from galaxyls.services.tools.common import ToolParamAttributeSorter
 from galaxyls.services.tools.constants import (
@@ -18,7 +21,10 @@ from galaxyls.services.tools.constants import (
     VALUE,
 )
 from galaxyls.services.xml.document import XmlDocument
-from galaxyls.services.xml.nodes import XmlAttribute, XmlElement
+from galaxyls.services.xml.nodes import (
+    XmlAttribute,
+    XmlElement,
+)
 from galaxyls.services.xml.utils import convert_document_offsets_to_range
 from galaxyls.types import ReplaceTextRangeResult
 

@@ -1,12 +1,18 @@
-from typing import Dict, Optional, cast
-import pytest
-from pytest_mock import MockerFixture
+from typing import (
+    cast,
+    Dict,
+    Optional,
+)
 
-from pygls.workspace import Document, Workspace
+import pytest
+from pygls.workspace import (
+    Document,
+    Workspace,
+)
+from pytest_mock import MockerFixture
 
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 from galaxyls.tests.unit.utils import TestUtils
-
 
 TEST_DOCUMENTS = [
     "tool_with_tests_01.xml",

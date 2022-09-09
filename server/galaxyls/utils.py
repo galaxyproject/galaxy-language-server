@@ -1,4 +1,8 @@
-from typing import NamedTuple, Type, TypeVar
+from typing import (
+    NamedTuple,
+    Type,
+    TypeVar,
+)
 
 T = TypeVar("T")
 

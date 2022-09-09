@@ -1,8 +1,9 @@
 """This module contains constants related to XSD processing.
 """
 
-import galaxy.tool_util
 from pathlib import Path
+
+import galaxy.tool_util
 
 TOOL_XSD_FILE = Path(galaxy.tool_util.__file__).parent / "xsd" / "galaxy.xsd"
 

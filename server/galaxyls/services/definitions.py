@@ -1,7 +1,17 @@
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
-from pygls.lsp.types import Location, Position
-from galaxyls.services.tools.macros import MacroDefinitionsProvider, TokenDefinition
+from pygls.lsp.types import (
+    Location,
+    Position,
+)
+
+from galaxyls.services.tools.macros import (
+    MacroDefinitionsProvider,
+    TokenDefinition,
+)
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlContent
 

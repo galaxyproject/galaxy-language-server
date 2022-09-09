@@ -1,4 +1,16 @@
-from typing import List, Optional, Tuple, Union, cast
+from typing import (
+    cast,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
+
+from lxml import etree
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
 
 from galaxyls.services.tools.constants import (
     ARGUMENT,
@@ -20,6 +32,7 @@ from galaxyls.services.tools.constants import (
     HAS_TEXT,
     INPUTS,
     LINE,
+    N,
     NAME,
     OPTION,
     OUTPUT,
@@ -35,14 +48,16 @@ from galaxyls.services.tools.constants import (
     TOOL,
     TYPE,
     VALUE,
-    N,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.snippets import SnippetGenerator
-from galaxyls.services.tools.inputs import ConditionalInputNode, InputNode, RepeatInputNode, SectionInputNode
+from galaxyls.services.tools.inputs import (
+    ConditionalInputNode,
+    InputNode,
+    RepeatInputNode,
+    SectionInputNode,
+)
 from galaxyls.services.xml.nodes import XmlElement
-from lxml import etree
-from pygls.lsp.types import Position, Range
 
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (

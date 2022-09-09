@@ -1,15 +1,8 @@
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
-from galaxyls.services.definitions import DocumentDefinitionsProvider
-from galaxyls.services.macros import MacroExpanderService
-from galaxyls.services.tools.common import TestsDiscoveryService, ToolParamAttributeSorter
-from galaxyls.services.tools.document import GalaxyToolXmlDocument
-from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
-from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
-from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
-from galaxyls.services.tools.macros import MacroDefinitionsProvider
-from galaxyls.services.tools.refactor import RefactoringService, RefactorMacrosService
-from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 from pygls.lsp.types import (
     CodeAction,
     CodeActionParams,
@@ -24,11 +17,36 @@ from pygls.lsp.types import (
     Range,
     TextEdit,
 )
-from pygls.workspace import Document, Workspace
+from pygls.workspace import (
+    Document,
+    Workspace,
+)
 
+from galaxyls.services.definitions import DocumentDefinitionsProvider
+from galaxyls.services.macros import MacroExpanderService
+from galaxyls.services.tools.common import (
+    TestsDiscoveryService,
+    ToolParamAttributeSorter,
+)
+from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
+from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
+from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
+from galaxyls.services.tools.macros import MacroDefinitionsProvider
+from galaxyls.services.tools.refactor import (
+    RefactoringService,
+    RefactorMacrosService,
+)
+from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 from ..config import CompletionMode
-from ..types import GeneratedSnippetResult, ReplaceTextRangeResult
-from .completion import AutoCloseTagResult, XmlCompletionService
+from ..types import (
+    GeneratedSnippetResult,
+    ReplaceTextRangeResult,
+)
+from .completion import (
+    AutoCloseTagResult,
+    XmlCompletionService,
+)
 from .context import XmlContextService
 from .format import GalaxyToolFormatService
 from .xml.document import XmlDocument

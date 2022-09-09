@@ -1,12 +1,30 @@
-from typing import List, Optional, Tuple, cast
+from typing import (
+    cast,
+    List,
+    Optional,
+    Tuple,
+)
 
 import pytest
-from pygls.workspace import Position, Range
+from pygls.workspace import (
+    Position,
+    Range,
+)
 from pytest_mock import MockerFixture
 
-from galaxyls.services.context import XmlContext, XmlContextService, XsdNode, XsdTree
+from galaxyls.services.context import (
+    XmlContext,
+    XmlContextService,
+    XsdNode,
+    XsdTree,
+)
 from galaxyls.services.xml.document import XmlDocument
-from galaxyls.services.xml.nodes import XmlAttribute, XmlAttributeKey, XmlAttributeValue, XmlElement
+from galaxyls.services.xml.nodes import (
+    XmlAttribute,
+    XmlAttributeKey,
+    XmlAttributeValue,
+    XmlElement,
+)
 from galaxyls.services.xml.types import NodeType
 from galaxyls.tests.unit.utils import TestUtils
 

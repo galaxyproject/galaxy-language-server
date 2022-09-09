@@ -1,10 +1,14 @@
 from typing import cast
 
 import pytest
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
+
 from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
 from galaxyls.services.xml.nodes import XmlElement
 from galaxyls.tests.unit.utils import TestUtils
-from pygls.lsp.types import Position, Range
 
 
 class TestIUCToolParamAttributeSorterClass:

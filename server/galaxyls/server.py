@@ -1,6 +1,9 @@
 """Galaxy Tools Language Server implementation
 """
-from typing import List, Optional
+from typing import (
+    List,
+    Optional,
+)
 
 from pygls.lsp.methods import (
     CODE_ACTION,
@@ -16,9 +19,9 @@ from pygls.lsp.methods import (
 )
 from pygls.lsp.types import (
     CodeAction,
-    CodeActionParams,
     CodeActionKind,
     CodeActionOptions,
+    CodeActionParams,
     CompletionList,
     CompletionOptions,
     CompletionParams,
@@ -41,8 +44,14 @@ from pygls.lsp.types import (
 from pygls.server import LanguageServer
 from pygls.workspace import Document
 
-from galaxyls.config import CompletionMode, GalaxyToolsConfiguration
-from galaxyls.constants import SERVER_NAME, Commands
+from galaxyls.config import (
+    CompletionMode,
+    GalaxyToolsConfiguration,
+)
+from galaxyls.constants import (
+    Commands,
+    SERVER_NAME,
+)
 from galaxyls.services.language import GalaxyToolLanguageService
 from galaxyls.services.validation import DocumentValidator
 from galaxyls.services.xml.document import XmlDocument

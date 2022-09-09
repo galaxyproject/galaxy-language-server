@@ -1,9 +1,12 @@
-import pytest
-
 from typing import List
+
+import pytest
+from pygls.lsp.types import (
+    CompletionContext,
+    CompletionTriggerKind,
+)
 from pytest_mock import MockerFixture
 
-from pygls.lsp.types import CompletionContext, CompletionTriggerKind
 from galaxyls.services.completion import XmlCompletionService
 from galaxyls.services.context import XmlContextService
 from galaxyls.services.definitions import DocumentDefinitionsProvider

@@ -4,12 +4,22 @@ https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
 """
 
-from typing import Callable, List
+from typing import (
+    Callable,
+    List,
+)
 
-from pygls.lsp.types import Position, Range
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
 from pygls.workspace import Document
 
-from .constants import NEW_LINE, _LAN, WHITESPACE_CHARS
+from .constants import (
+    _LAN,
+    NEW_LINE,
+    WHITESPACE_CHARS,
+)
 
 
 def convert_document_offset_to_line(document: Document, offset: int) -> int:

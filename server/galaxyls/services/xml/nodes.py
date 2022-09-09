@@ -1,7 +1,17 @@
-from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple, cast
+from abc import (
+    ABC,
+    abstractmethod,
+)
+from typing import (
+    cast,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+)
 
 from anytree import NodeMixin
+
 from galaxyls.services.xml.constants import UNDEFINED_OFFSET
 from galaxyls.services.xml.types import NodeType
 

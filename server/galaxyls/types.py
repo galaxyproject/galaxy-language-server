@@ -1,9 +1,17 @@
 """This module contains shared types across all modules.
 """
 
-from typing import Any, List, Optional
+from typing import (
+    Any,
+    List,
+    Optional,
+)
+
 from pydantic.main import BaseModel
-from pygls.lsp.types import Position, Range
+from pygls.lsp.types import (
+    Position,
+    Range,
+)
 
 CommandParameters = List[Any]
 

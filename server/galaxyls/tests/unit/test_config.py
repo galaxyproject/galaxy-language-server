@@ -1,4 +1,7 @@
-from galaxyls.config import CompletionMode, GalaxyToolsConfiguration
+from galaxyls.config import (
+    CompletionMode,
+    GalaxyToolsConfiguration,
+)
 
 
 class TestGalaxyToolsConfigurationClass:

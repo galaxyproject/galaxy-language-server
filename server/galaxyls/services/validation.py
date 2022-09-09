@@ -1,6 +1,6 @@
 import re
-
 from typing import Optional
+
 from pygls.workspace import Document
 
 from galaxyls.services.xml.types import DocumentType
