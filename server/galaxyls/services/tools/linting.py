@@ -20,6 +20,8 @@ class GalaxyToolLinter(ToolLinter):
     def lint_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """ """
         result = []
+        if xml_document.is_macros_file:
+            return result
         xml_tree, _ = xml_macros.load_with_references(xml_document.document.path)
         try:
             tool_source = get_tool_source(xml_tree=xml_tree)
