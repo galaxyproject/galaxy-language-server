@@ -25,6 +25,11 @@ from .utils import (
     convert_document_offsets_to_range,
 )
 
+DEFAULT_RANGE = Range(
+    start=Position(line=0, character=0),
+    end=Position(line=0, character=0),
+)
+
 
 class XmlDocument(XmlSyntaxNode):
     """Represents a parsed XML document.
@@ -223,11 +228,8 @@ class XmlDocument(XmlSyntaxNode):
     def get_default_range(self) -> Range:
         """Gets the range of the root tag or the first character of the document if there is no root."""
         if self.root:
-            return self.get_element_name_range(self.root)
-        return Range(
-            start=Position(line=0, character=0),
-            end=Position(line=0, character=0),
-        )
+            return self.get_element_name_range(self.root) or DEFAULT_RANGE
+        return DEFAULT_RANGE
 
     def get_element_name_range_at_line(self, name: str, line_number: int) -> Range:
         """Gets the range of the element with the given tag name located at the given line number."""

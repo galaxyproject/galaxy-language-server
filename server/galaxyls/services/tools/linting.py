@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, cast
 from lxml import etree
 
 from galaxy.tool_util.lint import (
@@ -19,28 +19,25 @@ class GalaxyToolLinter(ToolLinter):
 
     def lint_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """ """
-        result = []
+        result: List[Diagnostic] = []
         if xml_document.is_macros_file:
             return result
         xml_tree, _ = xml_macros.load_with_references(xml_document.document.path)
-        try:
-            tool_source = get_tool_source(xml_tree=xml_tree)
-            lint_context = LintContext(level=LintLevel.SILENT, lint_message_class=XMLLintMessageXPath)
-            context = lint_tool_source_with(lint_context, tool_source)
-            result.extend(
-                [
-                    self._to_diagnostic(lint_message, xml_tree, xml_document, DiagnosticSeverity.Error)
-                    for lint_message in context.error_messages
-                ]
-            )
-            result.extend(
-                [
-                    self._to_diagnostic(lint_message, xml_tree, xml_document, DiagnosticSeverity.Warning)
-                    for lint_message in context.warn_messages
-                ]
-            )
-        except BaseException as e:
-            print(e)
+        tool_source = get_tool_source(xml_tree=xml_tree)
+        lint_context = LintContext(level=LintLevel.SILENT, lint_message_class=XMLLintMessageXPath)
+        context = lint_tool_source_with(lint_context, tool_source)
+        result.extend(
+            [
+                self._to_diagnostic(lint_message, xml_tree, xml_document, DiagnosticSeverity.Error)
+                for lint_message in context.error_messages
+            ]
+        )
+        result.extend(
+            [
+                self._to_diagnostic(lint_message, xml_tree, xml_document, DiagnosticSeverity.Warning)
+                for lint_message in context.warn_messages
+            ]
+        )
         return result
 
     def _to_diagnostic(
@@ -49,7 +46,7 @@ class GalaxyToolLinter(ToolLinter):
         xml_tree: etree._ElementTree,
         xml_document: XmlDocument,
         level: DiagnosticSeverity,
-    ) -> List[Diagnostic]:
+    ) -> Diagnostic:
         range = self._get_range_from_xpath(lint_message.xpath, xml_tree, xml_document)
         result = Diagnostic(
             range=range,
@@ -61,10 +58,7 @@ class GalaxyToolLinter(ToolLinter):
 
     def _get_range_from_xpath(self, xpath: str, xml_tree: etree._ElementTree, xml_document: XmlDocument) -> Range:
         result = None
-        try:
-            found = xml_tree.xpath(xpath)[0]
-            if found is not None:
-                result = xml_document.get_element_name_range_at_line(found.tag, found.sourceline - 1)
-        except BaseException as e:
-            print(e)
+        found = cast(list, xml_tree.xpath(xpath))[0]
+        if found is not None:
+            result = xml_document.get_element_name_range_at_line(found.tag, found.sourceline - 1)
         return result or xml_document.get_default_range()
