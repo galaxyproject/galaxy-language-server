@@ -11,10 +11,12 @@ from galaxy.tool_util.parser import get_tool_source
 from galaxy.util import xml_macros
 from galaxyls.services.tools.common import ToolLinter
 from galaxyls.services.xml.document import XmlDocument
-from pygls.lsp.types import Diagnostic, Range, Position, DiagnosticSeverity
+from pygls.lsp.types import Diagnostic, Range, DiagnosticSeverity
 
 
 class GalaxyToolLinter(ToolLinter):
+    diagnostics_source = "Galaxy Tool Linter"
+
     def lint_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """ """
         result = []
@@ -25,13 +27,13 @@ class GalaxyToolLinter(ToolLinter):
             context = lint_tool_source_with(lint_context, tool_source)
             result.extend(
                 [
-                    self._to_diagnostic(lint_message, xml_tree, DiagnosticSeverity.Error)
+                    self._to_diagnostic(lint_message, xml_tree, xml_document, DiagnosticSeverity.Error)
                     for lint_message in context.error_messages
                 ]
             )
             result.extend(
                 [
-                    self._to_diagnostic(lint_message, xml_tree, DiagnosticSeverity.Warning)
+                    self._to_diagnostic(lint_message, xml_tree, xml_document, DiagnosticSeverity.Warning)
                     for lint_message in context.warn_messages
                 ]
             )
@@ -43,29 +45,24 @@ class GalaxyToolLinter(ToolLinter):
         self,
         lint_message: XMLLintMessageXPath,
         xml_tree: etree._ElementTree,
+        xml_document: XmlDocument,
         level: DiagnosticSeverity,
     ) -> List[Diagnostic]:
-        range = self._get_range_from_xpath(lint_message.xpath, xml_tree)
+        range = self._get_range_from_xpath(lint_message.xpath, xml_tree, xml_document)
         result = Diagnostic(
             range=range,
             message=lint_message.message,
-            source="Galaxy Tool Linter",
+            source=self.diagnostics_source,
             severity=level,
         )
         return result
 
-    def _get_range_from_xpath(self, xpath: str, xml_tree: etree._ElementTree) -> Range:
+    def _get_range_from_xpath(self, xpath: str, xml_tree: etree._ElementTree, xml_document: XmlDocument) -> Range:
         result = None
         try:
             found = xml_tree.xpath(xpath)[0]
-            if found:
-                result = Range(
-                    start=Position(line=found.sourceline - 1, character=0),
-                    end=Position(line=found.sourceline - 1, character=0),
-                )
+            if found is not None:
+                result = xml_document.get_element_name_range_at_line(found.tag, found.sourceline - 1)
         except BaseException as e:
             print(e)
-        return result or Range(
-            start=Position(line=0, character=0),
-            end=Position(line=0, character=0),
-        )
+        return result or xml_document.get_default_range()
