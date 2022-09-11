@@ -5,6 +5,8 @@ from typing import (
 )
 
 from anytree.search import findall
+from galaxy.util import xml_macros
+from lxml import etree
 from pygls.lsp.types import (
     Position,
     Range,
@@ -44,6 +46,8 @@ class XmlDocument(XmlSyntaxNode):
             "tool": DocumentType.TOOL,
             "macros": DocumentType.MACROS,
         }
+        self._xml_tree: Optional[etree._ElementTree] = None
+        self._xml_tree_expanded: Optional[etree._ElementTree] = None
 
     @property
     def node_type(self) -> NodeType:
@@ -102,6 +106,40 @@ class XmlDocument(XmlSyntaxNode):
     def is_tool_file(self) -> bool:
         """Indicates if the document is a tool definition file."""
         return self.document_type == DocumentType.TOOL
+
+    @property
+    def xml_tree(self) -> Optional[etree._ElementTree]:
+        """Internal XML tree structure."""
+        if self._xml_tree is None:
+            try:
+                tree = etree.parse(self.document.path)
+                self._xml_tree = tree
+            except etree.XMLSyntaxError:
+                pass  # Invalid XML document
+        return self._xml_tree
+
+    @property
+    def xml_has_syntax_errors(self) -> bool:
+        return self.xml_tree is None
+
+    @property
+    def xml_tree_expanded(self) -> Optional[etree._ElementTree]:
+        """Internal XML tree structure after expanding macros.
+
+        If there are no macro definitions, it returns the same as `xml_tree` property."""
+        if self._xml_tree_expanded is None:
+            if self.uses_macros:
+                try:
+                    expanded_tool_tree, _ = xml_macros.load_with_references(self.document.path)
+                    self._xml_tree_expanded = expanded_tool_tree
+                except etree.XMLSyntaxError:
+                    pass  # Invalid XML document
+                except BaseException:
+                    pass  # TODO: Errors expanding macros should be catch during validation
+            if self._xml_tree_expanded is None:
+                # Fallback to the non-expanded version if something failed
+                self._xml_tree_expanded = self.xml_tree
+        return self._xml_tree_expanded
 
     def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
         """Gets the syntax node a the given offset."""
