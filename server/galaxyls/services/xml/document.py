@@ -1,4 +1,6 @@
 from typing import (
+    Any,
+    cast,
     Dict,
     List,
     Optional,
@@ -269,12 +271,31 @@ class XmlDocument(XmlSyntaxNode):
             return self.get_element_name_range(self.root) or DEFAULT_RANGE
         return DEFAULT_RANGE
 
-    def get_element_name_range_at_line(self, name: str, line_number: int) -> Range:
-        """Gets the range of the element with the given tag name located at the given line number."""
-        line_text = self.document.lines[line_number]
-        start = line_text.index(f"<{name}") + 1
-        end = start + len(name)
-        return Range(
-            start=Position(line=line_number, character=start),
-            end=Position(line=line_number, character=end),
-        )
+    def get_element_range_from_xpath(self, xpath: Optional[str]) -> Range:
+        if xpath is None or self.xml_tree is None:
+            return self.get_default_range()
+        element: Any = self.xml_tree.xpath(xpath)
+        if element is not None:
+            if isinstance(element, list):
+                element = cast(list, element)
+                if not len(element) and self.uses_macros:
+                    # We can't determine the exact element inside the macros, assign the range
+                    # to the macros element for now
+                    return self.get_element_range_from_xpath("/tool/macros")
+                element = element[0]
+
+            line_number = element.sourceline - 1
+            line_text = self.document.lines[line_number]
+            if isinstance(element, etree._Comment):
+                text = cast(str, element.text)
+                start = line_text.index(f"{text}")
+                end = start + len(text)
+            else:
+                # Prepend '<' for searching tag names
+                start = line_text.index(f"<{element.tag}") + 1
+                end = start + len(element.tag)
+            return Range(
+                start=Position(line=line_number, character=start),
+                end=Position(line=line_number, character=end),
+            )
+        return self.get_default_range()
