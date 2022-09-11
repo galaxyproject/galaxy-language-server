@@ -4,6 +4,7 @@ from typing import (
     Optional,
 )
 
+from pygls.lsp.types import Diagnostic
 from pygls.workspace import Workspace
 
 from galaxyls.services.xml.document import XmlDocument
@@ -40,4 +41,13 @@ class TestsDiscoveryService(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def discover_tests_in_document(self, xml_document: XmlDocument) -> Optional[TestSuiteInfoResult]:
+        raise NotImplementedError
+
+
+class ToolLinter(metaclass=abc.ABCMeta):
+    """Interface class for linting tool documents."""
+
+    @abc.abstractmethod
+    def lint_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
+        """Returns a list of diagnostics with all the issues found in the given document."""
         raise NotImplementedError

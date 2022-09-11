@@ -32,6 +32,7 @@ from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
 from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
 from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
+from galaxyls.services.tools.linting import GalaxyToolLinter
 from galaxyls.services.tools.macros import MacroDefinitionsProvider
 from galaxyls.services.tools.refactor import (
     RefactoringService,
@@ -69,6 +70,7 @@ class GalaxyToolLanguageService:
         self.test_discovery_service: TestsDiscoveryService = ToolTestsDiscoveryService()
         self.macro_expander = MacroExpanderService()
         self.refactoring_service: Optional[RefactoringService] = None
+        self.linter = GalaxyToolLinter()
 
     def set_workspace(self, workspace: Workspace) -> None:
         macro_definitions_provider = MacroDefinitionsProvider(workspace)
@@ -82,7 +84,7 @@ class GalaxyToolLanguageService:
         """Validates the Galaxy tool XML document and returns a list
         of diagnostics if there are any problems.
         """
-        return self.xsd_service.validate_document(xml_document)
+        return self.xsd_service.validate_document(xml_document) + self.linter.lint_document(xml_document)
 
     def get_documentation(self, xml_document: XmlDocument, position: Position) -> Optional[Hover]:
         """Gets the documentation about the element at the given position."""
