@@ -18,7 +18,7 @@ from galaxyls.tests.unit.utils import TestUtils
 
 @pytest.fixture()
 def galaxy_xsd_tree() -> XsdTree:
-    xsd_service = GalaxyToolXsdService("Integration Tests")
+    xsd_service = GalaxyToolXsdService()
     tree = xsd_service.xsd_parser.get_tree()
     return tree
 

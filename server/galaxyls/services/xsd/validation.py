@@ -27,12 +27,13 @@ from galaxyls.services.xml.document import XmlDocument
 EXPAND_DOCUMENT_URI_SUFFIX = "%20%28Expanded%29"
 
 
-class GalaxyToolValidationService:
+class GalaxyToolSchemaValidationService:
     """Service providing diagnostics for errors in the XML validation."""
 
-    def __init__(self, server_name: str, xsd_schema: etree.XMLSchema):
+    diagnostics_source = "Galaxy Schema Validator"
+
+    def __init__(self, xsd_schema: etree.XMLSchema):
         """Initializes the validator"""
-        self.server_name = server_name
         self.xsd_schema = xsd_schema
 
     def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
@@ -148,7 +149,7 @@ class GalaxyToolValidationService:
                     end=Position(line=error.line - 1, character=error.column),
                 ),
                 message=error.message,
-                source=self.server_name,
+                source=self.diagnostics_source,
             )
             diagnostics.append(result)
         return diagnostics
@@ -168,7 +169,7 @@ class GalaxyToolValidationService:
                 end=Position(line=error.lineno - 1, character=error.position[1] - 1),
             ),
             message=error.msg,
-            source=self.server_name,
+            source=self.diagnostics_source,
         )
         return [result]
 
@@ -176,7 +177,7 @@ class GalaxyToolValidationService:
         result = Diagnostic(
             range=tool.get_import_macro_file_range(syntax_error.filename),
             message=syntax_error.msg,
-            source=self.server_name,
+            source=self.diagnostics_source,
             related_information=[
                 DiagnosticRelatedInformation(
                     message="Syntax error found on imported file.",
@@ -198,7 +199,7 @@ class GalaxyToolValidationService:
             Diagnostic(
                 range=tool.get_macros_range(),
                 message=error.message,
-                source=self.server_name,
+                source=self.diagnostics_source,
                 code=DiagnosticCodes.INVALID_EXPANDED_TOOL,
                 related_information=[
                     DiagnosticRelatedInformation(

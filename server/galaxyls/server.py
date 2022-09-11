@@ -48,10 +48,7 @@ from galaxyls.config import (
     CompletionMode,
     GalaxyToolsConfiguration,
 )
-from galaxyls.constants import (
-    Commands,
-    SERVER_NAME,
-)
+from galaxyls.constants import Commands
 from galaxyls.services.language import GalaxyToolLanguageService
 from galaxyls.services.validation import DocumentValidator
 from galaxyls.services.xml.document import XmlDocument
@@ -72,7 +69,7 @@ class GalaxyToolsLanguageServer(LanguageServer):
 
     def __init__(self) -> None:
         super().__init__()
-        self.service = GalaxyToolLanguageService(SERVER_NAME)
+        self.service = GalaxyToolLanguageService()
         self.configuration: GalaxyToolsConfiguration = GalaxyToolsConfiguration()
 
 
