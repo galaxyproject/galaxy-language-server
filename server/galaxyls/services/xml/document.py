@@ -271,19 +271,19 @@ class XmlDocument(XmlSyntaxNode):
             return self.get_element_name_range(self.root) or DEFAULT_RANGE
         return DEFAULT_RANGE
 
-    def get_element_range_from_xpath(self, xpath: Optional[str]) -> Range:
+    def get_element_from_xpath(self, xpath: Optional[str]) -> Optional[Any]:
         if xpath is None or self.xml_tree is None:
-            return self.get_default_range()
+            return None
         element: Any = self.xml_tree.xpath(xpath)
         if element is not None:
             if isinstance(element, list):
                 element = cast(list, element)
-                if not len(element) and self.uses_macros:
-                    # We can't determine the exact element inside the macros, assign the range
-                    # to the macros element for now
-                    return self.get_element_range_from_xpath("/tool/macros")
-                element = element[0]
+                if len(element) > 0:
+                    return element[0]
+        return None
 
+    def get_internal_element_range(self, element: Optional[Any]) -> Range:
+        if element is not None:
             line_number = element.sourceline - 1
             line_text = self.document.lines[line_number]
             if isinstance(element, etree._Comment):
@@ -299,3 +299,7 @@ class XmlDocument(XmlSyntaxNode):
                 end=Position(line=line_number, character=end),
             )
         return self.get_default_range()
+
+    def get_element_range_from_xpath(self, xpath: Optional[str]) -> Range:
+        element = self.get_element_from_xpath(xpath)
+        return self.get_internal_element_range(element)
