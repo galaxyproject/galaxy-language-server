@@ -271,10 +271,10 @@ class XmlDocument(XmlSyntaxNode):
             return self.get_element_name_range(self.root) or DEFAULT_RANGE
         return DEFAULT_RANGE
 
-    def get_element_from_xpath(self, xpath: Optional[str]) -> Optional[Any]:
-        if xpath is None or self.xml_tree is None:
+    def get_tree_element_from_xpath(self, tree, xpath: Optional[str]) -> Optional[Any]:
+        if xpath is None or tree is None:
             return None
-        element: Any = self.xml_tree.xpath(xpath)
+        element: Any = tree.xpath(xpath)
         if element is not None:
             if isinstance(element, list):
                 element = cast(list, element)
@@ -282,7 +282,10 @@ class XmlDocument(XmlSyntaxNode):
                     return element[0]
         return None
 
-    def get_internal_element_range(self, element: Optional[Any]) -> Range:
+    def get_element_from_xpath(self, xpath: Optional[str]) -> Optional[Any]:
+        return self.get_tree_element_from_xpath(self.xml_tree, xpath)
+
+    def get_internal_element_range_or_default(self, element: Optional[Any]) -> Range:
         if element is not None:
             line_number = element.sourceline - 1
             line_text = self.document.lines[line_number]
@@ -300,6 +303,6 @@ class XmlDocument(XmlSyntaxNode):
             )
         return self.get_default_range()
 
-    def get_element_range_from_xpath(self, xpath: Optional[str]) -> Range:
+    def get_element_range_from_xpath_or_default(self, xpath: Optional[str]) -> Range:
         element = self.get_element_from_xpath(xpath)
-        return self.get_internal_element_range(element)
+        return self.get_internal_element_range_or_default(element)

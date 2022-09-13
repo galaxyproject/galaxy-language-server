@@ -48,7 +48,7 @@ class GalaxyToolLinter(ToolLinter):
         xml_document: XmlDocument,
         level: DiagnosticSeverity,
     ) -> Diagnostic:
-        range = xml_document.get_element_range_from_xpath(lint_message.xpath)
+        range = xml_document.get_element_range_from_xpath_or_default(lint_message.xpath)
         result = Diagnostic(
             range=range,
             message=lint_message.message,
