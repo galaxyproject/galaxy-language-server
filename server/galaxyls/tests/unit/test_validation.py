@@ -5,11 +5,9 @@ from galaxyls.services.validation import DocumentValidator
 from ...services.xsd.constants import TOOL_XSD_FILE
 from ...services.xsd.validation import GalaxyToolSchemaValidationService
 from .sample_data import (
-    TEST_INVALID_TOOL_01_DOCUMENT,
     TEST_MACRO_01_DOCUMENT,
     TEST_SYNTAX_ERROR_MACRO_01_DOCUMENT,
     TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT,
-    TEST_TOOL_01_DOCUMENT,
 )
 from .utils import TestUtils
 
@@ -24,7 +22,7 @@ def xsd_schema() -> etree.XMLSchema:
 class TestGalaxyToolValidationServiceClass:
     def test_validate_document_returns_empty_diagnostics_when_valid(self, xsd_schema: etree.XMLSchema) -> None:
         service = GalaxyToolSchemaValidationService(xsd_schema)
-        xml_document = TestUtils.from_document_to_xml_document(TEST_TOOL_01_DOCUMENT)
+        xml_document = TestUtils.get_test_xml_document_from_file("test_tool_01.xml")
 
         actual = service.validate_document(xml_document)
 
@@ -40,7 +38,7 @@ class TestGalaxyToolValidationServiceClass:
 
     def test_validate_document_returns_diagnostics_when_invalid(self, xsd_schema: etree.XMLSchema) -> None:
         service = GalaxyToolSchemaValidationService(xsd_schema)
-        xml_document = TestUtils.from_document_to_xml_document(TEST_INVALID_TOOL_01_DOCUMENT)
+        xml_document = TestUtils.get_test_xml_document_from_file("test_invalid_tool_01.xml")
 
         actual = service.validate_document(xml_document)
 
