@@ -2,12 +2,8 @@
 """
 
 from pathlib import Path
-from typing import (
-    List,
-    Optional,
-)
+from typing import List
 
-from galaxy.util import xml_macros
 from lxml import etree
 from pygls.lsp.types import (
     Diagnostic,
@@ -16,23 +12,21 @@ from pygls.lsp.types import (
     Position,
     Range,
 )
-from pygls.workspace import Document
 
 from galaxyls.constants import DiagnosticCodes
-from galaxyls.services.format import DEFAULT_INDENTATION
-from galaxyls.services.macros import remove_macros
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.document import XmlDocument
 
 EXPAND_DOCUMENT_URI_SUFFIX = "%20%28Expanded%29"
 
 
-class GalaxyToolValidationService:
+class GalaxyToolSchemaValidationService:
     """Service providing diagnostics for errors in the XML validation."""
 
-    def __init__(self, server_name: str, xsd_schema: etree.XMLSchema):
+    diagnostics_source = "Galaxy Schema Validator"
+
+    def __init__(self, xsd_schema: etree.XMLSchema):
         """Initializes the validator"""
-        self.server_name = server_name
         self.xsd_schema = xsd_schema
 
     def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
@@ -47,23 +41,20 @@ class GalaxyToolValidationService:
             List[Diagnostic]: The list of issues found in the document.
         """
 
-        syntax_errors = self._check_syntax(xml_document.document)
+        syntax_errors = self._check_syntax(xml_document)
         if syntax_errors:
             return syntax_errors
 
         if not xml_document.is_tool_file:
             return []
-        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         try:
-            xml_tree = etree.fromstring(tool.source)
-            return self._validate_tree(xml_tree)
+            return self._validate(xml_document)
         except ExpandMacrosFoundException:
-            result = self._validate_expanded(tool)
-            return result
+            return self._validate_expanded(xml_document)
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
 
-    def _check_syntax(self, document: Document) -> List[Diagnostic]:
+    def _check_syntax(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Check if the XML document contains any syntax error and returns it in a list.
 
         Args:
@@ -73,12 +64,12 @@ class GalaxyToolValidationService:
             List[Diagnostic]: The list containing the syntax error found or an empty list.
         """
         try:
-            etree.fromstring(document.source)
+            etree.fromstring(xml_document.document.source)
             return []
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
 
-    def _validate_expanded(self, tool: GalaxyToolXmlDocument) -> List[Diagnostic]:
+    def _validate_expanded(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the document after loading all the macros referenced and expands them.
 
         Args:
@@ -89,39 +80,31 @@ class GalaxyToolValidationService:
             List[Diagnostic]: [description]
         """
         try:
-            expanded_tool_tree, _ = xml_macros.load_with_references(tool.path)
-            expanded_xml = remove_macros(expanded_tool_tree)
-            root = expanded_xml.getroot()
-            etree.indent(root, space=DEFAULT_INDENTATION)
-            content = etree.tostring(root, pretty_print=True, encoding=str)
-            formatted_xml = etree.fromstring(content)
-            self.xsd_schema.assertValid(formatted_xml)
+            if xml_document.xml_tree_expanded:
+                self.xsd_schema.assertValid(xml_document.xml_tree_expanded)
             return []
         except etree.DocumentInvalid as e:
-            diagnostics = self._build_diagnostics_for_expanded_macros(tool, e)
-            return diagnostics
+            return self._build_diagnostics_for_expanded_macros(xml_document, e)
 
         except etree.XMLSyntaxError as e:
-            return self._build_diagnostics_for_macros_file_syntax_error(tool, e)
+            return self._build_diagnostics_for_macros_file_syntax_error(xml_document, e)
 
-    def _validate_tree(self, xml_tree) -> List[Diagnostic]:
-        """Validates an XML tree against the XSD schema.
+        except AssertionError as e:
+            return self._build_diagnostics_for_assertion_error(xml_document, e)
 
-        Args:
-            xml_tree (etree.ElementTree): The root element
-
+    def _validate(self, xml_document: XmlDocument) -> List[Diagnostic]:
+        """Validates an XML document against the XSD schema.
         Returns:
             List[Diagnostic]: The diagnosis results
         """
         try:
-            self.xsd_schema.assertValid(xml_tree)
+            if xml_document.xml_tree:
+                self.xsd_schema.assertValid(xml_document.xml_tree)
             return []
         except etree.DocumentInvalid as e:
-            return self._build_diagnostics(e.error_log, xml_tree)
+            return self._build_diagnostics(e.error_log, xml_document)
 
-    def _build_diagnostics(
-        self, error_log: etree._ListErrorLog, xml_tree: Optional[etree._ElementTree] = None
-    ) -> List[Diagnostic]:
+    def _build_diagnostics(self, error_log: etree._ListErrorLog, xml_document: XmlDocument) -> List[Diagnostic]:
         """Gets a list of diagnostics from the XSD validation error log.
 
         Args:
@@ -140,15 +123,13 @@ class GalaxyToolValidationService:
         diagnostics = []
         for error in error_log.filter_from_errors():
             if "expand" in error.message:
-                raise ExpandMacrosFoundException(xml_tree)
+                raise ExpandMacrosFoundException()
 
+            range = xml_document.get_element_range_from_xpath_or_default(error.path)
             result = Diagnostic(
-                range=Range(
-                    start=Position(line=error.line - 1, character=error.column),
-                    end=Position(line=error.line - 1, character=error.column),
-                ),
+                range=range,
                 message=error.message,
-                source=self.server_name,
+                source=self.diagnostics_source,
             )
             diagnostics.append(result)
         return diagnostics
@@ -168,15 +149,16 @@ class GalaxyToolValidationService:
                 end=Position(line=error.lineno - 1, character=error.position[1] - 1),
             ),
             message=error.msg,
-            source=self.server_name,
+            source=self.diagnostics_source,
         )
         return [result]
 
-    def _build_diagnostics_for_macros_file_syntax_error(self, tool: GalaxyToolXmlDocument, syntax_error) -> List[Diagnostic]:
+    def _build_diagnostics_for_macros_file_syntax_error(self, xml_document: XmlDocument, syntax_error) -> List[Diagnostic]:
+        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         result = Diagnostic(
             range=tool.get_import_macro_file_range(syntax_error.filename),
             message=syntax_error.msg,
-            source=self.server_name,
+            source=self.diagnostics_source,
             related_information=[
                 DiagnosticRelatedInformation(
                     message="Syntax error found on imported file.",
@@ -192,15 +174,15 @@ class GalaxyToolValidationService:
         )
         return [result]
 
-    def _build_diagnostics_for_expanded_macros(self, tool: GalaxyToolXmlDocument, invalid_document_error) -> List[Diagnostic]:
-        virtual_uri = tool.xml_document.document.uri.replace("file", "gls-expand")
-        diagnostics = [
-            Diagnostic(
-                range=tool.get_macros_range(),
-                message=error.message,
-                source=self.server_name,
-                code=DiagnosticCodes.INVALID_EXPANDED_TOOL,
-                related_information=[
+    def _build_diagnostics_for_expanded_macros(self, xml_document: XmlDocument, invalid_document_error) -> List[Diagnostic]:
+        virtual_uri = xml_document.document.uri.replace("file", "gls-expand")
+        diagnostics = []
+        for error in invalid_document_error.error_log.filter_from_errors():
+            related_info: List[DiagnosticRelatedInformation] = []
+            elem_in_main_doc = xml_document.get_element_from_xpath(error.path)
+            if elem_in_main_doc is None:
+                elem_in_main_doc = xml_document.get_element_from_xpath("/tool/macros")
+                related_info = [
                     DiagnosticRelatedInformation(
                         message=(
                             "The validation error ocurred on the expanded version of "
@@ -215,11 +197,24 @@ class GalaxyToolValidationService:
                             ),
                         ),
                     )
-                ],
+                ]
+            result = Diagnostic(
+                range=xml_document.get_internal_element_range_or_default(elem_in_main_doc),
+                message=error.message,
+                source=self.diagnostics_source,
+                code=DiagnosticCodes.INVALID_EXPANDED_TOOL,
+                related_information=related_info,
             )
-            for error in invalid_document_error.error_log.filter_from_errors()
-        ]
+            diagnostics.append(result)
         return diagnostics
+
+    def _build_diagnostics_for_assertion_error(self, xml_document: XmlDocument, error: AssertionError) -> List[Diagnostic]:
+        result = Diagnostic(
+            range=xml_document.get_default_range(),
+            message=str(error),
+            source=self.diagnostics_source,
+        )
+        return [result]
 
 
 class ExpandMacrosFoundException(Exception):

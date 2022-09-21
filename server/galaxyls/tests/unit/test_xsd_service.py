@@ -6,7 +6,7 @@ from ...services.xsd.service import GalaxyToolXsdService
 
 class TestGalaxyToolXsdServiceClass:
     def test_get_documentation_for_unknown_node_attribute_returns_no_documentation(self, mocker: MockerFixture) -> None:
-        service = GalaxyToolXsdService("Test")
+        service = GalaxyToolXsdService()
         fake_context = mocker.Mock()
         fake_context.xsd_element = None
 
@@ -15,7 +15,7 @@ class TestGalaxyToolXsdServiceClass:
         assert doc.value == MSG_NO_DOCUMENTATION_AVAILABLE
 
     def test_get_documentation_for_annotated_element(self, mocker: MockerFixture) -> None:
-        service = GalaxyToolXsdService("Test")
+        service = GalaxyToolXsdService()
         fake_context = mocker.Mock()
         fake_context.is_tag = True
         fake_context.is_attribute_key = False
@@ -27,7 +27,7 @@ class TestGalaxyToolXsdServiceClass:
         assert doc.value != MSG_NO_DOCUMENTATION_AVAILABLE
 
     def test_get_documentation_for_element_using_annotated_type(self, mocker: MockerFixture) -> None:
-        service = GalaxyToolXsdService("Test")
+        service = GalaxyToolXsdService()
         fake_context = mocker.Mock()
         fake_context.is_tag = True
         fake_context.is_attribute_key = False
@@ -39,7 +39,7 @@ class TestGalaxyToolXsdServiceClass:
         assert doc.value != MSG_NO_DOCUMENTATION_AVAILABLE
 
     def test_get_documentation_for_annotated_attribute(self, mocker: MockerFixture) -> None:
-        service = GalaxyToolXsdService("Test")
+        service = GalaxyToolXsdService()
         fake_context = mocker.Mock()
         fake_context.is_tag = False
         fake_context.is_attribute_key = True

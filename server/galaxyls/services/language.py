@@ -61,8 +61,8 @@ class GalaxyToolLanguageService:
     by the LSP.
     """
 
-    def __init__(self, server_name: str) -> None:
-        self.xsd_service = GalaxyToolXsdService(server_name)
+    def __init__(self) -> None:
+        self.xsd_service = GalaxyToolXsdService()
         self.format_service = GalaxyToolFormatService()
         self.xsd_tree = self.xsd_service.xsd_parser.get_tree()
         self.xml_context_service = XmlContextService(self.xsd_tree)
@@ -81,9 +81,7 @@ class GalaxyToolLanguageService:
         )
 
     def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
-        """Validates the Galaxy tool XML document and returns a list
-        of diagnostics if there are any problems.
-        """
+        """Validates the Galaxy tool XML document and returns a list of diagnostics if there are any problems."""
         return self.xsd_service.validate_document(xml_document) + self.linter.lint_document(xml_document)
 
     def get_documentation(self, xml_document: XmlDocument, position: Position) -> Optional[Hover]:
@@ -105,9 +103,7 @@ class GalaxyToolLanguageService:
         return None
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
-        """Given the document contents returns the list of TextEdits
-        needed to properly format and layout the document.
-        """
+        """Given the document contents returns the list of TextEdits needed to properly format and layout the document."""
         return self.format_service.format(content, params)
 
     def get_completion(

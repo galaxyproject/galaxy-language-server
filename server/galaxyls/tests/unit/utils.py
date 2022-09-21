@@ -89,6 +89,12 @@ class TestUtils:
         return Document(uri)
 
     @staticmethod
+    def get_test_xml_document_from_file(filename: str) -> XmlDocument:
+        """Gets a parsed XML document from the tests/files directory."""
+        document = TestUtils.get_test_document_from_file(filename)
+        return TestUtils.from_document_to_xml_document(document)
+
+    @staticmethod
     def get_test_file_contents(filename: str) -> str:
         """Gets a the text contents of the given filename within the tests/files directory.
 

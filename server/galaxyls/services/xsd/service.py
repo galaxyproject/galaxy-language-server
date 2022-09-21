@@ -22,7 +22,7 @@ from galaxyls.services.xsd.constants import (
 )
 from galaxyls.services.xsd.parser import GalaxyToolXsdParser
 from galaxyls.services.xsd.types import XsdBase
-from galaxyls.services.xsd.validation import GalaxyToolValidationService
+from galaxyls.services.xsd.validation import GalaxyToolSchemaValidationService
 
 NO_DOC_MARKUP = MarkupContent(kind=MarkupKind.Markdown, value=MSG_NO_DOCUMENTATION_AVAILABLE)
 
@@ -34,13 +34,12 @@ class GalaxyToolXsdService:
     the XSD schema and validate XML files against it.
     """
 
-    def __init__(self, server_name: str) -> None:
+    def __init__(self) -> None:
         """Initializes the validator by loading the XSD."""
-        self.server_name = server_name
         self.xsd_doc: etree._ElementTree = etree.parse(str(TOOL_XSD_FILE))
         self.xsd_schema = etree.XMLSchema(self.xsd_doc)
         self.xsd_parser = GalaxyToolXsdParser(self.xsd_doc.getroot())
-        self.validator = GalaxyToolValidationService(server_name, self.xsd_schema)
+        self.validator = GalaxyToolSchemaValidationService(self.xsd_schema)
 
     def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list

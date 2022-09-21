@@ -1,10 +1,14 @@
 from typing import (
+    Any,
+    cast,
     Dict,
     List,
     Optional,
 )
 
 from anytree.search import findall
+from galaxy.util import xml_macros
+from lxml import etree
 from pygls.lsp.types import (
     Position,
     Range,
@@ -44,6 +48,8 @@ class XmlDocument(XmlSyntaxNode):
             "tool": DocumentType.TOOL,
             "macros": DocumentType.MACROS,
         }
+        self._xml_tree: Optional[etree._ElementTree] = None
+        self._xml_tree_expanded: Optional[etree._ElementTree] = None
 
     @property
     def node_type(self) -> NodeType:
@@ -102,6 +108,40 @@ class XmlDocument(XmlSyntaxNode):
     def is_tool_file(self) -> bool:
         """Indicates if the document is a tool definition file."""
         return self.document_type == DocumentType.TOOL
+
+    @property
+    def xml_tree(self) -> Optional[etree._ElementTree]:
+        """Internal XML tree structure."""
+        if self._xml_tree is None:
+            try:
+                tree = etree.parse(self.document.path)
+                self._xml_tree = tree
+            except etree.XMLSyntaxError:
+                pass  # Invalid XML document
+        return self._xml_tree
+
+    @property
+    def xml_has_syntax_errors(self) -> bool:
+        return self.xml_tree is None
+
+    @property
+    def xml_tree_expanded(self) -> Optional[etree._ElementTree]:
+        """Internal XML tree structure after expanding macros.
+
+        If there are no macro definitions, it returns the same as `xml_tree` property."""
+        if self._xml_tree_expanded is None:
+            if self.uses_macros:
+                try:
+                    expanded_tool_tree, _ = xml_macros.load_with_references(self.document.path)
+                    self._xml_tree_expanded = expanded_tool_tree
+                except etree.XMLSyntaxError:
+                    pass  # Invalid XML document
+                except BaseException:
+                    pass  # TODO: Errors expanding macros should be catch during validation
+            if self._xml_tree_expanded is None:
+                # Fallback to the non-expanded version if something failed
+                self._xml_tree_expanded = self.xml_tree
+        return self._xml_tree_expanded
 
     def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
         """Gets the syntax node a the given offset."""
@@ -231,12 +271,38 @@ class XmlDocument(XmlSyntaxNode):
             return self.get_element_name_range(self.root) or DEFAULT_RANGE
         return DEFAULT_RANGE
 
-    def get_element_name_range_at_line(self, name: str, line_number: int) -> Range:
-        """Gets the range of the element with the given tag name located at the given line number."""
-        line_text = self.document.lines[line_number]
-        start = line_text.index(f"<{name}") + 1
-        end = start + len(name)
-        return Range(
-            start=Position(line=line_number, character=start),
-            end=Position(line=line_number, character=end),
-        )
+    def get_tree_element_from_xpath(self, tree, xpath: Optional[str]) -> Optional[Any]:
+        if xpath is None or tree is None:
+            return None
+        element: Any = tree.xpath(xpath)
+        if element is not None:
+            if isinstance(element, list):
+                element = cast(list, element)
+                if len(element) > 0:
+                    return element[0]
+        return None
+
+    def get_element_from_xpath(self, xpath: Optional[str]) -> Optional[Any]:
+        return self.get_tree_element_from_xpath(self.xml_tree, xpath)
+
+    def get_internal_element_range_or_default(self, element: Optional[Any]) -> Range:
+        if element is not None:
+            line_number = element.sourceline - 1
+            line_text = self.document.lines[line_number]
+            if isinstance(element, etree._Comment):
+                text = cast(str, element.text)
+                start = line_text.index(f"{text}")
+                end = start + len(text)
+            else:
+                # Prepend '<' for searching tag names
+                start = line_text.index(f"<{element.tag}") + 1
+                end = start + len(element.tag)
+            return Range(
+                start=Position(line=line_number, character=start),
+                end=Position(line=line_number, character=end),
+            )
+        return self.get_default_range()
+
+    def get_element_range_from_xpath_or_default(self, xpath: Optional[str]) -> Range:
+        element = self.get_element_from_xpath(xpath)
+        return self.get_internal_element_range_or_default(element)
