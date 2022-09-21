@@ -1,12 +1,11 @@
 from typing import List
 
 from galaxy.tool_util.lint import (
-    lint_tool_source_with,
+    lint_xml_with,
     LintContext,
     LintLevel,
     XMLLintMessageXPath,
 )
-from galaxy.tool_util.parser import get_tool_source
 from pygls.lsp.types import (
     Diagnostic,
     DiagnosticSeverity,
@@ -25,9 +24,8 @@ class GalaxyToolLinter(ToolLinter):
         xml_tree = xml_document.xml_tree_expanded
         if not xml_document.is_tool_file or xml_tree is None:
             return result
-        tool_source = get_tool_source(xml_tree=xml_tree)
         lint_context = LintContext(level=LintLevel.SILENT, lint_message_class=XMLLintMessageXPath)
-        context = lint_tool_source_with(lint_context, tool_source)
+        context = lint_xml_with(lint_context, xml_tree)
         result.extend(
             [
                 self._to_diagnostic(lint_message, xml_document, DiagnosticSeverity.Error)
