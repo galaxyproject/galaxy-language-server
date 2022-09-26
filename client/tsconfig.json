@@ -4,7 +4,10 @@
         "module": "commonjs",
         "sourceMap": true,
         "strict": true,
-        "rootDir": "src",
+        "rootDirs": [
+            "src",
+            "tests"
+        ],
         "outDir": "out",
         "lib": [
             "es6"
