@@ -15,7 +15,7 @@ suite("Extension Test Suite", () => {
             const docUri = getDocUri(path.join("test_invalid_tool_01.xml"));
             await activateAndOpenInEditor(docUri);
 
-            await sleep(2000); // Wait for diagnostics
+            await sleep(10000); // Wait for diagnostics
             await assertDiagnostics(docUri, [
                 {
                     message: "Element 'tool': The attribute 'id' is required but missing.",
