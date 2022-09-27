@@ -1,13 +1,21 @@
 // You can import and use all API from the 'vscode' module
 import * as vscode from "vscode";
 import * as path from "path";
-import { activateAndOpenInEditor, getDocUri, closeAllEditors, sleep, assertDiagnostics, setupServer } from "./helpers";
+import {
+    activateAndOpenInEditor,
+    getDocUri,
+    closeAllEditors,
+    sleep,
+    assertDiagnostics,
+    ensureGalaxyLanguageServerInstalled,
+} from "./helpers";
 import * as assert from "assert";
 
 suite("Extension Test Suite", () => {
     suiteSetup(async () => {
-        const result = await setupServer();
+        const result = await ensureGalaxyLanguageServerInstalled();
         assert.ok(result);
+        console.log("[e2e] Suite setup completed");
     });
     teardown(closeAllEditors);
     suite("Validation Tests", () => {
@@ -15,7 +23,7 @@ suite("Extension Test Suite", () => {
             const docUri = getDocUri(path.join("test_invalid_tool_01.xml"));
             await activateAndOpenInEditor(docUri);
 
-            await sleep(10000); // Wait for diagnostics
+            await sleep(2000); // Wait for diagnostics
             await assertDiagnostics(docUri, [
                 {
                     message: "Element 'tool': The attribute 'id' is required but missing.",

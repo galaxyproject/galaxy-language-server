@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as assert from "assert";
+import { silentInstallLanguageServerForTesting } from "../../../src/setup";
 
 /**
  * Contains the document and its corresponding editor
@@ -16,12 +17,9 @@ export async function activate(): Promise<unknown> {
     return api;
 }
 
-export async function setupServer() {
-    const docUri = getDocUri(path.join("setup.xml"));
-    await activateAndOpenInEditor(docUri);
-    // await sleep(2000);
-    const result = await vscode.commands.executeCommand<string | undefined>("galaxytools.installServer"); // Force install server
-    closeAllEditors();
+export async function ensureGalaxyLanguageServerInstalled(): Promise<string | undefined> {
+    const installDir = path.join(__dirname, "..", "..", "..", "..");
+    const result = await silentInstallLanguageServerForTesting(installDir);
     return result;
 }
 
