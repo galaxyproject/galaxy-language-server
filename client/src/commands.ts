@@ -57,7 +57,7 @@ export interface GeneratedExpandedDocument {
 export function setupBasicCommands(context: ExtensionContext) {
     context.subscriptions.push(
         commands.registerCommand(Commands.INSTALL_SERVER.internal, async () => {
-            return installLanguageServer(context, false);
+            return installLanguageServer(context);
         })
     );
 }
