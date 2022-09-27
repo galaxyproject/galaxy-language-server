@@ -136,6 +136,76 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
     );
 }
 
+/**
+ * Simplified version of `installLanguageServer` without UI interaction.
+ * This is meant to be used in testing environments.
+ * @param installPath The path to install the local Python environment
+ */
+export async function silentInstallLanguageServerForTesting(installPath: string): Promise<string | undefined> {
+    let venvPath = getVirtualEnvironmentPath(installPath, Constants.LS_VENV_NAME);
+    if (existsSync(venvPath)) {
+        const venvPython = getPythonFromVirtualEnvPath(venvPath);
+        const isInstalled = await isPythonPackageInstalled(
+            venvPython,
+            Constants.GALAXY_LS_PACKAGE,
+            Constants.GALAXY_LS_VERSION
+        );
+        if (isInstalled) {
+            console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} already installed.`);
+            return Promise.resolve(venvPython);
+        }
+    }
+
+    // Install with progress
+    return window.withProgress(
+        {
+            location: ProgressLocation.Window,
+            title: "Installing/updating Galaxy language server...",
+        },
+        (progress): Promise<string> => {
+            return new Promise<string>(async (resolve, reject) => {
+                try {
+                    if (!existsSync(venvPath)) {
+                        console.log(`[gls] Checking Python version...`);
+                        let python = await getPython();
+
+                        if (python === undefined) {
+                            const message = `Python ${Constants.REQUIRED_PYTHON_VERSION} is required in order to use the language server features.`;
+                            throw new Error(message);
+                        }
+
+                        console.log(`[gls] Creating virtual environment...`);
+                        venvPath = await createVirtualEnvironment(python, Constants.LS_VENV_NAME, installPath);
+                    }
+
+                    const venvPython = getPythonFromVirtualEnvPath(venvPath);
+                    console.log(`[gls] Using Python from: ${venvPython}`);
+
+                    console.log(`[gls] Installing ${Constants.GALAXY_LS_PACKAGE}...`);
+                    const isInstalled = await installPythonPackage(
+                        venvPython,
+                        Constants.GALAXY_LS_PACKAGE,
+                        Constants.GALAXY_LS_VERSION
+                    );
+
+                    if (!isInstalled) {
+                        const errorMessage = "There was a problem trying to install the Galaxy language server.";
+                        removeDirectory(venvPath);
+                        throw new Error(errorMessage);
+                    }
+
+                    console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} installed successfully.`);
+
+                    resolve(venvPython);
+                } catch (err: any) {
+                    console.error(`[gls] installLSWithProgress err: ${err}`);
+                    reject(err);
+                }
+            });
+        }
+    );
+}
+
 function getPythonFromVirtualEnvPath(venvPath: string): string {
     return Constants.IS_WIN
         ? join(venvPath, "Scripts", Constants.PYTHON_WIN)
