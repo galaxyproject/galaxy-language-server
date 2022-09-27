@@ -17,13 +17,11 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "./constants";
 import { ICommand } from "./interfaces";
 import { GalaxyToolsExpadedDocumentContentProvider } from "./providers/contentProvider";
-import { installLanguageServer } from "./setup";
 import { activateTagClosing, AutoCloseTagResult } from "./tagClosing";
 import { changeUriScheme, cloneRange, getCommands } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
 
 export namespace Commands {
-    export const INSTALL_SERVER: ICommand = getCommands("installServer");
     export const AUTO_CLOSE_TAGS: ICommand = getCommands("completion.autoCloseTags");
     export const GENERATE_TEST: ICommand = getCommands("generate.tests");
     export const GENERATE_COMMAND: ICommand = getCommands("generate.command");
@@ -52,14 +50,6 @@ interface ReplaceTextRangeResult {
 export interface GeneratedExpandedDocument {
     content: string;
     error_message: string;
-}
-
-export function setupBasicCommands(context: ExtensionContext) {
-    context.subscriptions.push(
-        commands.registerCommand(Commands.INSTALL_SERVER.internal, async () => {
-            return installLanguageServer(context);
-        })
-    );
 }
 
 export function setupCommands(client: LanguageClient, context: ExtensionContext) {

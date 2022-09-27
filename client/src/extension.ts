@@ -5,7 +5,7 @@ import { ExtensionContext, window, IndentAction, LanguageConfiguration, language
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
 import { installLanguageServer } from "./setup";
 import { Constants } from "./constants";
-import { setupBasicCommands, setupCommands } from "./commands";
+import { setupCommands } from "./commands";
 import { setupPlanemo } from "./planemo/main";
 import { DefaultConfigurationFactory } from "./planemo/configuration";
 import { setupProviders } from "./providers/setup";
@@ -17,7 +17,6 @@ let client: LanguageClient;
  * @param context The extension context
  */
 export async function activate(context: ExtensionContext) {
-    setupBasicCommands(context);
     if (context.extensionMode === ExtensionMode.Development) {
         // Development - Connect to language server (already running) using TCP
         client = connectToLanguageServerTCP(2087);
