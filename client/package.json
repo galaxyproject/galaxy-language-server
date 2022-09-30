@@ -132,11 +132,6 @@
         "category": "Galaxy Tools",
         "enablement": "galaxytools:isActive",
         "icon": "$(open-preview)"
-      },
-      {
-        "command": "galaxytools.installServer",
-        "title": "Creates a local Python environment and installs the Galaxy Language Server on it.",
-        "category": "Galaxy Tools"
       }
     ],
     "keybindings": [
