@@ -40,13 +40,15 @@ export async function openDocument(docUri: vscode.Uri): Promise<vscode.TextDocum
 
 export async function activateAndOpenInEditor(docUri: vscode.Uri): Promise<DocumentEditor> {
     await activate();
-    const documentEditor = await openDocumentInEditor(docUri);
-    await sleep(2000); // Wait for server activation
-    return documentEditor;
+    return openDocumentInEditor(docUri);
 }
 
 export async function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function waitForDiagnostics(): Promise<void> {
+    return sleep(500);
 }
 
 export const getDocPath = (filePath: string): string => {
