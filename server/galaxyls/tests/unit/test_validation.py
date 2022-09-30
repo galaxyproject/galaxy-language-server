@@ -3,12 +3,6 @@ from lxml import etree
 
 from galaxyls.services.validation import DocumentValidator
 from ...services.xsd.constants import TOOL_XSD_FILE
-from ...services.xsd.validation import GalaxyToolSchemaValidationService
-from .sample_data import (
-    TEST_MACRO_01_DOCUMENT,
-    TEST_SYNTAX_ERROR_MACRO_01_DOCUMENT,
-    TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT,
-)
 from .utils import TestUtils
 
 
@@ -17,48 +11,6 @@ def xsd_schema() -> etree.XMLSchema:
     root = etree.parse(str(TOOL_XSD_FILE))
     schema = etree.XMLSchema(root)
     return schema
-
-
-class TestGalaxyToolValidationServiceClass:
-    def test_validate_document_returns_empty_diagnostics_when_valid(self, xsd_schema: etree.XMLSchema) -> None:
-        service = GalaxyToolSchemaValidationService(xsd_schema)
-        xml_document = TestUtils.get_test_xml_document_from_file("test_tool_01.xml")
-
-        actual = service.validate_document(xml_document)
-
-        assert actual == []
-
-    def test_validate_macro_file_returns_empty_diagnostics_when_valid(self, xsd_schema: etree.XMLSchema) -> None:
-        service = GalaxyToolSchemaValidationService(xsd_schema)
-        xml_document = TestUtils.from_document_to_xml_document(TEST_MACRO_01_DOCUMENT)
-
-        actual = service.validate_document(xml_document)
-
-        assert actual == []
-
-    def test_validate_document_returns_diagnostics_when_invalid(self, xsd_schema: etree.XMLSchema) -> None:
-        service = GalaxyToolSchemaValidationService(xsd_schema)
-        xml_document = TestUtils.get_test_xml_document_from_file("test_invalid_tool_01.xml")
-
-        actual = service.validate_document(xml_document)
-
-        assert len(actual) > 0
-
-    def test_validate_document_returns_diagnostics_when_syntax_error(self, xsd_schema: etree.XMLSchema) -> None:
-        service = GalaxyToolSchemaValidationService(xsd_schema)
-        xml_document = TestUtils.from_document_to_xml_document(TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT)
-
-        actual = service.validate_document(xml_document)
-
-        assert len(actual) == 1
-
-    def test_validate_macro_file_returns_diagnostics_when_syntax_error(self, xsd_schema: etree.XMLSchema) -> None:
-        service = GalaxyToolSchemaValidationService(xsd_schema)
-        xml_document = TestUtils.from_document_to_xml_document(TEST_SYNTAX_ERROR_MACRO_01_DOCUMENT)
-
-        actual = service.validate_document(xml_document)
-
-        assert len(actual) == 1
 
 
 class TestDocumentValidatorClass:

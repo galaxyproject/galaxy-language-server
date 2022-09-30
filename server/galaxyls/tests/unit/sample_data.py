@@ -152,8 +152,6 @@ TEST_INVALID_TOOL_01_DOCUMENT = Document("file://test_invalid_01.xml", "<tool></
 
 TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT = Document("file://test_syntax_error_01.xml", "tool")
 
-TEST_SYNTAX_ERROR_MACRO_01_DOCUMENT = Document("file://test_syntax_error_macro_01.xml", "<macros>unclosed")
-
 TEST_TOOL_WITH_PROLOG = """<?xml version="1.0" encoding="UTF-8"?>
 <tool id="test" name="Test Tool" version="0.1.0">
     <inputs/>
