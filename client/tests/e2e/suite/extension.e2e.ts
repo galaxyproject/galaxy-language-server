@@ -23,7 +23,7 @@ suite("Extension Test Suite", () => {
             const docUri = getDocUri(path.join("test_tool_01.xml"));
             await activateAndOpenInEditor(docUri);
 
-            await waitForDiagnostics();
+            await waitForDiagnostics(docUri);
             await assertDiagnostics(docUri, []);
         });
 
@@ -31,7 +31,7 @@ suite("Extension Test Suite", () => {
             const docUri = getDocUri(path.join("macros_01.xml"));
             await activateAndOpenInEditor(docUri);
 
-            await waitForDiagnostics();
+            await waitForDiagnostics(docUri);
             await assertDiagnostics(docUri, []);
         });
 
@@ -39,7 +39,7 @@ suite("Extension Test Suite", () => {
             const docUri = getDocUri(path.join("test_invalid_tool_01.xml"));
             await activateAndOpenInEditor(docUri);
 
-            await waitForDiagnostics();
+            await waitForDiagnostics(docUri);
             await assertDiagnostics(docUri, [
                 {
                     message: "Element 'tool': The attribute 'id' is required but missing.",
@@ -58,7 +58,7 @@ suite("Extension Test Suite", () => {
             const docUri = getDocUri(path.join("test_syntax_error_01.xml"));
             await activateAndOpenInEditor(docUri);
 
-            await waitForDiagnostics();
+            await waitForDiagnostics(docUri);
             await assertDiagnostics(docUri, [
                 {
                     message: "Couldn't find end of Start Tag tool line 1, line 2, column 1",
@@ -72,7 +72,7 @@ suite("Extension Test Suite", () => {
             const docUri = getDocUri(path.join("test_syntax_error_macro_01.xml"));
             await activateAndOpenInEditor(docUri);
 
-            await waitForDiagnostics();
+            await waitForDiagnostics(docUri);
             await assertDiagnostics(docUri, [
                 {
                     message: "Premature end of data in tag macros line 1, line 2, column 1",

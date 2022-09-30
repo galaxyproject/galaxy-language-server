@@ -47,8 +47,15 @@ export async function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function waitForDiagnostics(): Promise<void> {
-    return sleep(500);
+export async function waitForDiagnostics(docUri: vscode.Uri, timeoutInMilliseconds: number = 2000): Promise<void> {
+    const waitMilliseconds = 100;
+    let waitTimeout = timeoutInMilliseconds;
+    let diagnostics = vscode.languages.getDiagnostics(docUri);
+    while (waitTimeout > 0 && !diagnostics.length) {
+        await sleep(waitMilliseconds);
+        waitTimeout -= waitMilliseconds;
+        diagnostics = vscode.languages.getDiagnostics(docUri);
+    }
 }
 
 export const getDocPath = (filePath: string): string => {
