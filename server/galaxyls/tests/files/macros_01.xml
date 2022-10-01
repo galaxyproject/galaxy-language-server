@@ -1,0 +1,6 @@
+<macros>
+    <token name="@WRAPPER_VERSION@">0.1.0</token>
+    <macro name="inputs">
+        <inputs/>
+    </macro>
+</macros>

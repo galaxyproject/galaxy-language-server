@@ -41,6 +41,25 @@
                 "group": "GLS",
                 "order": 3
             }
+        },
+        {
+            "name": "Debug e2e Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--disable-extensions",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionTestsPath=${workspaceFolder}/client/out/tests/e2e/suite/index"
+            ],
+            "outFiles": [
+                "${workspaceFolder}client/out/tests/e2e/**/*.js"
+            ],
+            "preLaunchTask": {
+                "type": "npm",
+                "path": "client",
+                "script": "test-compile"
+            }
         }
     ],
     "compounds": [
