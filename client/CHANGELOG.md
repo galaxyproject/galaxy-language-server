@@ -1,5 +1,13 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.8.0] - 2022-10-02
+
+### Changed
+
+- Code quality: add end to end tests ([#206](https://github.com/galaxyproject/galaxy-language-server/pull/206)).
+
+- Updated Galaxy Language Server [v0.8.0](./server/CHANGELOG.md#080)
+
 ## [0.7.3] - 2022-09-06
 
 ### Fixed
