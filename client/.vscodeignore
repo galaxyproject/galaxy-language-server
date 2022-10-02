@@ -1,7 +1,11 @@
-**/*.ts
+.vscode-test/**
+**/*.log
 **/*.map
-out/**
-node_modules/**
+**/*.ts
 dist/**/*.txt
+glsenv/**
+node_modules/**
+out/**
+tests/**
 tsconfig.json
 webpack.config.js

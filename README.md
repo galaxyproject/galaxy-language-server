@@ -38,7 +38,8 @@ This project has the following main goals:
   - [Auto-sort param attributes](#auto-sort-param-attributes)
   - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer)
   - [Improved macros support](#improved-macros-support)
-  - [Extract macro](#extract-macro) _New feature!_ :rocket:
+  - [Extract macro](#extract-macro)
+  - [Full Galaxy tool linter integration](#document-validation) _New feature!_ ✨
 
 # Getting Started
 
@@ -76,7 +77,9 @@ The documentation of tags and attributes is retrieved from the [Galaxy.xsd](http
 
 ![Demo feature validation](../assets/feature.validation.png)
 
-The tools are also validated against the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
+In addition to basic XML syntax validation, the tools are validated against the [Galaxy.xsd](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/tool_util/xsd/galaxy.xsd) schema.
+
+Since version 0.8.0 the full Galaxy linting is directly reported on the document diagnostics.
 
 ## Document auto-formatting
 
