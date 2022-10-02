@@ -1,5 +1,17 @@
 # Galaxy Language Server Changelog
 
+## [0.8.0] - 2022-10-02
+
+### Added
+
+- Full Galaxy tool linting integration ([#204](https://github.com/galaxyproject/galaxy-language-server/pull/204)).
+
+### Changed
+
+- Code quality: refactor validation system ([#205](https://github.com/galaxyproject/galaxy-language-server/pull/205)).
+
+- Code quality: setup isort ([#203](https://github.com/galaxyproject/galaxy-language-server/pull/203)).
+
 ## [0.7.1] - 2022-01-31
 
 ### Fixed
