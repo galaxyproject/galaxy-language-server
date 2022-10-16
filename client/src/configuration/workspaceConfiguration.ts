@@ -1,6 +1,9 @@
 import { IPlanemoConfiguration } from "../planemo/configuration";
 
 export namespace Settings {
+    export namespace Server {
+        export const SILENT_INSTALL = "galaxyTools.server.silentInstall";
+    }
     export namespace Completion {
         export const MODE = "galaxyTools.completion.mode";
         export const AUTO_CLOSE_TAGS = "galaxytools.completion.autoCloseTags";
@@ -19,7 +22,12 @@ export namespace Settings {
     }
 }
 
+export interface IServerConfiguration {
+    silentInstall(): boolean;
+}
+
 export interface IWorkspaceConfiguration {
+    server(): IServerConfiguration;
     planemo(): IPlanemoConfiguration;
 }
 

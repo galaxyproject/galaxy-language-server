@@ -4,19 +4,31 @@ import { workspace, WorkspaceConfiguration } from "vscode";
 
 import { IPlanemoConfiguration, IPlanemoTestingConfiguration } from "../planemo/configuration";
 import { exists } from "../utils";
-import { ConfigValidationResult, IWorkspaceConfiguration } from "./workspaceConfiguration";
+import { ConfigValidationResult, IServerConfiguration, IWorkspaceConfiguration } from "./workspaceConfiguration";
 
 export class GalaxyToolsWorkspaceConfiguration implements IWorkspaceConfiguration {
     private readonly config: WorkspaceConfiguration;
+    private readonly serverConfig: IServerConfiguration;
     private readonly planemoConfig: IPlanemoConfiguration;
 
     constructor() {
         this.config = workspace.getConfiguration("galaxyTools");
         this.planemoConfig = new GalaxyToolsPlanemoConfiguration(this.config);
+        this.serverConfig = new GalaxyLanguageServerConfiguration(this.config);
+    }
+    server(): IServerConfiguration {
+        return this.serverConfig;
     }
 
     planemo(): IPlanemoConfiguration {
         return this.planemoConfig;
+    }
+}
+
+class GalaxyLanguageServerConfiguration implements IServerConfiguration {
+    constructor(private readonly config: WorkspaceConfiguration) {}
+    silentInstall(): boolean {
+        return this.config.get("server.silentInstall", false);
     }
 }
 
