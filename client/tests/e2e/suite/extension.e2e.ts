@@ -19,12 +19,14 @@ suite("Extension Test Suite", () => {
     });
     teardown(closeAllEditors);
     suite("Validation Tests", () => {
-        test("Valid tool returns empty diagnostics", async () => {
+        test("Valid tool returns no errors", async () => {
             const docUri = getDocUri(path.join("test_tool_01.xml"));
             await activateAndOpenInEditor(docUri);
 
             await waitForDiagnostics(docUri);
-            await assertDiagnostics(docUri, []);
+            const diagnostics = vscode.languages.getDiagnostics(docUri);
+            const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === vscode.DiagnosticSeverity.Error);
+            assert.equal(hasErrors, false);
         });
 
         test("Valid macro file returns empty diagnostics", async () => {
@@ -40,18 +42,15 @@ suite("Extension Test Suite", () => {
             await activateAndOpenInEditor(docUri);
 
             await waitForDiagnostics(docUri);
-            await assertDiagnostics(docUri, [
-                {
-                    message: "Element 'tool': The attribute 'id' is required but missing.",
-                    range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0)),
-                    severity: vscode.DiagnosticSeverity.Error,
-                },
-                {
-                    message: "Element 'tool': The attribute 'name' is required but missing.",
-                    range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0)),
-                    severity: vscode.DiagnosticSeverity.Error,
-                },
-            ]);
+            const diagnostics = vscode.languages.getDiagnostics(docUri);
+            assert.strictEqual(
+                diagnostics.some((d) => d.message === "Element 'tool': The attribute 'id' is required but missing."),
+                true
+            );
+            assert.strictEqual(
+                diagnostics.some((d) => d.message === "Element 'tool': The attribute 'name' is required but missing."),
+                true
+            );
         });
 
         test("Invalid tool document with syntax error should return diagnostic", async () => {
