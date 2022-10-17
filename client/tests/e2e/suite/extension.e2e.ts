@@ -81,5 +81,59 @@ suite("Extension Test Suite", () => {
                 },
             ]);
         });
+
+        test("Linting valid tool with warnings should return warning diagnostics", async () => {
+            const docUri = getDocUri(path.join("validation/tool_01.xml"));
+            await activateAndOpenInEditor(docUri);
+
+            await waitForDiagnostics(docUri);
+            await assertDiagnostics(docUri, [
+                {
+                    message: "Best practice violation [macros] elements should come before [command]",
+                    range: new vscode.Range(new vscode.Position(5, 5), new vscode.Position(5, 11)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Best practice violation [description] elements should come before [macros]",
+                    range: new vscode.Range(new vscode.Position(9, 5), new vscode.Position(9, 16)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "No tests found, most tools should define test cases.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Tool contains no outputs section, most tools should produce outputs.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Found no input parameters.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "No help section found, consider adding a help section to your tool.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Tool version [@TOOL_VERSION@+galaxy@VERSION_SUFFIX@] is not compliant with PEP 440.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Command template contains TODO text.",
+                    range: new vscode.Range(new vscode.Position(1, 5), new vscode.Position(1, 12)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "No citations found, consider adding citations to your tool.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+            ]);
+        });
     });
 });
