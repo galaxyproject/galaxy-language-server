@@ -1,0 +1,11 @@
+<tool id="tool01" name="tool01" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <command><![CDATA[
+        ## TODO: test
+    ]]>
+    </command>
+    <macros>
+        <token name="@TOOL_VERSION@">0.1.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <description>Test some warnings</description>
+</tool>

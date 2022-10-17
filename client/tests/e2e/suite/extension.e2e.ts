@@ -19,12 +19,14 @@ suite("Extension Test Suite", () => {
     });
     teardown(closeAllEditors);
     suite("Validation Tests", () => {
-        test("Valid tool returns empty diagnostics", async () => {
+        test("Valid tool returns no errors", async () => {
             const docUri = getDocUri(path.join("test_tool_01.xml"));
             await activateAndOpenInEditor(docUri);
 
             await waitForDiagnostics(docUri);
-            await assertDiagnostics(docUri, []);
+            const diagnostics = vscode.languages.getDiagnostics(docUri);
+            const hasErrors = diagnostics.some((diagnostic) => diagnostic.severity === vscode.DiagnosticSeverity.Error);
+            assert.equal(hasErrors, false);
         });
 
         test("Valid macro file returns empty diagnostics", async () => {
@@ -40,18 +42,15 @@ suite("Extension Test Suite", () => {
             await activateAndOpenInEditor(docUri);
 
             await waitForDiagnostics(docUri);
-            await assertDiagnostics(docUri, [
-                {
-                    message: "Element 'tool': The attribute 'id' is required but missing.",
-                    range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0)),
-                    severity: vscode.DiagnosticSeverity.Error,
-                },
-                {
-                    message: "Element 'tool': The attribute 'name' is required but missing.",
-                    range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 0)),
-                    severity: vscode.DiagnosticSeverity.Error,
-                },
-            ]);
+            const diagnostics = vscode.languages.getDiagnostics(docUri);
+            assert.strictEqual(
+                diagnostics.some((d) => d.message === "Element 'tool': The attribute 'id' is required but missing."),
+                true
+            );
+            assert.strictEqual(
+                diagnostics.some((d) => d.message === "Element 'tool': The attribute 'name' is required but missing."),
+                true
+            );
         });
 
         test("Invalid tool document with syntax error should return diagnostic", async () => {
@@ -78,6 +77,60 @@ suite("Extension Test Suite", () => {
                     message: "Premature end of data in tag macros line 1, line 2, column 1",
                     range: new vscode.Range(new vscode.Position(1, 0), new vscode.Position(1, 1)),
                     severity: vscode.DiagnosticSeverity.Error,
+                },
+            ]);
+        });
+
+        test("Linting valid tool with warnings should return warning diagnostics", async () => {
+            const docUri = getDocUri(path.join("validation/tool_01.xml"));
+            await activateAndOpenInEditor(docUri);
+
+            await waitForDiagnostics(docUri);
+            await assertDiagnostics(docUri, [
+                {
+                    message: "Best practice violation [macros] elements should come before [command]",
+                    range: new vscode.Range(new vscode.Position(5, 5), new vscode.Position(5, 11)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Best practice violation [description] elements should come before [macros]",
+                    range: new vscode.Range(new vscode.Position(9, 5), new vscode.Position(9, 16)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "No tests found, most tools should define test cases.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Tool contains no outputs section, most tools should produce outputs.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Found no input parameters.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "No help section found, consider adding a help section to your tool.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Tool version [@TOOL_VERSION@+galaxy@VERSION_SUFFIX@] is not compliant with PEP 440.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "Command template contains TODO text.",
+                    range: new vscode.Range(new vscode.Position(1, 5), new vscode.Position(1, 12)),
+                    severity: vscode.DiagnosticSeverity.Warning,
+                },
+                {
+                    message: "No citations found, consider adding citations to your tool.",
+                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
+                    severity: vscode.DiagnosticSeverity.Warning,
                 },
             ]);
         });
