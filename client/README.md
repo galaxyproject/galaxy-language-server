@@ -59,6 +59,12 @@ Some possible errors:
 
 You can customize some of the features with various settings either placing them in the `.vscode/settings.json` file in your workspace or editing them through the Settings Editor UI.
 
+## Server settings
+
+| Property                           | Description                                                                                                           |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `galaxyTools.server.silentInstall` | Whether to skip user confirmation to install the language server. Useful when installing the extension in containers. |
+
 ## Completion settings
 
 | Property                               | Description                                                                                                                                                                                                                                                                                                        |
