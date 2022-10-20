@@ -11,7 +11,10 @@ import { LocalStorageService } from "./configuration/storage";
  * a problem or the user cancelled the installation.
  * @param context The extension context
  */
-export async function installLanguageServer(context: ExtensionContext): Promise<string | undefined> {
+export async function installLanguageServer(
+    context: ExtensionContext,
+    isSilentInstall: boolean
+): Promise<string | undefined> {
     const storageManager = new LocalStorageService(context.globalState);
 
     // Check if the LS is already installed
@@ -32,7 +35,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
     const storedPython = storageManager.getStoredPython();
     console.log(`[gls] getStoredPython: ${storedPython}`);
 
-    if (storedPython === null) {
+    if (storedPython === null && !isSilentInstall) {
         const result = await window.showInformationMessage(
             `Galaxy Tools needs to install the Galaxy Language Server Python package to continue. This will be installed in a virtual environment inside the extension and will require Python ${Constants.REQUIRED_PYTHON_VERSION}`,
             ...["Install", "More Info"]
@@ -121,7 +124,7 @@ export async function installLanguageServer(context: ExtensionContext): Promise<
 
                     console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} installed successfully.`);
                     if (storageManager.isServerFirstTimeInstall()) {
-                        window.showInformationMessage("Galaxy Tools extension is ready!");
+                        if (!isSilentInstall) window.showInformationMessage("Galaxy Tools extension is ready!");
                         storageManager.setServerInstalled();
                     }
 

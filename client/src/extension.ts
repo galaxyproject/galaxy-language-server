@@ -17,13 +17,15 @@ let client: LanguageClient;
  * @param context The extension context
  */
 export async function activate(context: ExtensionContext) {
+    const configFactory = new DefaultConfigurationFactory();
     if (context.extensionMode === ExtensionMode.Development) {
         // Development - Connect to language server (already running) using TCP
         client = connectToLanguageServerTCP(2087);
     } else {
         // Production - Install (first time only), launch and connect to language server.
         try {
-            const python = await installLanguageServer(context);
+            const isSilentInstall = configFactory.getConfiguration().server().silentInstall();
+            const python = await installLanguageServer(context, isSilentInstall);
             if (python === undefined) {
                 // The language server could not be installed
                 return;
@@ -39,8 +41,6 @@ export async function activate(context: ExtensionContext) {
     languages.setLanguageConfiguration(Constants.LANGUAGE_ID, getIndentationRules());
 
     context.subscriptions.push(client.start());
-
-    const configFactory = new DefaultConfigurationFactory();
 
     setupCommands(client, context);
 

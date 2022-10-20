@@ -160,6 +160,12 @@
       "type": "object",
       "title": "Galaxy Tools",
       "properties": {
+        "galaxyTools.server.silentInstall": {
+          "scope": "resource",
+          "type": "boolean",
+          "markdownDescription": "Whether to skip user confirmation to install the language server.",
+          "default": false
+        },
         "galaxyTools.completion.mode": {
           "scope": "resource",
           "type": "string",
@@ -180,7 +186,7 @@
           "scope": "resource",
           "type": "boolean",
           "markdownDescription": "Controls whether to auto-insert the closing tag after typing `>` or `/`.",
-          "default": "true"
+          "default": true
         },
         "galaxyTools.planemo.enabled": {
           "scope": "resource",
