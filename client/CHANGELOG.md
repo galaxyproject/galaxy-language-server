@@ -1,24 +1,30 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.9.0] - 2022-10-20
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.9.0](./server/CHANGELOG.md#090)
+
 ## [0.8.0] - 2022-10-02
 
 ### Changed
 
-- Code quality: add end to end tests ([#206](https://github.com/galaxyproject/galaxy-language-server/pull/206)).
+-   Code quality: add end to end tests ([#206](https://github.com/galaxyproject/galaxy-language-server/pull/206)).
 
-- Updated Galaxy Language Server [v0.8.0](./server/CHANGELOG.md#080)
+-   Updated Galaxy Language Server [v0.8.0](./server/CHANGELOG.md#080)
 
 ## [0.7.3] - 2022-09-06
 
 ### Fixed
 
-- Bug in Python version parsing ([#200](https://github.com/galaxyproject/galaxy-language-server/pull/200)).
+-   Bug in Python version parsing ([#200](https://github.com/galaxyproject/galaxy-language-server/pull/200)).
 
 ## [0.7.2] - 2022-08-14
 
 ### Fixed
 
-- Remove local virtual environment when install fails ([#196](https://github.com/galaxyproject/galaxy-language-server/pull/196)).
+-   Remove local virtual environment when install fails ([#196](https://github.com/galaxyproject/galaxy-language-server/pull/196)).
 
 ## [0.7.1] - 2022-01-31
 

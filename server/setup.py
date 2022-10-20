@@ -8,7 +8,7 @@ from setuptools import (
 )
 
 PACKAGE_NAME = "galaxy-language-server"
-VERSION = "0.8.0"
+VERSION = "0.9.0"
 AUTHOR = "David López"
 AUTHOR_EMAIL = "davelopez7391@gmail.com"
 DESCRIPTION = "A language server for Galaxy (https://galaxyproject.org) tool wrappers"

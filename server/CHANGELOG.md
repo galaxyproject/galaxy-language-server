@@ -1,5 +1,15 @@
 # Galaxy Language Server Changelog
 
+## [0.9.0] - 2022-10-20
+
+### Added
+
+- New setting to silently install the language server ([#210](https://github.com/galaxyproject/galaxy-language-server/pull/210)).
+
+### Changed
+
+- Code quality: fix e2e tests for linting ([#211](https://github.com/galaxyproject/galaxy-language-server/pull/211)).
+
 ## [0.8.0] - 2022-10-02
 
 ### Added
