@@ -4,14 +4,14 @@
 from pathlib import Path
 from typing import List
 
-from lxml import etree
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Diagnostic,
     DiagnosticRelatedInformation,
     Location,
     Position,
     Range,
 )
+from lxml import etree
 
 from galaxyls.constants import DiagnosticCodes
 from galaxyls.services.tools.document import GalaxyToolXmlDocument

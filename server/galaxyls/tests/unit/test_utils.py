@@ -1,5 +1,5 @@
 import pytest
-from pygls.lsp.types.basic_structures import Position
+from lsprotocol.types import Position
 
 from galaxyls.tests.unit.utils import TestUtils
 

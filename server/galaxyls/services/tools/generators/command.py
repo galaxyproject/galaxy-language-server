@@ -7,7 +7,7 @@ from typing import (
 )
 
 from anytree import PreOrderIter
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Position,
     Range,
 )

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Tuple
 
-from pygls.lsp.types import Position
+from lsprotocol.types import Position
 from pygls.workspace import Document
 
 from ...services.xml.constants import NEW_LINE

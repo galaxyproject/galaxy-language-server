@@ -6,7 +6,7 @@ from galaxy.tool_util.lint import (
     LintLevel,
     XMLLintMessageXPath,
 )
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Diagnostic,
     DiagnosticSeverity,
 )

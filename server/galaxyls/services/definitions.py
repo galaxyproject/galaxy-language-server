@@ -3,7 +3,7 @@ from typing import (
     Optional,
 )
 
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Location,
     Position,
 )

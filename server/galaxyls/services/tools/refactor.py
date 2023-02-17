@@ -8,9 +8,7 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-from lxml import etree
-from pydantic.main import BaseModel
-from pygls.lsp.types import (
+from lsprotocol.types import (
     CodeAction,
     CodeActionKind,
     CodeActionParams,
@@ -23,6 +21,8 @@ from pygls.lsp.types import (
     VersionedTextDocumentIdentifier,
     WorkspaceEdit,
 )
+from lxml import etree
+from pydantic.main import BaseModel
 from pygls.workspace import Workspace
 
 from galaxyls.services.format import GalaxyToolFormatService

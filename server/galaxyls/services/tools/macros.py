@@ -5,8 +5,8 @@ from typing import (
     Set,
 )
 
+from lsprotocol.types import Location
 from pydantic import BaseModel
-from pygls.lsp.types import Location
 from pygls.workspace import Workspace
 
 from galaxyls.services.tools.constants import (

@@ -7,11 +7,11 @@ from typing import (
     Optional,
 )
 
-from pydantic.main import BaseModel
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Position,
     Range,
 )
+from pydantic.main import BaseModel
 
 CommandParameters = List[Any]
 

@@ -7,12 +7,12 @@ from typing import (
     Optional,
 )
 
-from lxml import etree
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Diagnostic,
     MarkupContent,
     MarkupKind,
 )
+from lxml import etree
 
 from galaxyls.services.context import XmlContext
 from galaxyls.services.xml.document import XmlDocument

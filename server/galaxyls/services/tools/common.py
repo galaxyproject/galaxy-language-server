@@ -4,7 +4,7 @@ from typing import (
     Optional,
 )
 
-from pygls.lsp.types import Diagnostic
+from lsprotocol.types import Diagnostic
 from pygls.workspace import Workspace
 
 from galaxyls.services.xml.document import XmlDocument

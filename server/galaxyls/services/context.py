@@ -6,7 +6,7 @@ from typing import (
     Optional,
 )
 
-from pygls.lsp.types import Range
+from lsprotocol.types import Range
 from pygls.workspace import Position
 
 from galaxyls.services.tools.constants import MACROS

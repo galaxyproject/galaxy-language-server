@@ -6,11 +6,11 @@ from typing import (
     Union,
 )
 
-from lxml import etree
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Position,
     Range,
 )
+from lxml import etree
 
 from galaxyls.services.tools.constants import (
     ARGUMENT,

@@ -1,7 +1,7 @@
 from typing import cast
 
 import pytest
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Position,
     Range,
 )

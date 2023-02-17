@@ -16,11 +16,11 @@ from anytree import (
     Resolver,
     ResolverError,
 )
-from lxml import etree
-from pygls.lsp.types import (
+from lsprotocol.types import (
     MarkupContent,
     MarkupKind,
 )
+from lxml import etree
 
 from .constants import MSG_NO_DOCUMENTATION_AVAILABLE
 
