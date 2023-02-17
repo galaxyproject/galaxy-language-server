@@ -7,8 +7,10 @@ from setuptools import (
     setup,
 )
 
+from galaxyls.server import GLS_VERSION
+
 PACKAGE_NAME = "galaxy-language-server"
-VERSION = "0.9.0"
+VERSION = GLS_VERSION
 AUTHOR = "David López"
 AUTHOR_EMAIL = "davelopez7391@gmail.com"
 DESCRIPTION = "A language server for Galaxy (https://galaxyproject.org) tool wrappers"

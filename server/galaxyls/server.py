@@ -61,12 +61,15 @@ from galaxyls.types import (
 )
 from galaxyls.utils import deserialize_command_param
 
+GLS_VERSION = "0.9.0"
+GLS_NAME = "galaxy-tools-language-server"
+
 
 class GalaxyToolsLanguageServer(LanguageServer):
     """Galaxy Tools Language Server."""
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(name=GLS_NAME, version=GLS_VERSION)
         self.service = GalaxyToolLanguageService()
         self.configuration: GalaxyToolsConfiguration = GalaxyToolsConfiguration()
 
