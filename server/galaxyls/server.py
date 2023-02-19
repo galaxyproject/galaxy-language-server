@@ -166,7 +166,7 @@ def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionPa
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
-        return server.service.definitions_provider.go_to_definition(xml_document, params.position)
+        return server.service.go_to_definition(xml_document, params.position)
     return None
 
 

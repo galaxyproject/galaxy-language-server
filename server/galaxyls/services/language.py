@@ -11,6 +11,7 @@ from lsprotocol.types import (
     Diagnostic,
     DocumentFormattingParams,
     Hover,
+    Location,
     MarkupContent,
     MarkupKind,
     Position,
@@ -71,6 +72,7 @@ class GalaxyToolLanguageService:
         self.macro_expander = MacroExpanderService()
         self.refactoring_service: Optional[RefactoringService] = None
         self.linter = GalaxyToolLinter()
+        self.definitions_provider: Optional[DocumentDefinitionsProvider] = None
 
     def set_workspace(self, workspace: Workspace) -> None:
         macro_definitions_provider = MacroDefinitionsProvider(workspace)
@@ -94,12 +96,13 @@ class GalaxyToolLanguageService:
                 return Hover(contents=documentation, range=context_range)
             # Try to get token
             word = xml_document.document.word_at_position(position)
-            token = self.definitions_provider.get_token_definition(xml_document, word)
-            if token:
-                return Hover(
-                    contents=MarkupContent(kind=MarkupKind.Markdown, value=token.value),
-                    range=Range(start=position, end=position),
-                )
+            if self.definitions_provider:
+                token = self.definitions_provider.get_token_definition(xml_document, word)
+                if token:
+                    return Hover(
+                        contents=MarkupContent(kind=MarkupKind.Markdown, value=token.value),
+                        range=Range(start=position, end=position),
+                    )
         return None
 
     def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
@@ -156,3 +159,8 @@ class GalaxyToolLanguageService:
         if self.refactoring_service is None:
             return None
         return self.refactoring_service.get_available_refactoring_actions(xml_document, params)
+
+    def go_to_definition(self, xml_document: XmlDocument, position: Position) -> Optional[List[Location]]:
+        if self.definitions_provider:
+            return self.definitions_provider.go_to_definition(xml_document, position)
+        return None
