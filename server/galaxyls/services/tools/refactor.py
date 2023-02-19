@@ -14,12 +14,14 @@ from lsprotocol.types import (
     CodeActionKind,
     CodeActionParams,
     CreateFile,
+    DeleteFile,
+    OptionalVersionedTextDocumentIdentifier,
     Position,
     Range,
+    RenameFile,
     ResourceOperationKind,
     TextDocumentEdit,
     TextEdit,
-    VersionedTextDocumentIdentifier,
     WorkspaceEdit,
 )
 from lxml import etree
@@ -45,6 +47,8 @@ from galaxyls.services.xml.nodes import XmlElement
 
 DEFAULT_MACROS_FILENAME = "macros.xml"
 EXCLUDED_TAGS = {TOOL, MACROS, MACRO, XML}
+
+DocumentChanges = Optional[List[Union[TextDocumentEdit, CreateFile, RenameFile, DeleteFile]]]
 
 
 @attrs.define
@@ -154,7 +158,7 @@ class RefactorMacrosService:
 
     def _calculate_external_changes_for_macro_in_new_file(
         self, tool: GalaxyToolXmlDocument, new_file_name: str, macro: MacroData, params: CodeActionParams
-    ) -> List[Union[CreateFile, TextDocumentEdit]]:
+    ) -> DocumentChanges:
         """Returns a list of workspace document changes that will create a new macros.xml file with the given
         macro definition inside and also import the newly created file in the tool wrapper."""
         base_path = Path(urlparse(tool.xml_document.document.uri).path).parent
@@ -163,10 +167,10 @@ class RefactorMacrosService:
         final_xml_content = self.format_service.format_content(xml_content)
         new_doc_insert_position = Position(line=0, character=0)
         tool_document = self.workspace.get_document(params.text_document.uri)
-        changes: List[Union[CreateFile, TextDocumentEdit]] = [
+        changes: DocumentChanges = [
             CreateFile(uri=new_file_uri, kind=ResourceOperationKind.Create),
             TextDocumentEdit(
-                text_document=VersionedTextDocumentIdentifier(
+                text_document=OptionalVersionedTextDocumentIdentifier(
                     uri=new_file_uri,
                     version=0,
                 ),
@@ -178,7 +182,7 @@ class RefactorMacrosService:
                 ],
             ),
             TextDocumentEdit(
-                text_document=VersionedTextDocumentIdentifier(
+                text_document=OptionalVersionedTextDocumentIdentifier(
                     uri=tool_document.uri,
                     version=tool_document.version,
                 ),

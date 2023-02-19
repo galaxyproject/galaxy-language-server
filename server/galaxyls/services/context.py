@@ -239,8 +239,8 @@ class XmlContextService:
             return xsd_node
         return None
 
-    def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range:
+    def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Optional[Range]:
         if context.node is None:
-            return Range()
+            return None
         start_offset, end_offset = context.node.get_offsets(context.offset)
         return convert_document_offsets_to_range(xml_document.document, start_offset, end_offset)
