@@ -2,4 +2,3 @@ pygls==1.0.1
 lxml==4.9.2
 anytree==2.8.0
 galaxy-tool-util==22.1.5
-pydantic==1.10.4
