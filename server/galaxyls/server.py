@@ -14,7 +14,6 @@ from lsprotocol.types import (
     CompletionOptions,
     CompletionParams,
     ConfigurationItem,
-    ConfigurationParams,
     Diagnostic,
     DidChangeConfigurationParams,
     DidCloseTextDocumentParams,
@@ -38,6 +37,7 @@ from lsprotocol.types import (
     TextDocumentPositionParams,
     TextEdit,
     WORKSPACE_DID_CHANGE_CONFIGURATION,
+    WorkspaceConfigurationParams,
 )
 from pygls.server import LanguageServer
 from pygls.workspace import Document
@@ -85,7 +85,9 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
         server (GalaxyToolsLanguageServer): The language server instance.
     """
     try:
-        config = await server.get_configuration_async(ConfigurationParams(items=[ConfigurationItem(section="galaxyTools")]))
+        config = await server.get_configuration_async(
+            WorkspaceConfigurationParams(items=[ConfigurationItem(section="galaxyTools")])
+        )
         server.configuration = GalaxyToolsConfiguration(**config[0])
     except BaseException as err:
         server.show_message_log(f"Error loading configuration: {err}")

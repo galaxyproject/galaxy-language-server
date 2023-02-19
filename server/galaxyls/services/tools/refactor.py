@@ -8,6 +8,7 @@ from typing import (
 )
 from urllib.parse import urlparse
 
+import attrs
 from lsprotocol.types import (
     CodeAction,
     CodeActionKind,
@@ -22,7 +23,6 @@ from lsprotocol.types import (
     WorkspaceEdit,
 )
 from lxml import etree
-from pydantic.main import BaseModel
 from pygls.workspace import Workspace
 
 from galaxyls.services.format import GalaxyToolFormatService
@@ -47,7 +47,8 @@ DEFAULT_MACROS_FILENAME = "macros.xml"
 EXCLUDED_TAGS = {TOOL, MACROS, MACRO, XML}
 
 
-class MacroData(BaseModel):
+@attrs.define
+class MacroData:
     name: str
     content: str
 

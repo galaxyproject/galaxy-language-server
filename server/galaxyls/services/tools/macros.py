@@ -5,8 +5,8 @@ from typing import (
     Set,
 )
 
+import attrs
 from lsprotocol.types import Location
-from pydantic import BaseModel
 from pygls.workspace import Workspace
 
 from galaxyls.services.tools.constants import (
@@ -21,29 +21,28 @@ from galaxyls.services.xml.nodes import XmlElement
 from galaxyls.services.xml.parser import XmlDocumentParser
 
 
-class BaseMacrosModel(BaseModel):
-    class Config:
-        arbitrary_types_allowed = True
-
-
-class TokenDefinition(BaseModel):
+@attrs.define
+class TokenDefinition:
     name: str
     location: Location
     value: str
 
 
+@attrs.define
 class TokenParam(TokenDefinition):
     param_name: str
     default_value: str
 
 
-class MacroDefinition(BaseModel):
+@attrs.define
+class MacroDefinition:
     name: str
     location: Location
     token_params: Dict[str, TokenParam]
 
 
-class ImportedMacrosFile(BaseMacrosModel):
+@attrs.define
+class ImportedMacrosFile:
     file_name: str
     file_uri: Optional[str]
     document: Optional[XmlDocument]
@@ -51,7 +50,8 @@ class ImportedMacrosFile(BaseMacrosModel):
     macros: Dict[str, MacroDefinition]
 
 
-class ToolMacroDefinitions(BaseMacrosModel):
+@attrs.define
+class ToolMacroDefinitions:
     tool_document: XmlDocument
     imported_macros: Dict[str, ImportedMacrosFile]
     tokens: Dict[str, TokenDefinition]

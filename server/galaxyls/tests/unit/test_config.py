@@ -1,4 +1,5 @@
 from galaxyls.config import (
+    CompletionConfig,
     CompletionMode,
     GalaxyToolsConfiguration,
 )
@@ -6,14 +7,9 @@ from galaxyls.config import (
 
 class TestGalaxyToolsConfigurationClass:
     def test_init_sets_properties(self) -> None:
-        mock_config = {
-            "completion": {
-                "mode": "invoke",
-                "autoCloseTags": "false",
-            },
-        }
+        fake_completion_config = CompletionConfig(mode=CompletionMode.INVOKE, auto_close_tags=False)
 
-        config = GalaxyToolsConfiguration(**mock_config)
+        config = GalaxyToolsConfiguration(fake_completion_config)
 
         assert config.completion.mode == CompletionMode.INVOKE
         assert not config.completion.auto_close_tags
