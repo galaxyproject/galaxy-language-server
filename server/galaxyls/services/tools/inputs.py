@@ -205,7 +205,7 @@ class GalaxyToolInputTree:
         if name:
             min = 1
             min_attr = repeat.get_attribute(MIN)
-            if min_attr and min_attr.isdigit:
+            if min_attr and min_attr.isdigit():
                 min = int(min_attr)
             repeat_node = RepeatInputNode(name, min, repeat)
             self._build_input_tree(repeat, repeat_node)

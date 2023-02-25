@@ -87,7 +87,6 @@ def get_context_from_line_position(fake_tree: XsdTree, line: str, position: Posi
 
 class TestXmlCompletionServiceClass:
     def test_init_sets_properties(self, fake_tree: XsdTree, fake_definitions_provider: DocumentDefinitionsProvider) -> None:
-
         service = XmlCompletionService(fake_tree, fake_definitions_provider)
 
         assert service.xsd_tree
