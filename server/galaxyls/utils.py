@@ -34,7 +34,7 @@ def unpack(obj):
 
 
 def deserialize_command_param(params: NamedTuple, type: Type[T]) -> T:
-    """Given a namedtuple, converts it into the given type of pydantic model."""
+    """Given a namedtuple, converts it into the given model type."""
     params_dict = unpack(params)
     obj = type(**params_dict)  # type: ignore [call-arg]
     return obj

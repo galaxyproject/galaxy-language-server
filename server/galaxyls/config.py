@@ -1,12 +1,7 @@
 from enum import Enum
+from typing import Optional
 
-from pydantic import BaseModel
-
-
-def to_camel(string: str) -> str:
-    pascal = "".join(word.capitalize() for word in string.split("_"))
-    camel = pascal[0].lower() + pascal[1:]
-    return camel
+import attrs
 
 
 class CompletionMode(str, Enum):
@@ -15,20 +10,45 @@ class CompletionMode(str, Enum):
     DISABLED = "disabled"
 
 
-class ConfigModel(BaseModel):
-    class Config:
-        alias_generator = to_camel
-        allow_population_by_field_name = True
-
-
-class CompletionConfig(ConfigModel):
+@attrs.define
+class CompletionConfig:
     """Auto-completion feature configuration."""
 
-    mode: CompletionMode = CompletionMode.AUTO
-    auto_close_tags: bool = True
+    mode: CompletionMode = attrs.field(default=CompletionMode.AUTO)
+    auto_close_tags: bool = attrs.field(default=True, alias="autoCloseTags")
 
 
-class GalaxyToolsConfiguration(ConfigModel):
+@attrs.define
+class ServerConfig:
+    """Language Server specific configuration."""
+
+    silent_install: bool = attrs.field(default=False, alias="silentInstall")
+
+
+@attrs.define
+class PlanemoTestingConfig:
+    """Planemo testing configuration."""
+
+    enabled: bool = attrs.field(default=True)
+    auto_test_discover_on_save_enabled: bool = attrs.field(default=True, alias="autoTestDiscoverOnSaveEnabled")
+    extra_params: str = attrs.field(default="", alias="extraParams")
+
+
+@attrs.define
+class PlanemoConfig:
+    """Planemo integration configuration."""
+
+    enabled: bool = attrs.field(default=False)
+    binary_path: str = attrs.field(default="planemo", alias="binaryPath")
+    galaxy_root: Optional[str] = attrs.field(default=None, alias="galaxyRoot")
+    get_cwd: Optional[str] = attrs.field(default=None, alias="getCwd")
+    testing: PlanemoTestingConfig = attrs.field(default=PlanemoTestingConfig())
+
+
+@attrs.define
+class GalaxyToolsConfiguration:
     """Galaxy Language Server general configuration."""
 
-    completion: CompletionConfig = CompletionConfig()
+    server: ServerConfig = attrs.field(default=ServerConfig())
+    completion: CompletionConfig = attrs.field(default=CompletionConfig())
+    planemo: PlanemoConfig = attrs.field(default=PlanemoConfig())

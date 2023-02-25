@@ -4,18 +4,21 @@
 from pathlib import Path
 from typing import List
 
-from lxml import etree
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Diagnostic,
     DiagnosticRelatedInformation,
     Location,
     Position,
     Range,
 )
+from lxml import etree
 
 from galaxyls.constants import DiagnosticCodes
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
-from galaxyls.services.xml.document import XmlDocument
+from galaxyls.services.xml.document import (
+    DEFAULT_RANGE,
+    XmlDocument,
+)
 
 EXPAND_DOCUMENT_URI_SUFFIX = "%20%28Expanded%29"
 
@@ -156,7 +159,7 @@ class GalaxyToolSchemaValidationService:
     def _build_diagnostics_for_macros_file_syntax_error(self, xml_document: XmlDocument, syntax_error) -> List[Diagnostic]:
         tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         result = Diagnostic(
-            range=tool.get_import_macro_file_range(syntax_error.filename),
+            range=tool.get_import_macro_file_range(syntax_error.filename) or DEFAULT_RANGE,
             message=syntax_error.msg,
             source=self.diagnostics_source,
             related_information=[

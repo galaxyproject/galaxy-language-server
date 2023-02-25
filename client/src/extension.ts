@@ -1,14 +1,14 @@
 "use strict";
 
 import * as net from "net";
-import { ExtensionContext, window, IndentAction, LanguageConfiguration, languages, ExtensionMode } from "vscode";
+import { ExtensionContext, ExtensionMode, IndentAction, LanguageConfiguration, languages, window } from "vscode";
 import { LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
-import { installLanguageServer } from "./setup";
-import { Constants } from "./constants";
 import { setupCommands } from "./commands";
-import { setupPlanemo } from "./planemo/main";
+import { Constants } from "./constants";
 import { DefaultConfigurationFactory } from "./planemo/configuration";
+import { setupPlanemo } from "./planemo/main";
 import { setupProviders } from "./providers/setup";
+import { installLanguageServer } from "./setup";
 
 let client: LanguageClient;
 
@@ -76,13 +76,16 @@ function getClientOptions(): LanguageClientOptions {
  */
 function connectToLanguageServerTCP(port: number): LanguageClient {
     const serverOptions: ServerOptions = () => {
-        return new Promise((resolve, _reject) => {
+        return new Promise((resolve, reject) => {
             const clientSocket = new net.Socket();
             clientSocket.connect(port, "127.0.0.1", () => {
                 resolve({
                     reader: clientSocket,
                     writer: clientSocket,
                 });
+            });
+            clientSocket.on("error", (err) => {
+                reject(err);
             });
         });
     };

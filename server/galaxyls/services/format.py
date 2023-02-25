@@ -4,13 +4,13 @@ best practices.
 
 from typing import List
 
-from lxml import etree
-from pygls.lsp.types import (
+from lsprotocol.types import (
     DocumentFormattingParams,
     Position,
     Range,
     TextEdit,
 )
+from lxml import etree
 
 DEFAULT_INDENTATION = " " * 4
 

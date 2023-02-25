@@ -135,7 +135,7 @@ class XmlContainerNode(XmlSyntaxNode):
     def get_content_offsets(self) -> Tuple[int, int]:
         return NotImplemented
 
-    def get_content(self, source: str) -> Optional[str]:
+    def get_content(self, source: str) -> str:
         """Gets the text content from the source between the content offsets of this element."""
         start, end = self.get_content_offsets()
         return source[start:end]

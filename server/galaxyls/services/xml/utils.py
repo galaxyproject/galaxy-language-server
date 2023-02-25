@@ -9,7 +9,7 @@ from typing import (
     List,
 )
 
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Position,
     Range,
 )

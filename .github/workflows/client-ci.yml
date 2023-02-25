@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -22,11 +23,11 @@ jobs:
       - name: Set up Python for local environment
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python-version }}
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - run: npm install
       - name: Run integration tests
         run: xvfb-run -a npm run test:e2e

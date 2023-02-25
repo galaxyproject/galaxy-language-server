@@ -1,7 +1,7 @@
 from typing import Optional
 
 import pytest
-from pygls.lsp.types import Position
+from lsprotocol.types import Position
 from pygls.workspace import Document
 
 from ....services.xml.nodes import (

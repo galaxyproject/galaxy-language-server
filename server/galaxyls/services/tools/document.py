@@ -7,7 +7,7 @@ from typing import (
 )
 
 from anytree import find
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Position,
     Range,
 )

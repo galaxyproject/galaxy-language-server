@@ -7,8 +7,8 @@ from typing import (
     Optional,
 )
 
-from pydantic.main import BaseModel
-from pygls.lsp.types import (
+import attrs
+from lsprotocol.types import (
     Position,
     Range,
 )
@@ -83,8 +83,9 @@ class TestSuiteInfoResult:
         self.children = children
 
 
-class GeneratedExpandedDocument(BaseModel):
+@attrs.define
+class GeneratedExpandedDocument:
     """Represents a tool document with all the macros expanded."""
 
-    content: Optional[str]
-    error_message: Optional[str]
+    content: Optional[str] = attrs.field(default=None)
+    error_message: Optional[str] = attrs.field(default=None, alias="errorMessage")

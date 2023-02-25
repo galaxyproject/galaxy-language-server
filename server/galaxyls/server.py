@@ -5,19 +5,7 @@ from typing import (
     Optional,
 )
 
-from pygls.lsp.methods import (
-    CODE_ACTION,
-    COMPLETION,
-    DEFINITION,
-    FORMATTING,
-    HOVER,
-    INITIALIZED,
-    TEXT_DOCUMENT_DID_CLOSE,
-    TEXT_DOCUMENT_DID_OPEN,
-    TEXT_DOCUMENT_DID_SAVE,
-    WORKSPACE_DID_CHANGE_CONFIGURATION,
-)
-from pygls.lsp.types import (
+from lsprotocol.types import (
     CodeAction,
     CodeActionKind,
     CodeActionOptions,
@@ -26,7 +14,6 @@ from pygls.lsp.types import (
     CompletionOptions,
     CompletionParams,
     ConfigurationItem,
-    ConfigurationParams,
     Diagnostic,
     DidChangeConfigurationParams,
     DidCloseTextDocumentParams,
@@ -34,12 +21,23 @@ from pygls.lsp.types import (
     DidSaveTextDocumentParams,
     DocumentFormattingParams,
     Hover,
+    INITIALIZED,
     InitializeParams,
     Location,
     MessageType,
+    TEXT_DOCUMENT_CODE_ACTION,
+    TEXT_DOCUMENT_COMPLETION,
+    TEXT_DOCUMENT_DEFINITION,
+    TEXT_DOCUMENT_DID_CLOSE,
+    TEXT_DOCUMENT_DID_OPEN,
+    TEXT_DOCUMENT_DID_SAVE,
+    TEXT_DOCUMENT_FORMATTING,
+    TEXT_DOCUMENT_HOVER,
     TextDocumentIdentifier,
     TextDocumentPositionParams,
     TextEdit,
+    WORKSPACE_DID_CHANGE_CONFIGURATION,
+    WorkspaceConfigurationParams,
 )
 from pygls.server import LanguageServer
 from pygls.workspace import Document
@@ -63,12 +61,15 @@ from galaxyls.types import (
 )
 from galaxyls.utils import deserialize_command_param
 
+GLS_VERSION = "0.9.0"
+GLS_NAME = "galaxy-tools-language-server"
+
 
 class GalaxyToolsLanguageServer(LanguageServer):
     """Galaxy Tools Language Server."""
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(name=GLS_NAME, version=GLS_VERSION)
         self.service = GalaxyToolLanguageService()
         self.configuration: GalaxyToolsConfiguration = GalaxyToolsConfiguration()
 
@@ -84,7 +85,9 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
         server (GalaxyToolsLanguageServer): The language server instance.
     """
     try:
-        config = await server.get_configuration_async(ConfigurationParams(items=[ConfigurationItem(section="galaxyTools")]))
+        config = await server.get_configuration_async(
+            WorkspaceConfigurationParams(items=[ConfigurationItem(section="galaxyTools")])
+        )
         server.configuration = GalaxyToolsConfiguration(**config[0])
     except BaseException as err:
         server.show_message_log(f"Error loading configuration: {err}")
@@ -105,7 +108,7 @@ async def did_change_configuration(server: GalaxyToolsLanguageServer, params: Di
     server.show_message("Settings updated")
 
 
-@language_server.feature(COMPLETION, CompletionOptions(trigger_characters=["<", " "]))
+@language_server.feature(TEXT_DOCUMENT_COMPLETION, CompletionOptions(trigger_characters=["<", " "]))
 def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> Optional[CompletionList]:
     """Returns completion items depending on the current document context."""
     if server.configuration.completion.mode == CompletionMode.DISABLED:
@@ -117,7 +120,7 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
     return None
 
 
-@language_server.feature(HOVER)
+@language_server.feature(TEXT_DOCUMENT_HOVER)
 def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[Hover]:
     """Displays Markdown documentation for the element under the cursor."""
     document = _get_valid_document(server, params.text_document.uri)
@@ -127,7 +130,7 @@ def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams)
     return None
 
 
-@language_server.feature(FORMATTING)
+@language_server.feature(TEXT_DOCUMENT_FORMATTING)
 def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> Optional[List[TextEdit]]:
     """Formats the whole document using the provided parameters"""
     document = _get_valid_document(server, params.text_document.uri)
@@ -157,18 +160,18 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
     server.publish_diagnostics(params.text_document.uri, [])
 
 
-@language_server.feature(DEFINITION)
+@language_server.feature(TEXT_DOCUMENT_DEFINITION)
 def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[List[Location]]:
     """Provides the location of a symbol definition."""
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
-        return server.service.definitions_provider.go_to_definition(xml_document, params.position)
+        return server.service.go_to_definition(xml_document, params.position)
     return None
 
 
 @language_server.feature(
-    CODE_ACTION,
+    TEXT_DOCUMENT_CODE_ACTION,
     CodeActionOptions(
         code_action_kinds=[
             CodeActionKind.RefactorExtract,

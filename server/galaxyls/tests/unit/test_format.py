@@ -1,4 +1,4 @@
-from pygls.lsp.types import (
+from lsprotocol.types import (
     DocumentFormattingParams,
     FormattingOptions,
     TextDocumentIdentifier,

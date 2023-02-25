@@ -8,11 +8,11 @@ from typing import (
 
 from anytree.search import findall
 from galaxy.util import xml_macros
-from lxml import etree
-from pygls.lsp.types import (
+from lsprotocol.types import (
     Position,
     Range,
 )
+from lxml import etree
 from pygls.workspace import Document
 
 from .nodes import (

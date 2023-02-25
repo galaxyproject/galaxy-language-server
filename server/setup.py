@@ -7,8 +7,10 @@ from setuptools import (
     setup,
 )
 
+from galaxyls.server import GLS_VERSION
+
 PACKAGE_NAME = "galaxy-language-server"
-VERSION = "0.9.0"
+VERSION = GLS_VERSION
 AUTHOR = "David López"
 AUTHOR_EMAIL = "davelopez7391@gmail.com"
 DESCRIPTION = "A language server for Galaxy (https://galaxyproject.org) tool wrappers"
@@ -39,7 +41,7 @@ setup(
     packages=packages,
     include_package_data=True,
     install_requires=requirements,
-    python_requires="~=3.8",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
@@ -49,5 +51,8 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
 )
