@@ -61,7 +61,7 @@ from galaxyls.types import (
 )
 from galaxyls.utils import deserialize_command_param
 
-GLS_VERSION = "0.9.0"
+GLS_VERSION = "0.10.0"
 GLS_NAME = "galaxy-tools-language-server"
 
 
