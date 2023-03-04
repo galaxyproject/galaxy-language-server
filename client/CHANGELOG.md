@@ -1,5 +1,11 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.10.1] - 2023-03-04
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.10.1](./server/CHANGELOG.md#0101)
+
 ## [0.10.0] - 2023-02-25
 
 ### Changed
