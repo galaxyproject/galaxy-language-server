@@ -88,7 +88,7 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
         config = await server.get_configuration_async(
             WorkspaceConfigurationParams(items=[ConfigurationItem(section="galaxyTools")])
         )
-        server.configuration = GalaxyToolsConfiguration(**config[0])
+        server.configuration = GalaxyToolsConfiguration.from_config_dict(config[0])
     except BaseException as err:
         server.show_message_log(f"Error loading configuration: {err}")
         server.show_message("Error loading configuration. Using default settings.", MessageType.Error)
