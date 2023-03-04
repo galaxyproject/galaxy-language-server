@@ -1,10 +1,16 @@
 # Galaxy Language Server Changelog
 
+## [0.10.1] - 2023-03-04
+
+### Fixed
+
+- Config loading issue resulting in unhandled exception with new configuration models ([#220](https://github.com/galaxyproject/galaxy-language-server/pull/220)).
+
 ## [0.10.0] - 2023-02-25
 
 ### Changed
 
-- Update pygls to version 1.0.1. This enables Python 3.11 support and other features. ([#216](https://github.com/galaxyproject/galaxy-language-server/pull/216)).
+- Update pygls to version 1.0.1. This enables Python 3.11 support and other features ([#216](https://github.com/galaxyproject/galaxy-language-server/pull/216)).
 
 ## [0.9.0] - 2022-10-20
 
