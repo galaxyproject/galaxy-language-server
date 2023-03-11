@@ -4,6 +4,7 @@ from galaxyls.config import (
     GalaxyToolsConfiguration,
     ServerConfig,
 )
+from galaxyls.utils import convert_to
 
 
 class TestGalaxyToolsConfigurationClass:
@@ -32,7 +33,7 @@ class TestGalaxyToolsConfigurationClass:
             },
         }
 
-        config = GalaxyToolsConfiguration.from_config_dict(config_dict)
+        config = convert_to(config_dict, GalaxyToolsConfiguration)
 
         assert config.server.silent_install is False
         assert config.completion.mode == CompletionMode.DISABLED
