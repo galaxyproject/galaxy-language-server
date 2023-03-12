@@ -59,7 +59,7 @@ from galaxyls.types import (
     ReplaceTextRangeResult,
     TestSuiteInfoResult,
 )
-from galaxyls.utils import deserialize_command_param
+from galaxyls.utils import convert_to
 
 GLS_VERSION = "0.10.1"
 GLS_NAME = "galaxy-tools-language-server"
@@ -88,7 +88,7 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
         config = await server.get_configuration_async(
             WorkspaceConfigurationParams(items=[ConfigurationItem(section="galaxyTools")])
         )
-        server.configuration = GalaxyToolsConfiguration.from_config_dict(config[0])
+        server.configuration = convert_to(config[0], GalaxyToolsConfiguration)
     except BaseException as err:
         server.show_message_log(f"Error loading configuration: {err}")
         server.show_message("Error loading configuration. Using default settings.", MessageType.Error)
@@ -190,7 +190,7 @@ def process_code_actions(server: GalaxyToolsLanguageServer, params: CodeActionPa
 def auto_close_tag(server: GalaxyToolsLanguageServer, parameters: CommandParameters) -> Optional[AutoCloseTagResult]:
     """Responds to a close tag request to close the currently opened node."""
     if server.configuration.completion.auto_close_tags and parameters:
-        params = deserialize_command_param(parameters[0], TextDocumentPositionParams)
+        params = convert_to(parameters[0], TextDocumentPositionParams)
         document = _get_valid_document(server, params.text_document.uri)
         if document:
             xml_document = _get_xml_document(document)
@@ -203,7 +203,7 @@ async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
 ) -> Optional[GeneratedSnippetResult]:
     """Generates some test snippets based on the inputs and outputs of the document."""
-    params = deserialize_command_param(parameters[0], TextDocumentIdentifier)
+    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.generate_tests(document)
@@ -215,7 +215,7 @@ async def cmd_generate_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
 ) -> Optional[GeneratedSnippetResult]:
     """Generates a boilerplate Cheetah code snippet based on the inputs and outputs of the document."""
-    params = deserialize_command_param(parameters[0], TextDocumentIdentifier)
+    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.generate_command(document)
@@ -227,7 +227,7 @@ def sort_single_param_attrs_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
 ) -> Optional[ReplaceTextRangeResult]:
     """Sorts the attributes of the param element under the cursor."""
-    params = deserialize_command_param(parameters[0], TextDocumentPositionParams)
+    params = convert_to(parameters[0], TextDocumentPositionParams)
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -240,7 +240,7 @@ def sort_document_params_attrs_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
 ) -> Optional[List[ReplaceTextRangeResult]]:
     """Sorts the attributes of all the param elements contained in the document."""
-    params = deserialize_command_param(parameters[0], TextDocumentIdentifier)
+    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -251,7 +251,7 @@ def sort_document_params_attrs_command(
 @language_server.command(Commands.GENERATE_EXPANDED_DOCUMENT)
 def generate_expanded_command(server: GalaxyToolsLanguageServer, parameters: CommandParameters) -> GeneratedExpandedDocument:
     """Generates a expanded version (with all macros replaced) of the tool document."""
-    params = deserialize_command_param(parameters[0], TextDocumentIdentifier)
+    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = server.workspace.get_document(params.uri)
     if document and DocumentValidator.is_tool_document(document):
         return server.service.macro_expander.generate_expanded_from(document.path)
@@ -271,7 +271,7 @@ def discover_tests_in_document_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
 ) -> Optional[TestSuiteInfoResult]:
     """Returns a test suite containing all tests for a particular XML tool document."""
-    params = deserialize_command_param(parameters[0], TextDocumentIdentifier)
+    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
