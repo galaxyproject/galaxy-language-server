@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.10.2] - 2023-03-12
+
+### Fixed
+
+- Fix parameters and models conversion between client and server ([#224](https://github.com/galaxyproject/galaxy-language-server/pull/224)).
+
 ## [0.10.1] - 2023-03-04
 
 ### Fixed
