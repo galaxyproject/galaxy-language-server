@@ -7,7 +7,7 @@ from setuptools import (
     setup,
 )
 
-from galaxyls.server import GLS_VERSION
+from galaxyls.version import GLS_VERSION
 
 PACKAGE_NAME = "galaxy-language-server"
 VERSION = GLS_VERSION

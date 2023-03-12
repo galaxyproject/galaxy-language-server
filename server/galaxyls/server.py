@@ -60,8 +60,8 @@ from galaxyls.types import (
     TestSuiteInfoResult,
 )
 from galaxyls.utils import convert_to
+from galaxyls.version import GLS_VERSION
 
-GLS_VERSION = "0.10.1"
 GLS_NAME = "galaxy-tools-language-server"
 
 
