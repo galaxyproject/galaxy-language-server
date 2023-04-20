@@ -164,7 +164,7 @@ If you want to debug the [extension](../client) and the [Language Server](../ser
 3. Open debug view (`ctrl + shift + D`).
 4. Select `Server + Client` and click ``RUN`` (or press `F5`).
 
-**NOTE:** If you are using a conda environment, and are geting errors such as `npm: command not found`, you can go around by manually activating the env from the terminal, i.e. `conda activate <environment-name>`.
+**NOTE:** If you are using a conda environment, and are getting errors such as `npm: command not found`, you can go around by manually activating the env from the terminal, i.e. `conda activate <environment-name>`.
 
 
 ## Pull Request Guidelines
