@@ -104,20 +104,22 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
 3. Create a virtual environment using conda and install the dependencies:
 
     ```sh
-    conda create -n <environment-name> python=3.8
+    conda create -n <environment-name> python=3.8 nodejs=18.14 typescript
     conda activate <environment-name>
 
     # For the language server:
     # Make sure you are in the server directory:
     cd galaxy-language-server/server/
+
     # And install:
     pip install -r requirements-dev.txt
+
 
     # For the client extension:
     # Make sure you are in the client directory:
     cd ../client/
+
     # And install:
-    conda install nodejs typescript
     npm install
     ```
 4. Run the tests locally
@@ -157,10 +159,13 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
 
 ### Setup Visual Studio Code for debugging
 If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
-1. Select or activate your ``<environment-name>`` in Visual Studio Code as explained [here](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment).
+1. Select or activate your ``<environment-name>`` in Visual Studio Code as explained [here](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment). If you have not already done so, you might need to first install [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 2. Open the `galaxy-language-server` directory in Visual Studio Code.
 3. Open debug view (`ctrl + shift + D`).
 4. Select `Server + Client` and click ``RUN`` (or press `F5`).
+
+**NOTE:** If you are using a conda environment, and are geting errors such as `npm: command not found`, you can go around by manually activating the env from the terminal, i.e. `conda activate <environment-name>`.
+
 
 ## Pull Request Guidelines
 
