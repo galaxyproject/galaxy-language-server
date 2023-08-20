@@ -209,7 +209,7 @@ class GalaxyToolXmlDocument:
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""
         tool_element = self.get_tool_element()
-        return tool_element.get_attribute("id") if tool_element else None
+        return tool_element.get_attribute_value("id") if tool_element else None
 
     def get_tests(self) -> List[XmlElement]:
         """Gets the tests of this document as a list of elements.

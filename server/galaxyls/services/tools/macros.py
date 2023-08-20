@@ -148,7 +148,7 @@ class MacroDefinitionsProvider:
         token_elements = macros_xml.find_all_elements_with_name(TOKEN)
         rval = {}
         for element in token_elements:
-            token = element.get_attribute(NAME)
+            token = element.get_attribute_value(NAME)
             if token is None:
                 continue
             name = token.replace("@", "")
@@ -170,7 +170,7 @@ class MacroDefinitionsProvider:
         macro_elements += xml_elements
         rval = {}
         for element in macro_elements:
-            name = element.get_attribute(NAME)
+            name = element.get_attribute_value(NAME)
             macro_def = MacroDefinition(
                 name=name or "Unknown",
                 location=Location(

@@ -206,22 +206,22 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             etree._Element: The XML element representing a <param> in the <test> code snippet.
         """
         param = etree.Element(PARAM)
-        argument_attr = input_param.get_attribute(ARGUMENT)
-        name_attr = input_param.get_attribute(NAME)
+        argument_attr = input_param.get_attribute_value(ARGUMENT)
+        name_attr = input_param.get_attribute_value(NAME)
         if not name_attr and argument_attr:
             name_attr = self._extract_name_from_argument(argument_attr)
         if name_attr:
             param.attrib[NAME] = name_attr
-        default_value = input_param.get_attribute(VALUE)
+        default_value = input_param.get_attribute_value(VALUE)
         if value:
             param.attrib[VALUE] = value
         elif default_value:
             param.attrib[VALUE] = self._get_next_tabstop_with_placeholder(default_value)
         else:
-            type_attr = input_param.get_attribute(TYPE)
+            type_attr = input_param.get_attribute_value(TYPE)
             if type_attr:
                 if type_attr == BOOLEAN:
-                    default_value = input_param.get_attribute(CHECKED)
+                    default_value = input_param.get_attribute_value(CHECKED)
                     param.attrib[VALUE] = self._get_next_tabstop_with_options(BOOLEAN_OPTIONS, default_value)
                 elif type_attr == SELECT or type_attr == TEXT:
                     try:
@@ -241,7 +241,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         if input_conditional.option_param:
             # add the option param
             param_element = self._build_param_test_element(input_conditional.option_param, input_conditional.option)
-            if input_conditional.option_param.get_attribute(TYPE) == BOOLEAN:
+            if input_conditional.option_param.get_attribute_value(TYPE) == BOOLEAN:
                 conditional.append(etree.Comment(BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT))
             conditional.append(param_element)
         # add the rest of params in the corresponding when element
@@ -291,7 +291,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             output (XmlElement): The
             test_element (etree._Element): [description]
         """
-        name = data.get_attribute(NAME)
+        name = data.get_attribute_value(NAME)
         if name:
             output_element = etree.Element(OUTPUT)
             output_element.attrib[NAME] = name
@@ -305,11 +305,11 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             output_collection (XmlElement): The <collection> XML element.
             test_element (etree._Element): The <test> XML element.
         """
-        name = output_collection.get_attribute(NAME)
+        name = output_collection.get_attribute_value(NAME)
         if name:
             output_element = etree.Element(OUTPUT_COLLECTION)
             output_element.attrib[NAME] = name
-            type_attr = output_collection.get_attribute(TYPE)
+            type_attr = output_collection.get_attribute_value(TYPE)
             if type_attr:
                 output_element.attrib[TYPE] = type_attr
             element = etree.Element(ELEMENT)
@@ -361,5 +361,5 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             List[str]: The list of <option> in this 'param' or an empty list.
         """
         option_elements = param.get_children_with_name(OPTION)
-        options = [o.get_attribute(VALUE) for o in option_elements]
+        options = [o.get_attribute_value(VALUE) for o in option_elements]
         return list(filter(None, options))

@@ -350,7 +350,7 @@ class XmlElement(XmlContainerNode):
         """Gets the list of attribute names of this node if it has any."""
         return [*self.attributes]
 
-    def get_attribute(self, name: str) -> Optional[str]:
+    def get_attribute_value(self, name: str) -> Optional[str]:
         """Gets the value of the attribute with the given name if it exists.
 
         Args:

@@ -152,17 +152,17 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
     def _param_to_cheetah(self, param: XmlElement, name_path: Optional[str] = None, indent_level: int = 0) -> str:
         """Converts the given param element to it's Cheetah representation."""
         indentation = self._get_indentation(indent_level)
-        argument_attr = param.get_attribute(ARGUMENT)
-        name_attr = param.get_attribute(NAME)
+        argument_attr = param.get_attribute_value(ARGUMENT)
+        name_attr = param.get_attribute_value(NAME)
         if not name_attr and argument_attr:
             name_attr = argument_attr.lstrip(DASH).replace(DASH, UNDERSCORE)
-        type_attr = param.get_attribute(TYPE)
+        type_attr = param.get_attribute_value(TYPE)
         if name_path:
             name_attr = f"{name_path}.{name_attr}"
         if type_attr == BOOLEAN:
             return f"{indentation}\\${name_attr}"
         if type_attr in [INTEGER, FLOAT]:
-            if param.get_attribute(OPTIONAL) == "true":
+            if param.get_attribute_value(OPTIONAL) == "true":
                 return (
                     f"{indentation}#if str(\\${name_attr}):\n"
                     f"{indentation}{self.indent_spaces}{self._get_argument_safe(argument_attr)} \\${name_attr}"
@@ -193,7 +193,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         if name_path:
             cond_name = f"{name_path}.{cond_name}"
         if conditional.option_param:
-            param_name = conditional.option_param.get_attribute(NAME)
+            param_name = conditional.option_param.get_attribute_value(NAME)
             option = conditional.option
             directive = "#elif"
             if conditional.is_first_option:
@@ -209,7 +209,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         indentation = self._get_indentation(indent_level)
         result: List[str] = []
         if repeat.element:
-            repeat_name = repeat.element.get_attribute(NAME)
+            repeat_name = repeat.element.get_attribute_value(NAME)
             if name_path:
                 repeat_name = f"{name_path}.{repeat_name}"
             var_placeholder = self._get_next_tabstop_with_placeholder(REPEAT_VAR)
@@ -224,7 +224,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         """Converts the given section node to it's Cheetah representation."""
         result: List[str] = []
         if section.element:
-            section_name = section.element.get_attribute(NAME)
+            section_name = section.element.get_attribute_value(NAME)
             if name_path:
                 section_name = f"{name_path}.{section_name}"
             result.extend(self._node_to_cheetah(section, section_name, indent_level))
@@ -232,7 +232,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
 
     def _output_to_cheetah(self, output: XmlElement) -> Optional[str]:
         """Converts the given output element to it's Cheetah representation wrapped in single quotes."""
-        name = output.get_attribute(NAME)
+        name = output.get_attribute_value(NAME)
         if name:
             return f"'\\${name}'"
         return None
