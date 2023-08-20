@@ -178,7 +178,7 @@ class XmlAttribute(XmlSyntaxNode):
         self.parent = owner
 
     def __repr__(self) -> str:
-        return f"[{self.name}={self.get_value()}]"
+        return f"XmlAttribute[{self.name}={self.get_value()}]"
 
     @property
     def node_type(self) -> NodeType:
@@ -268,7 +268,12 @@ class XmlAttributeValue(XmlContainerNode):
         return self.owner.name
 
     def get_content_offsets(self) -> Tuple[int, int]:
+        """Gets the content offsets of this attribute value."""
         return self.start, self.end
+
+    def get_unquoted_content_offsets(self) -> Tuple[int, int]:
+        """Gets the content offsets of this attribute value without the quoting marks."""
+        return self.start + 1, self.end - 1
 
 
 class XmlElement(XmlContainerNode):
