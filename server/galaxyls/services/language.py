@@ -24,6 +24,7 @@ from pygls.workspace import (
 )
 
 from galaxyls.services.definitions import DocumentDefinitionsProvider
+from galaxyls.services.links import DocumentLinksProvider
 from galaxyls.services.macros import MacroExpanderService
 from galaxyls.services.tools.common import (
     TestsDiscoveryService,
@@ -73,6 +74,7 @@ class GalaxyToolLanguageService:
         self.refactoring_service: Optional[RefactoringService] = None
         self.linter = GalaxyToolLinter()
         self.definitions_provider: Optional[DocumentDefinitionsProvider] = None
+        self.link_provider = DocumentLinksProvider()
 
     def set_workspace(self, workspace: Workspace) -> None:
         macro_definitions_provider = MacroDefinitionsProvider(workspace)

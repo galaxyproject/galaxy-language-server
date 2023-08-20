@@ -230,6 +230,11 @@ class GalaxyToolXmlDocument:
             return range
         return None
 
+    def get_test_data_path(self) -> Path:
+        """Gets the test-data directory path of the tool"""
+        tool_directory = self._get_tool_directory()
+        return tool_directory / "test-data"
+
     @classmethod
     def from_xml_document(cls, xml_document: XmlDocument) -> "GalaxyToolXmlDocument":
         return GalaxyToolXmlDocument(xml_document.document, xml_document)
