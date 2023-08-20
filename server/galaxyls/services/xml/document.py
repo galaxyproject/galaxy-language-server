@@ -15,6 +15,7 @@ from lsprotocol.types import (
 from lxml import etree
 from pygls.workspace import Document
 
+from galaxyls.constants import DEFAULT_DOCUMENT_RANGE
 from .nodes import (
     XmlContainerNode,
     XmlElement,
@@ -29,17 +30,14 @@ from .utils import (
     convert_document_offsets_to_range,
 )
 
-DEFAULT_RANGE = Range(
-    start=Position(line=0, character=0),
-    end=Position(line=0, character=0),
-)
-
 
 class XmlDocument(XmlSyntaxNode):
     """Represents a parsed XML document.
 
     This is the root of the XML syntax tree.
     """
+
+    DEFAULT_RANGE = DEFAULT_DOCUMENT_RANGE
 
     def __init__(self, document: Document):
         super().__init__()
@@ -268,8 +266,8 @@ class XmlDocument(XmlSyntaxNode):
     def get_default_range(self) -> Range:
         """Gets the range of the root tag or the first character of the document if there is no root."""
         if self.root:
-            return self.get_element_name_range(self.root) or DEFAULT_RANGE
-        return DEFAULT_RANGE
+            return self.get_element_name_range(self.root) or self.DEFAULT_RANGE
+        return self.DEFAULT_RANGE
 
     def get_tree_element_from_xpath(self, tree, xpath: Optional[str]) -> Optional[Any]:
         if xpath is None or tree is None:
