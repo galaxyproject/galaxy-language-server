@@ -147,6 +147,17 @@ class GalaxyToolXmlDocument:
         inputs = self.find_element(INPUTS)
         return GalaxyToolInputTree(inputs)
 
+    def get_inputs(self) -> List[XmlElement]:
+        """Gets the inputs of this document as a list of elements.
+
+        Returns:
+            List[XmlElement]: The outputs defined in the document.
+        """
+        outputs = self.find_element(INPUTS)
+        if outputs:
+            return outputs.elements
+        return []
+
     def get_outputs(self) -> List[XmlElement]:
         """Gets the outputs of this document as a list of elements.
 
