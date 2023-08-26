@@ -16,6 +16,7 @@ async function main(): Promise<void> {
         await runTests({ extensionDevelopmentPath, extensionTestsPath });
     } catch (err) {
         console.error("Failed to run tests");
+        console.error(err);
         process.exit(1);
     }
 }
