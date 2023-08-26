@@ -1,9 +1,9 @@
-import { join } from "path";
 import { existsSync } from "fs";
+import { join } from "path";
 import { commands, ExtensionContext, ProgressLocation, Uri, window, workspace } from "vscode";
+import { LocalStorageService } from "./configuration/storage";
 import { Constants } from "./constants";
 import { execAsync, forceDeleteDirectory as removeDirectory } from "./utils";
-import { LocalStorageService } from "./configuration/storage";
 
 /**
  * Ensures that the Language server is installed in the extension's virtual environment
@@ -146,24 +146,11 @@ export async function installLanguageServer(
  */
 export async function silentInstallLanguageServerForTesting(installPath: string): Promise<string | undefined> {
     let venvPath = getVirtualEnvironmentPath(installPath, Constants.LS_VENV_NAME);
-    if (existsSync(venvPath)) {
-        const venvPython = getPythonFromVirtualEnvPath(venvPath);
-        const isInstalled = await isPythonPackageInstalled(
-            venvPython,
-            Constants.GALAXY_LS_PACKAGE,
-            Constants.GALAXY_LS_VERSION
-        );
-        if (isInstalled) {
-            console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} already installed.`);
-            return Promise.resolve(venvPython);
-        }
-    }
-
-    // Install with progress
+    const serverPath = installPath.replace("client", "server");
     return window.withProgress(
         {
             location: ProgressLocation.Window,
-            title: "Installing/updating Galaxy language server...",
+            title: "Installing Galaxy language server...",
         },
         (progress): Promise<string> => {
             return new Promise<string>(async (resolve, reject) => {
@@ -184,12 +171,8 @@ export async function silentInstallLanguageServerForTesting(installPath: string)
                     const venvPython = getPythonFromVirtualEnvPath(venvPath);
                     console.log(`[gls] Using Python from: ${venvPython}`);
 
-                    console.log(`[gls] Installing ${Constants.GALAXY_LS_PACKAGE}...`);
-                    const isInstalled = await installPythonPackage(
-                        venvPython,
-                        Constants.GALAXY_LS_PACKAGE,
-                        Constants.GALAXY_LS_VERSION
-                    );
+                    console.log(`[gls] Installing latest DEV version of ${Constants.GALAXY_LS_PACKAGE}...`);
+                    const isInstalled = await installDevServer(venvPython, serverPath);
 
                     if (!isInstalled) {
                         const errorMessage = "There was a problem trying to install the Galaxy language server.";
@@ -250,6 +233,22 @@ async function installPythonPackage(python: string, packageName: string, version
         return isPythonPackageInstalled(python, packageName, version);
     } catch (err: any) {
         console.error(`[gls] installPythonPackage err: ${err}`);
+        return false;
+    }
+}
+
+async function installDevServer(python: string, serverPath: string): Promise<boolean> {
+    const installPipPackageCmd = `"${python}" -m pip install -e ${serverPath}`;
+    try {
+        const installResult = await execAsync(installPipPackageCmd);
+        const installedSuccessfully =
+            installResult.includes(`Successfully installed`) || installResult.includes(`Successfully built`);
+        if (!installedSuccessfully) {
+            console.error(`[gls] installDevServer err: ${installResult}`);
+        }
+        return installedSuccessfully;
+    } catch (err: any) {
+        console.error(`[gls] installDevServer err: ${err}`);
         return false;
     }
 }
