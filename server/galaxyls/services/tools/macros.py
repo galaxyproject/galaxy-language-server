@@ -16,10 +16,7 @@ from galaxyls.services.tools.constants import (
     XML,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
-from galaxyls.services.xml.document import (
-    DEFAULT_RANGE,
-    XmlDocument,
-)
+from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement
 from galaxyls.services.xml.parser import XmlDocumentParser
 
@@ -151,7 +148,7 @@ class MacroDefinitionsProvider:
         token_elements = macros_xml.find_all_elements_with_name(TOKEN)
         rval = {}
         for element in token_elements:
-            token = element.get_attribute(NAME)
+            token = element.get_attribute_value(NAME)
             if token is None:
                 continue
             name = token.replace("@", "")
@@ -160,7 +157,7 @@ class MacroDefinitionsProvider:
                 name=name,
                 location=Location(
                     uri=macros_xml.document.uri,
-                    range=macros_xml.get_full_range(element) or DEFAULT_RANGE,
+                    range=macros_xml.get_full_range(element) or XmlDocument.DEFAULT_RANGE,
                 ),
                 value=value,
             )
@@ -173,12 +170,12 @@ class MacroDefinitionsProvider:
         macro_elements += xml_elements
         rval = {}
         for element in macro_elements:
-            name = element.get_attribute(NAME)
+            name = element.get_attribute_value(NAME)
             macro_def = MacroDefinition(
                 name=name or "Unknown",
                 location=Location(
                     uri=macros_xml.document.uri,
-                    range=macros_xml.get_full_range(element) or DEFAULT_RANGE,
+                    range=macros_xml.get_full_range(element) or XmlDocument.DEFAULT_RANGE,
                 ),
                 token_params=self.get_token_params(macros_xml, element),
             )
@@ -199,7 +196,7 @@ class MacroDefinitionsProvider:
                     value=f"**Token parameter**\n- Default value: `{default_value}`",
                     location=Location(
                         uri=macros_xml.document.uri,
-                        range=macros_xml.get_full_range(attr) or DEFAULT_RANGE,
+                        range=macros_xml.get_full_range(attr) or XmlDocument.DEFAULT_RANGE,
                     ),
                 )
                 token_params[token_name] = token_param

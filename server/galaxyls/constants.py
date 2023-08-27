@@ -1,4 +1,8 @@
 """This module contains definitions for constants used by the Galaxy Tools Language Server."""
+from lsprotocol.types import (
+    Position,
+    Range,
+)
 
 
 class Commands:
@@ -14,3 +18,10 @@ class Commands:
 
 class DiagnosticCodes:
     INVALID_EXPANDED_TOOL = 101
+
+
+# Default Document Range and the start of the document
+DEFAULT_DOCUMENT_RANGE = Range(
+    start=Position(line=0, character=0),
+    end=Position(line=0, character=0),
+)

@@ -147,6 +147,17 @@ class GalaxyToolXmlDocument:
         inputs = self.find_element(INPUTS)
         return GalaxyToolInputTree(inputs)
 
+    def get_inputs(self) -> List[XmlElement]:
+        """Gets the inputs of this document as a list of elements.
+
+        Returns:
+            List[XmlElement]: The outputs defined in the document.
+        """
+        outputs = self.find_element(INPUTS)
+        if outputs:
+            return outputs.elements
+        return []
+
     def get_outputs(self) -> List[XmlElement]:
         """Gets the outputs of this document as a list of elements.
 
@@ -209,7 +220,7 @@ class GalaxyToolXmlDocument:
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""
         tool_element = self.get_tool_element()
-        return tool_element.get_attribute("id") if tool_element else None
+        return tool_element.get_attribute_value("id") if tool_element else None
 
     def get_tests(self) -> List[XmlElement]:
         """Gets the tests of this document as a list of elements.
@@ -229,6 +240,11 @@ class GalaxyToolXmlDocument:
             range = self.xml_document.get_element_name_range(element)
             return range
         return None
+
+    def get_test_data_path(self) -> Path:
+        """Gets the test-data directory path of the tool"""
+        tool_directory = self._get_tool_directory()
+        return tool_directory / "test-data"
 
     @classmethod
     def from_xml_document(cls, xml_document: XmlDocument) -> "GalaxyToolXmlDocument":

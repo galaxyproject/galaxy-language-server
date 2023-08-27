@@ -20,6 +20,8 @@ from lsprotocol.types import (
     DidOpenTextDocumentParams,
     DidSaveTextDocumentParams,
     DocumentFormattingParams,
+    DocumentLink,
+    DocumentLinkParams,
     Hover,
     INITIALIZED,
     InitializeParams,
@@ -31,6 +33,7 @@ from lsprotocol.types import (
     TEXT_DOCUMENT_DID_CLOSE,
     TEXT_DOCUMENT_DID_OPEN,
     TEXT_DOCUMENT_DID_SAVE,
+    TEXT_DOCUMENT_DOCUMENT_LINK,
     TEXT_DOCUMENT_FORMATTING,
     TEXT_DOCUMENT_HOVER,
     TextDocumentIdentifier,
@@ -168,6 +171,15 @@ def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionPa
         xml_document = _get_xml_document(document)
         return server.service.go_to_definition(xml_document, params.position)
     return None
+
+
+@language_server.feature(TEXT_DOCUMENT_DOCUMENT_LINK)
+def document_link(server: GalaxyToolsLanguageServer, params: DocumentLinkParams) -> List[DocumentLink]:
+    document = _get_valid_document(server, params.text_document.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+        return server.service.link_provider.get_document_links(xml_document)
+    return []
 
 
 @language_server.feature(

@@ -77,16 +77,18 @@ class ConditionalInputNode(InputNode):
     def _get_options(self) -> List[str]:
         try:
             if self.option_param:
-                type_attr = self.option_param.get_attribute(TYPE)
+                type_attr = self.option_param.get_attribute_value(TYPE)
                 if type_attr == SELECT:
                     option_elements = self.option_param.get_children_with_name(OPTION)
-                    return list(filter(None, [option_element.get_attribute(VALUE) for option_element in option_elements]))
+                    return list(
+                        filter(None, [option_element.get_attribute_value(VALUE) for option_element in option_elements])
+                    )
                 elif type_attr == BOOLEAN:
                     options = []
-                    true_value = self.option_param.get_attribute(TRUEVALUE)
+                    true_value = self.option_param.get_attribute_value(TRUEVALUE)
                     if true_value:
                         options.append(true_value)
-                    false_value = self.option_param.get_attribute(FALSEVALUE)
+                    false_value = self.option_param.get_attribute_value(FALSEVALUE)
                     if false_value:
                         options.append(false_value)
                     return options
@@ -158,16 +160,16 @@ class GalaxyToolInputTree:
             parent (InputNode): The InputNode that will hold the conditional branches and it's elements.
         """
         param = conditional.elements[0]  # first child must be select or boolean
-        if param.get_attribute(TYPE) == SELECT:
+        if param.get_attribute_value(TYPE) == SELECT:
             options = param.get_children_with_name(OPTION)
             for option in options:
-                option_value = option.get_attribute(VALUE)
+                option_value = option.get_attribute_value(VALUE)
                 self._build_conditional_option_branch(conditional, parent, option_value)
-        elif param.get_attribute(TYPE) == BOOLEAN:
-            true_value = param.get_attribute(TRUEVALUE)
+        elif param.get_attribute_value(TYPE) == BOOLEAN:
+            true_value = param.get_attribute_value(TRUEVALUE)
             if true_value:
                 self._build_conditional_option_branch(conditional, parent, true_value)
-            false_value = param.get_attribute(FALSEVALUE)
+            false_value = param.get_attribute_value(FALSEVALUE)
             if false_value:
                 self._build_conditional_option_branch(conditional, parent, false_value)
 
@@ -181,11 +183,11 @@ class GalaxyToolInputTree:
             parent (InputNode): The input node that will contain this branch.
             option_value (str): The value of the option selected in this conditional branch.
         """
-        name = conditional.get_attribute(NAME)
+        name = conditional.get_attribute_value(NAME)
         if name and option_value:
             conditional_node = ConditionalInputNode(name, option_value, element=conditional, parent=parent)
             when = find(
-                conditional, filter_=lambda el: el.name == WHEN and el.get_attribute(VALUE) == option_value, maxlevel=2
+                conditional, filter_=lambda el: el.name == WHEN and el.get_attribute_value(VALUE) == option_value, maxlevel=2
             )
             when = cast(XmlElement, when)
             if when:
@@ -201,10 +203,10 @@ class GalaxyToolInputTree:
         Returns:
             Optional[RepeatInputNode]: The resulting RepeatInputNode with it's own input children.
         """
-        name = repeat.get_attribute(NAME)
+        name = repeat.get_attribute_value(NAME)
         if name:
             min = 1
-            min_attr = repeat.get_attribute(MIN)
+            min_attr = repeat.get_attribute_value(MIN)
             if min_attr and min_attr.isdigit():
                 min = int(min_attr)
             repeat_node = RepeatInputNode(name, min, repeat)
@@ -221,7 +223,7 @@ class GalaxyToolInputTree:
         Returns:
             Optional[SectionInputNode]: The resulting SectionInputNode with it's own input children.
         """
-        name = section.get_attribute(NAME)
+        name = section.get_attribute_value(NAME)
         if name:
             section_node = SectionInputNode(name, section)
             self._build_input_tree(section, section_node)

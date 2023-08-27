@@ -116,7 +116,7 @@ class XmlCompletionService:
                 result.append(self._build_attribute_completion_item(attr, len(result)))
             if context.node.name == "expand":
                 element = cast(XmlElement, context.node)
-                macro_name = element.get_attribute("macro")
+                macro_name = element.get_attribute_value("macro")
                 if macro_name:
                     token_params = self.definitions_provider.macro_definitions_provider.get_macro_token_params(
                         context.xml_document, macro_name
