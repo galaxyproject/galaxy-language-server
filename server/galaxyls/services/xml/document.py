@@ -30,7 +30,7 @@ from .utils import (
     convert_document_offsets_to_range,
 )
 
-MACRO_RELATED_TAGS = ["import", "token", "expand", "xml"]
+MACRO_RELATED_TAGS = ["import", "token", "macro", "xml", "expand"]
 
 
 class XmlDocument(XmlSyntaxNode):
