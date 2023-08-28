@@ -1,15 +1,15 @@
 // You can import and use all API from the 'vscode' module
-import * as vscode from "vscode";
+import * as assert from "assert";
 import * as path from "path";
+import * as vscode from "vscode";
 import {
     activateAndOpenInEditor,
-    getDocUri,
-    closeAllEditors,
     assertDiagnostics,
+    closeAllEditors,
     ensureGalaxyLanguageServerInstalled,
+    getDocUri,
     waitForDiagnostics,
 } from "./helpers";
-import * as assert from "assert";
 
 suite("Extension Test Suite", () => {
     suiteSetup(async () => {
@@ -81,6 +81,14 @@ suite("Extension Test Suite", () => {
             ]);
         });
 
+        test("Lint Valid tool returns no errors or warnings", async () => {
+            const docUri = getDocUri(path.join("validation/tool_02.xml"));
+            await activateAndOpenInEditor(docUri);
+
+            await waitForDiagnostics(docUri);
+            await assertDiagnostics(docUri, []);
+        });
+
         test("Linting valid tool with warnings should return warning diagnostics", async () => {
             const docUri = getDocUri(path.join("validation/tool_01.xml"));
             await activateAndOpenInEditor(docUri);
@@ -114,11 +122,6 @@ suite("Extension Test Suite", () => {
                 },
                 {
                     message: "No help section found, consider adding a help section to your tool.",
-                    range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
-                    severity: vscode.DiagnosticSeverity.Warning,
-                },
-                {
-                    message: "Tool version [@TOOL_VERSION@+galaxy@VERSION_SUFFIX@] is not compliant with PEP 440.",
                     range: new vscode.Range(new vscode.Position(0, 1), new vscode.Position(0, 5)),
                     severity: vscode.DiagnosticSeverity.Warning,
                 },
