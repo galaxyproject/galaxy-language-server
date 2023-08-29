@@ -225,11 +225,15 @@ class XmlCompletionService:
             CompletionItem: The completion item with the basic information
             about the attribute.
         """
+
+        value_placeholder = "$1"
+        if attr.enumeration:
+            value_placeholder = f"${{1|{','.join(attr.enumeration)}|}}"
         return CompletionItem(
             label=attr.name,
             kind=CompletionItemKind.Variable,
             documentation=attr.get_doc(),
-            insert_text=f'{attr.name}="$1"',
+            insert_text=f'{attr.name}="{value_placeholder}"',
             insert_text_format=InsertTextFormat.Snippet,
             sort_text=str(order).zfill(2),
         )
