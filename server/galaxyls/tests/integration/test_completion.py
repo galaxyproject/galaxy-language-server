@@ -23,6 +23,13 @@ def galaxy_xsd_tree() -> XsdTree:
     return tree
 
 
+@pytest.fixture()
+def definitions_provider(mocker: MockerFixture) -> DocumentDefinitionsProvider:
+    workspace = mocker.Mock()
+    definitions_provider = DocumentDefinitionsProvider(MacroDefinitionsProvider(workspace))
+    return definitions_provider
+
+
 class TestIntegrationXmlCompletionServiceClass:
     @pytest.mark.parametrize(
         "source_with_mark, expected_item_names",
@@ -76,20 +83,46 @@ class TestIntegrationXmlCompletionServiceClass:
     def test_completion_on_macro_attribute_returns_expected(
         self,
         galaxy_xsd_tree: XsdTree,
+        definitions_provider: DocumentDefinitionsProvider,
         source_with_mark: str,
         expected_item_names: List[str],
-        mocker: MockerFixture,
     ) -> None:
         position, source_without_mark = TestUtils.extract_mark_from_source("^", source_with_mark)
         document = TestUtils.from_source_to_xml_document(source_without_mark)
         context_service = XmlContextService(galaxy_xsd_tree)
         context = context_service.get_xml_context(document, position)
         fake_completion_context = CompletionContext(trigger_kind=CompletionTriggerKind.Invoked)
-        workspace = mocker.Mock()
-        definitions_provider = DocumentDefinitionsProvider(MacroDefinitionsProvider(workspace))
         completion_service = XmlCompletionService(galaxy_xsd_tree, definitions_provider)
 
         completion_result = completion_service.get_completion_at_context(context, fake_completion_context)
 
         assert completion_result
         assert sorted([item.label for item in completion_result.items]) == sorted(expected_item_names)
+
+    def test_completion_on_attribute_with_enum_returns_choices(
+        self,
+        galaxy_xsd_tree: XsdTree,
+        definitions_provider: DocumentDefinitionsProvider,
+    ) -> None:
+        source_with_mark = """
+        <tool id="tool" name="tool">
+            <inputs>
+                <param name="test" type="select" dis^
+            </inputs>
+        </tool>
+        """
+        position, source_without_mark = TestUtils.extract_mark_from_source("^", source_with_mark)
+        document = TestUtils.from_source_to_xml_document(source_without_mark)
+        context_service = XmlContextService(galaxy_xsd_tree)
+        context = context_service.get_xml_context(document, position)
+        fake_completion_context = CompletionContext(trigger_kind=CompletionTriggerKind.Invoked)
+        completion_service = XmlCompletionService(galaxy_xsd_tree, definitions_provider)
+
+        completion_result = completion_service.get_completion_at_context(context, fake_completion_context)
+
+        assert completion_result
+        display_attr_completion_item = next((item for item in completion_result.items if item.label == "display"), None)
+        assert display_attr_completion_item
+        assert display_attr_completion_item.insert_text
+        assert "checkboxes" in display_attr_completion_item.insert_text
+        assert "radio" in display_attr_completion_item.insert_text
