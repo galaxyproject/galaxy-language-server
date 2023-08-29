@@ -30,6 +30,8 @@ from .utils import (
     convert_document_offsets_to_range,
 )
 
+MACRO_RELATED_TAGS = ["import", "token", "macro", "xml", "expand"]
+
 
 class XmlDocument(XmlSyntaxNode):
     """Represents a parsed XML document.
@@ -80,7 +82,7 @@ class XmlDocument(XmlSyntaxNode):
             bool: True if the tool contains at least one <expand> elements.
         """
         try:
-            found = findall(self.root, filter_=lambda node: node.name == "expand", mincount=1)
+            found = findall(self.root, filter_=lambda node: node.name in MACRO_RELATED_TAGS, mincount=1)
             return len(found) > 0
         except BaseException:
             return False

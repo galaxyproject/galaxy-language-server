@@ -1,0 +1,35 @@
+<tool id="check_version" name="check_version" version="@TOOL_VERSION@+galaxy@GALAXY_VERSION@">
+    <macros>
+        <token name="@TOOL_VERSION@">3.7</token>
+        <token name="@GALAXY_VERSION@">0</token>
+    </macros>
+    <command detect_errors="exit_code"><![CDATA[
+    ]]></command>
+    <inputs>
+        <param name="input" type="text" format="txt" label="Input file"/>
+    </inputs>
+    <outputs>
+        <data name="output" format="txt" label="Output file"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="test"/>
+            <output name="output"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        The help text goes here.
+    ]]></help>
+    <citations>
+        <citation type="bibtex">
+            @article{cite1,
+                author = "Doe, J.",
+                title = "A really cool paper",
+                journal = "The Journal of Stuff",
+                volume = "1",
+                pages = "1-2",
+                year = "2023"
+            }
+        </citation>
+    </citations>
+</tool>
