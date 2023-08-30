@@ -1,5 +1,6 @@
 import { existsSync } from "fs";
 import { join } from "path";
+import { gte } from "semver";
 import { commands, ExtensionContext, ProgressLocation, Uri, window, workspace } from "vscode";
 import { LocalStorageService } from "./configuration/storage";
 import { Constants } from "./constants";
@@ -218,8 +219,9 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
     try {
         const packageInfo = await execAsync(getPackageInfoCmd);
         const match = packageInfo.match(new RegExp(pattern));
+        const installedVersion = match?.groups?.version ?? "0.0.0";
         console.log(`[gls] Version found: ${packageName} - ${match?.groups?.version}`);
-        return version === match?.groups?.version;
+        return gte(installedVersion, version);
     } catch (err: any) {
         console.error(`[gls] isPythonPackageInstalled err: ${err}`);
         return false;
