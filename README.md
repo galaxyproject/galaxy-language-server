@@ -39,7 +39,7 @@ This project has the following main goals:
   - [Run planemo tests in the Test Explorer](#run-planemo-tests-in-the-test-explorer)
   - [Improved macros support](#improved-macros-support)
   - [Extract macro](#extract-macro)
-  - [Full Galaxy tool linter integration](#document-validation) _New feature!_ ✨
+  - [Full Galaxy tool linter integration](#document-validation)
 
 # Getting Started
 
