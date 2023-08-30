@@ -289,6 +289,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.14.2",
+    "@types/semver": "^7.5.1",
     "@types/tmp": "^0.2.3",
     "@types/vscode": "^1.52.0",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
@@ -305,6 +306,7 @@
   "dependencies": {
     "iconv-lite": "^0.6.3",
     "lookpath": "^1.2.2",
+    "semver": "^7.5.4",
     "tmp": "^0.2.1",
     "vscode-languageclient": "^7.0.0"
   }
