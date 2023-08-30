@@ -1,5 +1,17 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.11.0] - 2023-08-30
+
+### Added
+
+-   Add a few more snippets ([#233](https://github.com/galaxyproject/galaxy-language-server/pull/233)).
+
+### Changed
+
+-   Auto-save document before inserting generated snippet ([#242](https://github.com/galaxyproject/galaxy-language-server/pull/242)).
+-   Relax GLS version checking ([#244](https://github.com/galaxyproject/galaxy-language-server/pull/244)).
+-   Updated Galaxy Language Server [v0.11.0](./server/CHANGELOG.md#0110)
+
 ## [0.10.2] - 2023-03-12
 
 ### Changed

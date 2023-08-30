@@ -1,5 +1,20 @@
 # Galaxy Language Server Changelog
 
+## [0.11.0] - 2023-08-30
+
+### Fixed
+
+- Fix macros detection condition ([#239](https://github.com/galaxyproject/galaxy-language-server/pull/239)).
+
+### Added
+
+- Support for links to navigate to test-data files ([#231](https://github.com/galaxyproject/galaxy-language-server/pull/231)).
+
+### Changed
+
+- Improve attribute with enum auto-completion ([#241](https://github.com/galaxyproject/galaxy-language-server/pull/241)).
+- Remove dead link ([#238](https://github.com/galaxyproject/galaxy-language-server/pull/238)).
+
 ## [0.10.2] - 2023-03-12
 
 ### Fixed

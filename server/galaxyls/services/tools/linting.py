@@ -1,9 +1,13 @@
-from typing import List
+from typing import (
+    cast,
+    List,
+)
 
 from galaxy.tool_util.lint import (
     lint_xml_with,
     LintContext,
     LintLevel,
+    LintMessage,
     XMLLintMessageXPath,
 )
 from lsprotocol.types import (
@@ -19,7 +23,7 @@ class GalaxyToolLinter(ToolLinter):
     diagnostics_source = "Galaxy Tool Linter"
 
     def lint_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
-        """ """
+        """Lint the given document using the Galaxy linter modules and return a list of Diagnostics."""
         result: List[Diagnostic] = []
         xml_tree = xml_document.xml_tree_expanded
         if not xml_document.is_tool_file or xml_tree is None:
@@ -40,12 +44,8 @@ class GalaxyToolLinter(ToolLinter):
         )
         return result
 
-    def _to_diagnostic(
-        self,
-        lint_message: XMLLintMessageXPath,
-        xml_document: XmlDocument,
-        level: DiagnosticSeverity,
-    ) -> Diagnostic:
+    def _to_diagnostic(self, lint_message: LintMessage, xml_document: XmlDocument, level: DiagnosticSeverity) -> Diagnostic:
+        lint_message = cast(XMLLintMessageXPath, lint_message)
         range = xml_document.get_element_range_from_xpath_or_default(lint_message.xpath)
         result = Diagnostic(
             range=range,
