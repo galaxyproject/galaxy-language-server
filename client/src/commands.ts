@@ -1,23 +1,23 @@
 "use strict";
 
 import {
-    window,
-    Position,
-    SnippetString,
-    Range,
     ExtensionContext,
-    commands,
+    Position,
+    Range,
+    SnippetString,
+    TextDocument,
     TextEditor,
     Uri,
-    workspace,
     ViewColumn,
-    TextDocument,
+    commands,
+    window,
+    workspace,
 } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "./constants";
 import { ICommand } from "./interfaces";
 import { GalaxyToolsExpadedDocumentContentProvider } from "./providers/contentProvider";
-import { activateTagClosing, AutoCloseTagResult } from "./tagClosing";
+import { AutoCloseTagResult, activateTagClosing } from "./tagClosing";
 import { changeUriScheme, cloneRange, getCommands } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
 
@@ -134,7 +134,7 @@ async function requestSortSingleParamAttrs(client: LanguageClient, command: stri
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
-    const isSaved = ensureDocumentIsSaved(activeEditor);
+    const isSaved = await ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;
 
     const document = activeEditor.document;
@@ -158,7 +158,7 @@ async function requestSortDocumentParamsAttrs(client: LanguageClient, command: s
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
-    const isSaved = ensureDocumentIsSaved(activeEditor);
+    const isSaved = await ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;
 
     const document = activeEditor.document;
@@ -184,7 +184,7 @@ async function requestInsertSnippet(client: LanguageClient, command: string) {
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
-    const isSaved = ensureDocumentIsSaved(activeEditor);
+    const isSaved = await ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;
 
     const document = activeEditor.document;
@@ -212,9 +212,9 @@ async function requestInsertSnippet(client: LanguageClient, command: string) {
     }
 }
 
-function ensureDocumentIsSaved(editor: TextEditor): Boolean {
+async function ensureDocumentIsSaved(editor: TextEditor): Promise<Boolean> {
     if (editor.document.isDirty) {
-        window.showErrorMessage("Please save the document before executing this action.");
+        await editor.document.save();
     }
     return !editor.document.isDirty;
 }
@@ -262,7 +262,7 @@ function convertToExpandedDocumentUri(fileUri: Uri) {
 async function previewExpandedDocument() {
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
-    const isSaved = ensureDocumentIsSaved(activeEditor);
+    const isSaved = await ensureDocumentIsSaved(activeEditor);
     if (!isSaved) return;
 
     const document = activeEditor.document;
