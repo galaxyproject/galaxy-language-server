@@ -1,1 +1,1 @@
-GLS_VERSION = "0.10.2"
+GLS_VERSION = "0.11.0"
