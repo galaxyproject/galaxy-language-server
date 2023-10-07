@@ -22,6 +22,8 @@ from lsprotocol.types import (
     DocumentFormattingParams,
     DocumentLink,
     DocumentLinkParams,
+    DocumentSymbol,
+    DocumentSymbolParams,
     Hover,
     INITIALIZED,
     InitializeParams,
@@ -34,6 +36,7 @@ from lsprotocol.types import (
     TEXT_DOCUMENT_DID_OPEN,
     TEXT_DOCUMENT_DID_SAVE,
     TEXT_DOCUMENT_DOCUMENT_LINK,
+    TEXT_DOCUMENT_DOCUMENT_SYMBOL,
     TEXT_DOCUMENT_FORMATTING,
     TEXT_DOCUMENT_HOVER,
     TextDocumentIdentifier,
@@ -196,6 +199,16 @@ def process_code_actions(server: GalaxyToolsLanguageServer, params: CodeActionPa
         return None
     xml_document = _get_xml_document(document)
     return server.service.get_available_refactoring_actions(xml_document, params)
+
+
+@language_server.feature(TEXT_DOCUMENT_DOCUMENT_SYMBOL)
+def document_symbol(server: GalaxyToolsLanguageServer, params: DocumentSymbolParams) -> Optional[List[DocumentSymbol]]:
+    """Returns a list of symbols defined in the document."""
+    document = _get_valid_document(server, params.text_document.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+        return server.service.symbols_provider.get_document_symbols(xml_document)
+    return None
 
 
 @language_server.command(Commands.AUTO_CLOSE_TAGS)
