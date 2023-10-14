@@ -6,7 +6,7 @@ from typing import (
 )
 
 import pytest
-from pygls.workspace import (
+from lsprotocol.types import (
     Position,
     Range,
 )

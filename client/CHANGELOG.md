@@ -1,5 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.12.0] - 2023-10-14
+
+### Added
+
+-   Support for Document Outline via Document Symbols Provider ([#247](https://github.com/galaxyproject/galaxy-language-server/pull/247)).
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.12.0](./server/CHANGELOG.md#0120)
+
 ## [0.11.0] - 2023-08-30
 
 ### Added

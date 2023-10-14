@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.12.0] - 2023-10-14
+
+### Added
+
+- Document Symbol provider ([#247](https://github.com/galaxyproject/galaxy-language-server/pull/247)).
+
 ## [0.11.0] - 2023-08-30
 
 ### Fixed

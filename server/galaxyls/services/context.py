@@ -6,8 +6,10 @@ from typing import (
     Optional,
 )
 
-from lsprotocol.types import Range
-from pygls.workspace import Position
+from lsprotocol.types import (
+    Position,
+    Range,
+)
 
 from galaxyls.services.tools.constants import MACROS
 from galaxyls.services.xml.constants import UNDEFINED_OFFSET
