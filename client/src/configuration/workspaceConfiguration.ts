@@ -24,6 +24,7 @@ export namespace Settings {
 
 export interface IServerConfiguration {
     silentInstall(): boolean;
+    setSilentInstall(value: boolean): void;
 }
 
 export interface IWorkspaceConfiguration {

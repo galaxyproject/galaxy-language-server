@@ -5,6 +5,7 @@ import { commands, ExtensionContext, ProgressLocation, Uri, window, workspace } 
 import { LocalStorageService } from "./configuration/storage";
 import { Constants } from "./constants";
 import { execAsync, forceDeleteDirectory as removeDirectory } from "./utils";
+import { DefaultConfigurationFactory } from "./planemo/configuration";
 
 /**
  * Ensures that the Language server is installed in the extension's virtual environment
@@ -39,7 +40,7 @@ export async function installLanguageServer(
     if (storedPython === null && !isSilentInstall) {
         const result = await window.showInformationMessage(
             `Galaxy Tools needs to install the Galaxy Language Server Python package to continue. This will be installed in a virtual environment inside the extension and will require Python ${Constants.REQUIRED_PYTHON_VERSION}`,
-            ...["Install", "More Info"]
+            ...["Install", "More Info", "Don't ask again"]
         );
 
         if (result === undefined) {
@@ -52,6 +53,10 @@ export async function installLanguageServer(
                     "https://github.com/galaxyproject/galaxy-language-server/blob/main/client/README.md#installation"
                 )
             );
+        } else if (result === "Don't ask again") {
+            // Set user preference to silent install
+            const configFactory = new DefaultConfigurationFactory();
+            configFactory.getConfiguration().server().setSilentInstall(true);
         }
     }
 

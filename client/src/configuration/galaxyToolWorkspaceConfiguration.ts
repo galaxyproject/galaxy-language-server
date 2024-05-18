@@ -26,9 +26,12 @@ export class GalaxyToolsWorkspaceConfiguration implements IWorkspaceConfiguratio
 }
 
 class GalaxyLanguageServerConfiguration implements IServerConfiguration {
-    constructor(private readonly config: WorkspaceConfiguration) {}
+    constructor(private readonly config: WorkspaceConfiguration) { }
     silentInstall(): boolean {
         return this.config.get("server.silentInstall", false);
+    }
+    setSilentInstall(value: boolean, global: boolean = true): void {
+        this.config.update("server.silentInstall", value, global);
     }
 }
 
@@ -68,14 +71,14 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
         if (!validPlanemo) {
             result.addErrorMessage(
                 "Please set a valid [Env Path](command:galaxytools.planemo.openSettings)" +
-                    " value for planemo in the [Settings](command:galaxytools.planemo.openSettings)."
+                " value for planemo in the [Settings](command:galaxytools.planemo.openSettings)."
             );
         }
 
         if (!validGalaxyRoot) {
             result.addErrorMessage(
                 "Please set a valid [Galaxy Root](command:galaxyTools.planemo.openSettings)" +
-                    " for planemo in the [Settings](command:galaxytools.planemo.openSettings)."
+                " for planemo in the [Settings](command:galaxytools.planemo.openSettings)."
             );
         }
 
@@ -102,7 +105,7 @@ class GalaxyToolsPlanemoConfiguration implements IPlanemoConfiguration {
 }
 
 class GalaxyToolsPlanemoTestingConfiguration implements IPlanemoTestingConfiguration {
-    constructor(private readonly config: WorkspaceConfiguration) {}
+    constructor(private readonly config: WorkspaceConfiguration) { }
 
     enabled(): boolean {
         return this.config.get("planemo.testing.enabled", true);
