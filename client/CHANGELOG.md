@@ -1,5 +1,16 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.12.1] - 2024-05-18
+
+### Added
+
+- Option to skip future server install confirmations ([#252](https://github.com/galaxyproject/galaxy-language-server/pull/252)).
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.12.1](./server/CHANGELOG.md#0121)
+
+
 ## [0.12.0] - 2023-10-14
 
 ### Added
