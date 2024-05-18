@@ -3,7 +3,7 @@ export namespace Constants {
     export const LS_VENV_NAME = "glsenv";
     export const GALAXY_LS_PACKAGE = "galaxy-language-server";
     export const GALAXY_LS = "galaxyls";
-    export const GALAXY_LS_VERSION = "0.12.0";
+    export const GALAXY_LS_VERSION = "0.12.1";
     export const LANGUAGE_ID = "galaxytool";
     export const TOOL_DOCUMENT_EXTENSION = "xml";
 
