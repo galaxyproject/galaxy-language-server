@@ -1,5 +1,12 @@
 # Galaxy Language Server Changelog
 
+## [0.12.1] - 2024-05-18
+
+### Changed
+
+- Update internal dependencies to support new Galaxy (24.0.2) XSD definitions.
+
+
 ## [0.12.0] - 2023-10-14
 
 ### Added
