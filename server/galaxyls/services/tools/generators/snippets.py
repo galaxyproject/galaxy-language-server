@@ -71,7 +71,7 @@ class SnippetGenerator(ABC):
             try:
                 document = tool_document.document
                 expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
-                expanded_tool_tree = cast(etree._ElementTree, expanded_tool_tree)
+                expanded_tool_tree = cast(etree._ElementTree, expanded_tool_tree)  # type: ignore
                 expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
                 expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
                 return GalaxyToolXmlDocument(expanded_document)

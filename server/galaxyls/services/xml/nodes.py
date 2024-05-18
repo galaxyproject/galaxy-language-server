@@ -10,7 +10,7 @@ from typing import (
     Tuple,
 )
 
-from anytree import NodeMixin
+from anytree import NodeMixin  # type: ignore
 
 from galaxyls.services.xml.constants import UNDEFINED_OFFSET
 from galaxyls.services.xml.types import NodeType
