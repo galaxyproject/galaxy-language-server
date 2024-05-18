@@ -40,6 +40,7 @@ This project has the following main goals:
   - [Improved macros support](#improved-macros-support)
   - [Extract macro](#extract-macro)
   - [Full Galaxy tool linter integration](#document-validation)
+  - [Document Outline](#document-outline) _New feature!_ ✨
 
 # Getting Started
 
@@ -153,3 +154,9 @@ There are also a lot of features around macros auto-completion. You can now navi
 You can select (a complete) XML element and then extract it to a local macro (directly in the tool wrapper) or into an external macro file. If there are several imported macro files, you can choose where to put them or if there is no imported file it will be created and imported directly.
 
 ![Demo feature expanded macros](../assets/feature.extract.macro.gif)
+
+## Document Outline
+
+You can now see a document outline of the currently opened tool document. This is especially useful when working with large tool documents. You can navigate to the different sections of the document in a quick and convenient way.
+
+![Demo feature document outline](../assets/feature.document.outline.gif)
