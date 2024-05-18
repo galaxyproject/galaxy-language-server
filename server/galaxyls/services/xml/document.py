@@ -6,7 +6,7 @@ from typing import (
     Optional,
 )
 
-from anytree.search import findall
+from anytree.search import findall  # type: ignore
 from galaxy.util import xml_macros
 from lsprotocol.types import (
     Position,

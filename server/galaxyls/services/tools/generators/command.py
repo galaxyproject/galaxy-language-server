@@ -6,7 +6,7 @@ from typing import (
     Union,
 )
 
-from anytree import PreOrderIter
+from anytree import PreOrderIter  # type: ignore
 from lsprotocol.types import (
     Position,
     Range,

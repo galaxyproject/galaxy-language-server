@@ -1,4 +1,5 @@
 """This module contains definitions for constants used by the Galaxy Tools Language Server."""
+
 from lsprotocol.types import (
     Position,
     Range,

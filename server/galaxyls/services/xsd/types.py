@@ -9,7 +9,7 @@ from typing import (
     Optional,
 )
 
-from anytree import (
+from anytree import (  # type: ignore
     findall,
     NodeMixin,
     RenderTree,

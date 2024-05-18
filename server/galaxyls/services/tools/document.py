@@ -6,7 +6,7 @@ from typing import (
     Optional,
 )
 
-from anytree import find
+from anytree import find  # type: ignore
 from lsprotocol.types import (
     Position,
     Range,
