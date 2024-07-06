@@ -10,7 +10,7 @@ on:
 
 jobs:
   prepare_release:
-    name: Create Release
+    name: Prepare Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,7 +20,7 @@ jobs:
         id: get_version
         uses: jannemattila/get-version-from-tag@v3
 
-      - name: Create Release
+      - name: Create Draf Release
         id: create_release
         uses: softprops/action-gh-release@v2
         env:
@@ -40,8 +40,9 @@ jobs:
             ```
             code --install-extension galaxy-tools-${{ steps.get_version.outputs.version }}.vsix
             ```
-          draft: false
+          draft: true
           prerelease: false
+          generate_release_notes: true
     outputs:
       release_version: ${{ steps.get_version.outputs.version }}
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
