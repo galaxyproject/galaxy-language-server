@@ -20,6 +20,21 @@ jobs:
         id: get_version
         uses: jannemattila/get-version-from-tag@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - run: npm ci
+
+      - name: Package Extension
+        id: packageExtension
+        uses: HaaLeo/publish-vscode-extension@v1
+        with:
+          pat: stub
+          packagePath: "./client/"
+          dryRun: true
+
       - name: Create Draf Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -43,9 +58,11 @@ jobs:
           draft: true
           prerelease: false
           generate_release_notes: true
+          files: ${{ steps.packageExtension.outputs.vsixPath }}
     outputs:
       release_version: ${{ steps.get_version.outputs.version }}
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+      vsixPath: ${{ steps.packageExtension.outputs.vsixPath }}
 
   publish-server:
     name: Publish Language Server to PyPI
@@ -92,10 +109,6 @@ jobs:
         with:
           node-version: 21
 
-      - name: Clean install dependencies
-        run: |
-          npm ci
-
       - name: Update version in package.json
         uses: onlyutkarsh/patch-files-action@v1.0.5
         with:
@@ -103,34 +116,16 @@ jobs:
           patch-syntax: |
             = /version => "${{needs.prepare_release.outputs.release_version}}"
 
-      - name: Publish to Open VSX Registry
-        uses: HaaLeo/publish-vscode-extension@v1
-        id: publishToOpenVSX
-        with:
-          pat: ${{ secrets.OPEN_VSX_TOKEN }}
-          packagePath: "./client/"
-
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
         with:
           pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
           registryUrl: https://marketplace.visualstudio.com
-          extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
-          packagePath: ""
+          extensionFile: ${{ needs.prepare_release.outputs.vsixPath}}
 
-      - name: Upload vsix as artifact
-        uses: actions/upload-artifact@v3
+      - name: Publish to Open VSX Registry
+        uses: HaaLeo/publish-vscode-extension@v1
+        id: publishToOpenVSX
         with:
-          name: galaxy-tools-${{needs.prepare_release.outputs.release_version}}.vsix
-          path: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.prepare_release.outputs.release_upload_url }}
-          asset_path: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
-          asset_name: galaxy-tools-${{needs.prepare_release.outputs.release_version}}.vsix
-          asset_content_type: application/vsix
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          extensionFile: ${{ needs.prepare_release.outputs.vsixPath}}
