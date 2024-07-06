@@ -18,7 +18,7 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        uses: battila7/get-version-action@v2
+        uses: jannemattila/get-version-from-tag@v3
 
       - name: Create Release
         id: create_release
@@ -39,12 +39,12 @@ jobs:
             The Galaxy Tools Extension is available at [Open VSX Registry](https://open-vsx.org/extension/davelopez/galaxy-tools) and [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools).
             You can also install the extension manually by downloading the VSIX package included in this release and using:
             ```
-            code --install-extension galaxy-tools-${{ steps.get_version.outputs.version-without-v }}.vsix
+            code --install-extension galaxy-tools-${{ steps.get_version.outputs.version }}.vsix
             ```
           draft: false
           prerelease: false
     outputs:
-      release_version: ${{ steps.get_version.outputs.version-without-v }}
+      release_version: ${{ steps.get_version.outputs.version }}
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
 
   publish-server:
