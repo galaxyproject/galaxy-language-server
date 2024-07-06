@@ -109,13 +109,6 @@ jobs:
         with:
           node-version: 21
 
-      - name: Update version in package.json
-        uses: onlyutkarsh/patch-files-action@v1.0.5
-        with:
-          files: "${{github.workspace}}/client/package.json"
-          patch-syntax: |
-            = /version => "${{needs.prepare_release.outputs.release_version}}"
-
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
         with:
