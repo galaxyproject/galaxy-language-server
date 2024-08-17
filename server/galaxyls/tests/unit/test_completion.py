@@ -1,6 +1,6 @@
 from typing import (
-    cast,
     Optional,
+    cast,
 )
 
 import pytest

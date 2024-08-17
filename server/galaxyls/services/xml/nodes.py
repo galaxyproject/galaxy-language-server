@@ -3,11 +3,11 @@ from abc import (
     abstractmethod,
 )
 from typing import (
-    cast,
     Dict,
     List,
     Optional,
     Tuple,
+    cast,
 )
 
 from anytree import NodeMixin  # type: ignore

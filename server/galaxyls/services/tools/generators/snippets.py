@@ -3,11 +3,11 @@ from abc import (
     abstractmethod,
 )
 from typing import (
-    cast,
     List,
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 from galaxy.util import xml_macros

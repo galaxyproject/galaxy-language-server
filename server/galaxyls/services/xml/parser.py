@@ -1,12 +1,12 @@
-""" This code is based on the Eclipse/Lemminx XML language server implementation:
+"""This code is based on the Eclipse/Lemminx XML language server implementation:
 https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/dom
 
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
 """
 
 from typing import (
-    cast,
     Optional,
+    cast,
 )
 
 from pygls.workspace import Document

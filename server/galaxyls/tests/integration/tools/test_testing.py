@@ -1,7 +1,7 @@
 from typing import (
-    cast,
     Dict,
     Optional,
+    cast,
 )
 
 import pytest

@@ -1,20 +1,19 @@
-""" Type definitions for XSD processing.
-"""
+"""Type definitions for XSD processing."""
 
 from typing import (
     Any,
-    cast,
     Dict,
     List,
     Optional,
+    cast,
 )
 
 from anytree import (  # type: ignore
-    findall,
     NodeMixin,
     RenderTree,
     Resolver,
     ResolverError,
+    findall,
 )
 from lsprotocol.types import (
     MarkupContent,

@@ -42,6 +42,7 @@ from galaxyls.services.tools.refactor import (
     RefactorMacrosService,
 )
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
+
 from ..config import CompletionMode
 from ..types import (
     GeneratedSnippetResult,

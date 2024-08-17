@@ -1,9 +1,9 @@
 from typing import (
-    cast,
     List,
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 from lsprotocol.types import (
@@ -32,7 +32,6 @@ from galaxyls.services.tools.constants import (
     HAS_TEXT,
     INPUTS,
     LINE,
-    N,
     NAME,
     OPTION,
     OUTPUT,
@@ -48,6 +47,7 @@ from galaxyls.services.tools.constants import (
     TOOL,
     TYPE,
     VALUE,
+    N,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.snippets import SnippetGenerator

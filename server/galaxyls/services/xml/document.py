@@ -1,9 +1,9 @@
 from typing import (
     Any,
-    cast,
     Dict,
     List,
     Optional,
+    cast,
 )
 
 from anytree.search import findall  # type: ignore
@@ -16,6 +16,7 @@ from lxml import etree
 from pygls.workspace import Document
 
 from galaxyls.constants import DEFAULT_DOCUMENT_RANGE
+
 from .nodes import (
     XmlContainerNode,
     XmlElement,

@@ -1,8 +1,8 @@
 from typing import (
-    cast,
     List,
     Optional,
     Tuple,
+    cast,
 )
 
 import pytest

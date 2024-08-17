@@ -1,9 +1,9 @@
 """Module in charge of the auto-completion feature."""
 
 from typing import (
-    cast,
     List,
     Optional,
+    cast,
 )
 
 from lsprotocol.types import (
@@ -22,6 +22,7 @@ from galaxyls.services.xml.nodes import (
     XmlCDATASection,
     XmlElement,
 )
+
 from ..config import CompletionMode
 from ..types import AutoCloseTagResult
 from .context import XmlContext

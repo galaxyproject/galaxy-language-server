@@ -1,12 +1,20 @@
-"""Galaxy Tools Language Server implementation
-"""
+"""Galaxy Tools Language Server implementation"""
 
-from typing import (
-    List,
-    Optional,
-)
+from typing import List, Optional
 
 from lsprotocol.types import (
+    INITIALIZED,
+    TEXT_DOCUMENT_CODE_ACTION,
+    TEXT_DOCUMENT_COMPLETION,
+    TEXT_DOCUMENT_DEFINITION,
+    TEXT_DOCUMENT_DID_CLOSE,
+    TEXT_DOCUMENT_DID_OPEN,
+    TEXT_DOCUMENT_DID_SAVE,
+    TEXT_DOCUMENT_DOCUMENT_LINK,
+    TEXT_DOCUMENT_DOCUMENT_SYMBOL,
+    TEXT_DOCUMENT_FORMATTING,
+    TEXT_DOCUMENT_HOVER,
+    WORKSPACE_DID_CHANGE_CONFIGURATION,
     CodeAction,
     CodeActionKind,
     CodeActionOptions,
@@ -26,33 +34,18 @@ from lsprotocol.types import (
     DocumentSymbol,
     DocumentSymbolParams,
     Hover,
-    INITIALIZED,
     InitializeParams,
     Location,
     MessageType,
-    TEXT_DOCUMENT_CODE_ACTION,
-    TEXT_DOCUMENT_COMPLETION,
-    TEXT_DOCUMENT_DEFINITION,
-    TEXT_DOCUMENT_DID_CLOSE,
-    TEXT_DOCUMENT_DID_OPEN,
-    TEXT_DOCUMENT_DID_SAVE,
-    TEXT_DOCUMENT_DOCUMENT_LINK,
-    TEXT_DOCUMENT_DOCUMENT_SYMBOL,
-    TEXT_DOCUMENT_FORMATTING,
-    TEXT_DOCUMENT_HOVER,
     TextDocumentIdentifier,
     TextDocumentPositionParams,
     TextEdit,
-    WORKSPACE_DID_CHANGE_CONFIGURATION,
     WorkspaceConfigurationParams,
 )
 from pygls.server import LanguageServer
 from pygls.workspace import Document
 
-from galaxyls.config import (
-    CompletionMode,
-    GalaxyToolsConfiguration,
-)
+from galaxyls.config import CompletionMode, GalaxyToolsConfiguration
 from galaxyls.constants import Commands
 from galaxyls.services.language import GalaxyToolLanguageService
 from galaxyls.services.validation import DocumentValidator
