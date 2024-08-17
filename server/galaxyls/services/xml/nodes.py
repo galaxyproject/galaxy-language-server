@@ -423,7 +423,7 @@ class XmlElement(XmlContainerNode):
 
     def get_cdata_section(self) -> Optional["XmlCDATASection"]:
         """Gets the CDATA node inside this element or None if it doesn't have a CDATA section."""
-        return next((node for node in self.children if type(node) == XmlCDATASection), None)
+        return next((node for node in self.children if type(node) is XmlCDATASection), None)
 
 
 class XmlCDATASection(XmlContainerNode):

@@ -70,7 +70,7 @@ class XmlDocument(XmlSyntaxNode):
         if len(self.children) == 0:
             return None
         try:
-            return next(child for child in self.children if type(child) == XmlElement)
+            return next(child for child in self.children if type(child) is XmlElement)
         except StopIteration:
             return None
 

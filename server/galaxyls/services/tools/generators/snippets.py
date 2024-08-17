@@ -43,7 +43,7 @@ class SnippetGenerator(ABC):
         if is_error:
             return GeneratedSnippetResult.as_error(result)
         insert_position = self._find_snippet_insert_position()
-        if type(insert_position) == Range:
+        if type(insert_position) is Range:
             insert_position = cast(Range, insert_position)
             return GeneratedSnippetResult(result, insert_position.start, insert_position)
         insert_position = cast(Position, insert_position)
