@@ -1,14 +1,14 @@
 from typing import (
-    cast,
     List,
+    cast,
 )
 
 from galaxy.tool_util.lint import (
-    lint_xml_with,
     LintContext,
     LintLevel,
     LintMessage,
     XMLLintMessageXPath,
+    lint_xml_with,
 )
 from lsprotocol.types import (
     Diagnostic,

@@ -1,5 +1,4 @@
-"""Utilities to validate Galaxy xml tool wrappers.
-"""
+"""Utilities to validate Galaxy xml tool wrappers."""
 
 from pathlib import Path
 from typing import List

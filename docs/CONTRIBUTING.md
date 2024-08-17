@@ -144,7 +144,7 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
 
 6. When you're done making changes, check that your changes pass ``style linter`` and the ``tests``.
     ```sh
-    flake8
+    ruff check
     pytest
     ```
 
@@ -184,6 +184,6 @@ Just have a little patience, if everything is in order your pull request will be
 
 
 # Style Guide
-Currently the style guide is only defined for the [Language Server](../server) which is writen in ``Python``.
+Currently the style guide is only defined for the [Language Server](../server) which is written in ``Python``.
 
-Basically you can rely on [flake8](https://pypi.org/project/flake8/) and [black](https://github.com/psf/black) (along with the configuration files provided in the project directory) to manage all the styling for you. If you installed the [development requirements](../requirements-dev.txt) you already have them installed :)
+Basically you can rely on [ruff](https://docs.astral.sh/ruff/) to manage all the styling for you. If you installed the [development requirements](../requirements-dev.txt) you already have them installed :)

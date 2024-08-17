@@ -1,5 +1,4 @@
-"""This module contains shared types across all modules.
-"""
+"""This module contains shared types across all modules."""
 
 from typing import (
     Any,

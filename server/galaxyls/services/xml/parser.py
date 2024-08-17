@@ -1,26 +1,15 @@
-""" This code is based on the Eclipse/Lemminx XML language server implementation:
+"""This code is based on the Eclipse/Lemminx XML language server implementation:
 https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/dom
 
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
 """
 
-from typing import (
-    cast,
-    Optional,
-)
+from typing import Optional, cast
 
 from pygls.workspace import Document
 
 from .document import XmlDocument
-from .nodes import (
-    XmlAttribute,
-    XmlCDATASection,
-    XmlComment,
-    XmlContent,
-    XmlElement,
-    XmlProcessingInstruction,
-    XmlSyntaxNode,
-)
+from .nodes import XmlAttribute, XmlCDATASection, XmlComment, XmlContent, XmlElement, XmlProcessingInstruction, XmlSyntaxNode
 from .scanner import XmlScanner
 from .types import TokenType
 
@@ -31,7 +20,6 @@ class XmlDocumentParser:
     If the document is incomplete or malformed, the parser will try to recover
     the syntax tree in those cases without altering the original offsets of the nodes."""
 
-    # flake8: noqa: C901
     def parse(self, document: Document) -> XmlDocument:
         """Parses the given text document and returns the resulting syntax tree as
         a XmlDocument.

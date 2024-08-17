@@ -1,9 +1,9 @@
 from typing import (
-    cast,
     List,
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 from anytree import PreOrderIter  # type: ignore

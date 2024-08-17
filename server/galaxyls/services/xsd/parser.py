@@ -3,10 +3,10 @@ to simplify access to definitions.
 """
 
 from typing import (
-    cast,
     Dict,
     List,
     Optional,
+    cast,
 )
 
 from lxml import etree

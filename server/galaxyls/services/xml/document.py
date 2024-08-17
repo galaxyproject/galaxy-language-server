@@ -1,9 +1,9 @@
 from typing import (
     Any,
-    cast,
     Dict,
     List,
     Optional,
+    cast,
 )
 
 from anytree.search import findall  # type: ignore
@@ -16,6 +16,7 @@ from lxml import etree
 from pygls.workspace import Document
 
 from galaxyls.constants import DEFAULT_DOCUMENT_RANGE
+
 from .nodes import (
     XmlContainerNode,
     XmlElement,
@@ -70,7 +71,7 @@ class XmlDocument(XmlSyntaxNode):
         if len(self.children) == 0:
             return None
         try:
-            return next(child for child in self.children if type(child) == XmlElement)
+            return next(child for child in self.children if type(child) is XmlElement)
         except StopIteration:
             return None
 

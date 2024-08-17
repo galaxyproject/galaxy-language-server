@@ -1,5 +1,4 @@
-"""This module contains constants related to XSD processing.
-"""
+"""This module contains constants related to XSD processing."""
 
 from pathlib import Path
 

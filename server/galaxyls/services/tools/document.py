@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import (
-    cast,
     Dict,
     List,
     Optional,
+    cast,
 )
 
 from anytree import find  # type: ignore

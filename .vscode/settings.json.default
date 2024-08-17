@@ -1,0 +1,35 @@
+{
+  "python.analysis.extraPaths": [
+    "server"
+  ],
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "python.languageServer": "Pylance",
+  "python.testing.pytestEnabled": true,
+  "cSpell.words": [
+    "anytree",
+    "galaxyls",
+    "galaxytool",
+    "galaxytools",
+    "lookpath",
+    "lsprotocol",
+    "lxml",
+    "nsmap",
+    "pygls"
+  ],
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
+}

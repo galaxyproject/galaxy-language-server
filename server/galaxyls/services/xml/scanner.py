@@ -1,4 +1,4 @@
-""" This code is based on the Eclipse/Lemminx XML language server implementation:
+"""This code is based on the Eclipse/Lemminx XML language server implementation:
 https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java/org/eclipse/lemminx/dom
 
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
@@ -21,10 +21,7 @@ from .constants import (
     PI_END_CHAR_SEQ,
     QUOTE_CHARS,
 )
-from .types import (
-    ScannerState,
-    TokenType,
-)
+from .types import ScannerState, TokenType
 from .utils import MultiLineStream
 
 ERROR_UNEXPECTED_WHITESPACE = "Unexpected whitespace. Tag name must directly follow the open angle bracket."
@@ -72,7 +69,6 @@ class XmlScanner:
         self.token_error = error_message
         return type
 
-    # flake8: noqa: C901
     def _internal_scan(self) -> TokenType:
         """Scans the document for the next token.
 

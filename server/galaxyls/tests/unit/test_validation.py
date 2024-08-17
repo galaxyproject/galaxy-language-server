@@ -2,6 +2,7 @@ import pytest
 from lxml import etree
 
 from galaxyls.services.validation import DocumentValidator
+
 from ...services.xsd.constants import TOOL_XSD_FILE
 from .utils import TestUtils
 

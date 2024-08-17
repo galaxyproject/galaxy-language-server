@@ -1,9 +1,9 @@
 """This module provides a service to determine position context inside an XML document."""
 
 from typing import (
-    cast,
     List,
     Optional,
+    cast,
 )
 
 from lsprotocol.types import (

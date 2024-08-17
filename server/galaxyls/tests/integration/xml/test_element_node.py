@@ -1,7 +1,7 @@
 from typing import (
-    cast,
     List,
     Tuple,
+    cast,
 )
 
 import pytest
