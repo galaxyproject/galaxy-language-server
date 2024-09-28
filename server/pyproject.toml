@@ -7,10 +7,7 @@ warn_return_any = false
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
-module = [
-    "galaxy.*",
-    "anytree.*",
-]
+module = ["galaxy.*", "anytree.*"]
 ignore_missing_imports = true
 
 
@@ -38,6 +35,9 @@ unfixable = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
+# Enable the isort rules.
+extend-select = ["I"]
+
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
@@ -64,4 +64,3 @@ docstring-code-format = true
 # This only has an effect when the `docstring-code-format` setting is
 # enabled.
 docstring-code-line-length = "dynamic"
-
