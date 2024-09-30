@@ -7,10 +7,12 @@ from typing import (
 )
 
 from anytree import find  # type: ignore
+from galaxy.util import xml_macros
 from lsprotocol.types import (
     Position,
     Range,
 )
+from lxml import etree
 from pygls.workspace import Document
 
 from galaxyls.services.tools.constants import (
@@ -227,6 +229,22 @@ class GalaxyToolXmlDocument:
                     if imp_filename == filename:
                         return self.xml_document.get_full_range(imp)
         return None
+
+    def get_expanded_tool_document(self) -> "GalaxyToolXmlDocument":
+        """If the given tool document uses macros, a new tool document with the expanded macros is returned,
+        otherwise, the same document is returned.
+        """
+        if self.uses_macros:
+            try:
+                document = self.document
+                expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
+                expanded_tool_tree = cast(etree._ElementTree, expanded_tool_tree)  # type: ignore
+                expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
+                expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
+                return GalaxyToolXmlDocument(expanded_document)
+            except BaseException:
+                return self
+        return self
 
     def get_tool_id(self) -> Optional[str]:
         """Gets the identifier of the tool"""

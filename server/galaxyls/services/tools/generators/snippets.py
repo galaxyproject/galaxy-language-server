@@ -10,13 +10,10 @@ from typing import (
     cast,
 )
 
-from galaxy.util import xml_macros
 from lsprotocol.types import (
     Position,
     Range,
 )
-from lxml import etree
-from pygls.workspace import Document
 
 from galaxyls.services.tools.constants import (
     DASH,
@@ -32,7 +29,7 @@ class SnippetGenerator(ABC):
 
     def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
         self.tool_document = tool_document
-        self.expanded_document = self._get_expanded_tool_document(tool_document)
+        self.expanded_document = tool_document.get_expanded_tool_document()
         self.tabstop_count: int = 0
         self.indent_spaces: str = " " * tabSize
         super().__init__()
@@ -62,22 +59,6 @@ class SnippetGenerator(ABC):
         """This abstract function should find the proper position inside the document where the
         snippet will be inserted."""
         pass
-
-    def _get_expanded_tool_document(self, tool_document: GalaxyToolXmlDocument) -> GalaxyToolXmlDocument:
-        """If the given tool document uses macros, a new tool document with the expanded macros is returned,
-        otherwise, the same document is returned.
-        """
-        if tool_document.uses_macros:
-            try:
-                document = tool_document.document
-                expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
-                expanded_tool_tree = cast(etree._ElementTree, expanded_tool_tree)  # type: ignore
-                expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
-                expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
-                return GalaxyToolXmlDocument(expanded_document)
-            except BaseException:
-                return tool_document
-        return tool_document
 
     def _get_next_tabstop(self) -> str:
         """Increments the tabstop count and returns the current tabstop
