@@ -1,35 +1,51 @@
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement
 from galaxyls.types import ParamReferencesResult
 
+ReferenceBuilder = Callable[[XmlElement], Optional[str]]
+
 
 class ParamReferencesProvider:
-    def get_param_references(self, xml_document: XmlDocument) -> Optional[ParamReferencesResult]:
+    def get_param_command_references(self, xml_document: XmlDocument) -> Optional[ParamReferencesResult]:
         """Returns a list of references for the input parameters of the tool that can be used in the command section."""
-        tool = GalaxyToolXmlDocument.from_xml_document(xml_document).get_expanded_tool_document()
-        references = []
-        params = tool.get_input_params()
-        for param in params:
-            reference = self._build_command_reference(param)
-            if reference:
-                references.append(reference)
-        return ParamReferencesResult(references)
+        return self._get_param_references(xml_document, self._build_command_reference)
 
     def get_param_filter_references(self, xml_document: XmlDocument) -> Optional[ParamReferencesResult]:
         """Returns a list of references for the input parameters of the tool that can be used in output filters."""
+        return self._get_param_references(xml_document, self._build_filter_reference)
+
+    def _get_param_references(
+        self, xml_document: XmlDocument, reference_builder: ReferenceBuilder
+    ) -> Optional[ParamReferencesResult]:
         tool = GalaxyToolXmlDocument.from_xml_document(xml_document).get_expanded_tool_document()
         references = []
         params = tool.get_input_params()
         for param in params:
-            reference = self._build_filter_reference(param)
+            reference = reference_builder(param)
             if reference:
                 references.append(reference)
         return ParamReferencesResult(references)
 
-    def get_param_path(self, param: XmlElement) -> List[str]:
+    def _build_command_reference(self, param: XmlElement) -> Optional[str]:
+        reference = None
+        path = self._get_param_path(param)
+        if path:
+            reference = f"${'.'.join(path)}"
+        return reference
+
+    def _build_filter_reference(self, param: XmlElement) -> Optional[str]:
+        reference = None
+        path = self._get_param_path(param)
+        if path:
+            reference = path[0]
+            for elem in path[1:]:
+                reference += f"['{elem}']"
+        return reference
+
+    def _get_param_path(self, param: XmlElement) -> List[str]:
         path = []
         # Skip the first 3 ancestors (document root, tool, inputs) to start at the input element.
         ancestors = param.ancestors[3:]
@@ -54,19 +70,3 @@ class ParamReferencesProvider:
         if argument.startswith("--"):
             argument = argument[2:]
         return argument.replace("-", "_")
-
-    def _build_command_reference(self, param: XmlElement) -> Optional[str]:
-        reference = None
-        path = self.get_param_path(param)
-        if path:
-            reference = f"${'.'.join(path)}"
-        return reference
-
-    def _build_filter_reference(self, param: XmlElement) -> Optional[str]:
-        reference = None
-        path = self.get_param_path(param)
-        if path:
-            reference = path[0]
-            for elem in path[1:]:
-                reference += f"['{elem}']"
-        return reference

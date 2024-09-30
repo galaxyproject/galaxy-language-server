@@ -308,7 +308,7 @@ async def cmd_insert_param_reference(
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
-        return server.service.param_references_provider.get_param_references(xml_document)
+        return server.service.param_references_provider.get_param_command_references(xml_document)
     return None
 
 
