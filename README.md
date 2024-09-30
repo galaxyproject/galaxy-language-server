@@ -40,7 +40,8 @@ This project has the following main goals:
   - [Improved macros support](#improved-macros-support)
   - [Extract macro](#extract-macro)
   - [Full Galaxy tool linter integration](#document-validation)
-  - [Document Outline](#document-outline) _New feature!_ ✨
+  - [Document Outline](#document-outline)
+  - [Insert param reference](#insert-param-reference) _New feature!_ ✨
 
 # Getting Started
 
@@ -160,3 +161,13 @@ You can select (a complete) XML element and then extract it to a local macro (di
 You can now see a document outline of the currently opened tool document. This is especially useful when working with large tool documents. You can navigate to the different sections of the document in a quick and convenient way.
 
 ![Demo feature document outline](../assets/feature.document.outline.gif)
+
+## Insert Param Reference
+
+Now you can use new commands to insert input parameter references into your wrapper. To insert a parameter reference in the command section, place your cursor in the desired position and then invoke the `Insert a reference to a param element.` command from the command palette (`ctrl+shift+p`) or directly use the default key binding for that command `ctrl+alt+i ctrl+alt+p`.
+
+![Demo feature insert param reference](../assets/feature.insert.param.ref.gif)
+
+In a similar way, you can also invoke a command but for inserting a param reference that can be used inside an output filter. The default key binding for that is `ctrl+alt+i ctrl+alt+f`.
+
+![Demo feature insert param filter](../assets/feature.insert.param.filter.png)

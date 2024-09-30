@@ -1,11 +1,20 @@
 # Galaxy Language Server Changelog
 
+## [0.13.0] - 2024-09-30
+
+### Added
+
+- Add commands `Insert param reference` and `Insert param output filter` ([#264](https://github.com/galaxyproject/galaxy-language-server/pull/264)).
+
+### Changed
+
+- Update server dependencies + improve development experience ([#257](https://github.com/galaxyproject/galaxy-language-server/pull/257)).
+
 ## [0.12.1] - 2024-05-18
 
 ### Changed
 
 - Update internal dependencies to support new Galaxy (24.0.2) XSD definitions.
-
 
 ## [0.12.0] - 2023-10-14
 
