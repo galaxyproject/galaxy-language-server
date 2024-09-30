@@ -88,3 +88,13 @@ class GeneratedExpandedDocument:
 
     content: Optional[str] = attrs.field(default=None)
     error_message: Optional[str] = attrs.field(default=None, alias="errorMessage")
+
+
+class ParamReferencesResult:
+    """Contains information about the references to a parameter in the document."""
+
+    def __init__(
+        self,
+        references: List[str],
+    ) -> None:
+        self.references = references

@@ -421,6 +421,15 @@ class XmlElement(XmlContainerNode):
         children = [child for child in self.children if child.name == name]
         return list(children)
 
+    def get_recursive_descendants_with_name(self, name: str) -> List["XmlElement"]:
+        descendants = []
+        for child in self.children:
+            if child.name == name:
+                descendants.append(child)
+            if isinstance(child, XmlElement):
+                descendants.extend(child.get_recursive_descendants_with_name(name))
+        return descendants
+
     def get_cdata_section(self) -> Optional["XmlCDATASection"]:
         """Gets the CDATA node inside this element or None if it doesn't have a CDATA section."""
         return next((node for node in self.children if type(node) is XmlCDATASection), None)
