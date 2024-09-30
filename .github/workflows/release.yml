@@ -19,9 +19,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 21
+          node-version: 20
 
-      - run: npm ci
+      - run: npm i
 
       - name: Package Extension
         id: packageExtension
@@ -98,7 +98,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 21
+          node-version: 20
 
       - name: Publish to Visual Studio Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
