@@ -132,11 +132,18 @@
         "category": "Galaxy Tools",
         "enablement": "galaxytools:isActive",
         "icon": "$(open-preview)"
-      }
-      ,
+      },
       {
         "command": "galaxytools.insert.paramReference",
         "title": "Insert a reference to a param element.",
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive",
+        "icon": "$(insert)",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "galaxytools.insert.paramFilterReference",
+        "title": "Insert a reference to a param element to be used as output filter.",
         "category": "Galaxy Tools",
         "enablement": "galaxytools:isActive",
         "icon": "$(insert)",
@@ -168,6 +175,11 @@
         "command": "galaxytools.insert.paramReference",
         "key": "ctrl+alt+i ctrl+alt+p",
         "mac": "cmd+alt+i cmd+alt+p"
+      },
+      {
+        "command": "galaxytools.insert.paramFilterReference",
+        "key": "ctrl+alt+i ctrl+alt+f",
+        "mac": "cmd+alt+i cmd+alt+f"
       }
     ],
     "configuration": {

@@ -303,12 +303,25 @@ def discover_tests_in_document_command(
 async def cmd_insert_param_reference(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
 ) -> Optional[ParamReferencesResult]:
-    """Provides a list of possible parameter references to be inserted in the document."""
+    """Provides a list of possible parameter references to be inserted in the command section of the document."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
         return server.service.param_references_provider.get_param_command_references(xml_document)
+    return None
+
+
+@language_server.command(Commands.INSERT_PARAM_FILTER_REFERENCE)
+async def cmd_insert_param_filter_reference(
+    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+) -> Optional[ParamReferencesResult]:
+    """Provides a list of possible parameter references to be inserted as output filters."""
+    params = convert_to(parameters[0], TextDocumentIdentifier)
+    document = _get_valid_document(server, params.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+        return server.service.param_references_provider.get_param_filter_references(xml_document)
     return None
 
 

@@ -34,6 +34,7 @@ export namespace Commands {
     export const GENERATE_EXPANDED_DOCUMENT: ICommand = getCommands("generate.expandedDocument");
     export const PREVIEW_EXPANDED_DOCUMENT: ICommand = getCommands("preview.expandedDocument");
     export const INSERT_PARAM_REFERENCE: ICommand = getCommands("insert.paramReference");
+    export const INSERT_PARAM_FILTER_REFERENCE: ICommand = getCommands("insert.paramFilterReference");
 }
 
 interface GeneratedSnippetResult {
@@ -129,10 +130,12 @@ function setupGenerateTestCases(client: LanguageClient, context: ExtensionContex
 }
 
 function setupInsertParamReference(client: LanguageClient, context: ExtensionContext) {
-    const insertParamReferenceHandler = async () => {
+    context.subscriptions.push(commands.registerCommand(Commands.INSERT_PARAM_REFERENCE.internal, () => {
         pickParamReferenceToInsert(client, Commands.INSERT_PARAM_REFERENCE.external);
-    };
-    context.subscriptions.push(commands.registerCommand(Commands.INSERT_PARAM_REFERENCE.internal, insertParamReferenceHandler));
+    }));
+    context.subscriptions.push(commands.registerCommand(Commands.INSERT_PARAM_FILTER_REFERENCE.internal, () => {
+        pickParamReferenceToInsert(client, Commands.INSERT_PARAM_FILTER_REFERENCE.external);
+    }))
 }
 
 function setupAutoCloseTags(client: LanguageClient, context: ExtensionContext) {
@@ -226,7 +229,7 @@ async function requestInsertSnippet(client: LanguageClient, command: string) {
     }
 }
 
-async function pickParamReferenceToInsert(client: LanguageClient, command: string) {
+async function pickParamReferenceToInsert(client: LanguageClient, command: string, pickerTitle: string = "Select a parameter reference to insert") {
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
 
@@ -239,7 +242,7 @@ async function pickParamReferenceToInsert(client: LanguageClient, command: strin
     }
 
     try {
-        const selected = await window.showQuickPick(response.references, { title: "Select a parameter reference to insert" });
+        const selected = await window.showQuickPick(response.references, { title: pickerTitle });
         if (!selected) return;
 
         activeEditor.edit(editBuilder => {
