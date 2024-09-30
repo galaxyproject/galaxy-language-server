@@ -8,9 +8,7 @@ from galaxyls.types import ParamReferencesResult
 
 class ParamReferencesProvider:
     def get_param_references(self, xml_document: XmlDocument) -> Optional[ParamReferencesResult]:
-        # TODO: Should work with expanded documents
-
-        tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
+        tool = GalaxyToolXmlDocument.from_xml_document(xml_document).get_expanded_tool_document()
         references = []
         params = tool.get_input_params()
         for param in params:
