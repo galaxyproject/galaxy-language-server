@@ -13,7 +13,18 @@ class ParamReferencesProvider:
         references = []
         params = tool.get_input_params()
         for param in params:
-            reference = self._build_reference(param)
+            reference = self._build_command_reference(param)
+            if reference:
+                references.append(reference)
+        return ParamReferencesResult(references)
+
+    def get_param_filter_references(self, xml_document: XmlDocument) -> Optional[ParamReferencesResult]:
+        """Returns a list of references for the input parameters of the tool that can be used in output filters."""
+        tool = GalaxyToolXmlDocument.from_xml_document(xml_document).get_expanded_tool_document()
+        references = []
+        params = tool.get_input_params()
+        for param in params:
+            reference = self._build_filter_reference(param)
             if reference:
                 references.append(reference)
         return ParamReferencesResult(references)
@@ -44,9 +55,18 @@ class ParamReferencesProvider:
             argument = argument[2:]
         return argument.replace("-", "_")
 
-    def _build_reference(self, param: XmlElement) -> Optional[str]:
+    def _build_command_reference(self, param: XmlElement) -> Optional[str]:
         reference = None
         path = self.get_param_path(param)
         if path:
             reference = f"${'.'.join(path)}"
+        return reference
+
+    def _build_filter_reference(self, param: XmlElement) -> Optional[str]:
+        reference = None
+        path = self.get_param_path(param)
+        if path:
+            reference = path[0]
+            for elem in path[1:]:
+                reference += f"['{elem}']"
         return reference
