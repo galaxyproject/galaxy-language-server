@@ -169,6 +169,17 @@ class GalaxyToolXmlDocument:
             return outputs.elements
         return []
 
+    def get_input_params(self) -> List[XmlElement]:
+        """Gets the input params of this document as a list of elements.
+
+        Returns:
+            List[XmlElement]: The params defined in the document.
+        """
+        inputs = self.find_element(INPUTS)
+        if inputs:
+            return inputs.get_recursive_descendants_with_name("param")
+        return []
+
     def get_tool_element(self) -> Optional[XmlElement]:
         """Gets the root tool element"""
         return self.find_element(TOOL)
