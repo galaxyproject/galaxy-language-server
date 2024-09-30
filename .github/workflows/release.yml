@@ -21,7 +21,9 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm i
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm i
 
       - name: Package Extension
         id: packageExtension
