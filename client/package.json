@@ -133,6 +133,15 @@
         "enablement": "galaxytools:isActive",
         "icon": "$(open-preview)"
       }
+      ,
+      {
+        "command": "galaxytools.insert.paramReference",
+        "title": "Insert a reference to a param element.",
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive",
+        "icon": "$(insert)",
+        "when": "editorTextFocus"
+      }
     ],
     "keybindings": [
       {
@@ -154,6 +163,11 @@
         "command": "galaxytools.sort.documentParamsAttributes",
         "key": "ctrl+alt+s ctrl+alt+d",
         "mac": "cmd+alt+s cmd+alt+d"
+      },
+      {
+        "command": "galaxytools.insert.paramReference",
+        "key": "ctrl+alt+i ctrl+alt+p",
+        "mac": "cmd+alt+i cmd+alt+p"
       }
     ],
     "configuration": {

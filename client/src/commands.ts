@@ -33,6 +33,7 @@ export namespace Commands {
     export const OPEN_TERMINAL_AT_DIRECTORY_ITEM: ICommand = getCommands("openTerminalAtDirectory");
     export const GENERATE_EXPANDED_DOCUMENT: ICommand = getCommands("generate.expandedDocument");
     export const PREVIEW_EXPANDED_DOCUMENT: ICommand = getCommands("preview.expandedDocument");
+    export const INSERT_PARAM_REFERENCE: ICommand = getCommands("insert.paramReference");
 }
 
 interface GeneratedSnippetResult {
@@ -45,6 +46,10 @@ interface GeneratedSnippetResult {
 interface ReplaceTextRangeResult {
     text: string;
     replace_range: Range;
+}
+
+interface ParamReferencesResult {
+    references: string[];
 }
 
 export interface GeneratedExpandedDocument {
@@ -64,6 +69,8 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
     setupSortDocumentParams(client, context);
 
     setupGenerateExpandedDocument(client, context);
+
+    setupInsertParamReference(client, context);
 
     context.subscriptions.push(
         commands.registerCommand(Commands.PREVIEW_EXPANDED_DOCUMENT.internal, previewExpandedDocument)
@@ -119,6 +126,13 @@ function setupGenerateTestCases(client: LanguageClient, context: ExtensionContex
         requestInsertSnippet(client, Commands.GENERATE_TEST.external);
     };
     context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST.internal, generateTest));
+}
+
+function setupInsertParamReference(client: LanguageClient, context: ExtensionContext) {
+    const insertParamReferenceHandler = async () => {
+        pickParamReferenceToInsert(client, Commands.INSERT_PARAM_REFERENCE.external);
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.INSERT_PARAM_REFERENCE.internal, insertParamReferenceHandler));
 }
 
 function setupAutoCloseTags(client: LanguageClient, context: ExtensionContext) {
@@ -207,6 +221,30 @@ async function requestInsertSnippet(client: LanguageClient, command: string) {
             const position = new Position(response.position.line, response.position.character);
             activeEditor.insertSnippet(snippet, position);
         }
+    } catch (err: any) {
+        window.showErrorMessage(err);
+    }
+}
+
+async function pickParamReferenceToInsert(client: LanguageClient, command: string) {
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) return;
+
+    const document = activeEditor.document;
+
+    const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    const response = await commands.executeCommand<ParamReferencesResult>(command, param);
+    if (!response || !response.references || response.references.length === 0) {
+        return;
+    }
+
+    try {
+        const selected = await window.showQuickPick(response.references, { title: "Select a parameter reference to insert" });
+        if (!selected) return;
+
+        activeEditor.edit(editBuilder => {
+            editBuilder.insert(activeEditor.selection.active, selected);
+        });
     } catch (err: any) {
         window.showErrorMessage(err);
     }

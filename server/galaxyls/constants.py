@@ -15,6 +15,7 @@ class Commands:
     DISCOVER_TESTS_IN_WORKSPACE = "gls.tests.discoverInWorkspace"
     DISCOVER_TESTS_IN_DOCUMENT = "gls.tests.discoverInDocument"
     GENERATE_EXPANDED_DOCUMENT = "gls.generate.expandedDocument"
+    INSERT_PARAM_REFERENCE = "gls.insert.paramReference"
 
 
 class DiagnosticCodes:

@@ -56,6 +56,7 @@ from galaxyls.types import (
     CommandParameters,
     GeneratedExpandedDocument,
     GeneratedSnippetResult,
+    ParamReferencesResult,
     ReplaceTextRangeResult,
     TestSuiteInfoResult,
 )
@@ -295,6 +296,19 @@ def discover_tests_in_document_command(
     if document:
         xml_document = _get_xml_document(document)
         return server.service.test_discovery_service.discover_tests_in_document(xml_document)
+    return None
+
+
+@language_server.command(Commands.INSERT_PARAM_REFERENCE)
+async def cmd_insert_param_reference(
+    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+) -> Optional[ParamReferencesResult]:
+    """Provides a list of possible parameter references to be inserted in the document."""
+    params = convert_to(parameters[0], TextDocumentIdentifier)
+    document = _get_valid_document(server, params.uri)
+    if document:
+        xml_document = _get_xml_document(document)
+        return server.service.param_references_provider.get_param_references(xml_document)
     return None
 
 
