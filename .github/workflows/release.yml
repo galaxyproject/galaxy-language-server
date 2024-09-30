@@ -16,10 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get version from tag
-        id: get_version
-        uses: jannemattila/get-version-from-tag@v3
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -51,16 +47,11 @@ jobs:
             The standalone version of the language server is available as a [PyPI package](https://pypi.org/project/galaxy-language-server/).
 
             The Galaxy Tools Extension is available at [Open VSX Registry](https://open-vsx.org/extension/davelopez/galaxy-tools) and [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-tools).
-            You can also install the extension manually by downloading the VSIX package included in this release and using:
-            ```
-            code --install-extension galaxy-tools-${{ steps.get_version.outputs.version }}.vsix
-            ```
           draft: true
           prerelease: false
           generate_release_notes: true
           files: ${{ steps.packageExtension.outputs.vsixPath }}
     outputs:
-      release_version: ${{ steps.get_version.outputs.version }}
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
       vsixPath: ${{ steps.packageExtension.outputs.vsixPath }}
 
