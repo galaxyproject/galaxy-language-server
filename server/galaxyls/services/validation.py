@@ -5,9 +5,7 @@ from pygls.workspace import Document
 
 from galaxyls.services.xml.types import DocumentType
 
-MAX_PEEK_CONTENT = 100
-TAG_GROUP_NAME = "tag"
-TAG_REGEX = rf"[\n\s]*?.*?[\n\s]*?<(?!\?)(?P<{TAG_GROUP_NAME}>[\w]*)"
+MAX_PEEK_CONTENT = 1000
 
 
 class DocumentValidator:
