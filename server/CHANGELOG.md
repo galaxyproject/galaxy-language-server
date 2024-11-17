@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.13.1] - 2024-11-18
+
+### Fixed
+
+- Reduce false positives when detecting tool wrapper documents ([#267](https://github.com/galaxyproject/galaxy-language-server/pull/267)).
+
 ## [0.13.0] - 2024-09-30
 
 ### Added
