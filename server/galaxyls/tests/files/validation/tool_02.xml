@@ -14,7 +14,11 @@
     <tests>
         <test>
             <param name="input" value="test"/>
-            <output name="output"/>
+            <output name="output">
+                <assert_contents>
+                    <has_text text="test"/>
+                </assert_contents>
+            </output>
         </test>
     </tests>
     <help><![CDATA[
