@@ -1,5 +1,15 @@
 # Galaxy Language Server Changelog
 
+## [0.13.2] - 2025-03-10
+
+### Fixed
+
+- Move xrefs block to comply with `planemo` lint ordering ([#269](https://github.com/galaxyproject/galaxy-language-server/pull/269)).
+
+### Changed
+
+- Update server dependencies to include new linting ([#272](https://github.com/galaxyproject/galaxy-language-server/pull/272)).
+
 ## [0.13.1] - 2024-11-18
 
 ### Fixed
