@@ -27,13 +27,13 @@ jobs:
 
       - name: Package Extension
         id: packageExtension
-        uses: HaaLeo/publish-vscode-extension@v1
+        uses: HaaLeo/publish-vscode-extension@v2
         with:
           pat: stub
           packagePath: "./client/"
           dryRun: true
 
-      - name: Create Draf Release
+      - name: Create Draft Release
         id: create_release
         uses: softprops/action-gh-release@v2
         env:
@@ -103,15 +103,15 @@ jobs:
           node-version: 20
 
       - name: Publish to Visual Studio Marketplace
-        uses: HaaLeo/publish-vscode-extension@v1
+        uses: HaaLeo/publish-vscode-extension@v2
         with:
           pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
           registryUrl: https://marketplace.visualstudio.com
-          extensionFile: ${{ needs.prepare_release.outputs.vsixPath}}
+          extensionFile: ${{ needs.prepare_release.outputs.vsixPath }}
 
       - name: Publish to Open VSX Registry
-        uses: HaaLeo/publish-vscode-extension@v1
+        uses: HaaLeo/publish-vscode-extension@v2
         id: publishToOpenVSX
         with:
           pat: ${{ secrets.OPEN_VSX_TOKEN }}
-          extensionFile: ${{ needs.prepare_release.outputs.vsixPath}}
+          extensionFile: ${{ needs.prepare_release.outputs.vsixPath }}
