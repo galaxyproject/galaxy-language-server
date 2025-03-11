@@ -124,7 +124,7 @@ export async function installLanguageServer(
                     );
 
                     if (!isInstalled) {
-                        const errorMessage = "There was a problem trying to install the Galaxy language server.";
+                        const errorMessage = "There was a problem trying to install the Galaxy language server. Check the logs under Help > Developer Tools > Console or try reloading VS Code.";
                         window.showErrorMessage(errorMessage);
                         removeDirectory(venvPath);
                         throw new Error(errorMessage);
