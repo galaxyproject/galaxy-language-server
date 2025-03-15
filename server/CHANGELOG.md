@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.13.3] - 2025-03-15
+
+### Fixed
+
+- Ensure `pip` and `setuptools` are upgraded when creating the virtual environment ([#275](https://github.com/galaxyproject/galaxy-language-server/pull/275)).
+
 ## [0.13.2] - 2025-03-10
 
 ### Fixed
