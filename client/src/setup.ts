@@ -109,6 +109,8 @@ export async function installLanguageServer(
                             Constants.LS_VENV_NAME,
                             context.extensionPath
                         );
+
+                        await ensureEnvUpgraded(venvPath);
                     }
 
                     const venvPython = getPythonFromVirtualEnvPath(venvPath);
@@ -122,7 +124,7 @@ export async function installLanguageServer(
                     );
 
                     if (!isInstalled) {
-                        const errorMessage = "There was a problem trying to install the Galaxy language server.";
+                        const errorMessage = "There was a problem trying to install the Galaxy language server. Check the logs under Help > Developer Tools > Console or try reloading VS Code.";
                         window.showErrorMessage(errorMessage);
                         removeDirectory(venvPath);
                         throw new Error(errorMessage);
@@ -229,6 +231,18 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
         return gte(installedVersion, version);
     } catch (err: any) {
         console.error(`[gls] isPythonPackageInstalled err: ${err}`);
+        return false;
+    }
+}
+
+async function ensureEnvUpgraded(venvPath: string): Promise<boolean> {
+    const venvPython = getPythonFromVirtualEnvPath(venvPath);
+    const upgradePythonPackagesCmd = `"${venvPython}" -m pip install --upgrade pip setuptools`;
+    try {
+        await execAsync(upgradePythonPackagesCmd);
+        return true;
+    } catch (err: any) {
+        console.error(`[gls] err upgrading pip and setuptools: ${err}`);
         return false;
     }
 }
