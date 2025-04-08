@@ -23,7 +23,7 @@
         },
         {
             "name": "Launch Server",
-            "type": "python",
+            "type": "debugpy",
             "console": "internalConsole",
             "request": "launch",
             "module": "galaxyls",
