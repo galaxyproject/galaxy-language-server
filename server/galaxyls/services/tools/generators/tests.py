@@ -98,8 +98,8 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         """Returns the position inside the document where new test cases
         can be inserted.
 
-        If the <tests> section does not exists in the file, the best aproximate
-        position where the tests should be inserted is returned (acording to the IUC
+        If the <tests> section does not exists in the file, the best approximate
+        position where the tests should be inserted is returned (according to the IUC
         best practices tag order).
 
         Returns:
@@ -135,7 +135,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
 
         Args:
             input_node (InputNode): The InputNode that is one of the leaves of the input tree.
-            outputs (List[XmlElement]): The list of XML elements representings the outputs of the tool.
+            outputs (List[XmlElement]): The list of XML elements representing the outputs of the tool.
             spaces (str, optional): The str with the number of spaces for an indent level. Defaults to "  ".
 
         Returns:
