@@ -20,6 +20,7 @@ from galaxyls.services.tools.constants import (
     UNDERSCORE,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
+from galaxyls.services.tools.generators import DisplayableException
 from galaxyls.types import GeneratedSnippetResult, ReplaceTextRangeResult, WorkspaceEditResult
 
 
@@ -38,7 +39,7 @@ class WorkspaceEditsGenerator(ABC):
         try:
             edits = self._build_workspace_edits()
             return WorkspaceEditResult(edits)
-        except Exception as e:
+        except DisplayableException as e:
             return WorkspaceEditResult.as_error(str(e))
 
     @abstractmethod
