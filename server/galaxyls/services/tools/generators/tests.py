@@ -1,4 +1,5 @@
 from typing import (
+    Dict,
     List,
     Optional,
     Tuple,
@@ -50,7 +51,8 @@ from galaxyls.services.tools.constants import (
     N,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
-from galaxyls.services.tools.generators.snippets import SnippetGenerator
+from galaxyls.services.tools.generators import DisplayableException
+from galaxyls.services.tools.generators.snippets import SnippetGenerator, WorkspaceEditsGenerator
 from galaxyls.services.tools.inputs import (
     ConditionalInputNode,
     InputNode,
@@ -58,6 +60,7 @@ from galaxyls.services.tools.inputs import (
     SectionInputNode,
 )
 from galaxyls.services.xml.nodes import XmlElement
+from galaxyls.types import ReplaceTextRangeResult
 
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
@@ -363,3 +366,118 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         option_elements = param.get_children_with_name(OPTION)
         options = [o.get_attribute_value(VALUE) for o in option_elements]
         return list(filter(None, options))
+
+
+class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
+    """This class tries to update the test cases in the XML document with the information
+    already defined in the inputs and outputs of the tool XML wrapper.
+    """
+
+    def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
+        super().__init__(tool_document, tabSize)
+
+    def _build_workspace_edits(self) -> List[ReplaceTextRangeResult]:
+        """This function tries to generate a code snippet with the existing test cases but
+        with the correct syntax when using conditional, sections, repeats, etc.
+
+        Returns:
+            List[ReplaceTextRangeResult]: The list of workspace edits to be applied to the document.
+        """
+        result_edits: List[ReplaceTextRangeResult] = []
+        try:
+            existing_tests = self.tool_document.get_tests()
+            if not existing_tests:
+                raise DisplayableException("Tool does not contain any test cases")
+
+            input_params = self.expanded_document.get_input_params()
+
+            for test in existing_tests:
+                test_edits = self._generate_edits_for_test_element(test, input_params)
+                result_edits.extend(test_edits)
+
+            return result_edits
+        except BaseException as ex:
+            raise DisplayableException(f"Update Test Case generation failed with reason: {ex}")
+
+    def _generate_edits_for_test_element(
+        self, test: XmlElement, input_params: List[XmlElement]
+    ) -> List[ReplaceTextRangeResult]:
+        result_edits: List[ReplaceTextRangeResult] = []
+
+        # Group parameters by their ancestor hierarchy (conditional, repeat, or section)
+        grouped_params: Dict[Tuple[XmlElement, ...], List[XmlElement]] = {}
+
+        test_params = test.get_children_with_name(PARAM)
+        for test_param in test_params:
+            name_attr = test_param.get_attribute_value(NAME)
+            if name_attr:
+                # Find the corresponding input parameter
+                input_param = next((p for p in input_params if p.get_attribute_value(NAME) == name_attr), None)
+                if input_param:
+                    # Build the full ancestor hierarchy for the input parameter
+                    ancestors: List[XmlElement] = []
+                    current = input_param
+                    while current.parent:
+                        ancestors.insert(0, current.parent)
+                        current = current.parent
+
+                    # Filter the ancestor hierarchy to include only valid elements
+                    valid_ancestors = [a for a in ancestors if a.name in (CONDITIONAL, REPEAT, SECTION)]
+
+                    # Use the valid ancestor hierarchy as the grouping key
+                    ancestor_key = tuple(valid_ancestors)
+                    if ancestor_key not in grouped_params:
+                        grouped_params[ancestor_key] = []
+                    grouped_params[ancestor_key].append(test_param)
+
+        # Generate edits for grouped parameters
+        for ancestor_key, params in grouped_params.items():
+            # Build the nested XML structure for the ancestor hierarchy
+            current_element = None
+            for ancestor in reversed(ancestor_key):
+                if ancestor.name:
+                    ancestor_element = etree.Element(ancestor.name)
+                    ancestor_element.attrib[NAME] = ancestor.get_attribute_value(NAME) or ""
+                    if current_element is not None:
+                        ancestor_element.append(current_element)
+                    current_element = ancestor_element
+
+            # Add all grouped <param> elements to the innermost ancestor element
+            if current_element is not None:
+                for param in params:
+                    param_element = etree.Element(PARAM)
+                    for attr_name, attr_value in param.attributes.items():
+                        param_element.attrib[attr_name] = attr_value.get_value()
+                    current_element.append(param_element)
+
+                # Generate the XML for the ancestor hierarchy
+                ancestor_xml = etree.tostring(current_element, pretty_print=True, encoding=str)
+
+                # Replace the range of the first parameter in the group with the ancestor hierarchy
+                first_param = params[0]
+                first_param_range = self.tool_document.xml_document.get_element_range(first_param)
+                if first_param_range:
+                    result_edits.append(ReplaceTextRangeResult(replace_range=first_param_range, text=ancestor_xml))
+
+            # Remove the remaining parameters in the group
+            for param in params[1:]:
+                param_range = self.tool_document.xml_document.get_element_range(param)
+                if param_range:
+                    result_edits.append(ReplaceTextRangeResult(replace_range=param_range, text=""))
+
+        # Generate edits for remaining parameters that are not part of any group
+        for test_param in test_params:
+            name_attr = test_param.get_attribute_value(NAME)
+            if name_attr and not any(test_param in params for params in grouped_params.values()):
+                # Preserve all attributes of the <param> element
+                param_element = etree.Element(PARAM)
+                for attr_name, attr_value in test_param.attributes.items():
+                    param_element.attrib[attr_name] = attr_value.get_value()
+                param_xml = etree.tostring(param_element, pretty_print=True, encoding=str)
+
+                # Replace the range of the original <param> element
+                param_range = self.tool_document.xml_document.get_element_range(test_param)
+                if param_range:
+                    result_edits.append(ReplaceTextRangeResult(replace_range=param_range, text=param_xml))
+
+        return result_edits
