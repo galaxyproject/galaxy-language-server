@@ -23,7 +23,7 @@ import { DirectoryTreeItem } from "./views/common";
 
 export namespace Commands {
     export const AUTO_CLOSE_TAGS: ICommand = getCommands("completion.autoCloseTags");
-    export const GENERATE_TEST: ICommand = getCommands("generate.tests");
+    export const GENERATE_TESTS: ICommand = getCommands("generate.tests");
     export const GENERATE_COMMAND: ICommand = getCommands("generate.command");
     export const SORT_SINGLE_PARAM_ATTRS: ICommand = getCommands("sort.singleParamAttributes");
     export const SORT_DOCUMENT_PARAMS_ATTRS: ICommand = getCommands("sort.documentParamsAttributes");
@@ -124,7 +124,7 @@ function setupGenerateCommandSection(client: LanguageClient, context: ExtensionC
 
 function setupGenerateTestCases(client: LanguageClient, context: ExtensionContext) {
     const generateTest = async () => {
-        requestInsertSnippet(client, Commands.GENERATE_TEST.external);
+        requestInsertSnippet(client, Commands.GENERATE_TESTS.external);
     };
     context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST.internal, generateTest));
 }
