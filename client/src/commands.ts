@@ -16,7 +16,7 @@ import {
 import { LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "./constants";
 import { ICommand } from "./interfaces";
-import { GalaxyToolsExpadedDocumentContentProvider } from "./providers/contentProvider";
+import { GalaxyToolsExpandedDocumentContentProvider } from "./providers/contentProvider";
 import { AutoCloseTagResult, activateTagClosing } from "./tagClosing";
 import { changeUriScheme, cloneRange, getCommands } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
@@ -357,7 +357,7 @@ async function previewExpandedDocument() {
         return;
     }
     const expandedDocumentUri = convertToExpandedDocumentUri(document.uri);
-    GalaxyToolsExpadedDocumentContentProvider.getInstance().update(expandedDocumentUri);
+    GalaxyToolsExpandedDocumentContentProvider.getInstance().update(expandedDocumentUri);
     const doc = await workspace.openTextDocument(expandedDocumentUri);
     await window.showTextDocument(doc, { preview: false, viewColumn: ViewColumn.Beside });
 }
