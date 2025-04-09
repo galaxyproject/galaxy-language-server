@@ -24,6 +24,7 @@ import { DirectoryTreeItem } from "./views/common";
 export namespace Commands {
     export const AUTO_CLOSE_TAGS: ICommand = getCommands("completion.autoCloseTags");
     export const GENERATE_TESTS: ICommand = getCommands("generate.tests");
+    export const UPDATE_TESTS: ICommand = getCommands("update.tests");
     export const GENERATE_COMMAND: ICommand = getCommands("generate.command");
     export const SORT_SINGLE_PARAM_ATTRS: ICommand = getCommands("sort.singleParamAttributes");
     export const SORT_DOCUMENT_PARAMS_ATTRS: ICommand = getCommands("sort.documentParamsAttributes");
@@ -41,6 +42,10 @@ interface GeneratedSnippetResult {
     snippet: string;
     position: Position;
     replace_range: Range | null;
+    error_message: string;
+}
+interface WorkspaceEditResult {
+    edits: ReplaceTextRangeResult[];
     error_message: string;
 }
 
@@ -62,6 +67,8 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
     setupAutoCloseTags(client, context);
 
     setupGenerateTestCases(client, context);
+
+    setupUpdateTestCases(client, context);
 
     setupGenerateCommandSection(client, context);
 
@@ -126,7 +133,14 @@ function setupGenerateTestCases(client: LanguageClient, context: ExtensionContex
     const generateTest = async () => {
         requestInsertSnippet(client, Commands.GENERATE_TESTS.external);
     };
-    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST.internal, generateTest));
+    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TESTS.internal, generateTest));
+}
+
+function setupUpdateTestCases(client: LanguageClient, context: ExtensionContext) {
+    const updateTests = async () => {
+        requestWorkspaceEdits(client, Commands.UPDATE_TESTS.external);
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.UPDATE_TESTS.internal, updateTests));
 }
 
 function setupInsertParamReference(client: LanguageClient, context: ExtensionContext) {
@@ -225,6 +239,35 @@ async function requestInsertSnippet(client: LanguageClient, command: string) {
             activeEditor.insertSnippet(snippet, position);
         }
     } catch (err: any) {
+        window.showErrorMessage(err);
+    }
+}
+
+async function requestWorkspaceEdits(client: LanguageClient, command: string) {
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) return;
+    const isSaved = await ensureDocumentIsSaved(activeEditor);
+    if (!isSaved) return;
+    const document = activeEditor.document;
+    const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    const response = (await commands.executeCommand(command, param)) as WorkspaceEditResult;
+
+    if (!response || response.error_message) {
+        if (response.error_message) {
+            window.showErrorMessage(response.error_message);
+        }
+        return;
+    }
+    try {
+        activeEditor.edit((builder) => {
+            for (let index = 0; index < response.edits.length; index++) {
+                const element = response.edits[index];
+                const range = cloneRange(element.replace_range);
+                builder.replace(range, element.text);
+            }
+        });
+    }
+    catch (err: any) {
         window.showErrorMessage(err);
     }
 }
