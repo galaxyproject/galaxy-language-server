@@ -266,6 +266,9 @@ async function requestWorkspaceEdits(client: LanguageClient, command: string) {
                 builder.replace(range, element.text);
             }
         });
+        // Format the document after the edits
+        await commands.executeCommand("editor.action.formatDocument");
+        
     }
     catch (err: any) {
         window.showErrorMessage(err);
