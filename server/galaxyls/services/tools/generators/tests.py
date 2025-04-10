@@ -442,7 +442,7 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
         while current.parent:
             ancestors.insert(0, current.parent)
             current = current.parent
-        return [a for a in ancestors if a.name in (CONDITIONAL, REPEAT, SECTION)]
+        return [a for a in ancestors if self._is_valid_ancestor(a)]
 
     def _build_ancestor_hierarchy_xml(
         self, ancestor_key: Tuple[XmlElement, ...], params: List[XmlElement]
@@ -496,3 +496,11 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
         for attr_name, attr_value in param.attributes.items():
             param_element.attrib[attr_name] = attr_value.get_value()
         return param_element
+
+    def _get_element_key(self, element: XmlElement) -> str:
+        """Returns a string representation of the element key."""
+        return f"{element.name}:{element.get_attribute_value(NAME) or ''}"
+
+    def _is_valid_ancestor(self, element: Optional[XmlElement]) -> bool:
+        """Checks if the element is a valid ancestor for grouping."""
+        return element is not None and element.name in (CONDITIONAL, REPEAT, SECTION)
