@@ -404,80 +404,95 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
     ) -> List[ReplaceTextRangeResult]:
         result_edits: List[ReplaceTextRangeResult] = []
 
-        # Group parameters by their ancestor hierarchy (conditional, repeat, or section)
+        test_params = test.get_children_with_name(PARAM)
+        grouped_params = self._group_parameters_by_ancestor_hierarchy(test_params, input_params)
+
+        for ancestor_key, params in grouped_params.items():
+            ancestor_xml, first_param_range = self._build_ancestor_hierarchy_xml(ancestor_key, params)
+            if ancestor_xml and first_param_range:
+                result_edits.append(ReplaceTextRangeResult(replace_range=first_param_range, text=ancestor_xml))
+
+            self._remove_remaining_parameters_in_group(params[1:], result_edits)
+
+        self._generate_edits_for_remaining_parameters(test_params, grouped_params, result_edits)
+
+        return result_edits
+
+    def _group_parameters_by_ancestor_hierarchy(
+        self, test_params: List[XmlElement], input_params: List[XmlElement]
+    ) -> Dict[Tuple[XmlElement, ...], List[XmlElement]]:
         grouped_params: Dict[Tuple[XmlElement, ...], List[XmlElement]] = {}
 
-        test_params = test.get_children_with_name(PARAM)
         for test_param in test_params:
             name_attr = test_param.get_attribute_value(NAME)
             if name_attr:
-                # Find the corresponding input parameter
                 input_param = next((p for p in input_params if p.get_attribute_value(NAME) == name_attr), None)
                 if input_param:
-                    # Build the full ancestor hierarchy for the input parameter
-                    ancestors: List[XmlElement] = []
-                    current = input_param
-                    while current.parent:
-                        ancestors.insert(0, current.parent)
-                        current = current.parent
-
-                    # Filter the ancestor hierarchy to include only valid elements
-                    valid_ancestors = [a for a in ancestors if a.name in (CONDITIONAL, REPEAT, SECTION)]
-
-                    # Use the valid ancestor hierarchy as the grouping key
-                    ancestor_key = tuple(valid_ancestors)
+                    ancestors = self._get_valid_ancestor_hierarchy(input_param)
+                    ancestor_key = tuple(ancestors)
                     if ancestor_key not in grouped_params:
                         grouped_params[ancestor_key] = []
                     grouped_params[ancestor_key].append(test_param)
 
-        # Generate edits for grouped parameters
-        for ancestor_key, params in grouped_params.items():
-            # Build the nested XML structure for the ancestor hierarchy
-            current_element = None
-            for ancestor in reversed(ancestor_key):
-                if ancestor.name:
-                    ancestor_element = etree.Element(ancestor.name)
-                    ancestor_element.attrib[NAME] = ancestor.get_attribute_value(NAME) or ""
-                    if current_element is not None:
-                        ancestor_element.append(current_element)
-                    current_element = ancestor_element
+        return grouped_params
 
-            # Add all grouped <param> elements to the innermost ancestor element
-            if current_element is not None:
-                for param in params:
-                    param_element = etree.Element(PARAM)
-                    for attr_name, attr_value in param.attributes.items():
-                        param_element.attrib[attr_name] = attr_value.get_value()
-                    current_element.append(param_element)
+    def _get_valid_ancestor_hierarchy(self, input_param: XmlElement) -> List[XmlElement]:
+        ancestors: List[XmlElement] = []
+        current = input_param
+        while current.parent:
+            ancestors.insert(0, current.parent)
+            current = current.parent
+        return [a for a in ancestors if a.name in (CONDITIONAL, REPEAT, SECTION)]
 
-                # Generate the XML for the ancestor hierarchy
-                ancestor_xml = etree.tostring(current_element, pretty_print=True, encoding=str)
+    def _build_ancestor_hierarchy_xml(
+        self, ancestor_key: Tuple[XmlElement, ...], params: List[XmlElement]
+    ) -> Tuple[Optional[str], Optional[Range]]:
+        current_element = None
+        for ancestor in reversed(ancestor_key):
+            if ancestor.name:
+                ancestor_element = etree.Element(ancestor.name)
+                ancestor_element.attrib[NAME] = ancestor.get_attribute_value(NAME) or ""
+                if current_element is not None:
+                    ancestor_element.append(current_element)
+                current_element = ancestor_element
 
-                # Replace the range of the first parameter in the group with the ancestor hierarchy
-                first_param = params[0]
-                first_param_range = self.tool_document.xml_document.get_element_range(first_param)
-                if first_param_range:
-                    result_edits.append(ReplaceTextRangeResult(replace_range=first_param_range, text=ancestor_xml))
+        if current_element is not None:
+            for param in params:
+                param_element = self._to_etree(param)
+                current_element.append(param_element)
 
-            # Remove the remaining parameters in the group
-            for param in params[1:]:
-                param_range = self.tool_document.xml_document.get_element_range(param)
-                if param_range:
-                    result_edits.append(ReplaceTextRangeResult(replace_range=param_range, text=""))
+            ancestor_xml = etree.tostring(current_element, pretty_print=True, encoding=str)
+            first_param_range = self.tool_document.xml_document.get_element_range(params[0])
+            return ancestor_xml, first_param_range
 
-        # Generate edits for remaining parameters that are not part of any group
+        return None, None
+
+    def _remove_remaining_parameters_in_group(
+        self, params: List[XmlElement], result_edits: List[ReplaceTextRangeResult]
+    ) -> None:
+        for param in params:
+            param_range = self.tool_document.xml_document.get_element_range(param)
+            if param_range:
+                result_edits.append(ReplaceTextRangeResult(replace_range=param_range, text=""))
+
+    def _generate_edits_for_remaining_parameters(
+        self,
+        test_params: List[XmlElement],
+        grouped_params: Dict[Tuple[XmlElement, ...], List[XmlElement]],
+        result_edits: List[ReplaceTextRangeResult],
+    ) -> None:
         for test_param in test_params:
             name_attr = test_param.get_attribute_value(NAME)
             if name_attr and not any(test_param in params for params in grouped_params.values()):
-                # Preserve all attributes of the <param> element
-                param_element = etree.Element(PARAM)
-                for attr_name, attr_value in test_param.attributes.items():
-                    param_element.attrib[attr_name] = attr_value.get_value()
+                param_element = self._to_etree(test_param)
                 param_xml = etree.tostring(param_element, pretty_print=True, encoding=str)
 
-                # Replace the range of the original <param> element
                 param_range = self.tool_document.xml_document.get_element_range(test_param)
                 if param_range:
                     result_edits.append(ReplaceTextRangeResult(replace_range=param_range, text=param_xml))
 
-        return result_edits
+    def _to_etree(self, param: XmlElement) -> etree._Element:
+        param_element = etree.Element(PARAM)
+        for attr_name, attr_value in param.attributes.items():
+            param_element.attrib[attr_name] = attr_value.get_value()
+        return param_element
