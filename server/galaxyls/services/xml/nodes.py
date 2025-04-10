@@ -292,7 +292,8 @@ class XmlElement(XmlContainerNode):
         self.attributes: Dict[str, XmlAttribute] = {}
 
     def __repr__(self) -> str:
-        return f"XmlElement[{self.name}]-Attrs[{','.join(self.get_attribute_names())}]"
+        attribute_pairs = [f"{key}={value.get_value()}" for key, value in self.attributes.items()]
+        return f"XmlElement[{self.name}]-Attrs[{','.join(attribute_pairs)}]"
 
     @property
     def node_type(self) -> NodeType:
@@ -377,7 +378,7 @@ class XmlElement(XmlContainerNode):
             offset is currently over the starting or closing tag.
 
         Returns:
-            Tuple[int, int]: The start and end offsets of this tag name whitout the
+            Tuple[int, int]: The start and end offsets of this tag name without the
             opening and ending tokens ('<', '>' '</').
         """
         if self.name:
