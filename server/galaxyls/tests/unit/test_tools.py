@@ -327,13 +327,6 @@ class TestGalaxyToolTestUpdaterClass:
                         ),
                         ReplaceTextRangeResult(
                             replace_range=Range(
-                                start=Position(line=30, character=12),
-                                end=Position(line=30, character=48),
-                            ),
-                            text="",
-                        ),
-                        ReplaceTextRangeResult(
-                            replace_range=Range(
                                 start=Position(line=31, character=12),
                                 end=Position(line=31, character=45),
                             ),
@@ -345,6 +338,13 @@ class TestGalaxyToolTestUpdaterClass:
                                 end=Position(line=32, character=46),
                             ),
                             text='<section name="int">\n  <param name="int_test" value="1"/>\n</section>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=30, character=12),
+                                end=Position(line=30, character=48),
+                            ),
+                            text="",
                         ),
                         ReplaceTextRangeResult(
                             replace_range=Range(
