@@ -509,7 +509,7 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
                         moved_params.discard(first_param)
 
         # Remove all parameters that were moved to a new location
-        self._remove_params(list(moved_params), result_edits)
+        self._remove_params(moved_params, result_edits)
 
         return result_edits
 
@@ -538,8 +538,10 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
         ancestors = [ancestor for ancestor in ancestors if self._is_valid_ancestor(ancestor)]
         return ancestors
 
-    def _remove_params(self, params: List[XmlElement], result_edits: List[ReplaceTextRangeResult]) -> None:
-        for param in params:
+    def _remove_params(self, params: Set[XmlElement], result_edits: List[ReplaceTextRangeResult]) -> None:
+        for param in sorted(
+            params, key=lambda p: self.tool_document.xml_document.get_element_range(p).start.line, reverse=True
+        ):
             param_range = self.tool_document.xml_document.get_element_range(param)
             if param_range:
                 result_edits.append(ReplaceTextRangeResult(replace_range=param_range, text=""))
