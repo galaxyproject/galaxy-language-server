@@ -259,7 +259,7 @@ async function requestWorkspaceEdits(client: LanguageClient, command: string) {
         return;
     }
     try {
-        activeEditor.edit((builder) => {
+        await activeEditor.edit((builder) => {
             for (let index = 0; index < response.edits.length; index++) {
                 const element = response.edits[index];
                 const range = cloneRange(element.replace_range);
