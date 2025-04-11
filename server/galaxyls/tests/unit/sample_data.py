@@ -195,4 +195,4 @@ TEST_TOOL_WITH_INPUTS = """
     <outputs/>
 </tool>
 """
-TEST_TOOL_WITH_INPUTS_DOCUMENT = Document("file://test_prolog.xml", TEST_TOOL_WITH_INPUTS)
+TEST_TOOL_WITH_INPUTS_DOCUMENT = Document("file://test_inputs.xml", TEST_TOOL_WITH_INPUTS)
