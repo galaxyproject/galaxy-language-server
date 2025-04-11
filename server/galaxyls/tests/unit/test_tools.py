@@ -6,9 +6,10 @@ from lsprotocol.types import (
 
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
-from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
+from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator, GalaxyToolTestUpdater
 from galaxyls.tests.unit.sample_data import TEST_TOOL_WITH_INPUTS_DOCUMENT
 from galaxyls.tests.unit.utils import TestUtils
+from galaxyls.types import ReplaceTextRangeResult, WorkspaceEditResult
 
 
 class TestGalaxyToolXmlDocumentClass:
@@ -307,3 +308,120 @@ class TestGalaxyToolCommandSnippetGeneratorClass:
 
         assert "<command" not in result.snippet
         assert "<![CDATA[" not in result.snippet
+
+
+class TestGalaxyToolTestUpdaterClass:
+    @pytest.mark.parametrize(
+        "tool_file, expected_workspace_edit",
+        [
+            (
+                "update_profile_simple_01.xml",
+                WorkspaceEditResult(
+                    edits=[
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=29, character=12),
+                                end=Position(line=29, character=48),
+                            ),
+                            text='<conditional name="c1">\n  <param name="c1_action" value="a1"/>\n  <param name="c1_a1_p1" value="A 1"/>\n</conditional>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=31, character=12),
+                                end=Position(line=31, character=45),
+                            ),
+                            text='<repeat name="rep1">\n  <param name="rep1_p1" value="r"/>\n</repeat>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=32, character=12),
+                                end=Position(line=32, character=46),
+                            ),
+                            text='<section name="int">\n  <param name="int_test" value="1"/>\n</section>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=30, character=12),
+                                end=Position(line=30, character=48),
+                            ),
+                            text="",
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=40, character=12),
+                                end=Position(line=40, character=48),
+                            ),
+                            text='<conditional name="c1">\n  <param name="c1_action" value="a2"/>\n  <param name="c1_a2_p1" value="A 2"/>\n</conditional>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=41, character=12),
+                                end=Position(line=41, character=48),
+                            ),
+                            text="",
+                        ),
+                    ],
+                ),
+            ),
+            (
+                "update_profile_nested_01.xml",
+                WorkspaceEditResult(
+                    edits=[
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=29, character=12),
+                                end=Position(line=29, character=48),
+                            ),
+                            text='<conditional name="c1">\n  <param name="c1_action" value="a1"/>\n  <param name="c1_a1_p1" value="A 1"/>\n  <repeat name="rep1">\n    <param name="rep1_p1" value="r"/>\n  </repeat>\n</conditional>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=31, character=12),
+                                end=Position(line=31, character=45),
+                            ),
+                            text="",
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=30, character=12),
+                                end=Position(line=30, character=48),
+                            ),
+                            text="",
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=39, character=12),
+                                end=Position(line=39, character=48),
+                            ),
+                            text='<conditional name="c1">\n  <param name="c1_action" value="a2"/>\n  <param name="c1_a2_p1" value="A 2"/>\n  <section name="int">\n    <param name="int_test" value="1"/>\n  </section>\n</conditional>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=41, character=12),
+                                end=Position(line=41, character=46),
+                            ),
+                            text="",
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=40, character=12),
+                                end=Position(line=40, character=48),
+                            ),
+                            text="",
+                        ),
+                    ],
+                ),
+            ),
+        ],
+    )
+    def test_build_snippet_returns_expected_result(self, tool_file: str, expected_workspace_edit: WorkspaceEditResult) -> None:
+        document = TestUtils.get_test_document_from_file(tool_file)
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolTestUpdater(tool)
+
+        actual_workspace_edit = generator.generate_workspace_edit()
+
+        assert actual_workspace_edit.error_message == expected_workspace_edit.error_message
+        for i, edit in enumerate(actual_workspace_edit.edits):
+            assert edit.replace_range == expected_workspace_edit.edits[i].replace_range
+            assert edit.text == expected_workspace_edit.edits[i].text

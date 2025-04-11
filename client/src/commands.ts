@@ -16,14 +16,15 @@ import {
 import { LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "./constants";
 import { ICommand } from "./interfaces";
-import { GalaxyToolsExpadedDocumentContentProvider } from "./providers/contentProvider";
+import { GalaxyToolsExpandedDocumentContentProvider } from "./providers/contentProvider";
 import { AutoCloseTagResult, activateTagClosing } from "./tagClosing";
 import { changeUriScheme, cloneRange, getCommands } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
 
 export namespace Commands {
     export const AUTO_CLOSE_TAGS: ICommand = getCommands("completion.autoCloseTags");
-    export const GENERATE_TEST: ICommand = getCommands("generate.tests");
+    export const GENERATE_TESTS: ICommand = getCommands("generate.tests");
+    export const UPDATE_TESTS: ICommand = getCommands("update.tests");
     export const GENERATE_COMMAND: ICommand = getCommands("generate.command");
     export const SORT_SINGLE_PARAM_ATTRS: ICommand = getCommands("sort.singleParamAttributes");
     export const SORT_DOCUMENT_PARAMS_ATTRS: ICommand = getCommands("sort.documentParamsAttributes");
@@ -41,6 +42,10 @@ interface GeneratedSnippetResult {
     snippet: string;
     position: Position;
     replace_range: Range | null;
+    error_message: string;
+}
+interface WorkspaceEditResult {
+    edits: ReplaceTextRangeResult[];
     error_message: string;
 }
 
@@ -62,6 +67,8 @@ export function setupCommands(client: LanguageClient, context: ExtensionContext)
     setupAutoCloseTags(client, context);
 
     setupGenerateTestCases(client, context);
+
+    setupUpdateTestCases(client, context);
 
     setupGenerateCommandSection(client, context);
 
@@ -124,9 +131,16 @@ function setupGenerateCommandSection(client: LanguageClient, context: ExtensionC
 
 function setupGenerateTestCases(client: LanguageClient, context: ExtensionContext) {
     const generateTest = async () => {
-        requestInsertSnippet(client, Commands.GENERATE_TEST.external);
+        requestInsertSnippet(client, Commands.GENERATE_TESTS.external);
     };
-    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TEST.internal, generateTest));
+    context.subscriptions.push(commands.registerCommand(Commands.GENERATE_TESTS.internal, generateTest));
+}
+
+function setupUpdateTestCases(client: LanguageClient, context: ExtensionContext) {
+    const updateTests = async () => {
+        requestWorkspaceEdits(client, Commands.UPDATE_TESTS.external);
+    };
+    context.subscriptions.push(commands.registerCommand(Commands.UPDATE_TESTS.internal, updateTests));
 }
 
 function setupInsertParamReference(client: LanguageClient, context: ExtensionContext) {
@@ -229,6 +243,38 @@ async function requestInsertSnippet(client: LanguageClient, command: string) {
     }
 }
 
+async function requestWorkspaceEdits(client: LanguageClient, command: string) {
+    const activeEditor = window.activeTextEditor;
+    if (!activeEditor) return;
+    const isSaved = await ensureDocumentIsSaved(activeEditor);
+    if (!isSaved) return;
+    const document = activeEditor.document;
+    const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
+    const response = (await commands.executeCommand(command, param)) as WorkspaceEditResult;
+
+    if (!response || response.error_message) {
+        if (response.error_message) {
+            window.showErrorMessage(response.error_message);
+        }
+        return;
+    }
+    try {
+        await activeEditor.edit((builder) => {
+            for (let index = 0; index < response.edits.length; index++) {
+                const element = response.edits[index];
+                const range = cloneRange(element.replace_range);
+                builder.replace(range, element.text);
+            }
+        });
+        // Format the document after the edits
+        await commands.executeCommand("editor.action.formatDocument");
+        
+    }
+    catch (err: any) {
+        window.showErrorMessage(err);
+    }
+}
+
 async function pickParamReferenceToInsert(client: LanguageClient, command: string, pickerTitle: string = "Select a parameter reference to insert") {
     const activeEditor = window.activeTextEditor;
     if (!activeEditor) return;
@@ -311,7 +357,7 @@ async function previewExpandedDocument() {
         return;
     }
     const expandedDocumentUri = convertToExpandedDocumentUri(document.uri);
-    GalaxyToolsExpadedDocumentContentProvider.getInstance().update(expandedDocumentUri);
+    GalaxyToolsExpandedDocumentContentProvider.getInstance().update(expandedDocumentUri);
     const doc = await workspace.openTextDocument(expandedDocumentUri);
     await window.showTextDocument(doc, { preview: false, viewColumn: ViewColumn.Beside });
 }

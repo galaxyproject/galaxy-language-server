@@ -3,16 +3,16 @@ import { Commands, GeneratedExpandedDocument } from "../commands";
 import { Constants } from "../constants";
 import { changeUriScheme } from "../utils";
 
-export class GalaxyToolsExpadedDocumentContentProvider implements TextDocumentContentProvider {
-    private static instance: GalaxyToolsExpadedDocumentContentProvider;
+export class GalaxyToolsExpandedDocumentContentProvider implements TextDocumentContentProvider {
+    private static instance: GalaxyToolsExpandedDocumentContentProvider;
 
     private onDidChangeEmitter = new EventEmitter<Uri>();
 
     private constructor() {}
 
-    public static getInstance(): GalaxyToolsExpadedDocumentContentProvider {
+    public static getInstance(): GalaxyToolsExpandedDocumentContentProvider {
         if (!this.instance) {
-            this.instance = new GalaxyToolsExpadedDocumentContentProvider();
+            this.instance = new GalaxyToolsExpandedDocumentContentProvider();
         }
         return this.instance;
     }

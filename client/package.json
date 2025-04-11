@@ -95,6 +95,13 @@
         "icon": "$(test-view-icon)"
       },
       {
+        "command": "galaxytools.update.tests",
+        "title": "Update existing tests cases to comply with 24.2 profile validation",
+        "category": "Galaxy Tools",
+        "enablement": "galaxytools:isActive",
+        "icon": "$(test-view-icon)"
+      },
+      {
         "command": "galaxytools.generate.command",
         "title": "Generate boilerplate command section for current tool",
         "category": "Galaxy Tools",
@@ -155,6 +162,11 @@
         "command": "galaxytools.generate.tests",
         "key": "ctrl+alt+t",
         "mac": "cmd+alt+t"
+      },
+      {
+        "command": "galaxytools.update.tests",
+        "key": "ctrl+alt+u",
+        "mac": "cmd+alt+u"
       },
       {
         "command": "galaxytools.generate.command",

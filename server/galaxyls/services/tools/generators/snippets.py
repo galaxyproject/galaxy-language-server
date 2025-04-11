@@ -20,7 +20,34 @@ from galaxyls.services.tools.constants import (
     UNDERSCORE,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
-from galaxyls.types import GeneratedSnippetResult
+from galaxyls.services.tools.generators import DisplayableException
+from galaxyls.types import GeneratedSnippetResult, ReplaceTextRangeResult, WorkspaceEditResult
+
+
+class WorkspaceEditsGenerator(ABC):
+    """This class is used to generate workspace edits using the information of the tool document."""
+
+    def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
+        self.tool_document = tool_document
+        self.expanded_document = tool_document.get_expanded_tool_document()
+        self.tabstop_count: int = 0
+        self.indent_spaces: str = " " * tabSize
+        super().__init__()
+
+    def generate_workspace_edit(self) -> WorkspaceEditResult:
+        """Generates a workspace edit using this generator."""
+        try:
+            edits = self._build_workspace_edits()
+            return WorkspaceEditResult(edits)
+        except DisplayableException as e:
+            return WorkspaceEditResult.as_error(str(e))
+
+    @abstractmethod
+    def _build_workspace_edits(self) -> List[ReplaceTextRangeResult]:
+        """This abstract function should return a list of ReplaceTextRangeResult
+        with the generated workspace edits.
+        """
+        pass
 
 
 class SnippetGenerator(ABC):

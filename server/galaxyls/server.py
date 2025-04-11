@@ -59,6 +59,7 @@ from galaxyls.types import (
     ParamReferencesResult,
     ReplaceTextRangeResult,
     TestSuiteInfoResult,
+    WorkspaceEditResult,
 )
 from galaxyls.utils import convert_to
 from galaxyls.version import GLS_VERSION
@@ -227,6 +228,18 @@ async def cmd_generate_test(
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.generate_tests(document)
+    return None
+
+
+@language_server.command(Commands.UPDATE_TESTS_PROFILE)
+async def cmd_update_test_profile(
+    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+) -> Optional[WorkspaceEditResult]:
+    """Updates the test cases to be compatible with the 24.2 profile validation."""
+    params = convert_to(parameters[0], TextDocumentIdentifier)
+    document = _get_valid_document(server, params.uri)
+    if document:
+        return server.service.update_tests_profile(document)
     return None
 
 

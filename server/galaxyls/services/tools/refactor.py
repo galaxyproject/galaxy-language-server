@@ -265,7 +265,7 @@ class RefactorMacrosService:
 
     def _get_range_from_line_start(self, range: Range) -> Range:
         """Given an arbitrary document range, returns the same range but with the start offset always at the
-        begining of the line."""
+        beginning of the line."""
         return Range(start=Position(line=range.start.line, character=0), end=range.end)
 
     def _apply_indent(self, text: str, indent: str) -> str:
@@ -307,7 +307,7 @@ class RefactoringService:
 
     def _get_valid_full_element_tag(self, xml_text: str) -> Optional[str]:
         """Given a chunk of XML text, returns the name of the tag inside it or None if the
-        node is incomplete or sintactically wrong."""
+        node is incomplete or syntactically wrong."""
         stripped_xml = xml_text.strip()
         if len(stripped_xml) < 5 or (stripped_xml[0] != "<" or stripped_xml[-1] != ">"):
             # Too short to be an element or doesn't look like an element
@@ -315,7 +315,7 @@ class RefactoringService:
         return self._get_valid_node_tag(stripped_xml, EXCLUDED_TAGS)
 
     def _get_valid_node_tag(self, stripped_xml: str, exclude: Set[str]) -> Optional[str]:
-        """Returns the name of the tag of a sintactically well formed xml text.
+        """Returns the name of the tag of a syntactically well formed xml text.
 
         The parameter `exclude` can define a set of tags that will be considered not valid."""
         try:

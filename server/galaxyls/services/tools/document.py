@@ -155,9 +155,9 @@ class GalaxyToolXmlDocument:
         Returns:
             List[XmlElement]: The outputs defined in the document.
         """
-        outputs = self.find_element(INPUTS)
-        if outputs:
-            return outputs.elements
+        inputs = self.find_element(INPUTS)
+        if inputs:
+            return inputs.elements
         return []
 
     def get_outputs(self) -> List[XmlElement]:

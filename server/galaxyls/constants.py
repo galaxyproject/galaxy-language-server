@@ -9,6 +9,7 @@ from lsprotocol.types import (
 class Commands:
     AUTO_CLOSE_TAGS = "gls.completion.autoCloseTags"
     GENERATE_TESTS = "gls.generate.tests"
+    UPDATE_TESTS_PROFILE = "gls.update.tests"
     GENERATE_COMMAND = "gls.generate.command"
     SORT_SINGLE_PARAM_ATTRS = "gls.sort.singleParamAttributes"
     SORT_DOCUMENT_PARAMS_ATTRS = "gls.sort.documentParamsAttributes"
