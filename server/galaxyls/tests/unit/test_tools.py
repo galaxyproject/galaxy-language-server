@@ -363,6 +363,55 @@ class TestGalaxyToolTestUpdaterClass:
                     ],
                 ),
             ),
+            (
+                "update_profile_nested_01.xml",
+                WorkspaceEditResult(
+                    edits=[
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=29, character=12),
+                                end=Position(line=29, character=48),
+                            ),
+                            text='<conditional name="c1">\n  <param name="c1_action" value="a1"/>\n  <param name="c1_a1_p1" value="A 1"/>\n  <repeat name="rep1">\n    <param name="rep1_p1" value="r"/>\n  </repeat>\n</conditional>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=31, character=12),
+                                end=Position(line=31, character=45),
+                            ),
+                            text="",
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=30, character=12),
+                                end=Position(line=30, character=48),
+                            ),
+                            text="",
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=39, character=12),
+                                end=Position(line=39, character=48),
+                            ),
+                            text='<conditional name="c1">\n  <param name="c1_action" value="a2"/>\n  <param name="c1_a2_p1" value="A 2"/>\n  <section name="int">\n    <param name="int_test" value="1"/>\n  </section>\n</conditional>\n',
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=41, character=12),
+                                end=Position(line=41, character=46),
+                            ),
+                            text="",
+                        ),
+                        ReplaceTextRangeResult(
+                            replace_range=Range(
+                                start=Position(line=40, character=12),
+                                end=Position(line=40, character=48),
+                            ),
+                            text="",
+                        ),
+                    ],
+                ),
+            ),
         ],
     )
     def test_build_snippet_returns_expected_result(self, tool_file: str, expected_workspace_edit: WorkspaceEditResult) -> None:
