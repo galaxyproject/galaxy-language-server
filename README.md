@@ -41,7 +41,8 @@ This project has the following main goals:
   - [Extract macro](#extract-macro)
   - [Full Galaxy tool linter integration](#document-validation)
   - [Document Outline](#document-outline)
-  - [Insert param reference](#insert-param-reference) _New feature!_ ✨
+  - [Insert param reference](#insert-param-reference)
+  - [Automatically update tests to comply with 24.2 profile validation](#automatically-update-tests-to-comply-with-242-profile-validation) _New feature!_ ✨
 
 # Getting Started
 
@@ -171,3 +172,13 @@ Now you can use new commands to insert input parameter references into your wrap
 In a similar way, you can also invoke a command but for inserting a param reference that can be used inside an output filter. The default key binding for that is `ctrl+alt+i ctrl+alt+f`.
 
 ![Demo feature insert param filter](../assets/feature.insert.param.filter.png)
+
+## Automatically Update Tests to Comply with 24.2 Profile Validation
+
+A new command is available to update old tests to comply with the 24.2 profile validation. If you encounter this linting warning in your tool:
+
+> Test #: failed to validate test parameters against inputs - tests won't run on a modern Galaxy tool profile version.
+
+You can use this command to automatically update the tests to meet the new validation rules. The command is accessible from the command palette as `Galaxy Tools: Update existing test cases to comply with 24.2 profile validation`, or you can use the default key binding `ctrl+alt+u`.
+
+For more details about how this command works, you can check an example in this [Pull Request](https://github.com/galaxyproject/galaxy-language-server/pull/278).

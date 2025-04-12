@@ -1,5 +1,15 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.14.0] - 2025-04-12
+
+### Added
+
+- Add command to upgrade tests to comply with profile 24.2 validation ([#278](https://github.com/galaxyproject/galaxy-language-server/pull/278)).
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.14.0](./server/CHANGELOG.md#0140)
+
 ## [0.13.3] - 2025-03-15
 
 ### Changed
