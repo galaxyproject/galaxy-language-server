@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.14.0] - 2025-04-12
+
+### Added
+
+- Add command to upgrade tests to comply with profile 24.2 validation ([#278](https://github.com/galaxyproject/galaxy-language-server/pull/278)).
+
 ## [0.13.3] - 2025-03-15
 
 ### Fixed
