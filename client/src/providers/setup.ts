@@ -2,7 +2,7 @@ import { ExtensionContext, languages, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Constants } from "../constants";
 import { GalaxyToolsCodeActionProvider } from "./codeActions";
-import { GalaxyToolsExpadedDocumentContentProvider } from "./contentProvider";
+import { GalaxyToolsExpandedDocumentContentProvider } from "./contentProvider";
 
 export function setupProviders(client: LanguageClient, context: ExtensionContext) {
     const codeActionProvider = new GalaxyToolsCodeActionProvider();
@@ -12,7 +12,7 @@ export function setupProviders(client: LanguageClient, context: ExtensionContext
         })
     );
 
-    const expandedDocumentProvider = GalaxyToolsExpadedDocumentContentProvider.getInstance();
+    const expandedDocumentProvider = GalaxyToolsExpandedDocumentContentProvider.getInstance();
     context.subscriptions.push(
         workspace.registerTextDocumentContentProvider(Constants.EXPAND_DOCUMENT_SCHEMA, expandedDocumentProvider)
     );

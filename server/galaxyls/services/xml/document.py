@@ -201,6 +201,17 @@ class XmlDocument(XmlSyntaxNode):
         """
         return convert_document_offset_to_position(self.document, element.start)
 
+    def get_element_range(self, element: XmlElement) -> Range:
+        """Gets the Range positions for the given XML element in the document.
+
+        Args:
+            element (XmlElement): The XML element to determine it's range positions.
+
+        Returns:
+            Range: The range positions for the entire node.
+        """
+        return convert_document_offsets_to_range(self.document, element.start, element.end)
+
     def get_position_after(self, element: XmlElement) -> Position:
         """Return the position in the document after the given element.
 

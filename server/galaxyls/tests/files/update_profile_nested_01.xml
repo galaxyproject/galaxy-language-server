@@ -1,0 +1,57 @@
+<tool id="update_profile_simple_conditional_01" name="Update Profile: Simple conditional input" version="0.1.0">
+    <command><![CDATA[
+echo "{{c1_action}}"
+    ]]></command>
+    <inputs>
+        <conditional name="c1">
+            <param name="c1_action" type="select">
+                <option value="a1" selected="True">A 1</option>
+                <option value="a2">A 2</option>
+            </param>
+            <when value="a1">
+                <param name="c1_a1_p1" type="text"/>
+                <repeat name="rep1" title="Sample repeat">
+                    <param name="rep1_p1" type="text"/>
+                </repeat>
+            </when>
+            <when value="a2">
+                <param name="c1_a2_p1" type="text"/>
+                <section name="int" title="Integer Section" expanded="true">
+                    <param name="int_test" value="1" type="integer"/>
+                </section>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="out1" format="txt"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="c1_action" value="a1"/>
+            <param name="c1_a1_p1" value="A 1"/>
+            <param name="rep1_p1" value="r"/>
+            <output name="out1">
+                <assert_contents>
+                    <has_text text="a1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="c1_action" value="a2"/>
+            <param name="c1_a2_p1" value="A 2"/>
+            <param name="int_test" value="1"/>
+            <output name="out1">
+                <assert_contents>
+                    <has_text text="a2"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+        Testing a simple conditional input with two branches with tests that do not
+        comply with profile 24.2 validation.
+    </help>
+    <citations>
+        <citation type="doi">test</citation>
+    </citations>
+</tool>

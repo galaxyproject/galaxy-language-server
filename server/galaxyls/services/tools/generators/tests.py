@@ -1,11 +1,13 @@
 from typing import (
     List,
     Optional,
+    Set,
     Tuple,
     Union,
     cast,
 )
 
+from anytree import NodeMixin, PreOrderIter
 from lsprotocol.types import (
     Position,
     Range,
@@ -50,7 +52,8 @@ from galaxyls.services.tools.constants import (
     N,
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
-from galaxyls.services.tools.generators.snippets import SnippetGenerator
+from galaxyls.services.tools.generators import DisplayableException
+from galaxyls.services.tools.generators.snippets import SnippetGenerator, WorkspaceEditsGenerator
 from galaxyls.services.tools.inputs import (
     ConditionalInputNode,
     InputNode,
@@ -58,6 +61,7 @@ from galaxyls.services.tools.inputs import (
     SectionInputNode,
 )
 from galaxyls.services.xml.nodes import XmlElement
+from galaxyls.types import ReplaceTextRangeResult
 
 AUTO_GEN_TEST_COMMENT = "TODO: auto-generated test case. Please fill in the required values"
 BOOLEAN_CONDITIONAL_NOT_RECOMMENDED_COMMENT = (
@@ -98,8 +102,8 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         """Returns the position inside the document where new test cases
         can be inserted.
 
-        If the <tests> section does not exists in the file, the best aproximate
-        position where the tests should be inserted is returned (acording to the IUC
+        If the <tests> section does not exists in the file, the best approximate
+        position where the tests should be inserted is returned (according to the IUC
         best practices tag order).
 
         Returns:
@@ -135,7 +139,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
 
         Args:
             input_node (InputNode): The InputNode that is one of the leaves of the input tree.
-            outputs (List[XmlElement]): The list of XML elements representings the outputs of the tool.
+            outputs (List[XmlElement]): The list of XML elements representing the outputs of the tool.
             spaces (str, optional): The str with the number of spaces for an indent level. Defaults to "  ".
 
         Returns:
@@ -363,3 +367,202 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         option_elements = param.get_children_with_name(OPTION)
         options = [o.get_attribute_value(VALUE) for o in option_elements]
         return list(filter(None, options))
+
+
+class ParameterNode(NodeMixin):
+    """This class helps to build a tree structure with the hierarchy of test params based on the
+    input parameters of the tool XML wrapper.
+
+    The element attribute is used to store the XML element (conditional, repeat, section, etc.)
+    that is the container of a group of test parameters.
+    The test_parameters attribute is used to store the list of test parameters that are children
+    of this node.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        parent=None,
+        container_element: Optional[XmlElement] = None,
+        test_parameters: Optional[List[XmlElement]] = None,
+    ):
+        super().__init__()
+        self.name = name
+        self.element = container_element
+        self.parent = parent
+        self.test_parameters = test_parameters
+
+    def __repr__(self):
+        return f"TreeNode(name={self.name}, element={self.element}, data={self.test_parameters})"
+
+
+def find_node_by_key(root: ParameterNode, key: str) -> Optional[ParameterNode]:
+    """Finds a node in the tree by its key."""
+    for node in PreOrderIter(root):
+        if node.name == key:
+            return node
+    return None
+
+
+class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
+    """This class tries to update the test cases in the XML document with the information
+    already defined in the inputs and outputs of the tool XML wrapper.
+    """
+
+    def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
+        super().__init__(tool_document, tabSize)
+
+    def _build_workspace_edits(self) -> List[ReplaceTextRangeResult]:
+        """This function tries to generate a code snippet with the existing test cases but
+        with the correct syntax when using conditional, sections, repeats, etc.
+
+        For example, if the inputs are defined like this:
+
+            <section name="sectionA">
+                <param name="param1" type="text"/>
+                ...
+            </section>
+
+        And the test declares a param without the section:
+            <test>
+                <param name="param1" value="value1"/>
+                ...
+
+        The generated XML will look like this:
+            <test>
+                <section name="sectionA">
+                    <param name="param1" value="value1"/>
+                </section>
+                ...
+
+        Returns:
+            List[ReplaceTextRangeResult]: The list of workspace edits to be applied to the document.
+        """
+        result_edits: List[ReplaceTextRangeResult] = []
+        try:
+            existing_tests = self.tool_document.get_tests()
+            if not existing_tests:
+                raise DisplayableException("Tool does not contain any test cases")
+
+            input_params = self.expanded_document.get_input_params()
+
+            for test in existing_tests:
+                test_edits = self._generate_edits_for_test_element(test, input_params)
+                result_edits.extend(test_edits)
+
+            return result_edits
+        except BaseException as ex:
+            raise DisplayableException(f"Update Test Case generation failed with reason: {ex}")
+
+    def _generate_edits_for_test_element(
+        self, test: XmlElement, input_params: List[XmlElement]
+    ) -> List[ReplaceTextRangeResult]:
+        test_params = test.get_children_with_name(PARAM)
+        param_tree = self._build_param_ancestor_tree(test_params, input_params)
+        edits = self._generate_xml_replacements_from_tree(param_tree)
+        return edits
+
+    def _generate_xml_replacements_from_tree(self, param_tree: ParameterNode) -> List[ReplaceTextRangeResult]:
+        """Recursively builds the XML structure and generates replacement edits using the full hierarchy of test parameters."""
+
+        def build_xml_recursive(node: ParameterNode, moved_params: Set[XmlElement]) -> Optional[etree._Element]:
+            if not node.element:
+                return None
+
+            # Create an XML element for this (conditional, repeat, section) node
+            ancestor_element = etree.Element(node.element.name or "")
+            ancestor_element.attrib[NAME] = node.element.get_attribute_value(NAME) or ""
+
+            # Add test parameters (direct children in XML)
+            if node.test_parameters:
+                for param in node.test_parameters:
+                    param_element = self._to_etree(param)
+                    ancestor_element.append(param_element)
+                    moved_params.add(param)
+
+            # Recursively add child elements
+            for child in node.children:
+                child_element = build_xml_recursive(child, moved_params)
+                if child_element is not None:
+                    ancestor_element.append(child_element)
+
+            return ancestor_element
+
+        result_edits: List[ReplaceTextRangeResult] = []
+        # This is used to track which parameters have been moved to a new location
+        # and should be removed from the original location
+        moved_params: Set[XmlElement] = set()
+
+        # Start building XML from the root node (skip adding the root itself since it’s virtual)
+        for child in param_tree.children:
+            ancestor_element = build_xml_recursive(child, moved_params)
+            if ancestor_element is not None:
+                ancestor_xml_text = etree.tostring(ancestor_element, pretty_print=True, encoding=str)
+
+                # Find the location in the document to replace the first parameter
+                first_param = child.test_parameters[0] if child.test_parameters else None
+                if first_param:
+                    first_param_range = self.tool_document.xml_document.get_element_range(first_param)
+                    if first_param_range:
+                        result_edits.append(ReplaceTextRangeResult(replace_range=first_param_range, text=ancestor_xml_text))
+                        # Remove this parameter from the moved_params set since it has been processed
+                        moved_params.discard(first_param)
+
+        # Remove all parameters that were moved to a new location
+        self._remove_params(moved_params, result_edits)
+
+        return result_edits
+
+    def _build_param_ancestor_tree(self, test_params: List[XmlElement], input_params: List[XmlElement]) -> ParameterNode:
+        root = ParameterNode(name="root")
+        for test_param in test_params:
+            input_param = self._get_input_param_from_test_param(test_param, input_params)
+            if input_param:
+                ancestors = self._get_valid_ancestors(input_param)
+                current_node = root
+                for ancestor in ancestors:
+                    key = self._get_element_key(ancestor)
+                    existing_node = find_node_by_key(current_node, key)
+                    if existing_node:
+                        current_node = existing_node
+                    else:
+                        new_node = ParameterNode(name=key, parent=current_node, container_element=ancestor)
+                        current_node = new_node
+                if current_node.test_parameters is None:
+                    current_node.test_parameters = []
+                current_node.test_parameters.append(test_param)
+        return root
+
+    def _get_valid_ancestors(self, input_param: XmlElement) -> List[XmlElement]:
+        ancestors = input_param.ancestors
+        ancestors = [ancestor for ancestor in ancestors if self._is_valid_ancestor(ancestor)]
+        return ancestors
+
+    def _remove_params(self, params: Set[XmlElement], result_edits: List[ReplaceTextRangeResult]) -> None:
+        for param in sorted(
+            params, key=lambda p: self.tool_document.xml_document.get_element_range(p).start.line, reverse=True
+        ):
+            param_range = self.tool_document.xml_document.get_element_range(param)
+            if param_range:
+                result_edits.append(ReplaceTextRangeResult(replace_range=param_range, text=""))
+
+    def _to_etree(self, param: XmlElement) -> etree._Element:
+        param_element = etree.Element(PARAM)
+        for attr_name, attr_value in param.attributes.items():
+            param_element.attrib[attr_name] = attr_value.get_value()
+        return param_element
+
+    def _get_element_key(self, element: XmlElement) -> str:
+        """Returns a string representation of the element key."""
+        return f"{element.name}:{element.get_attribute_value(NAME) or ''}"
+
+    def _is_valid_ancestor(self, element: Optional[XmlElement]) -> bool:
+        """Checks if the element is a valid ancestor for grouping."""
+        return element is not None and element.name in (CONDITIONAL, REPEAT, SECTION)
+
+    def _get_input_param_from_test_param(self, test_param: XmlElement, input_params: List[XmlElement]) -> Optional[XmlElement]:
+        """Returns the input parameter corresponding to the given test parameter."""
+        name_attr = test_param.get_attribute_value(NAME)
+        if name_attr:
+            return next((p for p in input_params if p.get_attribute_value(NAME) == name_attr), None)
+        return None

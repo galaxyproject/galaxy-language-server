@@ -61,6 +61,21 @@ class ReplaceTextRangeResult:
         self.text = text
 
 
+class WorkspaceEditResult:
+    """Contains the workspace edit result for a requested operation."""
+
+    def __init__(self, edits: List[ReplaceTextRangeResult], error_message: Optional[str] = None) -> None:
+        self.edits = edits
+        self.error_message = error_message
+
+    @staticmethod
+    def as_error(error_message: str) -> "WorkspaceEditResult":
+        """Returns a RequestedWorkspaceEditResult with empty values and the given error message.
+
+        The error message should be displayed or logged by the client."""
+        return WorkspaceEditResult([], error_message=error_message)
+
+
 class TestInfoResult:
     """Contains information about a particular test case."""
 

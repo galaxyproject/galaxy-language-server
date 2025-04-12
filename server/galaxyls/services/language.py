@@ -34,7 +34,7 @@ from galaxyls.services.tools.common import (
 )
 from galaxyls.services.tools.document import GalaxyToolXmlDocument
 from galaxyls.services.tools.generators.command import GalaxyToolCommandSnippetGenerator
-from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator
+from galaxyls.services.tools.generators.tests import GalaxyToolTestSnippetGenerator, GalaxyToolTestUpdater
 from galaxyls.services.tools.iuc import IUCToolParamAttributeSorter
 from galaxyls.services.tools.linting import GalaxyToolLinter
 from galaxyls.services.tools.macros import MacroDefinitionsProvider
@@ -48,6 +48,7 @@ from ..config import CompletionMode
 from ..types import (
     GeneratedSnippetResult,
     ReplaceTextRangeResult,
+    WorkspaceEditResult,
 )
 from .completion import (
     AutoCloseTagResult,
@@ -140,6 +141,13 @@ class GalaxyToolLanguageService:
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
         return generator.generate_snippet()
+
+    def update_tests_profile(self, document: Document) -> Optional[WorkspaceEditResult]:
+        """Generates a workspace edit to update the test cases if they are not
+        compatible with the 24.2 profile validation."""
+        tool = GalaxyToolXmlDocument(document)
+        generator = GalaxyToolTestUpdater(tool)
+        return generator.generate_workspace_edit()
 
     def generate_command(self, document: Document) -> Optional[GeneratedSnippetResult]:
         """Generates a boilerplate Cheetah code snippet based on the current inputs and outputs

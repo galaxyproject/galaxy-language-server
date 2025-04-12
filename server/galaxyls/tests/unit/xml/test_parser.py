@@ -18,6 +18,7 @@ from ..sample_data import (
     TEST_MACRO_01_DOCUMENT,
     TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT,
     TEST_TOOL_01_DOCUMENT,
+    TEST_TOOL_WITH_INPUTS_DOCUMENT,
     TEST_TOOL_WITH_PROLOG_DOCUMENT,
 )
 from ..utils import TestUtils
@@ -86,6 +87,28 @@ class TestXmlDocumentParserClass:
         assert xml_document.root.elements[1].name == "inputs"
         assert xml_document.root.elements[2].name == "outputs"
         assert xml_document.root.elements[3].name == "help"
+
+    def test_parse_returns_expected_ancestors(self) -> None:
+        test_document = TEST_TOOL_WITH_INPUTS_DOCUMENT
+        parser = XmlDocumentParser()
+
+        xml_document = parser.parse(test_document)
+
+        assert xml_document.root
+        input_params = xml_document.find_all_elements_with_name("param")
+        assert len(input_params) == 10
+        target_element = next((param for param in input_params if param.attributes["name"].get_value() == "p_c2_b2"), None)
+        assert target_element
+
+        target_ancestors = target_element.ancestors
+        assert len(target_ancestors) == 7
+        assert target_ancestors[0].name is None  # root element
+        assert target_ancestors[1].name == "tool"
+        assert target_ancestors[2].name == "inputs"
+        assert target_ancestors[3].name == "conditional"
+        assert target_ancestors[4].name == "when"
+        assert target_ancestors[5].name == "conditional"
+        assert target_ancestors[6].name == "when"
 
     def test_parse_returns_expected_attributes(self) -> None:
         test_document = TEST_TOOL_01_DOCUMENT
