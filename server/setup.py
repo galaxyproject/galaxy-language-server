@@ -43,7 +43,7 @@ setup(
     install_requires=requirements,
     python_requires=">=3.8",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: Information Technology",
         "Topic :: Software Development :: Libraries :: Python Modules",
