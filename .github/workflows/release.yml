@@ -48,7 +48,7 @@ jobs:
         working-directory: server
 
       - name: Package Python Server
-        run: python setup.py sdist bdist_wheel
+        run: python -m build --sdist --wheel
         working-directory: server
 
       # --- Create GitHub Release ---
