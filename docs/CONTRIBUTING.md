@@ -90,7 +90,7 @@ Finally some action!
 
 We recommend to use VSCode or the open source alternative [VSCodium](https://vscodium.com/) for local development.
 
-To install the dependencies we also recommend using [miniconda](https://docs.conda.io/en/latest/miniconda.html) with ``Python 3.8``.
+To install the dependencies we also recommend using [miniconda](https://docs.conda.io/en/latest/miniconda.html) with ``Python 3.9``.
 
 If you are using `Windows` we recommend installing and using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10#install-your-linux-distribution-of-choice) for a better Linux-like shell command experience.
 
@@ -104,7 +104,7 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
 3. Create a virtual environment using conda and install the dependencies:
 
     ```sh
-    conda create -n <environment-name> python=3.8 nodejs=18.14 typescript
+    conda create -n <environment-name> python=3.9 nodejs=20 typescript
     conda activate <environment-name>
 
     # For the language server:
