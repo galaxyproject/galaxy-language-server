@@ -47,7 +47,6 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Information Technology",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.8",
