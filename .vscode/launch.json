@@ -1,77 +1,68 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch Client",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "sourceMaps": true,
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/client/dist/**/*.js"
-            ],
-            "preLaunchTask": "npm: webpack",
-            "presentation": {
-                "hidden": false,
-                "group": "GLS",
-                "order": 2
-            }
-        },
-        {
-            "name": "Launch Server",
-            "type": "debugpy",
-            "console": "internalConsole",
-            "request": "launch",
-            "module": "galaxyls",
-            "args": [
-                "--tcp"
-            ],
-            "justMyCode": false,
-            "python": "${command:python.interpreterPath}",
-            "cwd": "${workspaceFolder}/server",
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}"
-            },
-            "presentation": {
-                "hidden": false,
-                "group": "GLS",
-                "order": 3
-            }
-        },
-        {
-            "name": "Debug e2e Tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--disable-extensions",
-                "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionTestsPath=${workspaceFolder}/client/out/tests/e2e/suite/index"
-            ],
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Client",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "sourceMaps": true,
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "outFiles": ["${workspaceFolder}/client/dist/**/*.js"],
+      "preLaunchTask": "npm: webpack",
+      "presentation": {
+        "hidden": false,
+        "group": "GLS",
+        "order": 2
+      }
+    },
+    {
+      "name": "Launch Server",
+      "type": "debugpy",
+      "console": "internalConsole",
+      "request": "launch",
+      "module": "galaxyls",
+      "args": ["--tcp"],
+      "justMyCode": false,
+      "python": "${command:python.interpreterPath}",
+      "cwd": "${workspaceFolder}/server",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "GLS",
+        "order": 3
+      }
+    },
+    {
+      "name": "Debug e2e Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/client/out/tests/e2e/suite/index"
+      ],
       "outFiles": ["${workspaceFolder}/client/out/tests/e2e/**/*.js"],
-            "preLaunchTask": {
-                "type": "npm",
-                "path": "client",
-                "script": "test-compile"
-            }
-        }
-    ],
-    "compounds": [
-        {
-            "name": "Server + Client",
-            "configurations": [
-                "Launch Server",
-                "Launch Client"
-            ],
-            "presentation": {
-                "hidden": false,
-                "group": "GLS",
-                "order": 1
-            }
-        }
-    ]
+      "preLaunchTask": {
+        "type": "npm",
+        "path": "client",
+        "script": "test-compile"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Server + Client",
+      "configurations": ["Launch Server", "Launch Client"],
+      "presentation": {
+        "hidden": false,
+        "group": "GLS",
+        "order": 1
+      }
+    }
+  ]
 }
