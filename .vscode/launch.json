@@ -52,9 +52,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}",
                 "--extensionTestsPath=${workspaceFolder}/client/out/tests/e2e/suite/index"
             ],
-            "outFiles": [
-                "${workspaceFolder}client/out/tests/e2e/**/*.js"
-            ],
+      "outFiles": ["${workspaceFolder}/client/out/tests/e2e/**/*.js"],
             "preLaunchTask": {
                 "type": "npm",
                 "path": "client",
