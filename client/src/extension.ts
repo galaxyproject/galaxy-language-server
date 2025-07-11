@@ -77,19 +77,32 @@ function getClientOptions(): LanguageClientOptions {
  * Returns a LanguageClient instance that will connect to a Language Server running on localhost using the given port.
  * @param port The port where the server is listening
  */
-function connectToLanguageServerTCP(port: number): LanguageClient {
+function connectToLanguageServerTCP(port: number, maxRetries = 5, retryDelayMs = 1000): LanguageClient {
+    let attempt = 0;
     const serverOptions: ServerOptions = () => {
         return new Promise((resolve, reject) => {
-            const clientSocket = new net.Socket();
-            clientSocket.connect(port, "127.0.0.1", () => {
-                resolve({
-                    reader: clientSocket,
-                    writer: clientSocket,
+            function tryConnect() {
+                const clientSocket = new net.Socket();
+                clientSocket.connect(port, "127.0.0.1", () => {
+                    outputChannel.appendLine(`[INFO] Connected to language server on port ${port}`);
+                    resolve({
+                        reader: clientSocket,
+                        writer: clientSocket,
+                    });
                 });
-            });
-            clientSocket.on("error", (err) => {
-                reject(err);
-            });
+                clientSocket.on("error", (err) => {
+                    clientSocket.destroy();
+                    attempt++;
+                    if (attempt < maxRetries) {
+                        outputChannel.appendLine(`[WARN] Connection to language server failed (attempt ${attempt}). Retrying in ${retryDelayMs}ms...`);
+                        setTimeout(tryConnect, retryDelayMs);
+                    } else {
+                        outputChannel.appendLine(`[ERROR] Could not connect to language server after ${maxRetries} attempts.`);
+                        reject(err);
+                    }
+                });
+            }
+            tryConnect();
         });
     };
 
@@ -108,6 +121,8 @@ function startLanguageServer(command: string, args: string[], cwd: string): Lang
         command,
         options: { cwd },
     };
+
+    // outputChannel.appendLine(`[INFO] Starting Galaxy Language Server with command: ${command} ${args.join(" ")} in ${cwd}`);
 
     return new LanguageClient(command, serverOptions, getClientOptions());
 }
