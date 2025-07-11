@@ -9,6 +9,7 @@ import { DefaultConfigurationFactory } from "./planemo/configuration";
 import { setupPlanemo } from "./planemo/main";
 import { setupProviders } from "./providers/setup";
 import { installLanguageServer } from "./setup";
+import { outputChannel } from "./logger";
 
 let client: LanguageClient;
 
@@ -19,10 +20,12 @@ let client: LanguageClient;
 export async function activate(context: ExtensionContext) {
     const configFactory = new DefaultConfigurationFactory();
     if (context.extensionMode === ExtensionMode.Development) {
+        outputChannel.appendLine(`[INFO] Extension activated in DEV mode`);
         // Development - Connect to language server (already running) using TCP
         client = connectToLanguageServerTCP(2087);
     } else {
         // Production - Install (first time only), launch and connect to language server.
+        outputChannel.appendLine(`[INFO] Extension activated in PRODUCTION mode`);
         try {
             const isSilentInstall = configFactory.getConfiguration().server().silentInstall();
             const python = await installLanguageServer(context, isSilentInstall);
