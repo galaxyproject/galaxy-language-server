@@ -176,6 +176,8 @@ export async function silentInstallLanguageServerForTesting(installPath: string)
                         venvPath = await createVirtualEnvironment(python, Constants.LS_VENV_NAME, installPath);
                     }
 
+                    await ensureEnvUpgraded(venvPath);
+
                     const venvPython = getPythonFromVirtualEnvPath(venvPath);
                     console.log(`[gls] Using Python from: ${venvPython}`);
 
@@ -236,6 +238,7 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
 }
 
 async function ensureEnvUpgraded(venvPath: string): Promise<boolean> {
+    console.log("[gls] Ensuring virtual environment is upgraded...");
     const venvPython = getPythonFromVirtualEnvPath(venvPath);
     const upgradePythonPackagesCmd = `"${venvPython}" -m pip install --upgrade pip setuptools`;
     try {
