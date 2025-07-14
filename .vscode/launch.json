@@ -25,10 +25,9 @@
       "module": "galaxyls",
       "args": ["--tcp"],
       "justMyCode": false,
-      "python": "${command:python.interpreterPath}",
       "cwd": "${workspaceFolder}/server",
       "env": {
-        "PYTHONPATH": "${workspaceFolder}"
+        "PYTHONPATH": "${workspaceFolder}/.venv/bin/python"
       },
       "presentation": {
         "hidden": false,
