@@ -9,7 +9,7 @@ export namespace Constants {
 
     export const PYTHON_UNIX = "python3";
     export const PYTHON_WIN = "python.exe";
-    export const REQUIRED_PYTHON_VERSION = "3.8+";
+    export const REQUIRED_PYTHON_VERSION = "3.9+";
 
     export const EXPAND_DOCUMENT_SCHEMA = "gls-expand";
     export const EXPAND_DOCUMENT_URI_SUFFIX = "%20%28Expanded%29";

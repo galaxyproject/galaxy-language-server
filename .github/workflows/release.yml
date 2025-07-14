@@ -39,16 +39,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.11
 
       - name: Install Python packaging tools
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine
+          pip install setuptools wheel twine build
         working-directory: server
 
       - name: Package Python Server
-        run: python setup.py sdist bdist_wheel
+        run: python -m build --sdist --wheel
         working-directory: server
 
       # --- Create GitHub Release ---

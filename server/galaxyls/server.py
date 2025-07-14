@@ -344,7 +344,10 @@ def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
-        diagnostics = server.service.get_diagnostics(xml_document)
+        try:
+            diagnostics = server.service.get_diagnostics(xml_document)
+        except Exception as e:
+            server.show_message_log(f"Error validating document: {e}")
     server.publish_diagnostics(params.text_document.uri, diagnostics)
 
 

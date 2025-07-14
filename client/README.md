@@ -8,7 +8,7 @@ This extension provides XML validation, tags and attributes completion, help/doc
 
 ## Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
 
-To use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.8+ installed on your system. See the [Installation](#Installation) section for more details. The extension will create ins own Python virtual environment using `python3-venv`. You might need to install it in your system before installing the extension with `apt install python3-venv`.
+To use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.9+ installed on your system. See the [Installation](#Installation) section for more details. The extension will create ins own Python virtual environment using `python3-venv`. You might need to install it in your system before installing the extension with `apt install python3-venv`.
 
 ## Planemo
 
