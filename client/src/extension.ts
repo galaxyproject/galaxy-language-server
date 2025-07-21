@@ -9,7 +9,7 @@ import { DefaultConfigurationFactory } from "./planemo/configuration";
 import { setupPlanemo } from "./planemo/main";
 import { setupProviders } from "./providers/setup";
 import { installLanguageServer } from "./setup";
-import { outputChannel } from "./logger";
+import { logger } from "./logger";
 
 let client: LanguageClient;
 
@@ -20,12 +20,12 @@ let client: LanguageClient;
 export async function activate(context: ExtensionContext) {
     const configFactory = new DefaultConfigurationFactory();
     if (context.extensionMode === ExtensionMode.Development) {
-        outputChannel.appendLine(`[INFO] Extension activated in DEV mode`);
+        logger.info("Extension activated in DEV mode");
         // Development - Connect to language server (already running) using TCP
         client = connectToLanguageServerTCP(2087);
     } else {
         // Production - Install (first time only), launch and connect to language server.
-        outputChannel.appendLine(`[INFO] Extension activated in PRODUCTION mode`);
+        logger.info("Extension activated in PRODUCTION mode");
         try {
             const isSilentInstall = configFactory.getConfiguration().server().silentInstall();
             const python = await installLanguageServer(context, isSilentInstall);
@@ -84,7 +84,7 @@ function connectToLanguageServerTCP(port: number, maxRetries = 5, retryDelayMs =
             function tryConnect() {
                 const clientSocket = new net.Socket();
                 clientSocket.connect(port, "127.0.0.1", () => {
-                    outputChannel.appendLine(`[INFO] Connected to language server on port ${port}`);
+                    logger.debug(`Connected to language server on port ${port}`);
                     resolve({
                         reader: clientSocket,
                         writer: clientSocket,
@@ -94,10 +94,10 @@ function connectToLanguageServerTCP(port: number, maxRetries = 5, retryDelayMs =
                     clientSocket.destroy();
                     attempt++;
                     if (attempt < maxRetries) {
-                        outputChannel.appendLine(`[WARN] Connection to language server failed (attempt ${attempt}). Retrying in ${retryDelayMs}ms...`);
+                        logger.debug(`Connection to language server failed (attempt ${attempt}). Retrying in ${retryDelayMs}ms...`);
                         setTimeout(tryConnect, retryDelayMs);
                     } else {
-                        outputChannel.appendLine(`[ERROR] Could not connect to language server after ${maxRetries} attempts.`);
+                        logger.error(`Could not connect to language server after ${maxRetries} attempts.`);
                         reject(err);
                     }
                 });
@@ -121,8 +121,6 @@ function startLanguageServer(command: string, args: string[], cwd: string): Lang
         command,
         options: { cwd },
     };
-
-    // outputChannel.appendLine(`[INFO] Starting Galaxy Language Server with command: ${command} ${args.join(" ")} in ${cwd}`);
 
     return new LanguageClient(command, serverOptions, getClientOptions());
 }
