@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.14.1] - 2025-08-26
+
+### Changed
+
+- Update server dependencies to include new linting ([#283](https://github.com/galaxyproject/galaxy-language-server/pull/283)).
+
 ## [0.14.0] - 2025-04-12
 
 ### Added
