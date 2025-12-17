@@ -36,20 +36,26 @@ export async function activate(context: ExtensionContext) {
 
             client = startLanguageServer(python, ["-m", Constants.GALAXY_LS], context.extensionPath);
         } catch (err: any) {
+            logger.error(`Extension activation failed: ${err}`);
             window.showErrorMessage(err);
         }
     }
 
     // Configure auto-indentation
     languages.setLanguageConfiguration(Constants.LANGUAGE_ID, getIndentationRules());
+    logger.debug("Configured auto-indentation rules for Galaxy Tool XML");
 
     context.subscriptions.push(client.start());
+    logger.info("Language client started successfully");
 
     setupCommands(client, context);
+    logger.debug("Commands registered");
 
     setupProviders(client, context);
+    logger.debug("Providers registered");
 
     client.onReady().then(() => {
+        logger.info("Language server is ready");
         setupPlanemo(client, context, configFactory);
     });
 }
@@ -121,6 +127,8 @@ function startLanguageServer(command: string, args: string[], cwd: string): Lang
         command,
         options: { cwd },
     };
+
+    logger.info(`Starting Galaxy Language Server with command: ${command} ${args.join(" ")} in ${cwd}`);
 
     return new LanguageClient(command, serverOptions, getClientOptions());
 }

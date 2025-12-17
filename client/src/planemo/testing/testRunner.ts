@@ -9,17 +9,20 @@ import { ITestRunner } from "../../testing/testRunner";
 import { OutputHighlight } from "../../utils";
 import { IPlanemoConfiguration } from "../configuration";
 import { parseTestStates } from "./testsReportParser";
+import { logger } from "../../logger";
 
 export class PlanemoTestRunner implements ITestRunner {
     private readonly testExecutions: Map<string, IProcessExecution> = new Map<string, IProcessExecution>();
 
     public async run(planemoConfig: IPlanemoConfiguration, testNode: TestItem, runInstance: TestRun): Promise<void> {
+        logger.info(`Starting test run for ${testNode.id}`);
         runInstance.appendOutput(`Running ${OutputHighlight.green(testNode.id)} tool test suite${CRLF}`);
 
         const testSuiteId = testNode.id;
         const testFileUri = testNode.uri;
 
         if (testFileUri === undefined) {
+            logger.error(`Test file URI not found for ${testSuiteId}`);
             runInstance.errored(testNode, new TestMessage("Target tool XML file not found."));
             testNode.children.forEach((node) => runInstance.skipped(node));
             return;
@@ -34,6 +37,7 @@ export class PlanemoTestRunner implements ITestRunner {
 
             const testRunArguments = this.buildTestArguments(planemoConfig, output_json_file, htmlReportFile, testFile);
 
+            logger.debug(`Planemo test command: planemo ${testRunArguments.join(" ")}`);
             runInstance.appendOutput(
                 `with:${CRLF}${CRLF}${OutputHighlight.cyan("planemo " + testRunArguments.join(" "))}${CRLF}${CRLF}`
             );
@@ -43,6 +47,8 @@ export class PlanemoTestRunner implements ITestRunner {
             this.testExecutions.set(testSuiteId, testExecution);
             const result = await testExecution.complete();
 
+            logger.info(`Test execution completed for ${testSuiteId} with exit code ${result.exitCode}`);
+
             await parseTestStates(testNode, runInstance, output_json_file);
 
             cleanupCallback();
@@ -50,6 +56,7 @@ export class PlanemoTestRunner implements ITestRunner {
             runInstance.appendOutput(`Completed ${OutputHighlight.green(testNode.id)} tool testing${CRLF}${CRLF}`);
             runInstance.appendOutput(`See full test report: ${OutputHighlight.yellow(htmlReportFile)}${CRLF}`);
         } catch (err: any) {
+            logger.error(`Test execution failed for ${testSuiteId}: ${err}`);
             runInstance.errored(testNode, new TestMessage(`Unexpected error when running tests:\n${err}`));
         } finally {
             this.testExecutions.delete(testSuiteId);
@@ -57,11 +64,14 @@ export class PlanemoTestRunner implements ITestRunner {
     }
 
     public cancel(runInstance: TestRun): void {
+        logger.info(`Cancelling ${this.testExecutions.size} test execution(s)`);
         this.testExecutions.forEach((execution, test) => {
             try {
                 runInstance.appendOutput(`${CRLF}Cancelling test run for ${OutputHighlight.green(test)} tool${CRLF}`);
                 execution.cancel();
+                logger.debug(`Cancelled test execution for ${test}`);
             } catch (error) {
+                logger.error(`Failed to cancel test execution for ${test}: ${error}`);
                 runInstance.appendOutput(
                     `${CRLF}Cancelling execution of ${OutputHighlight.green(test)} tests failed: ${error}${CRLF}`
                 );
