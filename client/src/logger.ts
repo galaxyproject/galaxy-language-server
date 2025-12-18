@@ -31,6 +31,7 @@ export interface ILogger {
     /**
      * Append a raw message without any prefix
      * Useful for messages that should not be prefixed
+     * @param message The message to append
      */
     appendLine(message: string): void;
 }
@@ -46,19 +47,23 @@ class Logger implements ILogger {
     }
 
     info(message: string): void {
-        this.outputChannel.appendLine(`[INFO] ${message}`);
+        const timestamp = this.getTimestamp();
+        this.outputChannel.appendLine(`[${timestamp}] [INFO] ${message}`);
     }
 
     error(message: string): void {
-        this.outputChannel.appendLine(`[ERROR] ${message}`);
+        const timestamp = this.getTimestamp();
+        this.outputChannel.appendLine(`[${timestamp}] [ERROR] ${message}`);
     }
 
     warn(message: string): void {
-        this.outputChannel.appendLine(`[WARN] ${message}`);
+        const timestamp = this.getTimestamp();
+        this.outputChannel.appendLine(`[${timestamp}] [WARN] ${message}`);
     }
 
     debug(message: string): void {
-        this.outputChannel.appendLine(`[DEBUG] ${message}`);
+        const timestamp = this.getTimestamp();
+        this.outputChannel.appendLine(`[${timestamp}] [DEBUG] ${message}`);
     }
 
     show(): void {
@@ -74,6 +79,19 @@ class Logger implements ILogger {
      */
     getOutputChannel(): OutputChannel {
         return this.outputChannel;
+    }
+
+    /**
+     * Get a formatted timestamp string for log entries
+     * @returns Timestamp in HH:MM:SS.mmm format
+     */
+    private getTimestamp(): string {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const milliseconds = now.getMilliseconds().toString().padStart(3, '0');
+        return `${hours}:${minutes}:${seconds}.${milliseconds}`;
     }
 }
 
