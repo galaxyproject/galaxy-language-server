@@ -100,11 +100,11 @@ export async function installLanguageServer(
                                 throw new Error(message);
                             } else {
                                 storageManager.setStoredPython(python);
-                                console.log(`[gls] setStoredPython: ${python}`);
+                                logger.debug(`Stored Python path: ${python}`);
                             }
                         }
 
-                        console.log(`[gls] Creating virtual environment...`);
+                        logger.info("Creating virtual environment...");
                         venvPath = await createVirtualEnvironment(
                             python,
                             Constants.LS_VENV_NAME,
@@ -115,7 +115,7 @@ export async function installLanguageServer(
                     }
 
                     const venvPython = getPythonFromVirtualEnvPath(venvPath);
-                    console.log(`[gls] Using Python from: ${venvPython}`);
+                    logger.info(`Using Python from: ${venvPython}`);
 
                     logger.info(`Installing ${Constants.GALAXY_LS_PACKAGE}...`);
                     const isInstalled = await installPythonPackage(
@@ -142,7 +142,6 @@ export async function installLanguageServer(
                 } catch (err: any) {
                     logger.error(`Language server installation error: ${err}`);
                     window.showErrorMessage(err);
-                    console.error(`[gls] installLSWithProgress err: ${err}`);
                     reject(err);
                 }
             });
@@ -200,7 +199,6 @@ export async function silentInstallLanguageServerForTesting(installPath: string)
                     resolve(venvPython);
                 } catch (err: any) {
                     logger.error(`Development server installation error: ${err}`);
-                    console.error(`[gls] installLSWithProgress err: ${err}`);
                     reject(err);
                 }
             });
@@ -225,7 +223,7 @@ function getVirtualEnvironmentPath(extensionDirectory: string, envName: string):
 
 async function isPythonPackageInstalled(python: string, packageName: string, version: string): Promise<boolean> {
     if (!existsSync(python)) {
-        console.log(`[gls] Python not found in: ${python}`);
+        logger.warn(`Python not found in: ${python}`);
         return false;
     }
 
@@ -239,7 +237,6 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
         return gte(installedVersion, version);
     } catch (err: any) {
         logger.warn(`Failed to check package version for ${packageName}: ${err}`);
-        console.error(`[gls] isPythonPackageInstalled err: ${err}`);
         return false;
     }
 }
@@ -254,7 +251,6 @@ async function ensureEnvUpgraded(venvPath: string): Promise<boolean> {
         return true;
     } catch (err: any) {
         logger.warn(`Failed to upgrade virtual environment dependencies: ${err}`);
-        console.error(`[gls] err upgrading pip and setuptools: ${err}`);
         return false;
     }
 }
@@ -265,7 +261,7 @@ async function installPythonPackage(python: string, packageName: string, version
         await execAsync(installPipPackageCmd);
         return isPythonPackageInstalled(python, packageName, version);
     } catch (err: any) {
-        console.error(`[gls] installPythonPackage err: ${err}`);
+        logger.error(`Failed to install Python package ${packageName}: ${err}`);
         return false;
     }
 }
@@ -277,11 +273,11 @@ async function installDevServer(python: string, serverPath: string): Promise<boo
         const installedSuccessfully =
             installResult.includes(`Successfully installed`) || installResult.includes(`Successfully built`);
         if (!installedSuccessfully) {
-            console.error(`[gls] installDevServer err: ${installResult}`);
+            logger.error(`Development server installation failed: ${installResult}`);
         }
         return installedSuccessfully;
     } catch (err: any) {
-        console.error(`[gls] installDevServer err: ${err}`);
+        logger.error(`Development server installation error: ${err}`);
         return false;
     }
 }
@@ -289,7 +285,7 @@ async function installDevServer(python: string, serverPath: string): Promise<boo
 async function getPythonVersion(python: string): Promise<number[]> {
     const getPythonVersionCmd = `"${python}" --version`;
     const version = await execAsync(getPythonVersionCmd);
-    console.log(`[gls] Python version found: ${version}`);
+    logger.debug(`Python version found: ${version}`);
     const numbers = version.match(new RegExp(/\d+/g));
     if (numbers === null) return [0, 0];
     return numbers.map((v) => Number.parseInt(v));
@@ -298,7 +294,7 @@ async function getPythonVersion(python: string): Promise<number[]> {
 async function checkPythonVersion(python: string): Promise<boolean> {
     try {
         const [major, minor] = await getPythonVersion(python);
-        console.log(`[gls] Checking Python version requirement... major[${major}] minor[${minor}]`);
+        logger.debug(`Checking Python version requirement... major[${major}] minor[${minor}]`);
         return major === 3 && minor >= 8;
     } catch {
         return false;
@@ -322,7 +318,7 @@ async function selectPythonUsingFileDialog(): Promise<string | undefined> {
     });
 
     if (result !== undefined) {
-        console.log(`Selected file: ${result[0].fsPath}`);
+        logger.info(`Selected Python file: ${result[0].fsPath}`);
         const pythonPath = result[0].fsPath;
         if (await checkPythonVersion(pythonPath)) {
             return pythonPath;

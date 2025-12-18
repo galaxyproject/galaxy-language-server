@@ -17,6 +17,7 @@ import {
 import { execAsync, readFile } from "../../utils";
 import { IConfigurationFactory, IPlanemoConfiguration } from "../configuration";
 import { DirectoryTreeItem } from "../../views/common";
+import { logger } from "../../logger";
 
 const PLANEMO_LABEL = "Planemo";
 const GALAXY_LABEL = "Galaxy";
@@ -139,7 +140,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             const version = versionMatch?.pop();
             return version ?? UNKNOWN;
         } catch (error) {
-            console.error(`[gls.planemo] getPlanemoVersion: ${error}`);
+            logger.warn(`Failed to get Planemo version: ${error}`);
             return UNKNOWN;
         }
     }
@@ -191,7 +192,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
             }
             return version ?? UNKNOWN;
         } catch (error) {
-            console.error(`[gls.planemo] getGalaxyVersion: ${error}`);
+            logger.warn(`Failed to get Galaxy version: ${error}`);
             return UNKNOWN;
         }
     }

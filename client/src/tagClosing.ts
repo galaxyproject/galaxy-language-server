@@ -76,7 +76,7 @@ export function activateTagClosing(
                     }
                 },
                 (reason: any) => {
-                    console.log("Close tag request has been cancelled. Reason: " + reason);
+                    // Tag closing cancelled, this is a normal flow and doesn't need logging
                 }
             );
             timeout = void 0;
