@@ -34,6 +34,15 @@ export interface ILogger {
      * @param message The message to append
      */
     appendLine(message: string): void;
+    /**
+     * Get the underlying OutputChannel.
+     * 
+     * **NOTE:** Avoid using this method for regular logging; use the other methods instead.
+     * 
+     * Useful for passing to other APIs that require an OutputChannel.
+     * @returns The OutputChannel instance
+     */
+    getOutputChannel(): OutputChannel;
 }
 
 /**
@@ -97,6 +106,3 @@ class Logger implements ILogger {
 
 // Create and export the logger instance
 export const logger: ILogger = new Logger("Galaxy Tools Language Server");
-
-// Export the raw output channel for backward compatibility
-export const outputChannel: OutputChannel = (logger as Logger).getOutputChannel();

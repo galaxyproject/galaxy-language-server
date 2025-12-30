@@ -74,7 +74,7 @@ function getClientOptions(): LanguageClientOptions {
             { scheme: "file", language: Constants.LANGUAGE_ID },
             { scheme: "untitled", language: Constants.LANGUAGE_ID },
         ],
-        outputChannelName: "[galaxyls]",
+        outputChannel: logger.getOutputChannel(),
         synchronize: {},
     };
 }
