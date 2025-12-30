@@ -9,6 +9,7 @@ import { DefaultConfigurationFactory } from "./planemo/configuration";
 import { setupPlanemo } from "./planemo/main";
 import { setupProviders } from "./providers/setup";
 import { installLanguageServer } from "./setup";
+import { logger } from "./logger";
 
 let client: LanguageClient;
 
@@ -19,10 +20,12 @@ let client: LanguageClient;
 export async function activate(context: ExtensionContext) {
     const configFactory = new DefaultConfigurationFactory();
     if (context.extensionMode === ExtensionMode.Development) {
+        logger.info("Extension activated in DEV mode");
         // Development - Connect to language server (already running) using TCP
         client = connectToLanguageServerTCP(2087);
     } else {
         // Production - Install (first time only), launch and connect to language server.
+        logger.info("Extension activated in PRODUCTION mode");
         try {
             const isSilentInstall = configFactory.getConfiguration().server().silentInstall();
             const python = await installLanguageServer(context, isSilentInstall);
@@ -33,20 +36,26 @@ export async function activate(context: ExtensionContext) {
 
             client = startLanguageServer(python, ["-m", Constants.GALAXY_LS], context.extensionPath);
         } catch (err: any) {
+            logger.error(`Extension activation failed: ${err}`);
             window.showErrorMessage(err);
         }
     }
 
     // Configure auto-indentation
     languages.setLanguageConfiguration(Constants.LANGUAGE_ID, getIndentationRules());
+    logger.debug("Configured auto-indentation rules for Galaxy Tool XML");
 
     context.subscriptions.push(client.start());
+    logger.info("Language client started successfully");
 
     setupCommands(client, context);
+    logger.debug("Commands registered");
 
     setupProviders(client, context);
+    logger.debug("Providers registered");
 
     client.onReady().then(() => {
+        logger.info("Language server is ready");
         setupPlanemo(client, context, configFactory);
     });
 }
@@ -65,7 +74,7 @@ function getClientOptions(): LanguageClientOptions {
             { scheme: "file", language: Constants.LANGUAGE_ID },
             { scheme: "untitled", language: Constants.LANGUAGE_ID },
         ],
-        outputChannelName: "[galaxyls]",
+        outputChannel: logger.getOutputChannel(),
         synchronize: {},
     };
 }
@@ -74,19 +83,32 @@ function getClientOptions(): LanguageClientOptions {
  * Returns a LanguageClient instance that will connect to a Language Server running on localhost using the given port.
  * @param port The port where the server is listening
  */
-function connectToLanguageServerTCP(port: number): LanguageClient {
+function connectToLanguageServerTCP(port: number, maxRetries = 5, retryDelayMs = 1000): LanguageClient {
+    let attempt = 0;
     const serverOptions: ServerOptions = () => {
         return new Promise((resolve, reject) => {
-            const clientSocket = new net.Socket();
-            clientSocket.connect(port, "127.0.0.1", () => {
-                resolve({
-                    reader: clientSocket,
-                    writer: clientSocket,
+            function tryConnect() {
+                const clientSocket = new net.Socket();
+                clientSocket.connect(port, "127.0.0.1", () => {
+                    logger.debug(`Connected to language server on port ${port}`);
+                    resolve({
+                        reader: clientSocket,
+                        writer: clientSocket,
+                    });
                 });
-            });
-            clientSocket.on("error", (err) => {
-                reject(err);
-            });
+                clientSocket.on("error", (err) => {
+                    clientSocket.destroy();
+                    attempt++;
+                    if (attempt < maxRetries) {
+                        logger.debug(`Connection to language server failed (attempt ${attempt}). Retrying in ${retryDelayMs}ms...`);
+                        setTimeout(tryConnect, retryDelayMs);
+                    } else {
+                        logger.error(`Could not connect to language server after ${maxRetries} attempts.`);
+                        reject(err);
+                    }
+                });
+            }
+            tryConnect();
         });
     };
 
@@ -105,6 +127,8 @@ function startLanguageServer(command: string, args: string[], cwd: string): Lang
         command,
         options: { cwd },
     };
+
+    logger.info(`Starting Galaxy Language Server with command: ${command} ${args.join(" ")} in ${cwd}`);
 
     return new LanguageClient(command, serverOptions, getClientOptions());
 }

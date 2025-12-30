@@ -20,6 +20,7 @@ import { GalaxyToolsExpandedDocumentContentProvider } from "./providers/contentP
 import { AutoCloseTagResult, activateTagClosing } from "./tagClosing";
 import { changeUriScheme, cloneRange, getCommands } from "./utils";
 import { DirectoryTreeItem } from "./views/common";
+import { logger } from "./logger";
 
 export namespace Commands {
     export const AUTO_CLOSE_TAGS: ICommand = getCommands("completion.autoCloseTags");
@@ -206,25 +207,37 @@ async function requestSortDocumentParamsAttrs(client: LanguageClient, command: s
                 builder.replace(range, element.text);
             }
         });
+        logger.info(`Applied ${response.length} text replacements`);
     } catch (err: any) {
+        logger.error(`Failed to apply text replacements: ${err}`);
         window.showErrorMessage(err);
     }
 }
 
 async function requestInsertSnippet(client: LanguageClient, command: string) {
     const activeEditor = window.activeTextEditor;
-    if (!activeEditor) return;
+    if (!activeEditor) {
+        logger.warn("No active editor available for snippet insertion");
+        return;
+    }
 
     const isSaved = await ensureDocumentIsSaved(activeEditor);
-    if (!isSaved) return;
+    if (!isSaved) {
+        logger.warn("Document must be saved before inserting snippets");
+        return;
+    }
 
     const document = activeEditor.document;
+    logger.debug(`Requesting snippet for command: ${command}`);
 
     const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
     const response = (await commands.executeCommand(command, param)) as GeneratedSnippetResult;
     if (!response || !response.snippet || response.error_message) {
         if (response.error_message) {
+            logger.error(`Snippet generation failed: ${response.error_message}`);
             window.showErrorMessage(response.error_message);
+        } else {
+            logger.warn("Snippet generation returned empty result");
         }
         return;
     }
@@ -238,16 +251,24 @@ async function requestInsertSnippet(client: LanguageClient, command: string) {
             const position = new Position(response.position.line, response.position.character);
             activeEditor.insertSnippet(snippet, position);
         }
+        logger.info(`Successfully inserted snippet for ${command}`);
     } catch (err: any) {
+        logger.error(`Failed to insert snippet: ${err}`);
         window.showErrorMessage(err);
     }
 }
 
 async function requestWorkspaceEdits(client: LanguageClient, command: string) {
     const activeEditor = window.activeTextEditor;
-    if (!activeEditor) return;
+    if (!activeEditor) {
+        logger.warn("No active editor available for workspace edits");
+        return;
+    }
     const isSaved = await ensureDocumentIsSaved(activeEditor);
-    if (!isSaved) return;
+    if (!isSaved) {
+        logger.warn("Document must be saved before applying workspace edits");
+        return;
+    }
     const document = activeEditor.document;
     const param = client.code2ProtocolConverter.asTextDocumentIdentifier(document);
     const response = (await commands.executeCommand(command, param)) as WorkspaceEditResult;

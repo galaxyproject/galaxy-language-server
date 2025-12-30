@@ -3,6 +3,7 @@
 import { ChildProcess, spawn } from "child_process";
 import * as iconv from "iconv-lite";
 import { EOL } from "os";
+import { logger } from "./logger";
 
 export interface IProcessRunConfiguration {
     cwd?: string;
@@ -25,6 +26,7 @@ class CommandProcessExecution implements IProcessExecution {
     private readonly acceptedExitCodes: readonly number[];
 
     constructor(command: string, args?: string[], configuration?: IProcessRunConfiguration) {
+        logger.debug(`Starting process: ${command} ${args?.join(' ') || ''}`);
         this.commandProcess = spawn(command, args, {
             cwd: configuration?.cwd,
             env: {
@@ -34,6 +36,12 @@ class CommandProcessExecution implements IProcessExecution {
         });
         this.pid = this.commandProcess.pid;
         this.acceptedExitCodes = configuration?.acceptedExitCodes || [0, 1];
+        
+        if (this.pid) {
+            logger.debug(`Process started with PID: ${this.pid}`);
+        } else {
+            logger.warn("Process started but PID is undefined");
+        }
     }
 
     public async complete(): Promise<{ exitCode: number; output: string }> {
@@ -45,33 +53,31 @@ class CommandProcessExecution implements IProcessExecution {
 
             this.commandProcess.once("close", (exitCode) => {
                 if (exitCode === null) {
+                    logger.error("Process exit code was null");
                     reject(new Error(`Process exit code was null`));
                     return;
                 }
 
-                if (this.acceptedExitCodes.indexOf(exitCode) < 0 && !this.commandProcess.killed) {
+                if (this.acceptedExitCodes.includes(exitCode)) {
+                    logger.debug(`Process completed successfully with exit code: ${exitCode}`);
+                    const output = decode(stdoutBuffer);
+                    resolve({ exitCode, output });
+                } else {
                     const error = decode(stderrBuffer);
+                    logger.error(`Process failed with exit code ${exitCode}: ${error}`);
                     reject(new Error(`Process exited with code ${exitCode}: ${error}`));
-                    return;
                 }
-
-                const output = decode(stdoutBuffer);
-                if (!output) {
-                    if (stdoutBuffer.length > 0) {
-                        reject(new Error("Can not decode output from the process"));
-                    } else if (stderrBuffer.length > 0 && !this.commandProcess.killed) {
-                        reject(new Error(`Process returned an error:${EOL}${decode(stderrBuffer)}`));
-                    }
-                }
-                resolve({ exitCode, output });
             });
 
             this.commandProcess.once("error", (error) => {
+                logger.error(`Process execution error: ${error}`);
                 reject(new Error(`Error occurred during process execution: ${error}`));
             });
         });
     }
+
     public cancel(): void {
+        logger.debug(`Cancelling process with PID: ${this.pid}`);
         this.commandProcess.kill("SIGINT");
     }
 }

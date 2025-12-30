@@ -6,6 +6,7 @@ import { LocalStorageService } from "./configuration/storage";
 import { Constants } from "./constants";
 import { execAsync, forceDeleteDirectory as removeDirectory } from "./utils";
 import { DefaultConfigurationFactory } from "./planemo/configuration";
+import { logger } from "./logger";
 
 /**
  * Ensures that the Language server is installed in the extension's virtual environment
@@ -29,13 +30,13 @@ export async function installLanguageServer(
             Constants.GALAXY_LS_VERSION
         );
         if (isInstalled) {
-            console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} already installed.`);
+            logger.info(`${Constants.GALAXY_LS_PACKAGE} already installed at ${venvPath}`);
             return Promise.resolve(venvPython);
         }
     }
 
     const storedPython = storageManager.getStoredPython();
-    console.log(`[gls] getStoredPython: ${storedPython}`);
+    logger.debug(`Stored Python path: ${storedPython}`);
 
     if (storedPython === null && !isSilentInstall) {
         const result = await window.showInformationMessage(
@@ -44,7 +45,7 @@ export async function installLanguageServer(
         );
 
         if (result === undefined) {
-            console.log(`[gls] Language server installation cancelled by the user.`);
+            logger.info("Language server installation cancelled by user");
             return undefined;
         } else if (result === "More Info") {
             commands.executeCommand(
@@ -70,17 +71,16 @@ export async function installLanguageServer(
             return new Promise<string>(async (resolve, reject) => {
                 try {
                     if (!existsSync(venvPath)) {
-                        console.log(`[gls] Checking Python version...`);
+                        logger.info("Checking Python version compatibility...");
                         let python = await getPython();
 
                         if (python === undefined && storedPython !== null) {
                             if (await checkPythonVersion(storedPython)) {
-                                console.log(
-                                    `[gls] Default python not supported but stored python found. Trying to use stored python: ${storedPython}`
-                                );
+                                logger.info(`Using stored Python: ${storedPython}`);
                                 python = storedPython;
                             } else {
                                 // The stored python is no longer valid, clear and let the user select a new one
+                                logger.warn("Stored Python is no longer valid, clearing stored path");
                                 storageManager.clearStoredPython();
                             }
                         }
@@ -95,15 +95,16 @@ export async function installLanguageServer(
                             // User canceled the input
                             if (python === undefined) {
                                 const message = `Python ${Constants.REQUIRED_PYTHON_VERSION} is required in order to use the language server features.`;
+                                logger.error("Python installation cancelled - language server features unavailable");
                                 window.showErrorMessage(message);
                                 throw new Error(message);
                             } else {
                                 storageManager.setStoredPython(python);
-                                console.log(`[gls] setStoredPython: ${python}`);
+                                logger.debug(`Stored Python path: ${python}`);
                             }
                         }
 
-                        console.log(`[gls] Creating virtual environment...`);
+                        logger.info("Creating virtual environment...");
                         venvPath = await createVirtualEnvironment(
                             python,
                             Constants.LS_VENV_NAME,
@@ -114,9 +115,9 @@ export async function installLanguageServer(
                     }
 
                     const venvPython = getPythonFromVirtualEnvPath(venvPath);
-                    console.log(`[gls] Using Python from: ${venvPython}`);
+                    logger.info(`Using Python from: ${venvPython}`);
 
-                    console.log(`[gls] Installing ${Constants.GALAXY_LS_PACKAGE}...`);
+                    logger.info(`Installing ${Constants.GALAXY_LS_PACKAGE}...`);
                     const isInstalled = await installPythonPackage(
                         venvPython,
                         Constants.GALAXY_LS_PACKAGE,
@@ -125,12 +126,13 @@ export async function installLanguageServer(
 
                     if (!isInstalled) {
                         const errorMessage = "There was a problem trying to install the Galaxy language server. Check the logs under Help > Developer Tools > Console or try reloading VS Code.";
+                        logger.error("Failed to install Galaxy Language Server package");
                         window.showErrorMessage(errorMessage);
                         removeDirectory(venvPath);
                         throw new Error(errorMessage);
                     }
 
-                    console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} installed successfully.`);
+                    logger.info(`${Constants.GALAXY_LS_PACKAGE} installed successfully`);
                     if (storageManager.isServerFirstTimeInstall()) {
                         if (!isSilentInstall) window.showInformationMessage("Galaxy Tools extension is ready!");
                         storageManager.setServerInstalled();
@@ -138,8 +140,8 @@ export async function installLanguageServer(
 
                     resolve(venvPython);
                 } catch (err: any) {
+                    logger.error(`Language server installation error: ${err}`);
                     window.showErrorMessage(err);
-                    console.error(`[gls] installLSWithProgress err: ${err}`);
                     reject(err);
                 }
             });
@@ -164,37 +166,39 @@ export async function silentInstallLanguageServerForTesting(installPath: string)
             return new Promise<string>(async (resolve, reject) => {
                 try {
                     if (!existsSync(venvPath)) {
-                        console.log(`[gls] Checking Python version...`);
+                        logger.info("Checking Python version for development mode...");
                         let python = await getPython();
 
                         if (python === undefined) {
                             const message = `Python ${Constants.REQUIRED_PYTHON_VERSION} is required in order to use the language server features.`;
+                            logger.error("Python version check failed - required version not found");
                             throw new Error(message);
                         }
 
-                        console.log(`[gls] Creating virtual environment...`);
+                        logger.info("Creating virtual environment for development...");
                         venvPath = await createVirtualEnvironment(python, Constants.LS_VENV_NAME, installPath);
                     }
 
                     await ensureEnvUpgraded(venvPath);
 
                     const venvPython = getPythonFromVirtualEnvPath(venvPath);
-                    console.log(`[gls] Using Python from: ${venvPython}`);
+                    logger.info(`Using Python from virtual environment: ${venvPython}`);
 
-                    console.log(`[gls] Installing latest DEV version of ${Constants.GALAXY_LS_PACKAGE}...`);
+                    logger.info(`Installing latest DEV version of ${Constants.GALAXY_LS_PACKAGE}...`);
                     const isInstalled = await installDevServer(venvPython, serverPath);
 
                     if (!isInstalled) {
                         const errorMessage = "There was a problem trying to install the Galaxy language server.";
+                        logger.error("Development server installation failed");
                         removeDirectory(venvPath);
                         throw new Error(errorMessage);
                     }
 
-                    console.log(`[gls] ${Constants.GALAXY_LS_PACKAGE} installed successfully.`);
+                    logger.info(`${Constants.GALAXY_LS_PACKAGE} development version installed successfully`);
 
                     resolve(venvPython);
                 } catch (err: any) {
-                    console.error(`[gls] installLSWithProgress err: ${err}`);
+                    logger.error(`Development server installation error: ${err}`);
                     reject(err);
                 }
             });
@@ -219,7 +223,7 @@ function getVirtualEnvironmentPath(extensionDirectory: string, envName: string):
 
 async function isPythonPackageInstalled(python: string, packageName: string, version: string): Promise<boolean> {
     if (!existsSync(python)) {
-        console.log(`[gls] Python not found in: ${python}`);
+        logger.warn(`Python not found in: ${python}`);
         return false;
     }
 
@@ -229,23 +233,24 @@ async function isPythonPackageInstalled(python: string, packageName: string, ver
         const packageInfo = await execAsync(getPackageInfoCmd);
         const match = packageInfo.match(new RegExp(pattern));
         const installedVersion = match?.groups?.version ?? "0.0.0";
-        console.log(`[gls] Version found: ${packageName} - ${match?.groups?.version}`);
+        logger.debug(`Package version check: ${packageName} - found ${installedVersion}, required ${version}`);
         return gte(installedVersion, version);
     } catch (err: any) {
-        console.error(`[gls] isPythonPackageInstalled err: ${err}`);
+        logger.warn(`Failed to check package version for ${packageName}: ${err}`);
         return false;
     }
 }
 
 async function ensureEnvUpgraded(venvPath: string): Promise<boolean> {
-    console.log("[gls] Ensuring virtual environment is upgraded...");
+    logger.info("Upgrading virtual environment dependencies...");
     const venvPython = getPythonFromVirtualEnvPath(venvPath);
     const upgradePythonPackagesCmd = `"${venvPython}" -m pip install --upgrade pip setuptools`;
     try {
         await execAsync(upgradePythonPackagesCmd);
+        logger.debug("Virtual environment dependencies upgraded successfully");
         return true;
     } catch (err: any) {
-        console.error(`[gls] err upgrading pip and setuptools: ${err}`);
+        logger.warn(`Failed to upgrade virtual environment dependencies: ${err}`);
         return false;
     }
 }
@@ -256,7 +261,7 @@ async function installPythonPackage(python: string, packageName: string, version
         await execAsync(installPipPackageCmd);
         return isPythonPackageInstalled(python, packageName, version);
     } catch (err: any) {
-        console.error(`[gls] installPythonPackage err: ${err}`);
+        logger.error(`Failed to install Python package ${packageName}: ${err}`);
         return false;
     }
 }
@@ -268,11 +273,11 @@ async function installDevServer(python: string, serverPath: string): Promise<boo
         const installedSuccessfully =
             installResult.includes(`Successfully installed`) || installResult.includes(`Successfully built`);
         if (!installedSuccessfully) {
-            console.error(`[gls] installDevServer err: ${installResult}`);
+            logger.error(`Development server installation failed: ${installResult}`);
         }
         return installedSuccessfully;
     } catch (err: any) {
-        console.error(`[gls] installDevServer err: ${err}`);
+        logger.error(`Development server installation error: ${err}`);
         return false;
     }
 }
@@ -280,7 +285,7 @@ async function installDevServer(python: string, serverPath: string): Promise<boo
 async function getPythonVersion(python: string): Promise<number[]> {
     const getPythonVersionCmd = `"${python}" --version`;
     const version = await execAsync(getPythonVersionCmd);
-    console.log(`[gls] Python version found: ${version}`);
+    logger.debug(`Python version found: ${version}`);
     const numbers = version.match(new RegExp(/\d+/g));
     if (numbers === null) return [0, 0];
     return numbers.map((v) => Number.parseInt(v));
@@ -289,7 +294,7 @@ async function getPythonVersion(python: string): Promise<number[]> {
 async function checkPythonVersion(python: string): Promise<boolean> {
     try {
         const [major, minor] = await getPythonVersion(python);
-        console.log(`[gls] Checking Python version requirement... major[${major}] minor[${minor}]`);
+        logger.debug(`Checking Python version requirement... major[${major}] minor[${minor}]`);
         return major === 3 && minor >= 8;
     } catch {
         return false;
@@ -313,7 +318,7 @@ async function selectPythonUsingFileDialog(): Promise<string | undefined> {
     });
 
     if (result !== undefined) {
-        console.log(`Selected file: ${result[0].fsPath}`);
+        logger.info(`Selected Python file: ${result[0].fsPath}`);
         const pythonPath = result[0].fsPath;
         if (await checkPythonVersion(pythonPath)) {
             return pythonPath;
