@@ -1,5 +1,18 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.15.0] - 2026-02-16
+
+### Added
+
+- Add structured logging throughout extension workflow ([#288](https://github.com/galaxyproject/galaxy-language-server/pull/288)).
+
+### Changed
+
+-   Updated Galaxy Language Server [v0.15.0](./server/CHANGELOG.md#0150)
+
+- Replace console logging with structured logger usage ([#288](https://github.com/galaxyproject/galaxy-language-server/pull/288)).
+
+
 ## [0.14.1] - 2025-08-26
 
 ### Changed
