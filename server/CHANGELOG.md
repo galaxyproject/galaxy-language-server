@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [0.15.0] - 2026-02-16
+
+### Changed
+
+- Update server dependencies
+
 ## [0.14.1] - 2025-08-26
 
 ### Changed
