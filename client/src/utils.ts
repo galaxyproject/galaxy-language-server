@@ -8,11 +8,13 @@ import { Constants } from "./constants";
 
 export async function execAsync(command: string, options: object = {}): Promise<string> {
     return new Promise((resolve, reject) => {
-        exec(command, options, (error, stdout, _) => {
+        exec(command, options, (error, stdout, stderr) => {
             if (error) {
                 return reject(error);
             }
-            resolve(stdout.trim().toString());
+            // Combine stdout and stderr since some tools (like uv) write to stderr
+            const output = (stdout.trim() + '\n' + stderr.trim()).trim();
+            resolve(output);
         });
     });
 }
