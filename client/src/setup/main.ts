@@ -6,7 +6,18 @@ import { logger } from "../logger";
 import { PackageManagerFactory } from "./packageManager";
 import { PythonFinder } from "./pythonFinder";
 import { PythonEnvironment } from "./pythonEnvironment";
-import { ERROR_MESSAGES, PROGRESS_MESSAGES } from "./constants";
+import { ERROR_MESSAGES, PROGRESS_MESSAGES, SHOW_OUTPUT_BUTTON } from "./constants";
+
+/**
+ * Show an error notification with a "Show Output" action button that opens
+ * the extension output panel when clicked.
+ */
+async function showErrorWithOutput(message: string): Promise<void> {
+    const selection = await window.showErrorMessage(message, SHOW_OUTPUT_BUTTON);
+    if (selection === SHOW_OUTPUT_BUTTON) {
+        logger.show();
+    }
+}
 
 /**
  * Ensures that the Language server is installed in the extension's virtual environment
@@ -30,15 +41,26 @@ export async function installLanguageServer(
     );
 
     if (environment.exists()) {
-        const venvPython = environment.getPythonPath();
-        const isInstalled = await packageManager.isPackageInstalled(
-            venvPython,
-            Constants.GALAXY_LS_PACKAGE,
-            Constants.GALAXY_LS_VERSION
-        );
-        if (isInstalled) {
-            logger.info(`${Constants.GALAXY_LS_PACKAGE} already installed at ${environment.getEnvironmentPath()}`);
-            return Promise.resolve(venvPython);
+        if (await environment.isHealthy()) {
+            const venvPython = environment.getPythonPath();
+            const isInstalled = await packageManager.isPackageInstalled(
+                venvPython,
+                Constants.GALAXY_LS_PACKAGE,
+                Constants.GALAXY_LS_VERSION
+            );
+            if (isInstalled) {
+                logger.info(`${Constants.GALAXY_LS_PACKAGE} already installed at ${environment.getEnvironmentPath()}`);
+                return Promise.resolve(venvPython);
+            }
+        } else {
+            // The venv Python binary cannot execute — the base interpreter it was built
+            // against has likely moved or been removed (e.g. uv-managed Python with a
+            // temporary build prefix like /install). Delete it so it gets recreated.
+            logger.warn(
+                `Virtual environment at ${environment.getEnvironmentPath()} is broken ` +
+                `(base Python may have moved or been removed). Deleting and recreating...`
+            );
+            removeDirectory(environment.getEnvironmentPath());
         }
     }
 
@@ -62,7 +84,7 @@ export async function installLanguageServer(
                     if (!discoveryResult.success || !discoveryResult.pythonPath) {
                         const message = discoveryResult.error || ERROR_MESSAGES.PYTHON_REQUIRED(Constants.REQUIRED_PYTHON_VERSION);
                         logger.error(`Python discovery failed: ${message}`);
-                        window.showErrorMessage(message);
+                        await showErrorWithOutput(message);
                         throw new Error(message);
                     }
 
@@ -95,8 +117,8 @@ export async function installLanguageServer(
 
                 if (!installResult.success) {
                     logger.error(`Failed to install Galaxy Language Server package: ${installResult.error}`);
-                    window.showErrorMessage(ERROR_MESSAGES.INSTALLATION_FAILED);
                     removeDirectory(environment.getEnvironmentPath());
+                    await showErrorWithOutput(ERROR_MESSAGES.INSTALLATION_FAILED);
                     throw new Error(installResult.error || ERROR_MESSAGES.INSTALLATION_FAILED);
                 }
 
@@ -109,7 +131,7 @@ export async function installLanguageServer(
                 return venvPython;
             } catch (err: any) {
                 logger.error(`Language server installation error: ${err}`);
-                window.showErrorMessage(err.message || err);
+                await showErrorWithOutput(err.message || String(err));
                 throw err;
             }
         }

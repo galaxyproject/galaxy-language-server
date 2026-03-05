@@ -17,17 +17,17 @@ export interface PythonDiscoveryResult {
      * Path to the Python executable if found and valid.
      */
     pythonPath?: string;
-    
+
     /**
      * Whether the discovery/validation was successful.
      */
     success: boolean;
-    
+
     /**
      * Error message if discovery/validation failed.
      */
     error?: string;
-    
+
     /**
      * Python version information if available.
      */
@@ -42,12 +42,12 @@ export interface InstallationResult {
      * Whether the installation succeeded.
      */
     success: boolean;
-    
+
     /**
      * Error message if installation failed.
      */
     error?: string;
-    
+
     /**
      * Output from the installation command.
      */
@@ -62,17 +62,17 @@ export interface EnvironmentInfo {
      * Path to the virtual environment directory.
      */
     path: string;
-    
+
     /**
      * Path to the Python executable within the environment.
      */
     pythonPath: string;
-    
+
     /**
      * Whether the environment exists and is valid.
      */
     exists: boolean;
-    
+
     /**
      * Python version in the environment.
      */
@@ -91,7 +91,7 @@ export interface IPackageManager {
      * @returns Installation result
      */
     install(pythonPath: string, packageName: string, version: string): Promise<InstallationResult>;
-    
+
     /**
      * Install a package in editable mode from a local path.
      * @param pythonPath Path to the Python executable
@@ -99,7 +99,7 @@ export interface IPackageManager {
      * @returns Installation result
      */
     installEditable(pythonPath: string, packagePath: string): Promise<InstallationResult>;
-    
+
     /**
      * Upgrade packages in the environment.
      * @param pythonPath Path to the Python executable
@@ -107,7 +107,7 @@ export interface IPackageManager {
      * @returns Installation result
      */
     upgrade(pythonPath: string, packages: string[]): Promise<InstallationResult>;
-    
+
     /**
      * Check if a package is installed at the required version.
      * @param pythonPath Path to the Python executable
@@ -116,7 +116,7 @@ export interface IPackageManager {
      * @returns True if package is installed at or above required version
      */
     isPackageInstalled(pythonPath: string, packageName: string, requiredVersion: string): Promise<boolean>;
-    
+
     /**
      * Get the name of this package manager.
      */
@@ -135,14 +135,14 @@ export interface IPythonFinder {
      * @returns Discovery result
      */
     findPython(storedPythonPath?: string | null, silentMode?: boolean): Promise<PythonDiscoveryResult>;
-    
+
     /**
      * Validate a Python installation meets requirements.
      * @param pythonPath Path to Python executable to validate
      * @returns Discovery result with validation details
      */
     validatePython(pythonPath: string): Promise<PythonDiscoveryResult>;
-    
+
     /**
      * Get version information from a Python executable.
      * @param pythonPath Path to Python executable
@@ -163,31 +163,40 @@ export interface IPythonEnvironment {
      * @returns Path to created environment
      */
     create(basePython: string, name: string, cwd: string): Promise<string>;
-    
+
     /**
-     * Check if the environment exists and is valid.
+     * Check if the environment exists (Python binary is present on disk).
+     * Note: a present binary does not guarantee it is functional.
      * @returns True if environment exists
      */
     exists(): boolean;
-    
+
+    /**
+     * Check if the environment is healthy by actually running the Python binary.
+     * A venv can exist on disk but be broken when the base interpreter has moved
+     * or was built with a temporary prefix that is no longer available.
+     * @returns True if the Python binary executes successfully
+     */
+    isHealthy(): Promise<boolean>;
+
     /**
      * Get the path to the Python executable in this environment.
      * @returns Path to Python executable
      */
     getPythonPath(): string;
-    
+
     /**
      * Get the path to the virtual environment directory.
      * @returns Environment directory path
      */
     getEnvironmentPath(): string;
-    
+
     /**
      * Upgrade core packages in the environment (pip, setuptools).
      * @returns Installation result
      */
     upgrade(): Promise<InstallationResult>;
-    
+
     /**
      * Get information about this environment.
      * @returns Environment information
