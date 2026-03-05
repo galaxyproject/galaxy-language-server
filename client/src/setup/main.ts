@@ -1,24 +1,32 @@
-import { commands, ExtensionContext, ProgressLocation, Uri, window } from "vscode";
+import { ExtensionContext, ProgressLocation, window } from "vscode";
 import { LocalStorageService } from "../configuration/storage";
 import { Constants } from "../constants";
 import { execAsync, forceDeleteDirectory as removeDirectory } from "../utils";
-import { DefaultConfigurationFactory } from "../planemo/configuration";
 import { logger } from "../logger";
 import { PackageManagerFactory } from "./packageManager";
 import { PythonFinder } from "./pythonFinder";
 import { PythonEnvironment } from "./pythonEnvironment";
-import { ERROR_MESSAGES, USER_MESSAGES, PROGRESS_MESSAGES } from "./constants";
+import { ERROR_MESSAGES, PROGRESS_MESSAGES, SHOW_OUTPUT_BUTTON } from "./constants";
+
+/**
+ * Show an error notification with a "Show Output" action button that opens
+ * the extension output panel when clicked.
+ */
+async function showErrorWithOutput(message: string): Promise<void> {
+    const selection = await window.showErrorMessage(message, SHOW_OUTPUT_BUTTON);
+    if (selection === SHOW_OUTPUT_BUTTON) {
+        logger.show();
+    }
+}
 
 /**
  * Ensures that the Language server is installed in the extension's virtual environment
  * and returns the Python path of the virtual environment or undefined if there was
  * a problem or the user cancelled the installation.
  * @param context The extension context
- * @param isSilentInstall Whether to install silently without user prompts
  */
 export async function installLanguageServer(
-    context: ExtensionContext,
-    isSilentInstall: boolean
+    context: ExtensionContext
 ): Promise<string | undefined> {
     const storageManager = new LocalStorageService(context.globalState);
     const packageManager = await PackageManagerFactory.create(execAsync);
@@ -33,39 +41,31 @@ export async function installLanguageServer(
     );
 
     if (environment.exists()) {
-        const venvPython = environment.getPythonPath();
-        const isInstalled = await packageManager.isPackageInstalled(
-            venvPython,
-            Constants.GALAXY_LS_PACKAGE,
-            Constants.GALAXY_LS_VERSION
-        );
-        if (isInstalled) {
-            logger.info(`${Constants.GALAXY_LS_PACKAGE} already installed at ${environment.getEnvironmentPath()}`);
-            return Promise.resolve(venvPython);
+        if (await environment.isHealthy()) {
+            const venvPython = environment.getPythonPath();
+            const isInstalled = await packageManager.isPackageInstalled(
+                venvPython,
+                Constants.GALAXY_LS_PACKAGE,
+                Constants.GALAXY_LS_VERSION
+            );
+            if (isInstalled) {
+                logger.info(`${Constants.GALAXY_LS_PACKAGE} already installed at ${environment.getEnvironmentPath()}`);
+                return Promise.resolve(venvPython);
+            }
+        } else {
+            // The venv Python binary cannot execute — the base interpreter it was built
+            // against has likely moved or been removed (e.g. uv-managed Python with a
+            // temporary build prefix like /install). Delete it so it gets recreated.
+            logger.warn(
+                `Virtual environment at ${environment.getEnvironmentPath()} is broken ` +
+                `(base Python may have moved or been removed). Deleting and recreating...`
+            );
+            removeDirectory(environment.getEnvironmentPath());
         }
     }
 
     const storedPython = storageManager.getStoredPython();
     logger.debug(`Stored Python path: ${storedPython}`);
-
-    if (storedPython === null && !isSilentInstall) {
-        const result = await window.showInformationMessage(
-            USER_MESSAGES.INSTALL_PROMPT(Constants.REQUIRED_PYTHON_VERSION),
-            ...["Install", "More Info", "Don't ask again"]
-        );
-
-        if (result === undefined) {
-            logger.info(ERROR_MESSAGES.INSTALLATION_CANCELLED);
-            return undefined;
-        } else if (result === "More Info") {
-            commands.executeCommand("vscode.open", Uri.parse(USER_MESSAGES.INSTALL_MORE_INFO_URL));
-            return undefined;
-        } else if (result === "Don't ask again") {
-            // Set user preference to silent install
-            const configFactory = new DefaultConfigurationFactory();
-            configFactory.getConfiguration().server().setSilentInstall(true);
-        }
-    }
 
     // Install with progress
     return window.withProgress(
@@ -78,18 +78,18 @@ export async function installLanguageServer(
                 // Find suitable Python installation
                 if (!environment.exists()) {
                     logger.info(PROGRESS_MESSAGES.CHECKING_VERSION);
-                    
-                    const discoveryResult = await pythonFinder.findPython(storedPython, isSilentInstall);
-                    
+
+                    const discoveryResult = await pythonFinder.findPython(storedPython);
+
                     if (!discoveryResult.success || !discoveryResult.pythonPath) {
                         const message = discoveryResult.error || ERROR_MESSAGES.PYTHON_REQUIRED(Constants.REQUIRED_PYTHON_VERSION);
                         logger.error(`Python discovery failed: ${message}`);
-                        window.showErrorMessage(message);
+                        await showErrorWithOutput(message);
                         throw new Error(message);
                     }
 
                     const python = discoveryResult.pythonPath;
-                    
+
                     // Store the validated Python path
                     if (python !== storedPython) {
                         storageManager.setStoredPython(python);
@@ -117,25 +117,21 @@ export async function installLanguageServer(
 
                 if (!installResult.success) {
                     logger.error(`Failed to install Galaxy Language Server package: ${installResult.error}`);
-                    window.showErrorMessage(ERROR_MESSAGES.INSTALLATION_FAILED);
                     removeDirectory(environment.getEnvironmentPath());
+                    await showErrorWithOutput(ERROR_MESSAGES.INSTALLATION_FAILED);
                     throw new Error(installResult.error || ERROR_MESSAGES.INSTALLATION_FAILED);
                 }
 
                 logger.info(`${Constants.GALAXY_LS_PACKAGE} installed successfully`);
-                
-                // Show completion message for first-time install
+
                 if (storageManager.isServerFirstTimeInstall()) {
-                    if (!isSilentInstall) {
-                        window.showInformationMessage(USER_MESSAGES.INSTALL_COMPLETE);
-                    }
                     storageManager.setServerInstalled();
                 }
 
                 return venvPython;
             } catch (err: any) {
                 logger.error(`Language server installation error: ${err}`);
-                window.showErrorMessage(err.message || err);
+                await showErrorWithOutput(err.message || String(err));
                 throw err;
             }
         }
@@ -169,9 +165,9 @@ export async function silentInstallLanguageServerForTesting(installPath: string)
                 // Find suitable Python installation
                 if (!environment.exists()) {
                     logger.info("Checking Python version for development mode...");
-                    
-                    const discoveryResult = await pythonFinder.findPython(null, true);
-                    
+
+                    const discoveryResult = await pythonFinder.findPython(null);
+
                     if (!discoveryResult.success || !discoveryResult.pythonPath) {
                         const message = ERROR_MESSAGES.PYTHON_REQUIRED(Constants.REQUIRED_PYTHON_VERSION);
                         logger.error("Python version check failed - required version not found");

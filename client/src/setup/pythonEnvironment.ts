@@ -24,7 +24,7 @@ export class PythonEnvironment implements IPythonEnvironment {
 
     async create(basePython: string, name: string, cwd: string): Promise<string> {
         const path = join(cwd, name);
-        
+
         if (existsSync(path)) {
             logger.info(`Virtual environment already exists at: ${path}`);
             return path;
@@ -45,19 +45,53 @@ export class PythonEnvironment implements IPythonEnvironment {
         }
 
         // Fallback to traditional python -m venv
+        let venvError = "";
         try {
             const createVirtualEnvCmd = `"${basePython}" -m venv ${name}`;
             await this.execAsync(createVirtualEnvCmd, { cwd });
             logger.info("Virtual environment created successfully");
             return path;
         } catch (err: any) {
-            logger.error(`Failed to create virtual environment: ${err.message || err}`);
-            throw new Error(`${ERROR_MESSAGES.ENVIRONMENT_CREATION_FAILED}: ${err.message || err}`);
+            venvError = err.message || String(err);
+            logger.warn(`Standard venv creation failed, trying --without-pip fallback: ${venvError}`);
         }
+
+        // Last resort: --without-pip works with uv-managed Python where ensurepip is unavailable
+        try {
+            const createVirtualEnvWithoutPipCmd = `"${basePython}" -m venv ${name} --without-pip`;
+            await this.execAsync(createVirtualEnvWithoutPipCmd, { cwd });
+        } catch (fallbackErr: any) {
+            logger.error(`Failed to create virtual environment (--without-pip also failed): ${fallbackErr.message || fallbackErr}`);
+            throw new Error(`${ERROR_MESSAGES.ENVIRONMENT_CREATION_FAILED}: ${venvError}`);
+        }
+
+        logger.info("Virtual environment created successfully (--without-pip)");
+
+        if (this.packageManager.getName() !== "uv") {
+            // pip cannot be used inside a venv that was created without pip; fail with actionable message
+            const message = ERROR_MESSAGES.VENV_NO_PIP_WITH_PIP_MANAGER;
+            logger.error(message);
+            throw new Error(message);
+        }
+
+        logger.warn("Virtual environment created without pip. uv will be used for package management.");
+        return path;
     }
 
     exists(): boolean {
         return existsSync(this.pythonPath);
+    }
+
+    async isHealthy(): Promise<boolean> {
+        if (!this.exists()) {
+            return false;
+        }
+        try {
+            await this.execAsync(`"${this.pythonPath}" --version`);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     getPythonPath(): string {
@@ -70,15 +104,15 @@ export class PythonEnvironment implements IPythonEnvironment {
 
     async upgrade(): Promise<InstallationResult> {
         logger.info("Upgrading virtual environment dependencies...");
-        
+
         const result = await this.packageManager.upgrade(this.pythonPath, ["pip", "setuptools"]);
-        
+
         if (result.success) {
             logger.debug("Virtual environment dependencies upgraded successfully");
         } else {
             logger.warn(`Failed to upgrade virtual environment dependencies: ${result.error}`);
         }
-        
+
         return result;
     }
 

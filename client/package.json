@@ -201,8 +201,9 @@
         "galaxyTools.server.silentInstall": {
           "scope": "resource",
           "type": "boolean",
-          "markdownDescription": "Whether to skip user confirmation to install the language server.",
-          "default": false
+          "markdownDescription": "(Deprecated) Install is always silent. This setting no longer has any effect.",
+          "default": true,
+          "deprecationMessage": "Install is always silent; this setting is ignored and will be removed in a future release."
         },
         "galaxyTools.completion.mode": {
           "scope": "resource",

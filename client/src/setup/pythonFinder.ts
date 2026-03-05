@@ -1,6 +1,6 @@
-import { window, workspace } from "vscode";
+import {  workspace } from "vscode";
 import { IPythonFinder, PythonDiscoveryResult } from "./interfaces";
-import { ERROR_MESSAGES, USER_MESSAGES } from "./constants";
+import { ERROR_MESSAGES } from "./constants";
 import { logger } from "../logger";
 import { Constants } from "../constants";
 import { ExecAsyncFn } from "./types";
@@ -9,9 +9,9 @@ import { ExecAsyncFn } from "./types";
  * Service for discovering and validating Python installations.
  */
 export class PythonFinder implements IPythonFinder {
-    constructor(private execAsync: ExecAsyncFn) {}
+    constructor(private execAsync: ExecAsyncFn) { }
 
-    async findPython(storedPythonPath?: string | null, silentMode: boolean = false): Promise<PythonDiscoveryResult> {
+    async findPython(storedPythonPath?: string | null): Promise<PythonDiscoveryResult> {
         // Try stored Python path first
         if (storedPythonPath) {
             logger.debug(`Checking stored Python path: ${storedPythonPath}`);
@@ -33,36 +33,16 @@ export class PythonFinder implements IPythonFinder {
             return configResult;
         }
 
-        // If silent mode, fail here
-        if (silentMode) {
-            return {
-                success: false,
-                error: ERROR_MESSAGES.PYTHON_REQUIRED(Constants.REQUIRED_PYTHON_VERSION)
-            };
-        }
-
-        // Prompt user to select Python
-        logger.info("No valid Python found, prompting user...");
-        await window.showInformationMessage(
-            USER_MESSAGES.SELECT_PYTHON_PROMPT(Constants.REQUIRED_PYTHON_VERSION),
-            ...["Select"]
-        );
-
-        const selectedPython = await this.promptUserForPython();
-        if (!selectedPython) {
-            return {
-                success: false,
-                error: ERROR_MESSAGES.INSTALLATION_CANCELLED
-            };
-        }
-
-        return this.validatePython(selectedPython);
+        return {
+            success: false,
+            error: ERROR_MESSAGES.PYTHON_REQUIRED(Constants.REQUIRED_PYTHON_VERSION)
+        };
     }
 
     async validatePython(pythonPath: string): Promise<PythonDiscoveryResult> {
         try {
             const version = await this.getVersion(pythonPath);
-            
+
             if (!version) {
                 return {
                     success: false,
@@ -72,7 +52,7 @@ export class PythonFinder implements IPythonFinder {
             }
 
             const [major, minor, patch] = version;
-            
+
             // Check version requirements (Python 3.8+)
             if (major === 3 && minor >= 8) {
                 return {
@@ -103,41 +83,17 @@ export class PythonFinder implements IPythonFinder {
             const getPythonVersionCmd = `"${pythonPath}" --version`;
             const version = await this.execAsync(getPythonVersionCmd);
             logger.debug(`Python version found: ${version}`);
-            
+
             const numbers = version.match(/\d+/g);
             if (numbers === null || numbers.length < 2) {
                 return undefined;
             }
-            
+
             return numbers.map((v) => Number.parseInt(v, 10));
         } catch (err: any) {
             logger.warn(`Failed to get Python version from ${pythonPath}: ${err}`);
             return undefined;
         }
-    }
-
-    async promptUserForPython(): Promise<string | undefined> {
-        const result = await window.showOpenDialog({
-            openLabel: "Select",
-            canSelectMany: false,
-            title: `Select the Python ${Constants.REQUIRED_PYTHON_VERSION} binary:`,
-        });
-
-        if (result !== undefined) {
-            const pythonPath = result[0].fsPath;
-            logger.info(`Selected Python file: ${pythonPath}`);
-            
-            const validationResult = await this.validatePython(pythonPath);
-            if (validationResult.success) {
-                return pythonPath;
-            } else {
-                window.showErrorMessage(
-                    ERROR_MESSAGES.PYTHON_INVALID(Constants.REQUIRED_PYTHON_VERSION)
-                );
-            }
-        }
-
-        return undefined;
     }
 
     /**
