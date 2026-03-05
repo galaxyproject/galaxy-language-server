@@ -149,12 +149,6 @@ export interface IPythonFinder {
      * @returns Version array [major, minor, patch] or undefined if failed
      */
     getVersion(pythonPath: string): Promise<number[] | undefined>;
-    
-    /**
-     * Prompt user to select Python using file dialog.
-     * @returns Selected Python path or undefined if cancelled
-     */
-    promptUserForPython(): Promise<string | undefined>;
 }
 
 /**

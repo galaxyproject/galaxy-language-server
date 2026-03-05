@@ -27,8 +27,7 @@ export async function activate(context: ExtensionContext) {
         // Production - Install (first time only), launch and connect to language server.
         logger.info("Extension activated in PRODUCTION mode");
         try {
-            const isSilentInstall = configFactory.getConfiguration().server().silentInstall();
-            const python = await installLanguageServer(context, isSilentInstall);
+            const python = await installLanguageServer(context);
             if (python === undefined) {
                 // The language server could not be installed
                 return;
