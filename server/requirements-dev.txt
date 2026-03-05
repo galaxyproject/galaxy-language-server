@@ -7,6 +7,6 @@ lxml-stubs==0.5.1
 mypy==1.19.1
 pytest-cov==6.2.1
 pytest-mock==3.14.1
-pytest==8.4.1
+pytest==8.4.2
 setuptools==80.9.0
 types-setuptools==80.9.0.20250529
