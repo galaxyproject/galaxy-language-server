@@ -3,10 +3,7 @@ from abc import (
     abstractmethod,
 )
 from typing import (
-    Dict,
-    List,
     Optional,
-    Tuple,
     cast,
 )
 
@@ -20,7 +17,7 @@ class XmlSyntaxNode(ABC, NodeMixin):
     """Abstract base class that represents a syntax node in the syntax tree."""
 
     def __init__(self) -> None:
-        self.name: Optional[str] = None
+        self.name: str | None = None
         self.start: int = UNDEFINED_OFFSET
         self.end: int = UNDEFINED_OFFSET
         self._closed: bool = False
@@ -51,7 +48,7 @@ class XmlSyntaxNode(ABC, NodeMixin):
         return NodeType.UNKNOWN
 
     @property
-    def stack(self) -> List[str]:
+    def stack(self) -> list[str]:
         """The list of names of the ancestor elements including the actual element."""
         stack = [element.name for element in self.ancestors if element.name and type(element) is XmlElement]
         if self.is_element and self.name:
@@ -66,15 +63,15 @@ class XmlSyntaxNode(ABC, NodeMixin):
         """Indicates if the offset is within an element's closing tag."""
         return False
 
-    def get_attribute_nodes(self) -> List["XmlAttribute"]:
+    def get_attribute_nodes(self) -> list["XmlAttribute"]:
         """Gets the lists of attributes of this node if it has any."""
         return []
 
-    def get_attribute_names(self) -> List[str]:
+    def get_attribute_names(self) -> list[str]:
         """Gets the list of attribute names of this node if it has any."""
         return []
 
-    def get_attribute_name(self) -> Optional[str]:
+    def get_attribute_name(self) -> str | None:
         """Gets the name of this attribute (if it is an attribute node)."""
         return None
 
@@ -113,7 +110,7 @@ class XmlSyntaxNode(ABC, NodeMixin):
             return parent.get_parent_element()
         return None
 
-    def get_offsets(self, _: int) -> Tuple[int, int]:
+    def get_offsets(self, _: int) -> tuple[int, int]:
         """Get the starting and ending offsets of this syntax node as a tuple.
 
         Args:
@@ -132,7 +129,7 @@ class XmlContainerNode(XmlSyntaxNode):
     """Represents a node that can have content."""
 
     @abstractmethod
-    def get_content_offsets(self) -> Tuple[int, int]:
+    def get_content_offsets(self) -> tuple[int, int]:
         return NotImplemented
 
     def get_content(self, source: str) -> str:
@@ -154,7 +151,7 @@ class XmlContent(XmlContainerNode):
         """The type of this node."""
         return NodeType.CONTENT
 
-    def get_content_offsets(self) -> Tuple[int, int]:
+    def get_content_offsets(self) -> tuple[int, int]:
         return self.start, self.end
 
     def is_at(self, offset: int) -> bool:
@@ -174,7 +171,7 @@ class XmlAttribute(XmlSyntaxNode):
         self.key = XmlAttributeKey(name, start, end, self)
         self.key.parent = self
         self.has_delimiter: bool = False
-        self.value: Optional[XmlAttributeValue] = None
+        self.value: XmlAttributeValue | None = None
         self.parent = owner
 
     def __repr__(self) -> str:
@@ -185,7 +182,7 @@ class XmlAttribute(XmlSyntaxNode):
         """The type of this node."""
         return NodeType.ATTRIBUTE
 
-    def set_value(self, value: Optional[str], start: int, end: int) -> None:
+    def set_value(self, value: str | None, start: int, end: int) -> None:
         """Sets the value of this attribute."""
         if self.value:
             self.value.update(value, start, end)
@@ -197,11 +194,11 @@ class XmlAttribute(XmlSyntaxNode):
         """Gets the value of this attribute (unquoted) or an empty str."""
         return self.value.unquoted if self.value else ""
 
-    def get_attribute_nodes(self) -> List["XmlAttribute"]:
+    def get_attribute_nodes(self) -> list["XmlAttribute"]:
         """Gets the lists of attributes of this node if it has any."""
-        return cast(List[XmlAttribute], self.children)
+        return cast(list[XmlAttribute], self.children)
 
-    def get_attribute_name(self) -> Optional[str]:
+    def get_attribute_name(self) -> str | None:
         """Gets the name of this attribute (if it is an attribute node)."""
         return self.name
 
@@ -221,11 +218,11 @@ class XmlAttributeKey(XmlSyntaxNode):
         """The type of this node."""
         return NodeType.ATTRIBUTE_KEY
 
-    def get_attribute_name(self) -> Optional[str]:
+    def get_attribute_name(self) -> str | None:
         """Gets the name of this attribute (if it is an attribute node)."""
         return self.name
 
-    def get_offsets(self, _: int) -> Tuple[int, int]:
+    def get_offsets(self, _: int) -> tuple[int, int]:
         """Get the starting and ending offsets of this syntax node as a tuple.
 
         Args:
@@ -240,7 +237,7 @@ class XmlAttributeKey(XmlSyntaxNode):
 class XmlAttributeValue(XmlContainerNode):
     """Represents the value of a XML attribute."""
 
-    def __init__(self, value: Optional[str], start: int, end: int, owner: XmlAttribute):
+    def __init__(self, value: str | None, start: int, end: int, owner: XmlAttribute):
         super().__init__()
         self.quoted = value
         self.start = start
@@ -248,7 +245,7 @@ class XmlAttributeValue(XmlContainerNode):
         self.owner = owner
         self.parent = owner
 
-    def update(self, value: Optional[str], start: int, end: int) -> None:
+    def update(self, value: str | None, start: int, end: int) -> None:
         self.quoted = value
         self.start = start
         self.end = end
@@ -263,15 +260,15 @@ class XmlAttributeValue(XmlContainerNode):
         """The value without quoting marks."""
         return self.quoted.strip("\"'") if self.quoted else ""
 
-    def get_attribute_name(self) -> Optional[str]:
+    def get_attribute_name(self) -> str | None:
         """Gets the name of this attribute (if it is an attribute node)."""
         return self.owner.name
 
-    def get_content_offsets(self) -> Tuple[int, int]:
+    def get_content_offsets(self) -> tuple[int, int]:
         """Gets the content offsets of this attribute value."""
         return self.start, self.end
 
-    def get_unquoted_content_offsets(self) -> Tuple[int, int]:
+    def get_unquoted_content_offsets(self) -> tuple[int, int]:
         """Gets the content offsets of this attribute value without the quoting marks."""
         return self.start + 1, self.end - 1
 
@@ -281,7 +278,7 @@ class XmlElement(XmlContainerNode):
 
     def __init__(self, start: int = UNDEFINED_OFFSET, end: int = UNDEFINED_OFFSET):
         super().__init__()
-        self.name: Optional[str] = None
+        self.name: str | None = None
         self.start = start
         self.end = end
         self.start_tag_open_offset: int = UNDEFINED_OFFSET
@@ -289,7 +286,7 @@ class XmlElement(XmlContainerNode):
         self.end_tag_open_offset: int = UNDEFINED_OFFSET
         self.end_tag_close_offset: int = UNDEFINED_OFFSET
         self.is_self_closed: bool = False
-        self.attributes: Dict[str, XmlAttribute] = {}
+        self.attributes: dict[str, XmlAttribute] = {}
 
     def __repr__(self) -> str:
         attribute_pairs = [f"{key}={value.get_value()}" for key, value in self.attributes.items()]
@@ -306,7 +303,7 @@ class XmlElement(XmlContainerNode):
         return len(self.attributes) > 0
 
     @property
-    def elements(self) -> List["XmlElement"]:
+    def elements(self) -> list["XmlElement"]:
         """The child elements of this element."""
         return [element for element in self.children if type(element) is XmlElement]
 
@@ -345,18 +342,18 @@ class XmlElement(XmlContainerNode):
         """Indicates if the offset is within an element's closing tag."""
         return self.end_tag_open_offset <= offset <= self.end_tag_close_offset
 
-    def get_attribute_nodes(self) -> List[XmlAttribute]:
+    def get_attribute_nodes(self) -> list[XmlAttribute]:
         """Gets the lists of attributes of this node if it has any."""
-        result: List[XmlAttribute] = []
+        result: list[XmlAttribute] = []
         for attr in self.attributes.values():
             result.extend(attr.get_attribute_nodes())
         return result
 
-    def get_attribute_names(self) -> List[str]:
+    def get_attribute_names(self) -> list[str]:
         """Gets the list of attribute names of this node if it has any."""
         return [*self.attributes]
 
-    def get_attribute_value(self, name: str) -> Optional[str]:
+    def get_attribute_value(self, name: str) -> str | None:
         """Gets the value of the attribute with the given name if it exists.
 
         Args:
@@ -370,7 +367,7 @@ class XmlElement(XmlContainerNode):
         except BaseException:
             return None
 
-    def get_offsets(self, offset: int) -> Tuple[int, int]:
+    def get_offsets(self, offset: int) -> tuple[int, int]:
         """Get the starting and ending offsets of this element's name as a tuple.
 
         Args:
@@ -390,7 +387,7 @@ class XmlElement(XmlContainerNode):
             return start, end
         return self.start, self.end
 
-    def get_attributes_offsets(self) -> Tuple[int, int]:
+    def get_attributes_offsets(self) -> tuple[int, int]:
         """Get the starting and ending offsets of all the attributes of this element.
 
         Returns:
@@ -411,18 +408,18 @@ class XmlElement(XmlContainerNode):
 
         return self.end, self.end
 
-    def get_content_offsets(self) -> Tuple[int, int]:
+    def get_content_offsets(self) -> tuple[int, int]:
         start = self.start_tag_close_offset + 1  # +1 for '>'
         end = self.end_tag_open_offset
         if self.is_self_closed:
             start = end = -1
         return start, end
 
-    def get_children_with_name(self, name: str) -> List["XmlElement"]:
+    def get_children_with_name(self, name: str) -> list["XmlElement"]:
         children = [child for child in self.children if child.name == name]
         return list(children)
 
-    def get_recursive_descendants_with_name(self, name: str) -> List["XmlElement"]:
+    def get_recursive_descendants_with_name(self, name: str) -> list["XmlElement"]:
         descendants = []
         for child in self.children:
             if child.name == name:
@@ -451,7 +448,7 @@ class XmlCDATASection(XmlContainerNode):
         """The type of this node."""
         return NodeType.CDATA_SECTION
 
-    def get_content_offsets(self) -> Tuple[int, int]:
+    def get_content_offsets(self) -> tuple[int, int]:
         return self.start_content, self.end_content
 
 

@@ -1,4 +1,3 @@
-from typing import Optional
 
 import pytest
 from lsprotocol.types import Position
@@ -24,7 +23,7 @@ from ..sample_data import (
 from ..utils import TestUtils
 
 
-def assert_element_has_attribute(element: Optional[XmlElement], key: str, value: str) -> None:
+def assert_element_has_attribute(element: XmlElement | None, key: str, value: str) -> None:
     assert element
     assert element.attributes[key].key.name == key
     attr_value = element.attributes[key].value
@@ -32,26 +31,26 @@ def assert_element_has_attribute(element: Optional[XmlElement], key: str, value:
     assert attr_value.unquoted == value
 
 
-def assert_element_has_offsets(element: Optional[XmlElement], start: int, end: int) -> None:
+def assert_element_has_offsets(element: XmlElement | None, start: int, end: int) -> None:
     assert element
     assert element.start == start
     assert element.end == end
 
 
-def assert_attribute_has_offsets(attribute: Optional[XmlAttribute], start: int, end: int) -> None:
+def assert_attribute_has_offsets(attribute: XmlAttribute | None, start: int, end: int) -> None:
     assert attribute
     assert attribute.start == start
     assert attribute.end == end
 
 
-def assert_attribute_has_key_offsets(attribute: Optional[XmlAttribute], start: int, end: int) -> None:
+def assert_attribute_has_key_offsets(attribute: XmlAttribute | None, start: int, end: int) -> None:
     assert attribute
     assert attribute.key
     assert attribute.key.start == start
     assert attribute.key.end == end
 
 
-def assert_attribute_has_value_offsets(attribute: Optional[XmlAttribute], start: int, end: int) -> None:
+def assert_attribute_has_value_offsets(attribute: XmlAttribute | None, start: int, end: int) -> None:
     assert attribute
     assert attribute.value
     assert attribute.value.start == start

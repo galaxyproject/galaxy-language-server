@@ -1,7 +1,4 @@
 from typing import (
-    List,
-    Optional,
-    Tuple,
     cast,
 )
 
@@ -155,10 +152,10 @@ class TestXmlContextServiceClass:
         self,
         fake_xsd_tree: XsdTree,
         source_with_mark: str,
-        expected_token_name: Optional[str],
+        expected_token_name: str | None,
         expected_node_type: NodeType,
         expected_xsd_node_name: XsdNode,
-        expected_stack: List[str],
+        expected_stack: list[str],
     ) -> None:
         service = XmlContextService(fake_xsd_tree)
         position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
@@ -192,8 +189,8 @@ class TestXmlContextServiceClass:
         self,
         fake_xsd_tree: XsdTree,
         source_with_mark: str,
-        expected_token_name: Optional[str],
-        expected_offsets: Tuple[int, int],
+        expected_token_name: str | None,
+        expected_offsets: tuple[int, int],
     ) -> None:
         service = XmlContextService(fake_xsd_tree)
         position, source = TestUtils.extract_mark_from_source("^", source_with_mark)
@@ -240,8 +237,8 @@ class TestXmlContextServiceClass:
         self,
         fake_xsd_tree: XsdTree,
         source_with_mark: str,
-        expected_token_name: Optional[str],
-        expected_offsets: Tuple[int, int],
+        expected_token_name: str | None,
+        expected_offsets: tuple[int, int],
     ) -> None:
         service = XmlContextService(fake_xsd_tree)
         position, source = TestUtils.extract_mark_from_source("^", source_with_mark)

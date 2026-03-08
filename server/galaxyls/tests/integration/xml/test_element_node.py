@@ -1,6 +1,4 @@
 from typing import (
-    List,
-    Tuple,
     cast,
 )
 
@@ -21,7 +19,7 @@ class TestXmlElementClass:
             ('<test attr="val"   attr2="value" >', (6, 32)),
         ],
     )
-    def test_get_attributes_offsets_returns_expected(self, source: str, expected_offsets: Tuple[int, int]) -> None:
+    def test_get_attributes_offsets_returns_expected(self, source: str, expected_offsets: tuple[int, int]) -> None:
         xml_document = TestUtils.from_source_to_xml_document(source)
         node = xml_document.get_node_at(1)
         assert node
@@ -38,7 +36,7 @@ class TestXmlElementClass:
             ('<test attr="val"   attr2="value" >', ['"val"', '"value"']),
         ],
     )
-    def test_get_attribute_content_returns_expected(self, source: str, expected_contents: List[str]) -> None:
+    def test_get_attribute_content_returns_expected(self, source: str, expected_contents: list[str]) -> None:
         xml_document = TestUtils.from_source_to_xml_document(source)
         node = xml_document.get_node_at(1)
         assert node

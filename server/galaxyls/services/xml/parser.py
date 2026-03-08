@@ -4,7 +4,7 @@ https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
 """
 
-from typing import Optional, cast
+from typing import cast
 
 from pygls.workspace import Document
 
@@ -38,8 +38,8 @@ class XmlDocumentParser:
         scanner = XmlScanner(text)
         xml_document = XmlDocument(document)
         current: XmlSyntaxNode = xml_document
-        attr: Optional[XmlAttribute] = None
-        pending_attribute: Optional[str] = None
+        attr: XmlAttribute | None = None
+        pending_attribute: str | None = None
         last_closed = current
         end_tag_open_offset = -1
         previous_token_was_end_tag_open = False

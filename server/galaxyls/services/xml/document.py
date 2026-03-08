@@ -1,8 +1,5 @@
 from typing import (
     Any,
-    Dict,
-    List,
-    Optional,
     cast,
 )
 
@@ -45,12 +42,12 @@ class XmlDocument(XmlSyntaxNode):
     def __init__(self, document: Document):
         super().__init__()
         self.document: Document = document
-        self.supported_document_types: Dict[str, DocumentType] = {
+        self.supported_document_types: dict[str, DocumentType] = {
             "tool": DocumentType.TOOL,
             "macros": DocumentType.MACROS,
         }
-        self._xml_tree: Optional[etree._ElementTree] = None
-        self._xml_tree_expanded: Optional[etree._ElementTree] = None
+        self._xml_tree: etree._ElementTree | None = None
+        self._xml_tree_expanded: etree._ElementTree | None = None
 
     @property
     def node_type(self) -> NodeType:
@@ -63,7 +60,7 @@ class XmlDocument(XmlSyntaxNode):
         return not self.root
 
     @property
-    def root(self) -> Optional[XmlElement]:
+    def root(self) -> XmlElement | None:
         """The root element of the document.
 
         Normally this would be tool, macros or any other supported
@@ -111,7 +108,7 @@ class XmlDocument(XmlSyntaxNode):
         return self.document_type == DocumentType.TOOL
 
     @property
-    def xml_tree(self) -> Optional[etree._ElementTree]:
+    def xml_tree(self) -> etree._ElementTree | None:
         """Internal XML tree structure."""
         if self._xml_tree is None:
             try:
@@ -126,7 +123,7 @@ class XmlDocument(XmlSyntaxNode):
         return self.xml_tree is None
 
     @property
-    def xml_tree_expanded(self) -> Optional[etree._ElementTree]:
+    def xml_tree_expanded(self) -> etree._ElementTree | None:
         """Internal XML tree structure after expanding macros.
 
         If there are no macro definitions, it returns the same as `xml_tree` property."""
@@ -144,11 +141,11 @@ class XmlDocument(XmlSyntaxNode):
                 self._xml_tree_expanded = self.xml_tree
         return self._xml_tree_expanded
 
-    def get_node_at(self, offset: int) -> Optional[XmlSyntaxNode]:
+    def get_node_at(self, offset: int) -> XmlSyntaxNode | None:
         """Gets the syntax node a the given offset."""
         return self.root.find_node_at(offset) if self.root else None
 
-    def get_content_range(self, element: XmlContainerNode) -> Optional[Range]:
+    def get_content_range(self, element: XmlContainerNode) -> Range | None:
         """Gets the Range positions for the given XML element's content in the document.
 
         Args:
@@ -162,7 +159,7 @@ class XmlDocument(XmlSyntaxNode):
             return None
         return convert_document_offsets_to_range(self.document, start_offset, end_offset)
 
-    def get_element_name_range(self, element: XmlElement) -> Optional[Range]:
+    def get_element_name_range(self, element: XmlElement) -> Range | None:
         """Gets the Range positions for the given XML element's name in the document.
 
         Args:
@@ -177,7 +174,7 @@ class XmlDocument(XmlSyntaxNode):
             return None
         return convert_document_offsets_to_range(self.document, start_offset, end_offset)
 
-    def get_full_range(self, node: XmlSyntaxNode) -> Optional[Range]:
+    def get_full_range(self, node: XmlSyntaxNode) -> Range | None:
         """Gets the Range positions for the given XML node in the document.
 
         Args:
@@ -254,7 +251,7 @@ class XmlDocument(XmlSyntaxNode):
             return convert_document_offset_to_position(self.document, element.end)
         return convert_document_offset_to_position(self.document, element.end_tag_open_offset)
 
-    def find_all_elements_with_name(self, name: str) -> List[XmlElement]:
+    def find_all_elements_with_name(self, name: str) -> list[XmlElement]:
         """Returns a list with all the elements contained in the document matching the given name."""
         if self.root:
             found = findall(self.root, filter_=lambda node: isinstance(node, XmlElement) and node.name == name)
@@ -283,7 +280,7 @@ class XmlDocument(XmlSyntaxNode):
             return self.get_element_name_range(self.root) or self.DEFAULT_RANGE
         return self.DEFAULT_RANGE
 
-    def get_tree_element_from_xpath(self, tree, xpath: Optional[str]) -> Optional[Any]:
+    def get_tree_element_from_xpath(self, tree, xpath: str | None) -> Any | None:
         if xpath is None or tree is None:
             return None
         element: Any = tree.xpath(xpath)
@@ -294,10 +291,10 @@ class XmlDocument(XmlSyntaxNode):
                     return element[0]
         return None
 
-    def get_element_from_xpath(self, xpath: Optional[str]) -> Optional[Any]:
+    def get_element_from_xpath(self, xpath: str | None) -> Any | None:
         return self.get_tree_element_from_xpath(self.xml_tree, xpath)
 
-    def get_internal_element_range_or_default(self, element: Optional[Any]) -> Range:
+    def get_internal_element_range_or_default(self, element: Any | None) -> Range:
         if element is not None:
             line_number = element.sourceline - 1
             line_text = self.document.lines[line_number]
@@ -315,6 +312,6 @@ class XmlDocument(XmlSyntaxNode):
             )
         return self.get_default_range()
 
-    def get_element_range_from_xpath_or_default(self, xpath: Optional[str]) -> Range:
+    def get_element_range_from_xpath_or_default(self, xpath: str | None) -> Range:
         element = self.get_element_from_xpath(xpath)
         return self.get_internal_element_range_or_default(element)

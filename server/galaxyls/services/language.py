@@ -1,7 +1,3 @@
-from typing import (
-    List,
-    Optional,
-)
 
 from lsprotocol.types import (
     CodeAction,
@@ -75,9 +71,9 @@ class GalaxyToolLanguageService:
         self.sort_service: ToolParamAttributeSorter = IUCToolParamAttributeSorter()
         self.test_discovery_service: TestsDiscoveryService = ToolTestsDiscoveryService()
         self.macro_expander = MacroExpanderService()
-        self.refactoring_service: Optional[RefactoringService] = None
+        self.refactoring_service: RefactoringService | None = None
         self.linter = GalaxyToolLinter()
-        self.definitions_provider: Optional[DocumentDefinitionsProvider] = None
+        self.definitions_provider: DocumentDefinitionsProvider | None = None
         self.link_provider = DocumentLinksProvider()
         self.symbols_provider = DocumentSymbolsProvider()
         self.param_references_provider = ParamReferencesProvider()
@@ -90,11 +86,11 @@ class GalaxyToolLanguageService:
             RefactorMacrosService(workspace, macro_definitions_provider, self.format_service)
         )
 
-    def get_diagnostics(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def get_diagnostics(self, xml_document: XmlDocument) -> list[Diagnostic]:
         """Validates the Galaxy tool XML document and returns a list of diagnostics if there are any problems."""
         return self.xsd_service.validate_document(xml_document) + self.linter.lint_document(xml_document)
 
-    def get_documentation(self, xml_document: XmlDocument, position: Position) -> Optional[Hover]:
+    def get_documentation(self, xml_document: XmlDocument, position: Position) -> Hover | None:
         """Gets the documentation about the element at the given position."""
         context = self.xml_context_service.get_xml_context(xml_document, position)
         if context.node:
@@ -113,20 +109,20 @@ class GalaxyToolLanguageService:
                     )
         return None
 
-    def format_document(self, content: str, params: DocumentFormattingParams) -> List[TextEdit]:
+    def format_document(self, content: str, params: DocumentFormattingParams) -> list[TextEdit]:
         """Given the document contents returns the list of TextEdits needed to properly format and layout the document."""
         return self.format_service.format(content, params)
 
     def get_completion(
         self, xml_document: XmlDocument, params: CompletionParams, mode: CompletionMode
-    ) -> Optional[CompletionList]:
+    ) -> CompletionList | None:
         """Gets completion items depending on the current document context."""
         if params.context is None:
             return None
         context = self.xml_context_service.get_xml_context(xml_document, params.position)
         return self.completion_service.get_completion_at_context(context, params.context, mode)
 
-    def get_auto_close_tag(self, xml_document: XmlDocument, position: Position) -> Optional[AutoCloseTagResult]:
+    def get_auto_close_tag(self, xml_document: XmlDocument, position: Position) -> AutoCloseTagResult | None:
         """Gets the closing result for the currently opened tag in context."""
         # The trigger character `/` or `>` is placed right before the actual position, so we get the position.character - 1
         trigger_character = xml_document.document.lines[position.line][position.character - 1]
@@ -135,28 +131,28 @@ class GalaxyToolLanguageService:
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
-    def generate_tests(self, document: Document) -> Optional[GeneratedSnippetResult]:
+    def generate_tests(self, document: Document) -> GeneratedSnippetResult | None:
         """Generates a code snippet with some tests for the current inputs and outputs
         of this tool wrapper."""
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
         return generator.generate_snippet()
 
-    def update_tests_profile(self, document: Document) -> Optional[WorkspaceEditResult]:
+    def update_tests_profile(self, document: Document) -> WorkspaceEditResult | None:
         """Generates a workspace edit to update the test cases if they are not
         compatible with the 24.2 profile validation."""
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestUpdater(tool)
         return generator.generate_workspace_edit()
 
-    def generate_command(self, document: Document) -> Optional[GeneratedSnippetResult]:
+    def generate_command(self, document: Document) -> GeneratedSnippetResult | None:
         """Generates a boilerplate Cheetah code snippet based on the current inputs and outputs
         of this tool wrapper."""
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolCommandSnippetGenerator(tool)
         return generator.generate_snippet()
 
-    def sort_single_param_attrs(self, xml_document: XmlDocument, position: Position) -> Optional[ReplaceTextRangeResult]:
+    def sort_single_param_attrs(self, xml_document: XmlDocument, position: Position) -> ReplaceTextRangeResult | None:
         """Sorts the attributes of the param element under the cursor."""
         offset = xml_document.document.offset_at_position(position)
         param_element = xml_document.find_element_at(offset)
@@ -164,18 +160,18 @@ class GalaxyToolLanguageService:
             return self.sort_service.sort_param_attributes(param_element, xml_document)
         return None
 
-    def sort_document_param_attributes(self, xml_document: XmlDocument) -> List[ReplaceTextRangeResult]:
+    def sort_document_param_attributes(self, xml_document: XmlDocument) -> list[ReplaceTextRangeResult]:
         """Sorts the attributes of all the param elements contained in the document."""
         return self.sort_service.sort_document_param_attributes(xml_document)
 
     def get_available_refactoring_actions(
         self, xml_document: XmlDocument, params: CodeActionParams
-    ) -> Optional[List[CodeAction]]:
+    ) -> list[CodeAction] | None:
         if self.refactoring_service is None:
             return None
         return self.refactoring_service.get_available_refactoring_actions(xml_document, params)
 
-    def go_to_definition(self, xml_document: XmlDocument, position: Position) -> Optional[List[Location]]:
+    def go_to_definition(self, xml_document: XmlDocument, position: Position) -> list[Location] | None:
         if self.definitions_provider:
             return self.definitions_provider.go_to_definition(xml_document, position)
         return None

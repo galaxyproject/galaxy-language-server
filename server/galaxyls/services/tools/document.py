@@ -1,8 +1,5 @@
 from pathlib import Path
 from typing import (
-    Dict,
-    List,
-    Optional,
     cast,
 )
 
@@ -40,7 +37,7 @@ class GalaxyToolXmlDocument:
     information from the document.
     """
 
-    def __init__(self, document: Document, xml_document: Optional[XmlDocument] = None) -> None:
+    def __init__(self, document: Document, xml_document: XmlDocument | None = None) -> None:
         self.xml_document = xml_document or XmlDocumentParser().parse(document)
         self.document = document
 
@@ -65,11 +62,11 @@ class GalaxyToolXmlDocument:
         return self.xml_document.document.source
 
     @property
-    def path(self) -> Optional[str]:
+    def path(self) -> str | None:
         """The file path of the tool."""
-        return cast(Optional[str], self.xml_document.document.path)
+        return cast(str | None, self.xml_document.document.path)
 
-    def find_element(self, name: str, maxlevel: int = 3) -> Optional[XmlElement]:
+    def find_element(self, name: str, maxlevel: int = 3) -> XmlElement | None:
         """Finds the element with the given name in the document.
 
         Args:
@@ -83,7 +80,7 @@ class GalaxyToolXmlDocument:
         node = find(self.xml_document, filter_=lambda node: node.name == name, maxlevel=maxlevel)
         return cast(XmlElement, node)
 
-    def get_content_range(self, element: Optional[XmlContainerNode]) -> Optional[Range]:
+    def get_content_range(self, element: XmlContainerNode | None) -> Range | None:
         """Returns the Range of the content block of the given element.
 
         Args:
@@ -149,7 +146,7 @@ class GalaxyToolXmlDocument:
         inputs = self.find_element(INPUTS)
         return GalaxyToolInputTree(inputs)
 
-    def get_inputs(self) -> List[XmlElement]:
+    def get_inputs(self) -> list[XmlElement]:
         """Gets the inputs of this document as a list of elements.
 
         Returns:
@@ -160,7 +157,7 @@ class GalaxyToolXmlDocument:
             return inputs.elements
         return []
 
-    def get_outputs(self) -> List[XmlElement]:
+    def get_outputs(self) -> list[XmlElement]:
         """Gets the outputs of this document as a list of elements.
 
         Returns:
@@ -171,7 +168,7 @@ class GalaxyToolXmlDocument:
             return outputs.elements
         return []
 
-    def get_input_params(self) -> List[XmlElement]:
+    def get_input_params(self) -> list[XmlElement]:
         """Gets the input params of this document as a list of elements.
 
         Returns:
@@ -182,19 +179,19 @@ class GalaxyToolXmlDocument:
             return inputs.get_recursive_descendants_with_name("param")
         return []
 
-    def get_tool_element(self) -> Optional[XmlElement]:
+    def get_tool_element(self) -> XmlElement | None:
         """Gets the root tool element"""
         return self.find_element(TOOL)
 
-    def get_macros_element(self) -> Optional[XmlElement]:
+    def get_macros_element(self) -> XmlElement | None:
         """Gets the macros element"""
         return self.find_element(MACROS)
 
-    def get_macro_import_elements(self) -> Optional[List[XmlElement]]:
+    def get_macro_import_elements(self) -> list[XmlElement] | None:
         """Gets the list of elements with macro file import declarations."""
         return self.xml_document.find_all_elements_with_name(IMPORT)
 
-    def get_macro_import_uris(self) -> Dict[str, str]:
+    def get_macro_import_uris(self) -> dict[str, str]:
         """Returns a dictionary with the file name and corresponding file uri of each
         imported macro file."""
         result = {}
@@ -210,7 +207,7 @@ class GalaxyToolXmlDocument:
                         result[filename] = file_uri
         return result
 
-    def get_macros_range(self) -> Optional[Range]:
+    def get_macros_range(self) -> Range | None:
         """Returns the Range position of the macros element name if it exists."""
         element = self.get_macros_element()
         if element:
@@ -218,7 +215,7 @@ class GalaxyToolXmlDocument:
             return range
         return None
 
-    def get_import_macro_file_range(self, file_path: Optional[str]) -> Optional[Range]:
+    def get_import_macro_file_range(self, file_path: str | None) -> Range | None:
         """Returns the Range position of the imported macro file element if it exists."""
         if file_path:
             filename = Path(file_path).name
@@ -246,12 +243,12 @@ class GalaxyToolXmlDocument:
                 return self
         return self
 
-    def get_tool_id(self) -> Optional[str]:
+    def get_tool_id(self) -> str | None:
         """Gets the identifier of the tool"""
         tool_element = self.get_tool_element()
         return tool_element.get_attribute_value("id") if tool_element else None
 
-    def get_tests(self) -> List[XmlElement]:
+    def get_tests(self) -> list[XmlElement]:
         """Gets the tests of this document as a list of elements.
 
         Returns:
@@ -262,7 +259,7 @@ class GalaxyToolXmlDocument:
             return tests.elements
         return []
 
-    def get_tests_range(self) -> Optional[Range]:
+    def get_tests_range(self) -> Range | None:
         """Returns the Range position of the tests element name if it exists."""
         element = self.find_element(TESTS)
         if element:

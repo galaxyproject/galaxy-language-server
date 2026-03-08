@@ -2,8 +2,6 @@
 
 from typing import (
     Any,
-    List,
-    Optional,
 )
 
 import attrs
@@ -12,7 +10,7 @@ from lsprotocol.types import (
     Range,
 )
 
-CommandParameters = List[Any]
+CommandParameters = list[Any]
 
 
 class AutoCloseTagResult:
@@ -20,7 +18,7 @@ class AutoCloseTagResult:
     will be returned to the client when a tag auto-close is requested.
     """
 
-    def __init__(self, snippet: str, replace_range: Optional[Range] = None):
+    def __init__(self, snippet: str, replace_range: Range | None = None):
         self.snippet = snippet
         self.range = replace_range
 
@@ -37,8 +35,8 @@ class GeneratedSnippetResult:
         self,
         snippet: str,
         insert_position: Position,
-        replace_range: Optional[Range] = None,
-        error_message: Optional[str] = None,
+        replace_range: Range | None = None,
+        error_message: str | None = None,
     ):
         self.snippet = snippet
         self.position = insert_position
@@ -64,7 +62,7 @@ class ReplaceTextRangeResult:
 class WorkspaceEditResult:
     """Contains the workspace edit result for a requested operation."""
 
-    def __init__(self, edits: List[ReplaceTextRangeResult], error_message: Optional[str] = None) -> None:
+    def __init__(self, edits: list[ReplaceTextRangeResult], error_message: str | None = None) -> None:
         self.edits = edits
         self.error_message = error_message
 
@@ -89,7 +87,7 @@ class TestInfoResult:
 class TestSuiteInfoResult:
     """Contains information about all the tests for a tool wrapper."""
 
-    def __init__(self, tool_id: str, uri: str, range: Range, children: Optional[List[TestInfoResult]] = None) -> None:
+    def __init__(self, tool_id: str, uri: str, range: Range, children: list[TestInfoResult] | None = None) -> None:
         self.id = tool_id
         self.label = f"{tool_id} tests"
         self.uri = uri
@@ -101,8 +99,8 @@ class TestSuiteInfoResult:
 class GeneratedExpandedDocument:
     """Represents a tool document with all the macros expanded."""
 
-    content: Optional[str] = attrs.field(default=None)
-    error_message: Optional[str] = attrs.field(default=None, alias="errorMessage")
+    content: str | None = attrs.field(default=None)
+    error_message: str | None = attrs.field(default=None, alias="errorMessage")
 
 
 class ParamReferencesResult:
@@ -110,6 +108,6 @@ class ParamReferencesResult:
 
     def __init__(
         self,
-        references: List[str],
+        references: list[str],
     ) -> None:
         self.references = references

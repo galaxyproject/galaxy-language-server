@@ -1,8 +1,6 @@
 """Module in charge of the auto-completion feature."""
 
 from typing import (
-    List,
-    Optional,
     cast,
 )
 
@@ -44,7 +42,7 @@ class XmlCompletionService:
 
     def get_completion_at_context(
         self, context: XmlContext, completion_context: CompletionContext, mode: CompletionMode = CompletionMode.AUTO
-    ) -> Optional[CompletionList]:
+    ) -> CompletionList | None:
         if isinstance(context.node, XmlCDATASection):
             return None
         triggerKind = completion_context.trigger_kind
@@ -98,7 +96,7 @@ class XmlCompletionService:
             CompletionList: The completion item with the basic information
             about the attributes.
         """
-        result: List[CompletionItem] = []
+        result: list[CompletionItem] = []
         if (
             context.is_empty
             or context.is_content
@@ -157,7 +155,7 @@ class XmlCompletionService:
                 return CompletionList(items=result, is_incomplete=False)
         return CompletionList(items=[], is_incomplete=False)
 
-    def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> Optional[AutoCloseTagResult]:
+    def get_auto_close_tag(self, context: XmlContext, trigger_character: str) -> AutoCloseTagResult | None:
         """Gets the closing result for the currently opened tag in context.
 
         The `context` parameter should be placed right before the trigger_character, otherwise the context

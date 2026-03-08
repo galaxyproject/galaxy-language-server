@@ -1,6 +1,4 @@
 from typing import (
-    Dict,
-    Optional,
     cast,
 )
 
@@ -20,7 +18,7 @@ TEST_DOCUMENTS = [
 ]
 
 
-def get_document_by_name(name: str) -> Optional[Document]:
+def get_document_by_name(name: str) -> Document | None:
     if name in TEST_DOCUMENTS:
         return TestUtils.get_test_document_from_file(name)
     return None
@@ -28,7 +26,7 @@ def get_document_by_name(name: str) -> Optional[Document]:
 
 @pytest.fixture()
 def fake_workspace(mocker: MockerFixture) -> Workspace:
-    workspace_documents: Dict[str, Document] = {}
+    workspace_documents: dict[str, Document] = {}
     for doc_name in TEST_DOCUMENTS:
         doc = get_document_by_name(doc_name)
         if doc:

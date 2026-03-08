@@ -1,7 +1,3 @@
-from typing import (
-    List,
-    Optional,
-)
 
 from lsprotocol.types import (
     Location,
@@ -22,7 +18,7 @@ class DocumentDefinitionsProvider:
     def __init__(self, macro_definitions_provider: MacroDefinitionsProvider) -> None:
         self.macro_definitions_provider = macro_definitions_provider
 
-    def go_to_definition(self, xml_document: XmlDocument, position: Position) -> Optional[List[Location]]:
+    def go_to_definition(self, xml_document: XmlDocument, position: Position) -> list[Location] | None:
         macro_definitions = self.macro_definitions_provider.load_macro_definitions(xml_document)
         word = xml_document.document.word_at_position(position)
         token_definition = macro_definitions.get_token_definition(word)
@@ -42,6 +38,6 @@ class DocumentDefinitionsProvider:
             return macro_definitions.go_to_import_definition(import_filename)
         return None
 
-    def get_token_definition(self, xml_document: XmlDocument, token: str) -> Optional[TokenDefinition]:
+    def get_token_definition(self, xml_document: XmlDocument, token: str) -> TokenDefinition | None:
         macro_definitions = self.macro_definitions_provider.load_macro_definitions(xml_document)
         return macro_definitions.get_token_definition(token)

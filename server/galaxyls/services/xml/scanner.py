@@ -4,7 +4,6 @@ https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
 """
 
-from typing import Optional
 
 from .constants import (
     _EQS,
@@ -36,7 +35,7 @@ class XmlScanner:
         self.state = initial_state
         self.token_offset = 0
         self.token_type = TokenType.Unknown
-        self.token_error: Optional[str] = None
+        self.token_error: str | None = None
 
     def scan(self) -> TokenType:
         """Scans the document to sequentially find the next token."""
@@ -63,7 +62,7 @@ class XmlScanner:
         """Gets the text of this token from the given offset to the current position."""
         return self.stream.get_source()[offset : self.stream.pos()]
 
-    def _finish_token(self, offset: int, type: TokenType, error_message: Optional[str] = None) -> TokenType:
+    def _finish_token(self, offset: int, type: TokenType, error_message: str | None = None) -> TokenType:
         self.token_type = type
         self.token_offset = offset
         self.token_error = error_message

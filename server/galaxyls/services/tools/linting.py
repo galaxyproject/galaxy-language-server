@@ -1,5 +1,4 @@
 from typing import (
-    List,
     cast,
 )
 
@@ -22,9 +21,9 @@ from galaxyls.services.xml.document import XmlDocument
 class GalaxyToolLinter(ToolLinter):
     diagnostics_source = "Galaxy Tool Linter"
 
-    def lint_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def lint_document(self, xml_document: XmlDocument) -> list[Diagnostic]:
         """Lint the given document using the Galaxy linter modules and return a list of Diagnostics."""
-        result: List[Diagnostic] = []
+        result: list[Diagnostic] = []
         xml_tree = xml_document.xml_tree_expanded
         if not xml_document.is_tool_file or xml_tree is None:
             return result

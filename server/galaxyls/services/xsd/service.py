@@ -2,10 +2,6 @@
 information from the XSD schema.
 """
 
-from typing import (
-    List,
-    Optional,
-)
 
 from lsprotocol.types import (
     Diagnostic,
@@ -41,7 +37,7 @@ class GalaxyToolXsdService:
         self.xsd_parser = GalaxyToolXsdParser(self.xsd_doc.getroot())
         self.validator = GalaxyToolSchemaValidationService(self.xsd_schema)
 
-    def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def validate_document(self, xml_document: XmlDocument) -> list[Diagnostic]:
         """Validates the Galaxy tool xml using the XSD schema and returns a list
         of diagnostics if there are any problems.
         """
@@ -52,7 +48,7 @@ class GalaxyToolXsdService:
         given element name (node or attribute).
         """
         if context.xsd_element:
-            element: Optional[XsdBase]
+            element: XsdBase | None
             if context.is_tag:
                 element = context.xsd_element
             elif context.is_attribute_key and context.node and context.node.name:

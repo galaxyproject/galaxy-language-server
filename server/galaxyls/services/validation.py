@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 from pygls.workspace import Document
 
@@ -40,7 +39,7 @@ class DocumentValidator:
         return not document.source or document.source.isspace()
 
     @classmethod
-    def get_document_root_tag(cls, document: Document) -> Optional[str]:
+    def get_document_root_tag(cls, document: Document) -> str | None:
         """Checks the first MAX_PEEK_CONTENT characters of the document for a root tag and
         returns the name of the tag if found."""
         content_peek = document.source[:MAX_PEEK_CONTENT]

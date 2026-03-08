@@ -1,4 +1,3 @@
-from typing import List
 
 import pytest
 from lxml import etree
@@ -87,7 +86,7 @@ class TestXsdParserClass:
         ],
     )
     def test_tree_find_node_by_stack_returns_expected_node(
-        self, xsd_parser: GalaxyToolXsdParser, stack: List[str], expected: str
+        self, xsd_parser: GalaxyToolXsdParser, stack: list[str], expected: str
     ) -> None:
         tree = xsd_parser.get_tree()
 
@@ -105,7 +104,7 @@ class TestXsdParserClass:
         ],
     )
     def test_tree_find_node_by_stack_ending_with_expand_returns_expand_node(
-        self, xsd_parser: GalaxyToolXsdParser, stack: List[str], expected: str
+        self, xsd_parser: GalaxyToolXsdParser, stack: list[str], expected: str
     ) -> None:
         tree = xsd_parser.get_tree()
 

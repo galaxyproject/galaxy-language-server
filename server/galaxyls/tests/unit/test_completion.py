@@ -1,5 +1,4 @@
 from typing import (
-    Optional,
     cast,
 )
 
@@ -278,7 +277,7 @@ class TestXmlCompletionServiceClass:
         fake_tree: XsdTree,
         line_with_mark: str,
         trigger: str,
-        expected_range: Optional[Range],
+        expected_range: Range | None,
         fake_definitions_provider: DocumentDefinitionsProvider,
     ) -> None:
         service = XmlCompletionService(fake_tree, fake_definitions_provider)
