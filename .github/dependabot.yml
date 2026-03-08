@@ -8,3 +8,16 @@ updates:
       time: "08:00"
     labels:
       - dependencies
+    groups:
+      server-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      actions-deps:
+        patterns:
+          - "*"
