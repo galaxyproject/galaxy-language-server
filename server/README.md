@@ -21,7 +21,7 @@ Check the [Getting Started](https://github.com/galaxyproject/galaxy-language-ser
 
 Usually, the [client](https://github.com/galaxyproject/galaxy-language-server/tree/main/client) will be in charge of running the server when it is needed, but, in case you want to run it manually for some reason, you can use the following commands:
 
-In any case, it is recommended to create a Python virtual environment first (assuming you are using `Python3.8+`):
+In any case, it is recommended to create a Python virtual environment first (assuming you are using `Python3.10+`):
 
 ```sh
 # Create a virtual environment and activate it

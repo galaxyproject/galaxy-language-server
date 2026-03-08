@@ -5,22 +5,25 @@ First off, **thank you** for considering contributing to this project! We really
 Following these guidelines indicates that you respect the time of the maintainers of this open-source project. In return, they will be happy to help you address your issues and pull requests.
 
 ## Code of Conduct
+
 This project, and everyone participating in it, are governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behaviour to [beatrizserrano.galaxy@gmail.com](mailto:beatrizserrano.galaxy@gmail.com).
 
 ## How can I contribute?
+
 Here are some ideas of how to contribute to this project:
 
 ### Reporting Bugs
+
 You can report bugs by creating a new [issue](https://github.com/davelopez/galaxy-language-server/issues). Please, before opening a new issue, make sure there is no duplicate by looking for the [bug](https://github.com/davelopez/galaxy-language-server/issues?q=is%3Aissue+is%3Aopen+label%3Abug) tag first.
 
 When creating the issue, explain the problem and include additional details to help maintainers reproduce the problem:
 
-* **Use a clear and descriptive title** for the issue to identify the problem.
-* **Describe the exact steps that reproduce the problem** in as many details as possible. When listing steps, **don't just say what you have done but explain how you did it**.
-* **Describe the behavior you observed after following the steps** and point out what exactly is the problem with that behavior.
-* **Explain which behavior you expected to see instead and why.**
-* **Include screenshots and animated GIFs** which show you following the described steps and clearly demonstrate the problem. You can use, for example, [this tool](https://www.cockos.com/licecap/) to record GIFs on macOS and Windows.
-* **Include details about your environment**, the version of the extension, your Operating System, configuration files, and all the relevant information that you can provide.
+- **Use a clear and descriptive title** for the issue to identify the problem.
+- **Describe the exact steps that reproduce the problem** in as many details as possible. When listing steps, **don't just say what you have done but explain how you did it**.
+- **Describe the behavior you observed after following the steps** and point out what exactly is the problem with that behavior.
+- **Explain which behavior you expected to see instead and why.**
+- **Include screenshots and animated GIFs** which show you following the described steps and clearly demonstrate the problem. You can use, for example, [this tool](https://www.cockos.com/licecap/) to record GIFs on macOS and Windows.
+- **Include details about your environment**, the version of the extension, your Operating System, configuration files, and all the relevant information that you can provide.
 
 In general, when filing an issue, make sure to answer these five questions:
 
@@ -32,16 +35,19 @@ In general, when filing an issue, make sure to answer these five questions:
 6. What did you see instead?
 
 ### Suggesting Features or Enhancements
+
 If you have an idea to add new features that can improve the utility and provide better experiences for the Galaxy tool development process, we are happy to hear it!
 
 Just create a new [issue](https://github.com/davelopez/galaxy-language-server/issues), but always making sure there is no duplicate by looking for the [enhancement](https://github.com/davelopez/galaxy-language-server/issues?q=label%3Aenhancement+) tag first. Then, provide the following information:
-* **Use a clear and descriptive title** for the issue to identify the suggestion.
-* **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
-* **Describe the current behavior** and **explain which behavior you expected to see instead** and why.
-* **Explain why this enhancement would be useful** to most Galaxy tool developers.
-* **List some other entensions or Language Servers where this enhancement exists.**
+
+- **Use a clear and descriptive title** for the issue to identify the suggestion.
+- **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
+- **Describe the current behavior** and **explain which behavior you expected to see instead** and why.
+- **Explain why this enhancement would be useful** to most Galaxy tool developers.
+- **List some other entensions or Language Servers where this enhancement exists.**
 
 ### Fixing Bugs
+
 If you want to help improving the quality of the [extension](../client) or the [Language Server](../server), look for the [bug](https://github.com/davelopez/galaxy-language-server/issues?q=is%3Aissue+is%3Aopen+label%3Abug) tag in the project's issues and pick one to fix :)
 
 Just make sure you create a **new failing test case that your patch solves** and include it in your pull request.
@@ -49,6 +55,7 @@ Just make sure you create a **new failing test case that your patch solves** and
 See the [Getting started](#getting-started) section for a detailed guide on how to create a pull request.
 
 ### Implementing features
+
 Implementing new features can be challenging but also really fun! Usually, we try to focus first on fixing any open bugs before trying to implement new things, but if you want to help with a new feature, make sure to have a look at the projects panel and the milestones to have an idea on which feature better fits the project roadmap.
 
 When issuing a pull request with a new feature make sure you:
@@ -60,37 +67,42 @@ When issuing a pull request with a new feature make sure you:
 See the [Getting started](#getting-started) section for a detailed guide on how to create a pull request.
 
 ### Adding or improving documentation
+
 We try to keep good quality and up to date documentation to help everyone understand what is the intention of a particular method or class, or how a particular feature works, but this is not always easy, so, any help with it is much appreciated!
 
 Even spelling/grammar, typo corrections, are much appreciated!
 
 ### Adding Snippets
+
 If you want to contribute new snippets to accelerate your tool development or quickly write repetitive and common blocks, this is the place!
 
-Adding a new snippet is really easy, you just need to edit the [snippets.json](../client/src/snippets.json) file and write a ``new entry with the name of your snippet`` and the following data:
-- ``prefix``: defines one or more trigger words that display the snippet in IntelliSense. To differentiate Galaxy tool snippets, they should start with ``gx-`` and then some word that identifies your snippet.
-- ``body``: here you define a list with the lines composing your snippet. These lines can use special constructs to control cursors and the text being inserted. See this [guide](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax) for more information.
-- ``description``: here you can write a description for you snippet that will be shown in IntelliSense.
+Adding a new snippet is really easy, you just need to edit the [snippets.json](../client/src/snippets.json) file and write a `new entry with the name of your snippet` and the following data:
+
+- `prefix`: defines one or more trigger words that display the snippet in IntelliSense. To differentiate Galaxy tool snippets, they should start with `gx-` and then some word that identifies your snippet.
+- `body`: here you define a list with the lines composing your snippet. These lines can use special constructs to control cursors and the text being inserted. See this [guide](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax) for more information.
+- `description`: here you can write a description for you snippet that will be shown in IntelliSense.
 
 After testing your snippet in your local environment, just make a pull request and share it!
 
 ### Customizing grammars
+
 You can help improve the syntax highlighting of the different languages that are used in a Galaxy tool wrapper (currently `XML`, `Cheetah` and `reStructuredText`). This can be done by extending or fixing the [TextMate grammars](https://macromates.com/manual/en/language_grammars) found [here](../client/src/syntaxes). You can learn more about how these grammars are used in the [VSCode documentation](https://code.visualstudio.com/api/language-extensions/syntax-highlight-guide).
 
 # Your First Contribution
+
 If this is your first time... congratulations! :tada: You will learn lots of things! For example, you can find a great number of resources [here](https://github.com/freeCodeCamp/how-to-contribute-to-open-source).
 
 After you have some basic knowledge about how to contribute to open source projects we recommend to search for issues with the [good first issue](https://github.com/davelopez/galaxy-language-server/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) tag, if there is none, maybe you can come up with some small improvement idea by examining the source code.
 
 At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:
 
-
 # Getting started
+
 Finally some action!
 
 We recommend to use VSCode or the open source alternative [VSCodium](https://vscodium.com/) for local development.
 
-To install the dependencies we also recommend using [miniconda](https://docs.conda.io/en/latest/miniconda.html) with ``Python 3.9``.
+To install the dependencies we recommend using [uv](https://docs.astral.sh/uv/) with `Python 3.10+`.
 
 If you are using `Windows` we recommend installing and using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10#install-your-linux-distribution-of-choice) for a better Linux-like shell command experience.
 
@@ -98,74 +110,85 @@ If you are using `Windows` we recommend installing and using [WSL](https://docs.
 
 1. Fork this repo on Github
 2. Clone your fork locally:
-    ````sh
-    git clone https://github.com/<your_github_name>/galaxy-tools-extension.git
-    ````
-3. Create a virtual environment using conda and install the dependencies:
+   ```sh
+   git clone https://github.com/<your_github_name>/galaxy-tools-extension.git
+   ```
+3. Create a virtual environment using uv and install the dependencies:
 
-    ```sh
-    conda create -n <environment-name> python=3.9 nodejs=20 typescript
-    conda activate <environment-name>
+   ```sh
+   # Create and activate a Python virtual environment
+   uv venv --python 3.10
 
-    # For the language server:
-    # Make sure you are in the server directory:
-    cd galaxy-language-server/server/
+   # Activate the virtual environment:
+   # On Linux/macOS:
+   source .venv/bin/activate
+   # On Windows:
+   # .venv\Scripts\activate
 
-    # And install:
-    pip install -r requirements-dev.txt
+   # For the language server:
+   # Make sure you are in the server directory:
+   cd galaxy-language-server/server/
+
+   # And install Python dependencies:
+   uv pip install -r requirements-dev.txt
 
 
-    # For the client extension:
-    # Make sure you are in the client directory:
-    cd ../client/
+   # For the client extension:
+   # Make sure you are in the client directory:
+   cd ../client/
 
-    # And install:
-    npm install
-    ```
+   # And install Node.js dependencies:
+   # (Note: You need Node.js 20 installed separately, e.g., via nvm)
+   npm install
+   ```
+
 4. Run the tests locally
-    ```sh
-    # For the language server:
-    # Go back to the repo root:
-    cd ..
-    # And run the tests:
-    pytest
-    # Additionally you can check the coverage:
-    pytest --cov=server
-    ```
+
+   ```sh
+   # For the language server:
+   # Go back to the repo root:
+   cd ..
+   # And run the tests:
+   pytest
+   # Additionally you can check the coverage:
+   pytest --cov=server
+   ```
 
 5. Create a branch for local development:
 
-    ```sh
-    git checkout -b name-of-your-bugfix-or-feature
-    ```
-    Now you can make your changes locally.
-    
-    Remember to check the [Style Guide](#style-guide) to maintain an uniform code style.
+   ```sh
+   git checkout -b name-of-your-bugfix-or-feature
+   ```
 
-6. When you're done making changes, check that your changes pass ``style linter`` and the ``tests``.
-    ```sh
-    ruff check
-    pytest
-    ```
+   Now you can make your changes locally.
+
+   Remember to check the [Style Guide](#style-guide) to maintain an uniform code style.
+
+6. When you're done making changes, check that your changes pass `style linter` and the `tests`.
+
+   ```sh
+   ruff check
+   pytest
+   ```
 
 7. Commit your changes and push your branch to GitHub:
-    ```sh
-    git add .
-    git commit -m "Your detailed description of your changes."
-    git push origin name-of-your-bugfix-or-feature
-    ```
+
+   ```sh
+   git add .
+   git commit -m "Your detailed description of your changes."
+   git push origin name-of-your-bugfix-or-feature
+   ```
 
 8. Submit a pull request through the GitHub website.
 
 ### Setup Visual Studio Code for debugging
+
 If you want to debug the [extension](../client) and the [Language Server](../server) at the same time follow these steps:
-1. Select or activate your ``<environment-name>`` in Visual Studio Code as explained [here](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment). If you have not already done so, you might need to first install [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+
+1. Select or activate your `.venv` in Visual Studio Code as explained [here](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment). If you have not already done so, you might need to first install [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 2. Open the `galaxy-language-server` directory in Visual Studio Code.
 3. Open debug view (`ctrl + shift + D`).
-4. Select `Server + Client` and click ``RUN`` (or press `F5`).
-
-**NOTE:** If you are using a conda environment, and are getting errors such as `npm: command not found`, you can go around by manually activating the env from the terminal, i.e. `conda activate <environment-name>`.
-
+4. Select `Server + Client` and click `RUN` (or press `F5`).
 
 ## Pull Request Guidelines
 
@@ -176,14 +199,14 @@ Before you submit a pull request, check that it meets the following guidelines:
 3. Check **all the tests are passing**.
 4. The [Style Guide](#style-guide) is respected.
 
-
 # Code review process
+
 The maintainers will check regularly if there are any open pull requests and review them, but remember this is an open-source project and they do it on their spare time for fun.
 
 Just have a little patience, if everything is in order your pull request will be merged or you will get some feedback! :smile_cat:
 
-
 # Style Guide
-Currently the style guide is only defined for the [Language Server](../server) which is written in ``Python``.
+
+Currently the style guide is only defined for the [Language Server](../server) which is written in `Python`.
 
 Basically you can rely on [ruff](https://docs.astral.sh/ruff/) to manage all the styling for you. If you installed the [development requirements](../requirements-dev.txt) you already have them installed :)
