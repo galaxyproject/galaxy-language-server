@@ -8,3 +8,7 @@ updates:
       time: "08:00"
     labels:
       - dependencies
+    groups:
+      server-dependencies:
+        patterns:
+          - "*"
