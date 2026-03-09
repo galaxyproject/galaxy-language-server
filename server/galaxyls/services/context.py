@@ -1,8 +1,6 @@
 """This module provides a service to determine position context inside an XML document."""
 
 from typing import (
-    List,
-    Optional,
     cast,
 )
 
@@ -36,10 +34,10 @@ class XmlContext:
     def __init__(
         self,
         xml_document: XmlDocument,
-        xsd_node: Optional[XsdNode],
-        node: Optional[XmlSyntaxNode] = None,
+        xsd_node: XsdNode | None,
+        node: XmlSyntaxNode | None = None,
         line_text: str = "",
-        position: Optional[Position] = None,
+        position: Position | None = None,
         offset: int = UNDEFINED_OFFSET,
     ):
         self.xml_document = xml_document
@@ -50,12 +48,12 @@ class XmlContext:
         self._offset = offset
 
     @property
-    def node(self) -> Optional[XmlSyntaxNode]:
+    def node(self) -> XmlSyntaxNode | None:
         """The syntax node at the context position."""
         return self._node
 
     @property
-    def position(self) -> Optional[Position]:
+    def position(self) -> Position | None:
         """The context position (line and character) inside de Document."""
         return self._position
 
@@ -70,7 +68,7 @@ class XmlContext:
         return self._line_text
 
     @property
-    def characted_at_position(self) -> Optional[str]:
+    def characted_at_position(self) -> str | None:
         """The character at the context position."""
         try:
             if self._position:
@@ -80,7 +78,7 @@ class XmlContext:
         return None
 
     @property
-    def xsd_element(self) -> Optional[XsdNode]:
+    def xsd_element(self) -> XsdNode | None:
         """The XSD element associated with the token in context."""
         return self._xsd_node
 
@@ -137,7 +135,7 @@ class XmlContext:
         return self.is_attribute_value and self._node is not None and self._offset == self._node.end - 1
 
     @property
-    def attribute_name(self) -> Optional[str]:
+    def attribute_name(self) -> str | None:
         """The name of the attribute if the context is an attribute or None."""
         return self._node and self._node.get_attribute_name()
 
@@ -157,7 +155,7 @@ class XmlContext:
         return self._node is not None and self._node.end == self._offset
 
     @property
-    def stack(self) -> List[str]:
+    def stack(self) -> list[str]:
         """The list of XML tag names from the root to the token in context."""
         if not self._node:
             return []
@@ -220,7 +218,7 @@ class XmlContextService:
         context = XmlContext(xml_document, xsd_node, node, line_text, position, offset)
         return context
 
-    def find_matching_xsd_element(self, node: Optional[XmlSyntaxNode], xsd_tree: XsdTree) -> Optional[XsdNode]:
+    def find_matching_xsd_element(self, node: XmlSyntaxNode | None, xsd_tree: XsdTree) -> XsdNode | None:
         """Finds the xsd element in the XSD tree that matches the xml element associated with the given syntax node.
         If there is no matching node, the root (tool) xsd node is always returned.
 
@@ -241,7 +239,7 @@ class XmlContextService:
             return xsd_node
         return None
 
-    def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Optional[Range]:
+    def get_range_for_context(self, xml_document: XmlDocument, context: XmlContext) -> Range | None:
         if context.node is None:
             return None
         start_offset, end_offset = context.node.get_offsets(context.offset)

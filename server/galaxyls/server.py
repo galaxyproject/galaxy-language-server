@@ -1,6 +1,5 @@
 """Galaxy Tools Language Server implementation"""
 
-from typing import List, Optional
 
 from lsprotocol.types import (
     INITIALIZED,
@@ -111,7 +110,7 @@ async def did_change_configuration(server: GalaxyToolsLanguageServer, params: Di
 
 
 @language_server.feature(TEXT_DOCUMENT_COMPLETION, CompletionOptions(trigger_characters=["<", " "]))
-def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> Optional[CompletionList]:
+def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> CompletionList | None:
     """Returns completion items depending on the current document context."""
     if server.configuration.completion.mode == CompletionMode.DISABLED:
         return None
@@ -123,7 +122,7 @@ def completions(server: GalaxyToolsLanguageServer, params: CompletionParams) -> 
 
 
 @language_server.feature(TEXT_DOCUMENT_HOVER)
-def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[Hover]:
+def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Hover | None:
     """Displays Markdown documentation for the element under the cursor."""
     document = _get_valid_document(server, params.text_document.uri)
     if document:
@@ -133,7 +132,7 @@ def hover(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams)
 
 
 @language_server.feature(TEXT_DOCUMENT_FORMATTING)
-def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> Optional[List[TextEdit]]:
+def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingParams) -> list[TextEdit] | None:
     """Formats the whole document using the provided parameters"""
     document = _get_valid_document(server, params.text_document.uri)
     if document:
@@ -163,7 +162,7 @@ def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentPar
 
 
 @language_server.feature(TEXT_DOCUMENT_DEFINITION)
-def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> Optional[List[Location]]:
+def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> list[Location] | None:
     """Provides the location of a symbol definition."""
     document = _get_valid_document(server, params.text_document.uri)
     if document:
@@ -173,7 +172,7 @@ def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionPa
 
 
 @language_server.feature(TEXT_DOCUMENT_DOCUMENT_LINK)
-def document_link(server: GalaxyToolsLanguageServer, params: DocumentLinkParams) -> List[DocumentLink]:
+def document_link(server: GalaxyToolsLanguageServer, params: DocumentLinkParams) -> list[DocumentLink]:
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -189,7 +188,7 @@ def document_link(server: GalaxyToolsLanguageServer, params: DocumentLinkParams)
         ],
     ),
 )
-def process_code_actions(server: GalaxyToolsLanguageServer, params: CodeActionParams) -> Optional[List[CodeAction]]:
+def process_code_actions(server: GalaxyToolsLanguageServer, params: CodeActionParams) -> list[CodeAction] | None:
     document = _get_valid_document(server, params.text_document.uri)
     if document is None:
         return None
@@ -198,7 +197,7 @@ def process_code_actions(server: GalaxyToolsLanguageServer, params: CodeActionPa
 
 
 @language_server.feature(TEXT_DOCUMENT_DOCUMENT_SYMBOL)
-def document_symbol(server: GalaxyToolsLanguageServer, params: DocumentSymbolParams) -> Optional[List[DocumentSymbol]]:
+def document_symbol(server: GalaxyToolsLanguageServer, params: DocumentSymbolParams) -> list[DocumentSymbol] | None:
     """Returns a list of symbols defined in the document."""
     document = _get_valid_document(server, params.text_document.uri)
     if document:
@@ -208,7 +207,7 @@ def document_symbol(server: GalaxyToolsLanguageServer, params: DocumentSymbolPar
 
 
 @language_server.command(Commands.AUTO_CLOSE_TAGS)
-def auto_close_tag(server: GalaxyToolsLanguageServer, parameters: CommandParameters) -> Optional[AutoCloseTagResult]:
+def auto_close_tag(server: GalaxyToolsLanguageServer, parameters: CommandParameters) -> AutoCloseTagResult | None:
     """Responds to a close tag request to close the currently opened node."""
     if server.configuration.completion.auto_close_tags and parameters:
         params = convert_to(parameters[0], TextDocumentPositionParams)
@@ -222,7 +221,7 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, parameters: CommandParamet
 @language_server.command(Commands.GENERATE_TESTS)
 async def cmd_generate_test(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[GeneratedSnippetResult]:
+) -> GeneratedSnippetResult | None:
     """Generates some test snippets based on the inputs and outputs of the document."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
@@ -234,7 +233,7 @@ async def cmd_generate_test(
 @language_server.command(Commands.UPDATE_TESTS_PROFILE)
 async def cmd_update_test_profile(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[WorkspaceEditResult]:
+) -> WorkspaceEditResult | None:
     """Updates the test cases to be compatible with the 24.2 profile validation."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
@@ -246,7 +245,7 @@ async def cmd_update_test_profile(
 @language_server.command(Commands.GENERATE_COMMAND)
 async def cmd_generate_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[GeneratedSnippetResult]:
+) -> GeneratedSnippetResult | None:
     """Generates a boilerplate Cheetah code snippet based on the inputs and outputs of the document."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
@@ -258,7 +257,7 @@ async def cmd_generate_command(
 @language_server.command(Commands.SORT_SINGLE_PARAM_ATTRS)
 def sort_single_param_attrs_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[ReplaceTextRangeResult]:
+) -> ReplaceTextRangeResult | None:
     """Sorts the attributes of the param element under the cursor."""
     params = convert_to(parameters[0], TextDocumentPositionParams)
     document = _get_valid_document(server, params.text_document.uri)
@@ -271,7 +270,7 @@ def sort_single_param_attrs_command(
 @language_server.command(Commands.SORT_DOCUMENT_PARAMS_ATTRS)
 def sort_document_params_attrs_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[List[ReplaceTextRangeResult]]:
+) -> list[ReplaceTextRangeResult] | None:
     """Sorts the attributes of all the param elements contained in the document."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
@@ -294,7 +293,7 @@ def generate_expanded_command(server: GalaxyToolsLanguageServer, parameters: Com
 @language_server.command(Commands.DISCOVER_TESTS_IN_WORKSPACE)
 def discover_tests_in_workspace_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> List[TestSuiteInfoResult]:
+) -> list[TestSuiteInfoResult]:
     """Returns a list of test suites, one for each tool file in the workspace."""
     return server.service.test_discovery_service.discover_tests_in_workspace(server.workspace)
 
@@ -302,7 +301,7 @@ def discover_tests_in_workspace_command(
 @language_server.command(Commands.DISCOVER_TESTS_IN_DOCUMENT)
 def discover_tests_in_document_command(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[TestSuiteInfoResult]:
+) -> TestSuiteInfoResult | None:
     """Returns a test suite containing all tests for a particular XML tool document."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
@@ -315,7 +314,7 @@ def discover_tests_in_document_command(
 @language_server.command(Commands.INSERT_PARAM_REFERENCE)
 async def cmd_insert_param_reference(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[ParamReferencesResult]:
+) -> ParamReferencesResult | None:
     """Provides a list of possible parameter references to be inserted in the command section of the document."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
@@ -328,7 +327,7 @@ async def cmd_insert_param_reference(
 @language_server.command(Commands.INSERT_PARAM_FILTER_REFERENCE)
 async def cmd_insert_param_filter_reference(
     server: GalaxyToolsLanguageServer, parameters: CommandParameters
-) -> Optional[ParamReferencesResult]:
+) -> ParamReferencesResult | None:
     """Provides a list of possible parameter references to be inserted as output filters."""
     params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
@@ -340,7 +339,7 @@ async def cmd_insert_param_filter_reference(
 
 def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     """Validates the Galaxy tool and reports any problem found."""
-    diagnostics: List[Diagnostic] = []
+    diagnostics: list[Diagnostic] = []
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -351,7 +350,7 @@ def _validate(server: GalaxyToolsLanguageServer, params) -> None:
     server.publish_diagnostics(params.text_document.uri, diagnostics)
 
 
-def _get_valid_document(server: GalaxyToolsLanguageServer, uri: str) -> Optional[Document]:
+def _get_valid_document(server: GalaxyToolsLanguageServer, uri: str) -> Document | None:
     document = server.workspace.get_document(uri)
     if _is_document_supported(document):
         return document

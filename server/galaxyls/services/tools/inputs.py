@@ -1,6 +1,4 @@
 from typing import (
-    List,
-    Optional,
     cast,
 )
 
@@ -34,13 +32,13 @@ class InputNode(NodeMixin):
 
     Each node contains references to direct children classified by their type."""
 
-    def __init__(self, name: str, element: Optional[XmlElement] = None, parent: NodeMixin = None):
+    def __init__(self, name: str, element: XmlElement | None = None, parent: NodeMixin = None):
         self.name: str = name
-        self.element: Optional[XmlElement] = element
+        self.element: XmlElement | None = element
         self.parent = parent
-        self.params: List[XmlElement] = []
-        self.repeats: List[RepeatInputNode] = []
-        self.sections: List[SectionInputNode] = []
+        self.params: list[XmlElement] = []
+        self.repeats: list[RepeatInputNode] = []
+        self.sections: list[SectionInputNode] = []
 
     def __repr__(self) -> str:
         return self.name
@@ -53,11 +51,11 @@ class ConditionalInputNode(InputNode):
     value is set to the 'option' field of one of the possible 'when' definitions.
     """
 
-    def __init__(self, name: str, option: str, element: Optional[XmlElement] = None, parent: Optional[InputNode] = None):
+    def __init__(self, name: str, option: str, element: XmlElement | None = None, parent: InputNode | None = None):
         super().__init__(name, element, parent)
-        self.option_param: Optional[XmlElement] = element.elements[0] if element else None
+        self.option_param: XmlElement | None = element.elements[0] if element else None
         self.option: str = option
-        self.options: List[str] = self._get_options()
+        self.options: list[str] = self._get_options()
 
     def __repr__(self) -> str:
         return f"{self.name} - {self.option}"
@@ -74,7 +72,7 @@ class ConditionalInputNode(InputNode):
             return self.option == self.options[-1]
         return True
 
-    def _get_options(self) -> List[str]:
+    def _get_options(self) -> list[str]:
         try:
             if self.option_param:
                 type_attr = self.option_param.get_attribute_value(TYPE)
@@ -100,7 +98,7 @@ class ConditionalInputNode(InputNode):
 class RepeatInputNode(InputNode):
     """Represents an input node that will be repeated 'min' times."""
 
-    def __init__(self, name: str, min: int, element: Optional[XmlElement] = None):
+    def __init__(self, name: str, min: int, element: XmlElement | None = None):
         super().__init__(name, element, parent=None)
         self.min: int = min
 
@@ -108,20 +106,20 @@ class RepeatInputNode(InputNode):
 class SectionInputNode(InputNode):
     """Represents a section input node which is used to group other nodes."""
 
-    def __init__(self, name: str, element: Optional[XmlElement] = None):
+    def __init__(self, name: str, element: XmlElement | None = None):
         super().__init__(name, element, parent=None)
 
 
 class GalaxyToolInputTree:
     """The branches of this tree contains all the inputs within a conditional path for a specific option."""
 
-    def __init__(self, inputs: Optional[XmlElement] = None) -> None:
+    def __init__(self, inputs: XmlElement | None = None) -> None:
         self._root: InputNode = InputNode(INPUTS, inputs)
         if inputs:
             self._build_input_tree(inputs, self._root)
 
     @property
-    def leaves(self) -> List[InputNode]:
+    def leaves(self) -> list[InputNode]:
         """The leaves of the tree contain all the final elements of the conditional branches."""
         return list(self._root.leaves)
 
@@ -174,7 +172,7 @@ class GalaxyToolInputTree:
                 self._build_conditional_option_branch(conditional, parent, false_value)
 
     def _build_conditional_option_branch(
-        self, conditional: XmlElement, parent: InputNode, option_value: Optional[str] = None
+        self, conditional: XmlElement, parent: InputNode, option_value: str | None = None
     ) -> None:
         """Builds a conditional branch in the input tree with the given 'option_value'.
 
@@ -193,7 +191,7 @@ class GalaxyToolInputTree:
             if when:
                 self._build_input_tree(when, conditional_node)
 
-    def _build_repeat_input_tree(self, repeat: XmlElement) -> Optional[RepeatInputNode]:
+    def _build_repeat_input_tree(self, repeat: XmlElement) -> RepeatInputNode | None:
         """Builds and returns a RepeatInputNode from a 'repeat' XML tag with the minimum number
         of repetitions defined.
 
@@ -214,7 +212,7 @@ class GalaxyToolInputTree:
             return repeat_node
         return None
 
-    def _build_section_input_tree(self, section: XmlElement) -> Optional[SectionInputNode]:
+    def _build_section_input_tree(self, section: XmlElement) -> SectionInputNode | None:
         """Builds and returns a SectionInputNode from a 'section' XML tag.
 
         Args:

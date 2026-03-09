@@ -1,9 +1,4 @@
 from typing import (
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
     cast,
 )
 
@@ -77,7 +72,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
     def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
         super().__init__(tool_document, tabSize)
 
-    def _build_snippet(self) -> Tuple[str, bool]:
+    def _build_snippet(self) -> tuple[str, bool]:
         """This function tries to generate a code snippet in TextMate format with all the tests cases extracted
         from the inputs and outputs of the tool.
 
@@ -89,7 +84,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             input_tree = self.expanded_document.analyze_inputs()
             outputs = self.expanded_document.get_outputs()
             result_snippet = "\n".join(
-                (self._generate_test_case_snippet(input_node, outputs) for input_node in input_tree.leaves)
+                self._generate_test_case_snippet(input_node, outputs) for input_node in input_tree.leaves
             )
             tests_section = self.tool_document.find_element(TESTS)
             if tests_section and not tests_section.is_self_closed:
@@ -98,7 +93,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         except BaseException as ex:
             return (f"Automatic Test Case generation failed with reason: {ex}", True)
 
-    def _find_snippet_insert_position(self) -> Union[Position, Range]:
+    def _find_snippet_insert_position(self) -> Position | Range:
         """Returns the position inside the document where new test cases
         can be inserted.
 
@@ -133,7 +128,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
                     return content_range.end
             return Position(line=0, character=0)
 
-    def _generate_test_case_snippet(self, input_node: InputNode, outputs: List[XmlElement]) -> str:
+    def _generate_test_case_snippet(self, input_node: InputNode, outputs: list[XmlElement]) -> str:
         """Generates the code snippet for a single <test> element given an InputNode and the list of outputs
         from the tool document.
 
@@ -186,7 +181,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             else:
                 self._build_test_tree(node, current_parent)
 
-    def _add_outputs_to_test_element(self, outputs: List[XmlElement], parent: etree._Element) -> None:
+    def _add_outputs_to_test_element(self, outputs: list[XmlElement], parent: etree._Element) -> None:
         """Converts the list of XML outputs to output test elements and appends them to the 'parent' element.
 
         Args:
@@ -199,7 +194,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
             elif output.name == COLLECTION:
                 self._add_output_collection_to_test(output, parent)
 
-    def _build_param_test_element(self, input_param: XmlElement, value: Optional[str] = None) -> etree._Element:
+    def _build_param_test_element(self, input_param: XmlElement, value: str | None = None) -> etree._Element:
         """Builds a <param> XML element to be used in a <test> code snippet from a given input <param> XML element.
 
         Args:
@@ -252,9 +247,9 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
         self._build_test_tree(input_conditional, conditional)
         return conditional
 
-    def _build_min_repeat_test_elements(self, input_repeat: RepeatInputNode) -> List[etree._Element]:
+    def _build_min_repeat_test_elements(self, input_repeat: RepeatInputNode) -> list[etree._Element]:
         """Builds a <repeat> XML element to be used in a <test> code snippet from a given input <repeat> XML element."""
-        repeats: List[etree._Element] = []
+        repeats: list[etree._Element] = []
         for _ in range(input_repeat.min):
             repeat_node = etree.Element(REPEAT)
             repeat_node.attrib[NAME] = input_repeat.name
@@ -355,7 +350,7 @@ class GalaxyToolTestSnippetGenerator(SnippetGenerator):
 
         output.append(assert_contents)
 
-    def _get_options_from_param(self, param: XmlElement) -> List[str]:
+    def _get_options_from_param(self, param: XmlElement) -> list[str]:
         """Gets the list of children elements of type <option> from the given 'param' XML element.
 
         Args:
@@ -383,8 +378,8 @@ class ParameterNode(NodeMixin):
         self,
         name: str,
         parent=None,
-        container_element: Optional[XmlElement] = None,
-        test_parameters: Optional[List[XmlElement]] = None,
+        container_element: XmlElement | None = None,
+        test_parameters: list[XmlElement] | None = None,
     ):
         super().__init__()
         self.name = name
@@ -396,7 +391,7 @@ class ParameterNode(NodeMixin):
         return f"TreeNode(name={self.name}, element={self.element}, data={self.test_parameters})"
 
 
-def find_node_by_key(root: ParameterNode, key: str) -> Optional[ParameterNode]:
+def find_node_by_key(root: ParameterNode, key: str) -> ParameterNode | None:
     """Finds a node in the tree by its key."""
     for node in PreOrderIter(root):
         if node.name == key:
@@ -412,7 +407,7 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
     def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
         super().__init__(tool_document, tabSize)
 
-    def _build_workspace_edits(self) -> List[ReplaceTextRangeResult]:
+    def _build_workspace_edits(self) -> list[ReplaceTextRangeResult]:
         """This function tries to generate a code snippet with the existing test cases but
         with the correct syntax when using conditional, sections, repeats, etc.
 
@@ -438,7 +433,7 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
         Returns:
             List[ReplaceTextRangeResult]: The list of workspace edits to be applied to the document.
         """
-        result_edits: List[ReplaceTextRangeResult] = []
+        result_edits: list[ReplaceTextRangeResult] = []
         try:
             existing_tests = self.tool_document.get_tests()
             if not existing_tests:
@@ -455,17 +450,17 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
             raise DisplayableException(f"Update Test Case generation failed with reason: {ex}")
 
     def _generate_edits_for_test_element(
-        self, test: XmlElement, input_params: List[XmlElement]
-    ) -> List[ReplaceTextRangeResult]:
+        self, test: XmlElement, input_params: list[XmlElement]
+    ) -> list[ReplaceTextRangeResult]:
         test_params = test.get_children_with_name(PARAM)
         param_tree = self._build_param_ancestor_tree(test_params, input_params)
         edits = self._generate_xml_replacements_from_tree(param_tree)
         return edits
 
-    def _generate_xml_replacements_from_tree(self, param_tree: ParameterNode) -> List[ReplaceTextRangeResult]:
+    def _generate_xml_replacements_from_tree(self, param_tree: ParameterNode) -> list[ReplaceTextRangeResult]:
         """Recursively builds the XML structure and generates replacement edits using the full hierarchy of test parameters."""
 
-        def build_xml_recursive(node: ParameterNode, moved_params: Set[XmlElement]) -> Optional[etree._Element]:
+        def build_xml_recursive(node: ParameterNode, moved_params: set[XmlElement]) -> etree._Element | None:
             if not node.element:
                 return None
 
@@ -488,10 +483,10 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
 
             return ancestor_element
 
-        result_edits: List[ReplaceTextRangeResult] = []
+        result_edits: list[ReplaceTextRangeResult] = []
         # This is used to track which parameters have been moved to a new location
         # and should be removed from the original location
-        moved_params: Set[XmlElement] = set()
+        moved_params: set[XmlElement] = set()
 
         # Start building XML from the root node (skip adding the root itself since it’s virtual)
         for child in param_tree.children:
@@ -513,7 +508,7 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
 
         return result_edits
 
-    def _build_param_ancestor_tree(self, test_params: List[XmlElement], input_params: List[XmlElement]) -> ParameterNode:
+    def _build_param_ancestor_tree(self, test_params: list[XmlElement], input_params: list[XmlElement]) -> ParameterNode:
         root = ParameterNode(name="root")
         for test_param in test_params:
             input_param = self._get_input_param_from_test_param(test_param, input_params)
@@ -533,12 +528,12 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
                 current_node.test_parameters.append(test_param)
         return root
 
-    def _get_valid_ancestors(self, input_param: XmlElement) -> List[XmlElement]:
+    def _get_valid_ancestors(self, input_param: XmlElement) -> list[XmlElement]:
         ancestors = input_param.ancestors
         ancestors = [ancestor for ancestor in ancestors if self._is_valid_ancestor(ancestor)]
         return ancestors
 
-    def _remove_params(self, params: Set[XmlElement], result_edits: List[ReplaceTextRangeResult]) -> None:
+    def _remove_params(self, params: set[XmlElement], result_edits: list[ReplaceTextRangeResult]) -> None:
         for param in sorted(
             params, key=lambda p: self.tool_document.xml_document.get_element_range(p).start.line, reverse=True
         ):
@@ -556,11 +551,11 @@ class GalaxyToolTestUpdater(WorkspaceEditsGenerator):
         """Returns a string representation of the element key."""
         return f"{element.name}:{element.get_attribute_value(NAME) or ''}"
 
-    def _is_valid_ancestor(self, element: Optional[XmlElement]) -> bool:
+    def _is_valid_ancestor(self, element: XmlElement | None) -> bool:
         """Checks if the element is a valid ancestor for grouping."""
         return element is not None and element.name in (CONDITIONAL, REPEAT, SECTION)
 
-    def _get_input_param_from_test_param(self, test_param: XmlElement, input_params: List[XmlElement]) -> Optional[XmlElement]:
+    def _get_input_param_from_test_param(self, test_param: XmlElement, input_params: list[XmlElement]) -> XmlElement | None:
         """Returns the input parameter corresponding to the given test parameter."""
         name_attr = test_param.get_attribute_value(NAME)
         if name_attr:

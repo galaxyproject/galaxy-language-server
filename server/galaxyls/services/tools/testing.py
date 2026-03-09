@@ -1,7 +1,3 @@
-from typing import (
-    List,
-    Optional,
-)
 
 from pygls.workspace import Workspace
 
@@ -19,8 +15,8 @@ from galaxyls.types import (
 class ToolTestsDiscoveryService(TestsDiscoveryService):
     document_validator = DocumentValidator()
 
-    def discover_tests_in_workspace(self, workspace: Workspace) -> List[TestSuiteInfoResult]:
-        rval: List[TestSuiteInfoResult] = []
+    def discover_tests_in_workspace(self, workspace: Workspace) -> list[TestSuiteInfoResult]:
+        rval: list[TestSuiteInfoResult] = []
         for doc_uri in workspace.documents:
             document = workspace.get_document(doc_uri)
             if self.document_validator.is_tool_document(document):
@@ -30,17 +26,17 @@ class ToolTestsDiscoveryService(TestsDiscoveryService):
                     rval.append(test_suite)
         return rval
 
-    def discover_tests_in_document(self, xml_document: XmlDocument) -> Optional[TestSuiteInfoResult]:
+    def discover_tests_in_document(self, xml_document: XmlDocument) -> TestSuiteInfoResult | None:
         test_suite = self._get_test_suite_from_document(xml_document)
         return test_suite
 
-    def _get_test_suite_from_document(self, xml_document: XmlDocument) -> Optional[TestSuiteInfoResult]:
+    def _get_test_suite_from_document(self, xml_document: XmlDocument) -> TestSuiteInfoResult | None:
         tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         tool_id = tool.get_tool_id()
         tests_range = tool.get_tests_range()
         if tool_id and tests_range:
             tests = tool.get_tests()
-            test_cases: List[TestInfoResult] = []
+            test_cases: list[TestInfoResult] = []
             id = 1
             for test in tests:
                 range = xml_document.get_full_range(test)

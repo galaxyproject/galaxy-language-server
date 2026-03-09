@@ -1,7 +1,6 @@
 """Utilities to validate Galaxy xml tool wrappers."""
 
 from pathlib import Path
-from typing import List
 
 from lsprotocol.types import (
     Diagnostic,
@@ -28,7 +27,7 @@ class GalaxyToolSchemaValidationService:
         """Initializes the validator"""
         self.xsd_schema = xsd_schema
 
-    def validate_document(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def validate_document(self, xml_document: XmlDocument) -> list[Diagnostic]:
         """Validates the XML document and returns a list of diagnostics
         if there are any problems.
 
@@ -53,7 +52,7 @@ class GalaxyToolSchemaValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
 
-    def _check_syntax(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def _check_syntax(self, xml_document: XmlDocument) -> list[Diagnostic]:
         """Check if the XML document contains any syntax error and returns it in a list.
 
         Args:
@@ -68,7 +67,7 @@ class GalaxyToolSchemaValidationService:
         except etree.XMLSyntaxError as e:
             return self._build_diagnostics_from_syntax_error(e)
 
-    def _validate_expanded(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def _validate_expanded(self, xml_document: XmlDocument) -> list[Diagnostic]:
         """Validates the document after loading all the macros referenced and expands them.
 
         Args:
@@ -91,7 +90,7 @@ class GalaxyToolSchemaValidationService:
         except AssertionError as e:
             return self._build_diagnostics_for_assertion_error(xml_document, e)
 
-    def _validate(self, xml_document: XmlDocument) -> List[Diagnostic]:
+    def _validate(self, xml_document: XmlDocument) -> list[Diagnostic]:
         """Validates an XML document against the XSD schema.
         Returns:
             List[Diagnostic]: The diagnosis results
@@ -103,7 +102,7 @@ class GalaxyToolSchemaValidationService:
         except etree.DocumentInvalid as e:
             return self._build_diagnostics(e.error_log, xml_document)
 
-    def _build_diagnostics(self, error_log: etree._ListErrorLog, xml_document: XmlDocument) -> List[Diagnostic]:
+    def _build_diagnostics(self, error_log: etree._ListErrorLog, xml_document: XmlDocument) -> list[Diagnostic]:
         """Gets a list of diagnostics from the XSD validation error log.
 
         Args:
@@ -133,7 +132,7 @@ class GalaxyToolSchemaValidationService:
             diagnostics.append(result)
         return diagnostics
 
-    def _build_diagnostics_from_syntax_error(self, error) -> List[Diagnostic]:
+    def _build_diagnostics_from_syntax_error(self, error) -> list[Diagnostic]:
         """Builds a Diagnostic element from a lxml syntax error.
 
         Args:
@@ -152,7 +151,7 @@ class GalaxyToolSchemaValidationService:
         )
         return [result]
 
-    def _build_diagnostics_for_macros_file_syntax_error(self, xml_document: XmlDocument, syntax_error) -> List[Diagnostic]:
+    def _build_diagnostics_for_macros_file_syntax_error(self, xml_document: XmlDocument, syntax_error) -> list[Diagnostic]:
         tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         result = Diagnostic(
             range=tool.get_import_macro_file_range(syntax_error.filename) or XmlDocument.DEFAULT_RANGE,
@@ -173,11 +172,11 @@ class GalaxyToolSchemaValidationService:
         )
         return [result]
 
-    def _build_diagnostics_for_expanded_macros(self, xml_document: XmlDocument, invalid_document_error) -> List[Diagnostic]:
+    def _build_diagnostics_for_expanded_macros(self, xml_document: XmlDocument, invalid_document_error) -> list[Diagnostic]:
         virtual_uri = xml_document.document.uri.replace("file", "gls-expand")
         diagnostics = []
         for error in invalid_document_error.error_log.filter_from_errors():
-            related_info: List[DiagnosticRelatedInformation] = []
+            related_info: list[DiagnosticRelatedInformation] = []
             elem_in_main_doc = xml_document.get_element_from_xpath(error.path)
             if elem_in_main_doc is None:
                 elem_in_main_doc = xml_document.get_element_from_xpath("/tool/macros")
@@ -207,7 +206,7 @@ class GalaxyToolSchemaValidationService:
             diagnostics.append(result)
         return diagnostics
 
-    def _build_diagnostics_for_assertion_error(self, xml_document: XmlDocument, error: AssertionError) -> List[Diagnostic]:
+    def _build_diagnostics_for_assertion_error(self, xml_document: XmlDocument, error: AssertionError) -> list[Diagnostic]:
         result = Diagnostic(
             range=xml_document.get_default_range(),
             message=str(error),

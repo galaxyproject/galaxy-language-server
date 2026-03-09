@@ -1,7 +1,3 @@
-from typing import (
-    List,
-    Optional,
-)
 
 from galaxyls.services.tools.common import ToolParamAttributeSorter
 from galaxyls.services.tools.constants import (
@@ -48,7 +44,7 @@ class IUCToolParamAttributeSorter(ToolParamAttributeSorter):
         HELP: 9,
     }
 
-    def sort_param_attributes(self, param: XmlElement, xml_document: XmlDocument) -> Optional[ReplaceTextRangeResult]:
+    def sort_param_attributes(self, param: XmlElement, xml_document: XmlDocument) -> ReplaceTextRangeResult | None:
         if param and param.name == PARAM and param.has_attributes:
             attribute_names = param.get_attribute_names()
             sorted_attribute_names = self._sort_attribute_names(attribute_names)
@@ -62,22 +58,22 @@ class IUCToolParamAttributeSorter(ToolParamAttributeSorter):
             )
         return None
 
-    def sort_document_param_attributes(self, xml_document: XmlDocument) -> List[ReplaceTextRangeResult]:
+    def sort_document_param_attributes(self, xml_document: XmlDocument) -> list[ReplaceTextRangeResult]:
         params = xml_document.find_all_elements_with_name(PARAM)
-        rval: List[ReplaceTextRangeResult] = []
+        rval: list[ReplaceTextRangeResult] = []
         for param in params:
             result = self.sort_param_attributes(param, xml_document)
             if result:
                 rval.append(result)
         return rval
 
-    def _sort_attribute_names(self, attributes: List[str]) -> List[str]:
+    def _sort_attribute_names(self, attributes: list[str]) -> list[str]:
         return sorted(attributes, key=lambda attr: self._get_attr_order(attr))
 
     def _get_attr_order(self, attr_name: str) -> int:
         return self.IUC_PARAM_ATTR_ORDER.get(attr_name, ORDER_LAST)
 
-    def _get_param_attributes_as_text_sorted(self, element: XmlElement, sorted_attr_names: List[str]) -> str:
+    def _get_param_attributes_as_text_sorted(self, element: XmlElement, sorted_attr_names: list[str]) -> str:
         printed_attributes = [self._attr_to_text(element.attributes[attr_name]) for attr_name in sorted_attr_names]
         return " ".join(printed_attributes)
 

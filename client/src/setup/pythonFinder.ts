@@ -1,4 +1,4 @@
-import {  workspace } from "vscode";
+import { workspace } from "vscode";
 import { IPythonFinder, PythonDiscoveryResult } from "./interfaces";
 import { ERROR_MESSAGES } from "./constants";
 import { logger } from "../logger";
@@ -53,8 +53,8 @@ export class PythonFinder implements IPythonFinder {
 
             const [major, minor, patch] = version;
 
-            // Check version requirements (Python 3.8+)
-            if (major === 3 && minor >= 8) {
+            // Check version requirements (Python 3.10+)
+            if (major === 3 && minor >= 10) {
                 return {
                     success: true,
                     pythonPath,
@@ -63,7 +63,7 @@ export class PythonFinder implements IPythonFinder {
             } else {
                 return {
                     success: false,
-                    error: `Python version ${major}.${minor}.${patch} does not meet requirements (3.8+)`,
+                    error: `Python version ${major}.${minor}.${patch} does not meet requirements (${Constants.REQUIRED_PYTHON_VERSION})`,
                     pythonPath,
                     version: { major, minor, patch }
                 };

@@ -8,7 +8,9 @@ This extension provides XML validation, tags and attributes completion, help/doc
 
 ## Requires ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/galaxy-language-server)
 
-To use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.9+ installed on your system. See the [Installation](#Installation) section for more details. The extension will create ins own Python virtual environment using `python3-venv`. You might need to install it in your system before installing the extension with `apt install python3-venv`.
+To use the [Galaxy Language Server](https://pypi.org/project/galaxy-language-server/) features you need Python 3.10+ installed on your system. See the [Installation](#Installation) section for more details.
+
+The extension will automatically create its own Python virtual environment. It prefers using [uv](https://docs.astral.sh/uv/) if available (faster and more reliable), but falls back to the standard `python -m venv` method. On Debian/Ubuntu systems, you may need to install `python3-venv` if using the fallback method: `apt install python3-venv`.
 
 ## Planemo
 
@@ -37,8 +39,8 @@ Since version `0.4.0` you can use some of the cool features of [planemo](https:/
     -   [Extract macro](#extract-macro)
     -   [Full Galaxy tool linter integration](#document-validation)
     -   [Document Outline](#document-outline)
-    - [Insert param reference](#insert-param-reference)
-    - [Automatically update tests to comply with 24.2 profile validation](#automatically-update-tests-to-comply-with-242-profile-validation) _New feature!_ ✨
+    -   [Insert param reference](#insert-param-reference)
+    -   [Automatically update tests to comply with 24.2 profile validation](#automatically-update-tests-to-comply-with-242-profile-validation) _New feature!_ ✨
 
 # Installation
 

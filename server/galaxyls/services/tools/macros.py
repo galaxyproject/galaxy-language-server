@@ -1,9 +1,3 @@
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Set,
-)
 
 import attrs
 from lsprotocol.types import Location
@@ -38,26 +32,26 @@ class TokenParam(TokenDefinition):
 class MacroDefinition:
     name: str
     location: Location
-    token_params: Dict[str, TokenParam]
+    token_params: dict[str, TokenParam]
 
 
 @attrs.define
 class ImportedMacrosFile:
     file_name: str
-    file_uri: Optional[str]
-    document: Optional[XmlDocument]
-    tokens: Dict[str, TokenDefinition]
-    macros: Dict[str, MacroDefinition]
+    file_uri: str | None
+    document: XmlDocument | None
+    tokens: dict[str, TokenDefinition]
+    macros: dict[str, MacroDefinition]
 
 
 @attrs.define
 class ToolMacroDefinitions:
     tool_document: XmlDocument
-    imported_macros: Dict[str, ImportedMacrosFile]
-    tokens: Dict[str, TokenDefinition]
-    macros: Dict[str, MacroDefinition]
+    imported_macros: dict[str, ImportedMacrosFile]
+    tokens: dict[str, TokenDefinition]
+    macros: dict[str, MacroDefinition]
 
-    def go_to_import_definition(self, file_name: str) -> Optional[List[Location]]:
+    def go_to_import_definition(self, file_name: str) -> list[Location] | None:
         imported_macros = self.imported_macros.get(file_name)
         if imported_macros and imported_macros.document and imported_macros.document.root and imported_macros.file_uri:
             macros_file_uri = imported_macros.file_uri
@@ -71,19 +65,19 @@ class ToolMacroDefinitions:
                 ]
         return None
 
-    def get_token_definition(self, token: str) -> Optional[TokenDefinition]:
+    def get_token_definition(self, token: str) -> TokenDefinition | None:
         definition = self.tokens.get(token)
         if definition is None:
             return self.get_token_param_definition(token)
         return definition
 
-    def get_token_param_definition(self, token: str) -> Optional[TokenParam]:
+    def get_token_param_definition(self, token: str) -> TokenParam | None:
         for macro in self.macros.values():
             if token in macro.token_params:
                 return macro.token_params.get(token)
         return None
 
-    def get_macro_definition(self, macro_name: str) -> Optional[MacroDefinition]:
+    def get_macro_definition(self, macro_name: str) -> MacroDefinition | None:
         return self.macros.get(macro_name)
 
 
@@ -108,7 +102,7 @@ class MacroDefinitionsProvider:
             macros=macros,
         )
 
-    def get_macro_names(self, tool_xml: XmlDocument) -> Set[str]:
+    def get_macro_names(self, tool_xml: XmlDocument) -> set[str]:
         tool = GalaxyToolXmlDocument.from_xml_document(tool_xml)
         macros = self._get_macro_definitions(tool_xml)
         imported_macro_files = self._get_imported_macro_files_from_tool(tool)
@@ -116,14 +110,14 @@ class MacroDefinitionsProvider:
             macros.update(file.macros)
         return set(macros.keys())
 
-    def get_macro_token_params(self, tool_xml: XmlDocument, macro_name: str) -> List[TokenParam]:
+    def get_macro_token_params(self, tool_xml: XmlDocument, macro_name: str) -> list[TokenParam]:
         macro_definitions = self.load_macro_definitions(tool_xml)
         macro = macro_definitions.get_macro_definition(macro_name)
         if macro and macro.token_params:
             return list(macro.token_params.values())
         return []
 
-    def _get_imported_macro_files_from_tool(self, tool: GalaxyToolXmlDocument) -> Dict[str, ImportedMacrosFile]:
+    def _get_imported_macro_files_from_tool(self, tool: GalaxyToolXmlDocument) -> dict[str, ImportedMacrosFile]:
         macro_files = {}
         uris_dict = tool.get_macro_import_uris()
         for file_name, file_uri in uris_dict.items():
@@ -144,7 +138,7 @@ class MacroDefinitionsProvider:
         xml_document = XmlDocumentParser().parse(document)
         return xml_document
 
-    def _get_token_definitions(self, macros_xml: XmlDocument) -> Dict[str, TokenDefinition]:
+    def _get_token_definitions(self, macros_xml: XmlDocument) -> dict[str, TokenDefinition]:
         token_elements = macros_xml.find_all_elements_with_name(TOKEN)
         rval = {}
         for element in token_elements:
@@ -164,7 +158,7 @@ class MacroDefinitionsProvider:
             rval[token_def.name] = token_def
         return rval
 
-    def _get_macro_definitions(self, macros_xml: XmlDocument) -> Dict[str, MacroDefinition]:
+    def _get_macro_definitions(self, macros_xml: XmlDocument) -> dict[str, MacroDefinition]:
         macro_elements = macros_xml.find_all_elements_with_name(MACRO)
         xml_elements = macros_xml.find_all_elements_with_name(XML)
         macro_elements += xml_elements
@@ -182,7 +176,7 @@ class MacroDefinitionsProvider:
             rval[macro_def.name] = macro_def
         return rval
 
-    def get_token_params(self, macros_xml: XmlDocument, element: XmlElement) -> Dict[str, TokenParam]:
+    def get_token_params(self, macros_xml: XmlDocument, element: XmlElement) -> dict[str, TokenParam]:
         token_params = {}
         for attr_name, attr in element.attributes.items():
             if attr_name.startswith("token_"):

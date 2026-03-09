@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Optional
 
 import attrs
 
@@ -40,8 +39,8 @@ class PlanemoConfig:
 
     enabled: bool = attrs.field(default=False)
     env_path: str = attrs.field(default="planemo")
-    galaxy_root: Optional[str] = attrs.field(default=None)
-    get_cwd: Optional[str] = attrs.field(default=None)
+    galaxy_root: str | None = attrs.field(default=None)
+    get_cwd: str | None = attrs.field(default=None)
     testing: PlanemoTestingConfig = attrs.field(default=PlanemoTestingConfig())
 
 

@@ -4,10 +4,7 @@ https://github.com/eclipse/lemminx/tree/master/org.eclipse.lemminx/src/main/java
 Only the minimum subset of the XML dialect used by Galaxy tool wrappers is supported.
 """
 
-from typing import (
-    Callable,
-    List,
-)
+from collections.abc import Callable
 
 from lsprotocol.types import (
     Position,
@@ -113,7 +110,7 @@ class MultiLineStream:
             return True
         return False
 
-    def advance_if_chars(self, ch: List[int]) -> bool:
+    def advance_if_chars(self, ch: list[int]) -> bool:
         """If the next characters in the stream matches the given sequence of characters, the stream advances
         the length of the sequence."""
         ch_length = len(ch)
@@ -134,7 +131,7 @@ class MultiLineStream:
             self.advance(1)
         return False
 
-    def advance_until_chars(self, ch: List[int]) -> bool:
+    def advance_until_chars(self, ch: list[int]) -> bool:
         """Advances the stream until it founds a list of character matching the given."""
         ch_length = len(ch)
         while self._position + ch_length <= self._len:
@@ -147,7 +144,7 @@ class MultiLineStream:
         self.go_to_end()
         return False
 
-    def advance_while_char_in(self, list: List[int]) -> int:
+    def advance_while_char_in(self, list: list[int]) -> int:
         """Advances the stream if the characters are like any of the characters in the given list."""
         pos_now = self._position
         while self._position < self._len and ord(self._source[self._position]) in list:
@@ -162,7 +159,7 @@ class MultiLineStream:
             self.advance(1)
         return False
 
-    def advance_until_chars_or_new_tag(self, ch: List[int]) -> bool:
+    def advance_until_chars_or_new_tag(self, ch: list[int]) -> bool:
         """Advances the stream until it finds the given sequence of characters or the '<' (new tag character)."""
         ch_length = len(ch)
         while self._position + ch_length <= self._len:

@@ -1,4 +1,3 @@
-from typing import List
 
 from lsprotocol.types import DocumentLink
 
@@ -11,13 +10,13 @@ from galaxyls.services.xml.utils import convert_document_offsets_to_range
 class DocumentLinksProvider:
     """Provides links to external resources defined in the document."""
 
-    def get_document_links(self, xml_document: XmlDocument) -> List[DocumentLink]:
+    def get_document_links(self, xml_document: XmlDocument) -> list[DocumentLink]:
         tool = GalaxyToolXmlDocument.from_xml_document(xml_document)
         test_data_file_links = self._get_test_data_file_links(tool)
         return test_data_file_links
 
-    def _get_test_data_file_links(self, tool: GalaxyToolXmlDocument) -> List[DocumentLink]:
-        result: List[DocumentLink] = []
+    def _get_test_data_file_links(self, tool: GalaxyToolXmlDocument) -> list[DocumentLink]:
+        result: list[DocumentLink] = []
         for test in tool.get_tests():
             params = filter(lambda e: e.name == "param", test.elements)
             for param in params:

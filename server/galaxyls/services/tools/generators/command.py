@@ -1,8 +1,4 @@
 from typing import (
-    List,
-    Optional,
-    Tuple,
-    Union,
     cast,
 )
 
@@ -54,7 +50,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
     def __init__(self, tool_document: GalaxyToolXmlDocument, tabSize: int = 4) -> None:
         super().__init__(tool_document, tabSize)
 
-    def _build_snippet(self) -> Tuple[str, bool]:
+    def _build_snippet(self) -> tuple[str, bool]:
         """This function tries to generate a code snippet in TextMate format with boilerplate
         Cheetah code extracted from the inputs and outputs of the tool.
 
@@ -75,7 +71,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         except BaseException as ex:
             return (f"Automatic command section generation failed with reason: {ex}", True)
 
-    def _find_snippet_insert_position(self) -> Union[Position, Range]:
+    def _find_snippet_insert_position(self) -> Position | Range:
         """Returns the position inside the document where command section
         can be inserted.
 
@@ -117,7 +113,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                     return content_range.end
         return Position(line=0, character=0)
 
-    def _generate_command_snippet(self, input_tree: GalaxyToolInputTree, outputs: List[XmlElement]) -> str:
+    def _generate_command_snippet(self, input_tree: GalaxyToolInputTree, outputs: list[XmlElement]) -> str:
         snippets = [
             "## Auto-generated command section",
             "## TODO: please review and edit this section as needed",
@@ -141,7 +137,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 snippets.append(variable)
         return "\n".join(snippets)
 
-    def _get_ancestor_name_path(self, node: InputNode) -> Optional[str]:
+    def _get_ancestor_name_path(self, node: InputNode) -> str | None:
         """Returns the names of the ancestor nodes separated by '.'"""
         if node.depth > 1:
             ancestor_names = [node.name for node in node.ancestors[1:]]  # Skip the 'inputs' root node
@@ -149,7 +145,7 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             return result
         return None
 
-    def _param_to_cheetah(self, param: XmlElement, name_path: Optional[str] = None, indent_level: int = 0) -> str:
+    def _param_to_cheetah(self, param: XmlElement, name_path: str | None = None, indent_level: int = 0) -> str:
         """Converts the given param element to it's Cheetah representation."""
         indentation = self._get_indentation(indent_level)
         argument_attr = param.get_attribute_value(ARGUMENT)
@@ -172,9 +168,9 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             return f"{indentation}{self._get_argument_safe(argument_attr)} '\\${name_attr}'"
         return f"{indentation}{self._get_argument_safe(argument_attr)} \\${name_attr}"
 
-    def _node_to_cheetah(self, node: InputNode, name_path: Optional[str] = None, indent_level: int = 0) -> List[str]:
+    def _node_to_cheetah(self, node: InputNode, name_path: str | None = None, indent_level: int = 0) -> list[str]:
         """Converts all the elements of the given node to their Cheetah represetation."""
-        result: List[str] = []
+        result: list[str] = []
         for param in node.params:
             result.append(self._param_to_cheetah(param, name_path, indent_level))
         for repeat in node.repeats:
@@ -184,11 +180,11 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         return result
 
     def _conditional_to_cheetah(
-        self, conditional: ConditionalInputNode, name_path: Optional[str] = None, indent_level: int = 0
-    ) -> List[str]:
+        self, conditional: ConditionalInputNode, name_path: str | None = None, indent_level: int = 0
+    ) -> list[str]:
         """Converts the given conditional node to it's Cheetah representation using #if/#elif clauses."""
         indentation = self._get_indentation(indent_level)
-        result: List[str] = []
+        result: list[str] = []
         cond_name = conditional.name
         if name_path:
             cond_name = f"{name_path}.{cond_name}"
@@ -204,10 +200,10 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
                 result.append(f"{indentation}#end if")
         return result
 
-    def _repeat_to_cheetah(self, repeat: RepeatInputNode, name_path: Optional[str] = None, indent_level: int = 0) -> List[str]:
+    def _repeat_to_cheetah(self, repeat: RepeatInputNode, name_path: str | None = None, indent_level: int = 0) -> list[str]:
         """Converts the given repeat node to it's Cheetah representation using the #for directive."""
         indentation = self._get_indentation(indent_level)
-        result: List[str] = []
+        result: list[str] = []
         if repeat.element:
             repeat_name = repeat.element.get_attribute_value(NAME)
             if name_path:
@@ -219,10 +215,10 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
         return result
 
     def _section_to_cheetah(
-        self, section: SectionInputNode, name_path: Optional[str] = None, indent_level: int = 0
-    ) -> List[str]:
+        self, section: SectionInputNode, name_path: str | None = None, indent_level: int = 0
+    ) -> list[str]:
         """Converts the given section node to it's Cheetah representation."""
-        result: List[str] = []
+        result: list[str] = []
         if section.element:
             section_name = section.element.get_attribute_value(NAME)
             if name_path:
@@ -230,14 +226,14 @@ class GalaxyToolCommandSnippetGenerator(SnippetGenerator):
             result.extend(self._node_to_cheetah(section, section_name, indent_level))
         return result
 
-    def _output_to_cheetah(self, output: XmlElement) -> Optional[str]:
+    def _output_to_cheetah(self, output: XmlElement) -> str | None:
         """Converts the given output element to it's Cheetah representation wrapped in single quotes."""
         name = output.get_attribute_value(NAME)
         if name:
             return f"'\\${name}'"
         return None
 
-    def _get_argument_safe(self, argument: Optional[str]) -> str:
+    def _get_argument_safe(self, argument: str | None) -> str:
         """Returns the given argument or a tabstop placeholder if it is None."""
         return argument or self._get_next_tabstop_with_placeholder(ARG_PLACEHOLDER)
 

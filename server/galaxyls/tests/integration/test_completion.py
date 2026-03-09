@@ -1,4 +1,3 @@
-from typing import List
 
 import pytest
 from lsprotocol.types import (
@@ -85,7 +84,7 @@ class TestIntegrationXmlCompletionServiceClass:
         galaxy_xsd_tree: XsdTree,
         definitions_provider: DocumentDefinitionsProvider,
         source_with_mark: str,
-        expected_item_names: List[str],
+        expected_item_names: list[str],
     ) -> None:
         position, source_without_mark = TestUtils.extract_mark_from_source("^", source_with_mark)
         document = TestUtils.from_source_to_xml_document(source_without_mark)

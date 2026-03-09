@@ -1,11 +1,4 @@
 from pathlib import Path
-from typing import (
-    Dict,
-    List,
-    Optional,
-    Set,
-    Union,
-)
 from urllib.parse import urlparse
 
 import attrs
@@ -48,7 +41,7 @@ from galaxyls.services.xml.nodes import XmlElement
 DEFAULT_MACROS_FILENAME = "macros.xml"
 EXCLUDED_TAGS = {TOOL, MACROS, MACRO, XML}
 
-DocumentChanges = Optional[List[Union[TextDocumentEdit, CreateFile, RenameFile, DeleteFile]]]
+DocumentChanges = list[TextDocumentEdit | CreateFile | RenameFile | DeleteFile] | None
 
 
 @attrs.define
@@ -72,7 +65,7 @@ class RefactorMacrosService:
 
     def create_extract_to_local_macro_actions(
         self, tool: GalaxyToolXmlDocument, macro: MacroData, params: CodeActionParams
-    ) -> List[CodeAction]:
+    ) -> list[CodeAction]:
         """Returns refactoring actions to extract a macro into the local <macros> section of a tool wrapper."""
         return [
             CodeAction(
@@ -84,7 +77,7 @@ class RefactorMacrosService:
 
     def create_extract_to_macros_file_actions(
         self, tool: GalaxyToolXmlDocument, macro_definitions: ToolMacroDefinitions, macro: MacroData, params: CodeActionParams
-    ) -> List[CodeAction]:
+    ) -> list[CodeAction]:
         """Returns refactoring actions for extracting a macro into an external macros definition file."""
         if not macro_definitions.imported_macros:
             return [
@@ -114,11 +107,11 @@ class RefactorMacrosService:
 
     def _calculate_local_changes_for_macro(
         self, tool: GalaxyToolXmlDocument, macro: MacroData, params: CodeActionParams
-    ) -> Dict[str, List[TextEdit]]:
+    ) -> dict[str, list[TextEdit]]:
         """Returns a dictionary with the file uri and the TextEdit operations that will add a macro definition to
         the <macros> section of a tool wrapper. If the <macros> section doesn't exists it will also be created."""
         macros_element = tool.get_macros_element()
-        edits: List[TextEdit] = []
+        edits: list[TextEdit] = []
         if macros_element is None:
             edits.append(self._edit_create_with_macros_section(tool, macro))
         else:
@@ -133,7 +126,7 @@ class RefactorMacrosService:
         macro_file_definition: ImportedMacrosFile,
         macro: MacroData,
         params: CodeActionParams,
-    ) -> Dict[str, List[TextEdit]]:
+    ) -> dict[str, list[TextEdit]]:
         """Returns a dictionary with the document uri and the collection of TextEdit operations for that particular document.
 
         The edits will add the macro definition to the given imported macros file and replace the refactored macro with the
@@ -292,7 +285,7 @@ class RefactoringService:
     def __init__(self, macros_refactoring_service: RefactorMacrosService) -> None:
         self.macros = macros_refactoring_service
 
-    def get_available_refactoring_actions(self, xml_document: XmlDocument, params: CodeActionParams) -> List[CodeAction]:
+    def get_available_refactoring_actions(self, xml_document: XmlDocument, params: CodeActionParams) -> list[CodeAction]:
         """Gets a collection of possible refactoring code actions on a selected chunk of the document."""
         code_actions = []
         text_in_range = xml_document.get_text_in_range(params.range)
@@ -305,7 +298,7 @@ class RefactoringService:
             code_actions.extend(self.macros.create_extract_to_local_macro_actions(tool, macro, params))
         return code_actions
 
-    def _get_valid_full_element_tag(self, xml_text: str) -> Optional[str]:
+    def _get_valid_full_element_tag(self, xml_text: str) -> str | None:
         """Given a chunk of XML text, returns the name of the tag inside it or None if the
         node is incomplete or syntactically wrong."""
         stripped_xml = xml_text.strip()
@@ -314,7 +307,7 @@ class RefactoringService:
             return None
         return self._get_valid_node_tag(stripped_xml, EXCLUDED_TAGS)
 
-    def _get_valid_node_tag(self, stripped_xml: str, exclude: Set[str]) -> Optional[str]:
+    def _get_valid_node_tag(self, stripped_xml: str, exclude: set[str]) -> str | None:
         """Returns the name of the tag of a syntactically well formed xml text.
 
         The parameter `exclude` can define a set of tags that will be considered not valid."""

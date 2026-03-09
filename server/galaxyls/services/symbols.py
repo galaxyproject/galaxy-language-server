@@ -1,7 +1,3 @@
-from typing import (
-    List,
-    Optional,
-)
 
 from lsprotocol.types import (
     DocumentSymbol,
@@ -20,14 +16,14 @@ from galaxyls.services.xml.utils import convert_document_offsets_to_range
 class DocumentSymbolsProvider:
     """Provides symbols defined in the tool document."""
 
-    def get_document_symbols(self, xml_document: XmlDocument) -> List[DocumentSymbol]:
+    def get_document_symbols(self, xml_document: XmlDocument) -> list[DocumentSymbol]:
         """Gets all symbols defined in the tool document in a hierarchical structure."""
         if xml_document.root is None:
             return []
         return [self._get_element_symbol_definition(xml_document, xml_document.root)]
 
-    def _get_element_children_symbols(self, element: XmlElement, xml_document: XmlDocument) -> List[DocumentSymbol]:
-        result: List[DocumentSymbol] = []
+    def _get_element_children_symbols(self, element: XmlElement, xml_document: XmlDocument) -> list[DocumentSymbol]:
+        result: list[DocumentSymbol] = []
         for child in element.children:
             if isinstance(child, XmlAttribute):
                 result.append(self._get_attribute_symbol_definition(xml_document, child))
@@ -59,7 +55,7 @@ class DocumentSymbolsProvider:
     def _get_node_name(self, node: XmlSyntaxNode) -> str:
         return node.name or ""
 
-    def _get_element_symbol_detail(self, element: XmlElement, xml_document: XmlDocument) -> Optional[str]:
+    def _get_element_symbol_detail(self, element: XmlElement, xml_document: XmlDocument) -> str | None:
         if element.name in ["option", "when", "add", "remove"]:
             detail = element.get_attribute_value("value")
         elif element.name in ["citation", "validator"]:

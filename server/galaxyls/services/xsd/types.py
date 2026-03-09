@@ -2,9 +2,6 @@
 
 from typing import (
     Any,
-    Dict,
-    List,
-    Optional,
     cast,
 )
 
@@ -31,11 +28,11 @@ class XsdBase:
     XML nodes and attributes.
     """
 
-    def __init__(self, name: str, element: Optional[etree._Element]):
-        super(XsdBase, self).__init__()
+    def __init__(self, name: str, element: etree._Element | None):
+        super().__init__()
         self.name: str = name
-        self.xsd_element: Optional[etree._Element] = element
-        self.xsd_type: Optional[etree._Element] = None
+        self.xsd_element: etree._Element | None = element
+        self.xsd_type: etree._Element | None = None
 
     def __repr__(self) -> str:
         return self.name
@@ -60,7 +57,7 @@ class XsdBase:
             return MarkupContent(kind=MarkupKind.Markdown, value=doc)
         return MarkupContent(kind=MarkupKind.Markdown, value=MSG_NO_DOCUMENTATION_AVAILABLE)
 
-    def _get_doc_text_of_element(self, element: Optional[Any], lang: str = "en") -> str:
+    def _get_doc_text_of_element(self, element: Any | None, lang: str = "en") -> str:
         try:
             if element is not None:
                 doc_annotation = element.xpath(
@@ -68,7 +65,7 @@ class XsdBase:
                     namespaces=element.nsmap,
                     lang=lang,
                 )
-                return cast(List[str], doc_annotation)[0].strip()
+                return cast(list[str], doc_annotation)[0].strip()
         except BaseException:
             pass
         return ""
@@ -87,14 +84,14 @@ class XsdAttribute(XsdBase):
     def __init__(
         self,
         name: str,
-        element: Optional[etree._Element],
-        type_name: Optional[str] = None,
+        element: etree._Element | None,
+        type_name: str | None = None,
         is_required: bool = False,
     ):
-        super(XsdAttribute, self).__init__(name, element)
-        self.type_name: Optional[str] = type_name
+        super().__init__(name, element)
+        self.type_name: str | None = type_name
         self.is_required: bool = is_required
-        self.enumeration: List[str] = []
+        self.enumeration: list[str] = []
 
 
 class XsdNode(XsdBase, NodeMixin):
@@ -108,10 +105,10 @@ class XsdNode(XsdBase, NodeMixin):
         NodeMixin: Inherits tree node functionality from NodeMixin.
     """
 
-    def __init__(self, name: str, element: Optional[etree._Element] = None, parent: Optional[NodeMixin] = None):
-        super(XsdNode, self).__init__(name, element)
-        self.parent: Optional[NodeMixin] = parent
-        self.attributes: Dict[str, XsdAttribute] = {}
+    def __init__(self, name: str, element: etree._Element | None = None, parent: NodeMixin | None = None):
+        super().__init__(name, element)
+        self.parent: NodeMixin | None = parent
+        self.attributes: dict[str, XsdAttribute] = {}
         self.min_occurs: int = 1  # required by default
         self.max_occurs: int = -1  # unbounded by default
 
@@ -134,7 +131,7 @@ class XsdTree:
         self.node_resolver = Resolver("name")
         self.expand_element = self._build_expand_element()
 
-    def find_node_by_stack(self, node_stack: List[str]) -> Optional[XsdNode]:
+    def find_node_by_stack(self, node_stack: list[str]) -> XsdNode | None:
         """Finds the node definition in the tree that matches the given stack of tags.
 
         Args:
@@ -164,7 +161,7 @@ class XsdTree:
         """
         return self.root.render()
 
-    def _get_path_from_stack(self, node_stack: List[str]) -> str:
+    def _get_path_from_stack(self, node_stack: list[str]) -> str:
         if node_stack[0] == self.root.name:
             node_stack[0] = "."
         return "/".join(node_stack)
@@ -182,7 +179,7 @@ class XsdTree:
         expand_node.attributes[attr_name] = attr
         return expand_node
 
-    def find_node_by_name(self, name: str) -> Optional[XsdNode]:
+    def find_node_by_name(self, name: str) -> XsdNode | None:
         if name == self.expand_element.name:
             return self.expand_element
 

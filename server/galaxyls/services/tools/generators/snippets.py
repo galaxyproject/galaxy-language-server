@@ -3,10 +3,6 @@ from abc import (
     abstractmethod,
 )
 from typing import (
-    List,
-    Optional,
-    Tuple,
-    Union,
     cast,
 )
 
@@ -43,7 +39,7 @@ class WorkspaceEditsGenerator(ABC):
             return WorkspaceEditResult.as_error(str(e))
 
     @abstractmethod
-    def _build_workspace_edits(self) -> List[ReplaceTextRangeResult]:
+    def _build_workspace_edits(self) -> list[ReplaceTextRangeResult]:
         """This abstract function should return a list of ReplaceTextRangeResult
         with the generated workspace edits.
         """
@@ -74,7 +70,7 @@ class SnippetGenerator(ABC):
         return GeneratedSnippetResult(result, insert_position)
 
     @abstractmethod
-    def _build_snippet(self) -> Tuple[str, bool]:
+    def _build_snippet(self) -> tuple[str, bool]:
         """This abstract function should return a tuple with the generated snippet text in TextMate format or
         an error message if the snippet can't be generated.
 
@@ -82,7 +78,7 @@ class SnippetGenerator(ABC):
         pass
 
     @abstractmethod
-    def _find_snippet_insert_position(self) -> Union[Position, Range]:
+    def _find_snippet_insert_position(self) -> Position | Range:
         """This abstract function should find the proper position inside the document where the
         snippet will be inserted."""
         pass
@@ -109,7 +105,7 @@ class SnippetGenerator(ABC):
         self.tabstop_count += 1
         return f"${{{self.tabstop_count}:{placeholder}}}"
 
-    def _get_next_tabstop_with_options(self, options: List[str], default_option: Optional[str] = None) -> str:
+    def _get_next_tabstop_with_options(self, options: list[str], default_option: str | None = None) -> str:
         """Gets the current tabstop with a list of possible options.
 
         If the list is empty, a normal tabstop is returned.
