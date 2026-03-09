@@ -1,6 +1,5 @@
 """Galaxy Tools Language Server implementation"""
 
-
 from lsprotocol.types import (
     INITIALIZED,
     TEXT_DOCUMENT_CODE_ACTION,
@@ -22,6 +21,7 @@ from lsprotocol.types import (
     CompletionOptions,
     CompletionParams,
     ConfigurationItem,
+    ConfigurationParams,
     Diagnostic,
     DidChangeConfigurationParams,
     DidCloseTextDocumentParams,
@@ -35,14 +35,16 @@ from lsprotocol.types import (
     Hover,
     InitializeParams,
     Location,
+    LogMessageParams,
     MessageType,
+    PublishDiagnosticsParams,
+    ShowMessageParams,
     TextDocumentIdentifier,
     TextDocumentPositionParams,
     TextEdit,
-    WorkspaceConfigurationParams,
 )
-from pygls.server import LanguageServer
-from pygls.workspace import Document
+from pygls.lsp.server import LanguageServer
+from pygls.workspace import TextDocument
 
 from galaxyls.config import CompletionMode, GalaxyToolsConfiguration
 from galaxyls.constants import Commands
@@ -52,7 +54,6 @@ from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
 from galaxyls.types import (
     AutoCloseTagResult,
-    CommandParameters,
     GeneratedExpandedDocument,
     GeneratedSnippetResult,
     ParamReferencesResult,
@@ -86,13 +87,16 @@ async def _load_client_config_async(server: GalaxyToolsLanguageServer) -> None:
         server (GalaxyToolsLanguageServer): The language server instance.
     """
     try:
-        config = await server.get_configuration_async(
-            WorkspaceConfigurationParams(items=[ConfigurationItem(section="galaxyTools")])
+        config = await server.workspace_configuration_async(
+            ConfigurationParams(items=[ConfigurationItem(section="galaxyTools")])
         )
-        server.configuration = convert_to(config[0], GalaxyToolsConfiguration)
+        if config and config[0]:
+            server.configuration = convert_to(config[0], GalaxyToolsConfiguration)
     except BaseException as err:
-        server.show_message_log(f"Error loading configuration: {err}")
-        server.show_message("Error loading configuration. Using default settings.", MessageType.Error)
+        server.window_log_message(LogMessageParams(type=MessageType.Error, message=f"Error loading configuration: {err}"))
+        server.window_show_message(
+            ShowMessageParams(type=MessageType.Error, message="Error loading configuration. Using default settings.")
+        )
 
 
 @language_server.feature(INITIALIZED)
@@ -106,7 +110,7 @@ async def initialized(server: GalaxyToolsLanguageServer, params: InitializeParam
 async def did_change_configuration(server: GalaxyToolsLanguageServer, params: DidChangeConfigurationParams) -> None:
     """Loads the client configuration after a change."""
     await _load_client_config_async(server)
-    server.show_message("Settings updated")
+    server.window_show_message(ShowMessageParams(type=MessageType.Info, message="Settings updated"))
 
 
 @language_server.feature(TEXT_DOCUMENT_COMPLETION, CompletionOptions(trigger_characters=["<", " "]))
@@ -144,7 +148,7 @@ def formatting(server: GalaxyToolsLanguageServer, params: DocumentFormattingPara
 @language_server.feature(TEXT_DOCUMENT_DID_OPEN)
 async def did_open(server: GalaxyToolsLanguageServer, params: DidOpenTextDocumentParams) -> None:
     """Occurs when a new xml document is open."""
-    document = server.workspace.get_document(params.text_document.uri)
+    document = server.workspace.get_text_document(params.text_document.uri)
     if not DocumentValidator.is_empty_document(document):
         _validate(server, params)
 
@@ -158,7 +162,7 @@ def did_save(server: GalaxyToolsLanguageServer, params: DidSaveTextDocumentParam
 @language_server.feature(TEXT_DOCUMENT_DID_CLOSE)
 def did_close(server: GalaxyToolsLanguageServer, params: DidCloseTextDocumentParams) -> None:
     """Occurs when the xml document is closed."""
-    server.publish_diagnostics(params.text_document.uri, [])
+    server.text_document_publish_diagnostics(PublishDiagnosticsParams(uri=params.text_document.uri, diagnostics=[]))
 
 
 @language_server.feature(TEXT_DOCUMENT_DEFINITION)
@@ -207,10 +211,9 @@ def document_symbol(server: GalaxyToolsLanguageServer, params: DocumentSymbolPar
 
 
 @language_server.command(Commands.AUTO_CLOSE_TAGS)
-def auto_close_tag(server: GalaxyToolsLanguageServer, parameters: CommandParameters) -> AutoCloseTagResult | None:
+def auto_close_tag(server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams) -> AutoCloseTagResult | None:
     """Responds to a close tag request to close the currently opened node."""
-    if server.configuration.completion.auto_close_tags and parameters:
-        params = convert_to(parameters[0], TextDocumentPositionParams)
+    if server.configuration.completion.auto_close_tags:
         document = _get_valid_document(server, params.text_document.uri)
         if document:
             xml_document = _get_xml_document(document)
@@ -220,10 +223,9 @@ def auto_close_tag(server: GalaxyToolsLanguageServer, parameters: CommandParamet
 
 @language_server.command(Commands.GENERATE_TESTS)
 async def cmd_generate_test(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> GeneratedSnippetResult | None:
     """Generates some test snippets based on the inputs and outputs of the document."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.generate_tests(document)
@@ -232,10 +234,9 @@ async def cmd_generate_test(
 
 @language_server.command(Commands.UPDATE_TESTS_PROFILE)
 async def cmd_update_test_profile(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> WorkspaceEditResult | None:
     """Updates the test cases to be compatible with the 24.2 profile validation."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.update_tests_profile(document)
@@ -244,10 +245,9 @@ async def cmd_update_test_profile(
 
 @language_server.command(Commands.GENERATE_COMMAND)
 async def cmd_generate_command(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> GeneratedSnippetResult | None:
     """Generates a boilerplate Cheetah code snippet based on the inputs and outputs of the document."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         return server.service.generate_command(document)
@@ -256,10 +256,9 @@ async def cmd_generate_command(
 
 @language_server.command(Commands.SORT_SINGLE_PARAM_ATTRS)
 def sort_single_param_attrs_command(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentPositionParams
 ) -> ReplaceTextRangeResult | None:
     """Sorts the attributes of the param element under the cursor."""
-    params = convert_to(parameters[0], TextDocumentPositionParams)
     document = _get_valid_document(server, params.text_document.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -269,10 +268,9 @@ def sort_single_param_attrs_command(
 
 @language_server.command(Commands.SORT_DOCUMENT_PARAMS_ATTRS)
 def sort_document_params_attrs_command(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> list[ReplaceTextRangeResult] | None:
     """Sorts the attributes of all the param elements contained in the document."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -281,10 +279,9 @@ def sort_document_params_attrs_command(
 
 
 @language_server.command(Commands.GENERATE_EXPANDED_DOCUMENT)
-def generate_expanded_command(server: GalaxyToolsLanguageServer, parameters: CommandParameters) -> GeneratedExpandedDocument:
+def generate_expanded_command(server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier) -> GeneratedExpandedDocument:
     """Generates a expanded version (with all macros replaced) of the tool document."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
-    document = server.workspace.get_document(params.uri)
+    document = server.workspace.get_text_document(params.uri)
     if document and DocumentValidator.is_tool_document(document):
         return server.service.macro_expander.generate_expanded_from(document.path)
     return GeneratedExpandedDocument(errorMessage=f"The document {document.filename} is not a valid Galaxy Tool wrapper.")
@@ -292,7 +289,7 @@ def generate_expanded_command(server: GalaxyToolsLanguageServer, parameters: Com
 
 @language_server.command(Commands.DISCOVER_TESTS_IN_WORKSPACE)
 def discover_tests_in_workspace_command(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer,
 ) -> list[TestSuiteInfoResult]:
     """Returns a list of test suites, one for each tool file in the workspace."""
     return server.service.test_discovery_service.discover_tests_in_workspace(server.workspace)
@@ -300,10 +297,9 @@ def discover_tests_in_workspace_command(
 
 @language_server.command(Commands.DISCOVER_TESTS_IN_DOCUMENT)
 def discover_tests_in_document_command(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> TestSuiteInfoResult | None:
     """Returns a test suite containing all tests for a particular XML tool document."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -313,10 +309,9 @@ def discover_tests_in_document_command(
 
 @language_server.command(Commands.INSERT_PARAM_REFERENCE)
 async def cmd_insert_param_reference(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> ParamReferencesResult | None:
     """Provides a list of possible parameter references to be inserted in the command section of the document."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -326,10 +321,9 @@ async def cmd_insert_param_reference(
 
 @language_server.command(Commands.INSERT_PARAM_FILTER_REFERENCE)
 async def cmd_insert_param_filter_reference(
-    server: GalaxyToolsLanguageServer, parameters: CommandParameters
+    server: GalaxyToolsLanguageServer, params: TextDocumentIdentifier
 ) -> ParamReferencesResult | None:
     """Provides a list of possible parameter references to be inserted as output filters."""
-    params = convert_to(parameters[0], TextDocumentIdentifier)
     document = _get_valid_document(server, params.uri)
     if document:
         xml_document = _get_xml_document(document)
@@ -346,24 +340,24 @@ def _validate(server: GalaxyToolsLanguageServer, params) -> None:
         try:
             diagnostics = server.service.get_diagnostics(xml_document)
         except Exception as e:
-            server.show_message_log(f"Error validating document: {e}")
-    server.publish_diagnostics(params.text_document.uri, diagnostics)
+            server.window_log_message(LogMessageParams(type=MessageType.Error, message=f"Error validating document: {e}"))
+    server.text_document_publish_diagnostics(PublishDiagnosticsParams(uri=params.text_document.uri, diagnostics=diagnostics))
 
 
-def _get_valid_document(server: GalaxyToolsLanguageServer, uri: str) -> Document | None:
-    document = server.workspace.get_document(uri)
+def _get_valid_document(server: GalaxyToolsLanguageServer, uri: str) -> TextDocument | None:
+    document = server.workspace.get_text_document(uri)
     if _is_document_supported(document):
         return document
     return None
 
 
-def _get_xml_document(document: Document) -> XmlDocument:
-    """Parses the input Document and returns an XmlDocument."""
+def _get_xml_document(document: TextDocument) -> XmlDocument:
+    """Parses the input TextDocument and returns an XmlDocument."""
     xml_document = XmlDocumentParser().parse(document)
     return xml_document
 
 
-def _is_document_supported(document: Document) -> bool:
+def _is_document_supported(document: TextDocument) -> bool:
     """Returns True if the given document is supported by the server."""
     if not document.uri.lower().endswith(".xml"):
         return False

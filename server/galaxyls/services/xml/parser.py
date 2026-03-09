@@ -6,7 +6,7 @@ Only the minimum subset of the XML dialect used by Galaxy tool wrappers is suppo
 
 from typing import cast
 
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 from .document import XmlDocument
 from .nodes import XmlAttribute, XmlCDATASection, XmlComment, XmlContent, XmlElement, XmlProcessingInstruction, XmlSyntaxNode
@@ -20,7 +20,7 @@ class XmlDocumentParser:
     If the document is incomplete or malformed, the parser will try to recover
     the syntax tree in those cases without altering the original offsets of the nodes."""
 
-    def parse(self, document: Document) -> XmlDocument:
+    def parse(self, document: TextDocument) -> XmlDocument:
         """Parses the given text document and returns the resulting syntax tree as
         a XmlDocument.
 
@@ -28,7 +28,7 @@ class XmlDocumentParser:
         from the Java Eclipse/Lemminx parser, it could be easier to maintain it this way.
 
         Args:
-            document (Document): The XML text document.
+            document (TextDocument): The XML text document.
 
         Returns:
             XmlDocument: The resulting syntax tree.

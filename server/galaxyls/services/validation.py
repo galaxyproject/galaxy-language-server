@@ -1,6 +1,6 @@
 import re
 
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 from galaxyls.services.xml.types import DocumentType
 
@@ -14,7 +14,7 @@ class DocumentValidator:
     """Provides some utilities to quickly check documents without completely parse them beforehand."""
 
     @classmethod
-    def has_valid_root(cls, document: Document) -> bool:
+    def has_valid_root(cls, document: TextDocument) -> bool:
         """Checks if the document's root element matches one of the supported types
         or is an empty document."""
         if DocumentValidator.is_empty_document(document):
@@ -25,7 +25,7 @@ class DocumentValidator:
         return False
 
     @classmethod
-    def is_tool_document(cls, document: Document) -> bool:
+    def is_tool_document(cls, document: TextDocument) -> bool:
         """Checks if the document's root element is <tool>."""
         root = DocumentValidator.get_document_root_tag(document)
         if root is not None:
@@ -34,12 +34,12 @@ class DocumentValidator:
         return False
 
     @classmethod
-    def is_empty_document(cls, document: Document) -> bool:
+    def is_empty_document(cls, document: TextDocument) -> bool:
         """Whether the document is empty or just contains spaces or empty lines."""
         return not document.source or document.source.isspace()
 
     @classmethod
-    def get_document_root_tag(cls, document: Document) -> str | None:
+    def get_document_root_tag(cls, document: TextDocument) -> str | None:
         """Checks the first MAX_PEEK_CONTENT characters of the document for a root tag and
         returns the name of the tag if found."""
         content_peek = document.source[:MAX_PEEK_CONTENT]

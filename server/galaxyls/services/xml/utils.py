@@ -10,7 +10,7 @@ from lsprotocol.types import (
     Position,
     Range,
 )
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 from .constants import (
     _LAN,
@@ -19,7 +19,7 @@ from .constants import (
 )
 
 
-def convert_document_offset_to_line(document: Document, offset: int) -> int:
+def convert_document_offset_to_line(document: TextDocument, offset: int) -> int:
     """Converts the given offset in the document to the corresponding line.
 
     Args:
@@ -33,7 +33,7 @@ def convert_document_offset_to_line(document: Document, offset: int) -> int:
     return line
 
 
-def convert_document_offset_to_position(document: Document, offset: int) -> Position:
+def convert_document_offset_to_position(document: TextDocument, offset: int) -> Position:
     """Converts the given offset in the document to a line/character based Position.
 
     Args:
@@ -51,7 +51,7 @@ def convert_document_offset_to_position(document: Document, offset: int) -> Posi
     return Position(line=line, character=character)
 
 
-def convert_document_offsets_to_range(document: Document, start_offset: int, end_offset: int) -> Range:
+def convert_document_offsets_to_range(document: TextDocument, start_offset: int, end_offset: int) -> Range:
     """Converts the given start and end offset positions in the document to a
     position Range based on line numbers.
 
