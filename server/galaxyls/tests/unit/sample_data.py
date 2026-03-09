@@ -1,4 +1,4 @@
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 TEST_XSD = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="testElement" type="CustomComplexType">
@@ -126,7 +126,7 @@ TEST_TOOL_01 = """<tool id="test" name="Test Tool 01" version="0.1.0">
     ]]></help>
 </tool>
 """
-TEST_TOOL_01_DOCUMENT = Document("file://test01.xml", TEST_TOOL_01)
+TEST_TOOL_01_DOCUMENT = TextDocument("file://test01.xml", TEST_TOOL_01)
 
 TEST_TOOL_WITH_MACRO_01 = """
 <tool id="test_with_macro" name="Test with macro 01" version="@WRAPPER_VERSION@">
@@ -135,7 +135,7 @@ TEST_TOOL_WITH_MACRO_01 = """
     </macros>
     <expand macro="inputs" />
 </tool>"""
-TEST_TOOL_WITH_MACRO_01_DOCUMENT = Document("file://test_with_macro_01.xml", TEST_TOOL_WITH_MACRO_01)
+TEST_TOOL_WITH_MACRO_01_DOCUMENT = TextDocument("file://test_with_macro_01.xml", TEST_TOOL_WITH_MACRO_01)
 
 TEST_MACRO_01 = """
 <macros>
@@ -145,12 +145,12 @@ TEST_MACRO_01 = """
     </macro>
 </macros>
 """
-TEST_MACRO_01_DOCUMENT = Document("file://macros.xml", TEST_MACRO_01)
+TEST_MACRO_01_DOCUMENT = TextDocument("file://macros.xml", TEST_MACRO_01)
 
 
-TEST_INVALID_TOOL_01_DOCUMENT = Document("file://test_invalid_01.xml", "<tool></tool>")
+TEST_INVALID_TOOL_01_DOCUMENT = TextDocument("file://test_invalid_01.xml", "<tool></tool>")
 
-TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT = Document("file://test_syntax_error_01.xml", "tool")
+TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT = TextDocument("file://test_syntax_error_01.xml", "tool")
 
 TEST_TOOL_WITH_PROLOG = """<?xml version="1.0" encoding="UTF-8"?>
 <tool id="test" name="Test Tool" version="0.1.0">
@@ -158,7 +158,7 @@ TEST_TOOL_WITH_PROLOG = """<?xml version="1.0" encoding="UTF-8"?>
     <outputs/>
 </tool>
 """
-TEST_TOOL_WITH_PROLOG_DOCUMENT = Document("file://test_prolog.xml", TEST_TOOL_WITH_PROLOG)
+TEST_TOOL_WITH_PROLOG_DOCUMENT = TextDocument("file://test_prolog.xml", TEST_TOOL_WITH_PROLOG)
 
 TEST_TOOL_WITH_INPUTS = """
 <tool id="test" name="Test Tool" version="0.1.0">
@@ -195,4 +195,4 @@ TEST_TOOL_WITH_INPUTS = """
     <outputs/>
 </tool>
 """
-TEST_TOOL_WITH_INPUTS_DOCUMENT = Document("file://test_inputs.xml", TEST_TOOL_WITH_INPUTS)
+TEST_TOOL_WITH_INPUTS_DOCUMENT = TextDocument("file://test_inputs.xml", TEST_TOOL_WITH_INPUTS)

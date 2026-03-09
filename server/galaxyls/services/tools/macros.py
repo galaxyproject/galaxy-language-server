@@ -1,4 +1,3 @@
-
 import attrs
 from lsprotocol.types import Location
 from pygls.workspace import Workspace
@@ -134,7 +133,7 @@ class MacroDefinitionsProvider:
         return macro_files
 
     def _load_macros_document(self, document_uri: str) -> XmlDocument:
-        document = self.workspace.get_document(document_uri)
+        document = self.workspace.get_text_document(document_uri)
         xml_document = XmlDocumentParser().parse(document)
         return xml_document
 

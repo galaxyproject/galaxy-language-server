@@ -10,7 +10,7 @@ from lsprotocol.types import (
     Range,
 )
 from lxml import etree
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 from galaxyls.constants import DEFAULT_DOCUMENT_RANGE
 
@@ -39,9 +39,9 @@ class XmlDocument(XmlSyntaxNode):
 
     DEFAULT_RANGE = DEFAULT_DOCUMENT_RANGE
 
-    def __init__(self, document: Document):
+    def __init__(self, document: TextDocument):
         super().__init__()
-        self.document: Document = document
+        self.document: TextDocument = document
         self.supported_document_types: dict[str, DocumentType] = {
             "tool": DocumentType.TOOL,
             "macros": DocumentType.MACROS,

@@ -1,4 +1,3 @@
-
 from pygls.workspace import Workspace
 
 from galaxyls.services.tools.common import TestsDiscoveryService
@@ -17,8 +16,8 @@ class ToolTestsDiscoveryService(TestsDiscoveryService):
 
     def discover_tests_in_workspace(self, workspace: Workspace) -> list[TestSuiteInfoResult]:
         rval: list[TestSuiteInfoResult] = []
-        for doc_uri in workspace.documents:
-            document = workspace.get_document(doc_uri)
+        for doc_uri in workspace.text_documents:
+            document = workspace.get_text_document(doc_uri)
             if self.document_validator.is_tool_document(document):
                 xml_document = XmlDocumentParser().parse(document)
                 test_suite = self._get_test_suite_from_document(xml_document)

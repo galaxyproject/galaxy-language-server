@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from lsprotocol.types import Position
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 from ...services.xml.constants import NEW_LINE
 from ...services.xml.document import XmlDocument
@@ -10,18 +10,18 @@ from ...services.xml.parser import XmlDocumentParser
 
 class TestUtils:
     @staticmethod
-    def to_document(source: str, uri: str = "file://fake_doc.xml", version: int = 0) -> Document:
-        """Converts the given string into a Document.
+    def to_document(source: str, uri: str = "file://fake_doc.xml", version: int = 0) -> TextDocument:
+        """Converts the given string into a TextDocument.
 
         Args:
-            - source (str): The input string to be converted to Document.
+            - source (str): The input string to be converted to TextDocument.
             - uri (str, optional): The uri of the document. Defaults to "file://fake_doc.xml".
             - version (int, optional): The version of the document. Defaults to 0.
 
         Returns:
-            Document: The resulting Document.
+            TextDocument: The resulting TextDocument.
         """
-        return Document(uri, source, version)
+        return TextDocument(uri, source, version)
 
     @staticmethod
     def from_source_to_xml_document(source: str, uri: str = "file://fake_doc.xml", version: int = 0) -> XmlDocument:
@@ -35,11 +35,11 @@ class TestUtils:
         Returns:
             XmlDocument: The resulting XML document.
         """
-        document = Document(uri, source, version)
+        document = TextDocument(uri, source, version)
         return TestUtils.from_document_to_xml_document(document)
 
     @staticmethod
-    def from_document_to_xml_document(document: Document) -> XmlDocument:
+    def from_document_to_xml_document(document: TextDocument) -> XmlDocument:
         """Converts the given document into a parsed XML document.
 
         Args:
@@ -73,19 +73,19 @@ class TestUtils:
         return (mark_position, source)
 
     @staticmethod
-    def get_test_document_from_file(filename: str) -> Document:
-        """Gets a Document object from the tests/files directory with the given
+    def get_test_document_from_file(filename: str) -> TextDocument:
+        """Gets a TextDocument object from the tests/files directory with the given
         filename.
 
         Args:
             filename (str): The filename, including the extension.
 
         Returns:
-            Document: The Document object of the test file.
+            TextDocument: The TextDocument object of the test file.
         """
         path = Path(__file__).parent.parent / "files" / filename
         uri = path.as_uri()
-        return Document(uri)
+        return TextDocument(uri)
 
     @staticmethod
     def get_test_xml_document_from_file(filename: str) -> XmlDocument:

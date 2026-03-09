@@ -10,7 +10,7 @@ from lsprotocol.types import (
     Range,
 )
 from lxml import etree
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 from galaxyls.services.tools.constants import (
     IMPORT,
@@ -37,7 +37,7 @@ class GalaxyToolXmlDocument:
     information from the document.
     """
 
-    def __init__(self, document: Document, xml_document: XmlDocument | None = None) -> None:
+    def __init__(self, document: TextDocument, xml_document: XmlDocument | None = None) -> None:
         self.xml_document = xml_document or XmlDocumentParser().parse(document)
         self.document = document
 
@@ -237,7 +237,7 @@ class GalaxyToolXmlDocument:
                 expanded_tool_tree, _ = xml_macros.load_with_references(document.path)
                 expanded_tool_tree = cast(etree._ElementTree, expanded_tool_tree)  # type: ignore
                 expanded_source = etree.tostring(expanded_tool_tree, encoding=str)
-                expanded_document = Document(uri=document.uri, source=expanded_source, version=document.version)
+                expanded_document = TextDocument(uri=document.uri, source=expanded_source, version=document.version)
                 return GalaxyToolXmlDocument(expanded_document)
             except BaseException:
                 return self

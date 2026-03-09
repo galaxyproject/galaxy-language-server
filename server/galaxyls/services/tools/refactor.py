@@ -159,7 +159,7 @@ class RefactorMacrosService:
         xml_content = f'<macros>\n<xml name="{macro.name}">\n{macro.content}\n</xml>\n</macros>'
         final_xml_content = self.format_service.format_content(xml_content)
         new_doc_insert_position = Position(line=0, character=0)
-        tool_document = self.workspace.get_document(params.text_document.uri)
+        tool_document = self.workspace.get_text_document(params.text_document.uri)
         changes: DocumentChanges = [
             CreateFile(uri=new_file_uri, kind=ResourceOperationKind.Create),
             TextDocumentEdit(

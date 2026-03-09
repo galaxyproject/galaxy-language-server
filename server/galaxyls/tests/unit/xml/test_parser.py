@@ -1,7 +1,6 @@
-
 import pytest
 from lsprotocol.types import Position
-from pygls.workspace import Document
+from pygls.workspace import TextDocument
 
 from ....services.xml.nodes import (
     XmlAttribute,
@@ -66,7 +65,7 @@ class TestXmlDocumentParserClass:
             (TEST_SYNTAX_ERROR_TOOL_01_DOCUMENT, DocumentType.UNKNOWN),
         ],
     )
-    def test_parse_returns_expected_document_type(self, document: Document, expected: DocumentType) -> None:
+    def test_parse_returns_expected_document_type(self, document: TextDocument, expected: DocumentType) -> None:
         parser = XmlDocumentParser()
 
         xml_document = parser.parse(document)
@@ -248,7 +247,7 @@ class TestXmlDocumentParserClass:
             (TEST_TOOL_01_DOCUMENT, Position(line=3, character=8), NodeType.ELEMENT),
         ],
     )
-    def test_get_node_at_returns_expected_type(self, document: Document, position: Position, expected: NodeType) -> None:
+    def test_get_node_at_returns_expected_type(self, document: TextDocument, position: Position, expected: NodeType) -> None:
         parser = XmlDocumentParser()
         xml_document = parser.parse(document)
         offset = document.offset_at_position(position)

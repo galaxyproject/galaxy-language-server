@@ -4,7 +4,7 @@ from typing import (
 
 import pytest
 from pygls.workspace import (
-    Document,
+    TextDocument,
     Workspace,
 )
 from pytest_mock import MockerFixture
@@ -18,7 +18,7 @@ TEST_DOCUMENTS = [
 ]
 
 
-def get_document_by_name(name: str) -> Document | None:
+def get_document_by_name(name: str) -> TextDocument | None:
     if name in TEST_DOCUMENTS:
         return TestUtils.get_test_document_from_file(name)
     return None
@@ -26,18 +26,18 @@ def get_document_by_name(name: str) -> Document | None:
 
 @pytest.fixture()
 def fake_workspace(mocker: MockerFixture) -> Workspace:
-    workspace_documents: dict[str, Document] = {}
+    workspace_documents: dict[str, TextDocument] = {}
     for doc_name in TEST_DOCUMENTS:
         doc = get_document_by_name(doc_name)
         if doc:
             workspace_documents[doc.uri] = doc
 
-    def get_document(uri: str) -> Document:
+    def get_text_document(uri: str) -> TextDocument:
         return workspace_documents[uri]
 
     workspace = mocker.Mock()
-    workspace.documents = workspace_documents.keys()
-    workspace.get_document.side_effect = get_document
+    workspace.text_documents = workspace_documents.keys()
+    workspace.get_text_document.side_effect = get_text_document
     return cast(Workspace, workspace)
 
 

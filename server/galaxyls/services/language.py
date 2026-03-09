@@ -1,4 +1,3 @@
-
 from lsprotocol.types import (
     CodeAction,
     CodeActionParams,
@@ -15,7 +14,7 @@ from lsprotocol.types import (
     TextEdit,
 )
 from pygls.workspace import (
-    Document,
+    TextDocument,
     Workspace,
 )
 
@@ -131,21 +130,21 @@ class GalaxyToolLanguageService:
         context = self.xml_context_service.get_xml_context(xml_document, position_before_trigger)
         return self.completion_service.get_auto_close_tag(context, trigger_character)
 
-    def generate_tests(self, document: Document) -> GeneratedSnippetResult | None:
+    def generate_tests(self, document: TextDocument) -> GeneratedSnippetResult | None:
         """Generates a code snippet with some tests for the current inputs and outputs
         of this tool wrapper."""
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestSnippetGenerator(tool)
         return generator.generate_snippet()
 
-    def update_tests_profile(self, document: Document) -> WorkspaceEditResult | None:
+    def update_tests_profile(self, document: TextDocument) -> WorkspaceEditResult | None:
         """Generates a workspace edit to update the test cases if they are not
         compatible with the 24.2 profile validation."""
         tool = GalaxyToolXmlDocument(document)
         generator = GalaxyToolTestUpdater(tool)
         return generator.generate_workspace_edit()
 
-    def generate_command(self, document: Document) -> GeneratedSnippetResult | None:
+    def generate_command(self, document: TextDocument) -> GeneratedSnippetResult | None:
         """Generates a boilerplate Cheetah code snippet based on the current inputs and outputs
         of this tool wrapper."""
         tool = GalaxyToolXmlDocument(document)
