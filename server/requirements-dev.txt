@@ -2,7 +2,7 @@
 # But imports the runtime ones too
 -r requirements.txt
 
-ruff==0.15.7
+ruff==0.15.8
 lxml-stubs==0.5.1
 mypy==1.19.1
 pytest-cov==7.1.0
