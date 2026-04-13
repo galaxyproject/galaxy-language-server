@@ -1,5 +1,5 @@
 pygls==2.0.1
-lxml==6.0.2
+lxml==6.0.4
 anytree==2.13.0
-galaxy-tool-util==25.1.2
+galaxy-tool-util==26.0.0
 edam-ontology==1.25.3
