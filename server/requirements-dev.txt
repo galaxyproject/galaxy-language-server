@@ -2,11 +2,11 @@
 # But imports the runtime ones too
 -r requirements.txt
 
-ruff==0.15.9
+ruff==0.15.10
 lxml-stubs==0.5.1
-mypy==1.20.0
+mypy==1.20.1
 pytest-cov==7.1.0
 pytest-mock==3.15.1
-pytest==9.0.2
+pytest==9.0.3
 setuptools==82.0.1
-types-setuptools==82.0.0.20260402
+types-setuptools==82.0.0.20260408
