@@ -15,6 +15,7 @@ export namespace Constants {
     export const EXPAND_DOCUMENT_URI_SUFFIX = "%20%28Expanded%29";
 
     export const PLANEMO_TEST_OUTPUT_CHANNEL = "Planemo Tests";
+    export const PLANEMO_INDIVIDUAL_TEST_MIN_VERSION = "0.75.43";
 }
 
 export namespace DiagnosticCodes {

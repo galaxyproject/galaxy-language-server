@@ -21,6 +21,8 @@ export interface IPlanemoTestingConfiguration {
     autoTestDiscoverOnSaveEnabled(): boolean;
 
     extraParams(): string;
+
+    supportsIndividualTestRun(planemoBinaryPath: string): Promise<boolean>;
 }
 
 export interface IConfigurationFactory {
