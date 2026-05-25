@@ -303,7 +303,7 @@ export async function saveAndWaitForDiagnostics(
     severityFilter: vscode.DiagnosticSeverity | null = null,
     timeoutInMilliseconds: number = 5000
 ): Promise<vscode.Diagnostic[]> {
-    const settled = waitForDiagnosticsChange(document.uri, timeoutInMilliseconds);
+    const settled = waitForDiagnosticsChangeAfterSave(document.uri, timeoutInMilliseconds);
     await document.save();
     await settled;
     let diagnostics = vscode.languages.getDiagnostics(document.uri);
@@ -371,6 +371,38 @@ function insertTrailingSpaceAtPosition(position: vscode.Position, editBuilder: v
 
 function createInsertTrailingSpaceCallback(position: vscode.Position): (editBuilder: vscode.TextEditorEdit) => void {
     return (editBuilder) => insertTrailingSpaceAtPosition(position, editBuilder);
+}
+
+function waitForDiagnosticsChangeAfterSave(docUri: vscode.Uri, timeoutInMilliseconds: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+        let saveObserved = false;
+        const target = docUri.toString();
+
+        const cleanup = (): void => {
+            saveDisposable.dispose();
+            diagnosticsDisposable.dispose();
+            clearTimeout(timer);
+            resolve();
+        };
+
+        const saveDisposable = vscode.workspace.onDidSaveTextDocument((savedDocument) => {
+            if (savedDocument.uri.toString() === target) {
+                saveObserved = true;
+            }
+        });
+
+        const diagnosticsDisposable = vscode.languages.onDidChangeDiagnostics((event) => {
+            if (!saveObserved) {
+                return;
+            }
+            if (!event.uris.some((uri) => uri.toString() === target)) {
+                return;
+            }
+            cleanup();
+        });
+
+        const timer = setTimeout(cleanup, timeoutInMilliseconds);
+    });
 }
 
 class DiagnosticsWaiter {
