@@ -172,7 +172,7 @@ Now you can automatically sort the attributes of param elements according to the
 You can now run `planemo test` for the currently opened tool directly from the `Test Explorer`.
 
 -   The tests are automatically discovered by the `galaxy-language-server` when you open a tool or save the document (this can be controlled by the settings).
--   You can then run all the tests from the `Test Explorer` by using `planemo test` in the background. Currently running individual tests is not supported as AFAIK `planemo` does not have an option to do so at the moment.
+-   You can run all tests from the `Test Explorer` by using `planemo test` in the background, or run individual tests or a selection of tests by selecting them in the Test Explorer and running them.
 -   After successfully running the tests, the results will be displayed in a convenient way directly on your source XML.
 
 The failing tests will be marked in red and the reason for failure can be seen directly beside the test definition (or you can right click the icon next to your test definition and choose `Peek Error`). You can also directly navigate to each of the tests XML source from the `Test Explorer`.

@@ -14,10 +14,11 @@ import {
     Uri,
     window,
 } from "vscode";
-import { execAsync, readFile } from "../../utils";
+import { readFile } from "../../utils";
 import { IConfigurationFactory, IPlanemoConfiguration } from "../configuration";
 import { DirectoryTreeItem } from "../../views/common";
 import { logger } from "../../logger";
+import { getPlanemoVersion, isKnownPlanemoVersion } from "../../planemo/planemoVersion";
 
 const PLANEMO_LABEL = "Planemo";
 const GALAXY_LABEL = "Galaxy";
@@ -54,7 +55,7 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
     >();
     readonly onDidChangeTreeData: Event<TreeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    constructor(private configFactory: IConfigurationFactory) {}
+    constructor(private configFactory: IConfigurationFactory) { }
 
     refresh(): void {
         this._onDidChangeTreeData.fire();
@@ -133,12 +134,8 @@ export class PlanemoConfigTreeDataProvider implements TreeDataProvider<TreeItem>
 
     private async getPlanemoVersion(planemoConfig: IPlanemoConfiguration): Promise<string> {
         try {
-            const planemoPath = planemoConfig.binaryPath();
-            const getPlanemoVersionCmd = `"${planemoPath}" --version`;
-            const commandResult = await execAsync(getPlanemoVersionCmd);
-            const versionMatch = commandResult.match(new RegExp(/[\d.]+/g));
-            const version = versionMatch?.pop();
-            return version ?? UNKNOWN;
+            const version = await getPlanemoVersion(planemoConfig.binaryPath());
+            return isKnownPlanemoVersion(version) ? version : UNKNOWN;
         } catch (error) {
             logger.warn(`Failed to get Planemo version: ${error}`);
             return UNKNOWN;

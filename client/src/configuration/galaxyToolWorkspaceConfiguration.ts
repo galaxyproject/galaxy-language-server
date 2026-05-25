@@ -2,7 +2,9 @@ import { join } from "path";
 import { lookpath } from "lookpath";
 import { workspace, WorkspaceConfiguration } from "vscode";
 
+import { Constants } from "../constants";
 import { IPlanemoConfiguration, IPlanemoTestingConfiguration } from "../planemo/configuration";
+import { getPlanemoVersion, meetsMinVersion } from "../planemo/planemoVersion";
 import { exists } from "../utils";
 import { ConfigValidationResult, IServerConfiguration, IWorkspaceConfiguration } from "./workspaceConfiguration";
 
@@ -117,5 +119,10 @@ class GalaxyToolsPlanemoTestingConfiguration implements IPlanemoTestingConfigura
 
     extraParams(): string {
         return this.config.get("planemo.testing.extraParams", "");
+    }
+
+    async supportsIndividualTestRun(planemoBinaryPath: string): Promise<boolean> {
+        const version = await getPlanemoVersion(planemoBinaryPath);
+        return meetsMinVersion(version, Constants.PLANEMO_INDIVIDUAL_TEST_MIN_VERSION);
     }
 }
