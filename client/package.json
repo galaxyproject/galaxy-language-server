@@ -346,7 +346,7 @@
     "iconv-lite": "^0.6.3",
     "lookpath": "^1.2.2",
     "semver": "^7.5.4",
-    "tmp": "^0.2.4",
+    "tmp": "^0.2.6",
     "vscode-languageclient": "^7.0.0"
   }
 }
