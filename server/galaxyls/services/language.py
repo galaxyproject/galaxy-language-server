@@ -12,6 +12,7 @@ from lsprotocol.types import (
     Position,
     Range,
     TextEdit,
+    WorkspaceEdit,
 )
 from pygls.workspace import (
     TextDocument,
@@ -37,6 +38,16 @@ from galaxyls.services.tools.refactor import (
     RefactoringService,
     RefactorMacrosService,
 )
+
+try:
+    # Optional: the parameter rename/references engine (galaxy-tool-xml). The feature
+    # self-registers only when it is importable, so the server still works without it.
+    from galaxyls.services.tools.rename import RenameService
+
+    RENAME_FEATURE_AVAILABLE = True
+except ImportError:
+    RenameService = None  # type: ignore[assignment, misc]
+    RENAME_FEATURE_AVAILABLE = False
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 
 from ..config import CompletionMode
@@ -76,6 +87,7 @@ class GalaxyToolLanguageService:
         self.link_provider = DocumentLinksProvider()
         self.symbols_provider = DocumentSymbolsProvider()
         self.param_references_provider = ParamReferencesProvider()
+        self.rename_service = RenameService() if RENAME_FEATURE_AVAILABLE else None
 
     def set_workspace(self, workspace: Workspace) -> None:
         macro_definitions_provider = MacroDefinitionsProvider(workspace)
@@ -174,3 +186,21 @@ class GalaxyToolLanguageService:
         if self.definitions_provider:
             return self.definitions_provider.go_to_definition(xml_document, position)
         return None
+
+    def prepare_param_rename(self, document: TextDocument, position: Position) -> Range | None:
+        """Returns the renameable range under the cursor, or None to reject the rename."""
+        if self.rename_service is None:
+            return None
+        return self.rename_service.prepare_rename(document, position)
+
+    def rename_param(self, document: TextDocument, position: Position, new_name: str) -> WorkspaceEdit | None:
+        """Returns a minimal WorkspaceEdit renaming the parameter under the cursor."""
+        if self.rename_service is None:
+            return None
+        return self.rename_service.rename(document, position, new_name)
+
+    def get_param_references(self, document: TextDocument, position: Position) -> list[Location] | None:
+        """Returns every occurrence of the parameter under the cursor (definition + references)."""
+        if self.rename_service is None:
+            return None
+        return self.rename_service.find_references(document, position)

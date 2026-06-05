@@ -12,6 +12,9 @@ from lsprotocol.types import (
     TEXT_DOCUMENT_DOCUMENT_SYMBOL,
     TEXT_DOCUMENT_FORMATTING,
     TEXT_DOCUMENT_HOVER,
+    TEXT_DOCUMENT_PREPARE_RENAME,
+    TEXT_DOCUMENT_REFERENCES,
+    TEXT_DOCUMENT_RENAME,
     WORKSPACE_DID_CHANGE_CONFIGURATION,
     CodeAction,
     CodeActionKind,
@@ -37,18 +40,27 @@ from lsprotocol.types import (
     Location,
     LogMessageParams,
     MessageType,
+    PrepareRenameParams,
     PublishDiagnosticsParams,
+    Range,
+    ReferenceParams,
+    RenameOptions,
+    RenameParams,
     ShowMessageParams,
     TextDocumentIdentifier,
     TextDocumentPositionParams,
     TextEdit,
+    WorkspaceEdit,
 )
 from pygls.lsp.server import LanguageServer
 from pygls.workspace import TextDocument
 
 from galaxyls.config import CompletionMode, GalaxyToolsConfiguration
 from galaxyls.constants import Commands
-from galaxyls.services.language import GalaxyToolLanguageService
+from galaxyls.services.language import (
+    RENAME_FEATURE_AVAILABLE,
+    GalaxyToolLanguageService,
+)
 from galaxyls.services.validation import DocumentValidator
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.parser import XmlDocumentParser
@@ -173,6 +185,35 @@ def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionPa
         xml_document = _get_xml_document(document)
         return server.service.go_to_definition(xml_document, params.position)
     return None
+
+
+# The parameter Rename Symbol / Find References feature depends on an optional engine
+# (galaxy-tool-xml); only advertise it to clients when that engine is installed.
+if RENAME_FEATURE_AVAILABLE:
+
+    @language_server.feature(TEXT_DOCUMENT_PREPARE_RENAME)
+    def prepare_rename(server: GalaxyToolsLanguageServer, params: PrepareRenameParams) -> Range | None:
+        """Checks whether the symbol under the cursor (a tool parameter) can be renamed."""
+        document = _get_valid_document(server, params.text_document.uri)
+        if document:
+            return server.service.prepare_param_rename(document, params.position)
+        return None
+
+    @language_server.feature(TEXT_DOCUMENT_RENAME, RenameOptions(prepare_provider=True))
+    def rename(server: GalaxyToolsLanguageServer, params: RenameParams) -> WorkspaceEdit | None:
+        """Renames a tool parameter and every reference to it across the document."""
+        document = _get_valid_document(server, params.text_document.uri)
+        if document:
+            return server.service.rename_param(document, params.position, params.new_name)
+        return None
+
+    @language_server.feature(TEXT_DOCUMENT_REFERENCES)
+    def references(server: GalaxyToolsLanguageServer, params: ReferenceParams) -> list[Location] | None:
+        """Finds every occurrence of the tool parameter under the cursor."""
+        document = _get_valid_document(server, params.text_document.uri)
+        if document:
+            return server.service.get_param_references(document, params.position)
+        return None
 
 
 @language_server.feature(TEXT_DOCUMENT_DOCUMENT_LINK)

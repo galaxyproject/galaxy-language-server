@@ -10,3 +10,11 @@ pytest-mock==3.15.1
 pytest==9.0.3
 setuptools==82.0.1
 types-setuptools==82.0.0.20260518
+
+# Optional engine for the parameter Rename Symbol / Find References feature. It is NOT a
+# runtime requirement (kept out of requirements.txt / install_requires so the published
+# package carries no direct-URL dependency); the feature self-registers only when it is
+# importable. Not yet on PyPI, so it is installed from the public source repo's subdirectory
+# (pinned to a commit). Users who want the feature install it the same way until it ships on
+# PyPI: pip install "galaxy-tool-xml[cheetah-cdm] @ git+https://github.com/richard-burhans/galaxy-tool-refactor.git#subdirectory=galaxy-tool-xml"
+galaxy-tool-xml[cheetah-cdm] @ git+https://github.com/richard-burhans/galaxy-tool-refactor.git@34dfed2b37446f220e386a4f7813ed5a52ce19b0#subdirectory=galaxy-tool-xml
