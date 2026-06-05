@@ -90,6 +90,8 @@ class GalaxyToolLanguageService:
         self.rename_service = RenameService() if RENAME_FEATURE_AVAILABLE else None
 
     def set_workspace(self, workspace: Workspace) -> None:
+        if self.rename_service is not None:
+            self.rename_service.set_workspace(workspace)
         macro_definitions_provider = MacroDefinitionsProvider(workspace)
         self.definitions_provider = DocumentDefinitionsProvider(macro_definitions_provider)
         self.completion_service = XmlCompletionService(self.xsd_tree, self.definitions_provider)

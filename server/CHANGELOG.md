@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add **Rename Symbol** for tool parameters: rename a `<param>` and every `$param` reference (through `#if` directives, dotted accesses, output labels, by-name cross-reference attributes and `<tests>` mirrors) in one edit, leaving `#raw`/comment/`<help>` occurrences untouched and refusing unsafe renames with a clear message. Also adds **Find All References** for parameters. Backed by the optional [`galaxy-tool-xml`](https://github.com/richard-burhans/galaxy-tool-refactor) engine — the feature self-registers only when that package is installed (`pip install "galaxy-tool-xml[cheetah-cdm]"`); the server is unaffected without it.
+- Add **Rename Symbol** for tool parameters: rename a `<param>` and every `$param` reference (through `#if` directives, dotted accesses, output labels, by-name cross-reference attributes and `<tests>` mirrors) in one edit, leaving `#raw`/comment/`<help>` occurrences untouched and refusing unsafe renames with a clear message. The rename **spans imported macro files** — a reference that lives only in a macro the tool `<import>`s is rewritten too (a multi-file workspace edit), so it is never silently left dangling; the rename bails atomically if a macro references the parameter but cannot be rewritten safely. Also adds **Find All References** for parameters, across the tool and its imported macros. Backed by the optional [`galaxy-tool-xml`](https://github.com/richard-burhans/galaxy-tool-refactor) engine — the feature self-registers only when that package is installed (`pip install "galaxy-tool-xml[cheetah-cdm]"`); the server is unaffected without it.
 
 ## [0.15.0] - 2026-02-16
 

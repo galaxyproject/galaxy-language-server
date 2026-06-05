@@ -8,9 +8,20 @@ requests. The engine owns the semantics — which ``$param`` references are real
 attributes and ``<tests>`` mirrors), refusing to touch a ``$param`` inside ``#raw`` / a ``##``
 comment / ``<help>`` prose, and bailing atomically when it cannot prove the rewrite safe —
 so this layer is only offset/Range conversion plus a human message for each bail reason.
+
+A parameter is frequently *defined* in the tool but *referenced* inside a macro file it
+``<import>``s. The rename therefore spans the **bundle**: it runs the engine over the open
+tool document and over each imported macro file, assembling a multi-file ``WorkspaceEdit``
+so a reference living only in a macro is not silently left dangling. Macro files are read
+through the workspace (honouring unsaved editor buffers) when one is available, else from
+disk. The whole rename bails if a macro file references the parameter but cannot be rewritten
+safely (the same atomicity the single-tool rename guarantees).
 """
 
-from galaxy_tool_xml.cheetah_rename import rename_param_plan
+from pathlib import Path
+
+from galaxy_tool_xml.cheetah_rename import RenamePlan, rename_param_plan
+from galaxy_tool_xml.macros import imported_macro_paths
 from lsprotocol.types import (
     Location,
     Position,
@@ -20,13 +31,15 @@ from lsprotocol.types import (
 )
 from lxml import etree
 from pygls.exceptions import JsonRpcInvalidParams
-from pygls.workspace import TextDocument
+from pygls.uris import from_fs_path, to_fs_path
+from pygls.workspace import TextDocument, Workspace
 
 from galaxyls.services.xml.utils import convert_document_offsets_to_range
 
 # Tags under <inputs>/<outputs> whose ``name`` *defines* a parameter/output: a rename is
-# only offered for a name defined in THIS document, so renaming every local site is complete
-# (a ``$x`` that is merely referenced may be supplied by an imported macro — out of scope).
+# only offered for a name defined in THIS document. References to it may live in the tool
+# AND in the macro files it ``<import>``s — the rename follows the parameter into those
+# macro files too (see ``RenameService._macro_targets``), so the rewrite stays complete.
 _INPUT_DEFINITION_TAGS = frozenset({"param", "conditional", "repeat", "section"})
 _OUTPUT_DEFINITION_TAGS = frozenset({"data", "collection"})
 
@@ -94,8 +107,55 @@ def _defined_param_names(source: str) -> set[str]:
     return names
 
 
+def _text_edits(document: TextDocument, plan: RenamePlan) -> list[TextEdit]:
+    """Convert a rename plan's offset edits into LSP ``TextEdit``\\ s for *document*."""
+    return [
+        TextEdit(
+            range=convert_document_offsets_to_range(document, edit.start, edit.end),
+            new_text=edit.replacement,
+        )
+        for edit in plan.edits
+    ]
+
+
+def _bail_error(old: str, new: str, reason: str | None) -> JsonRpcInvalidParams:
+    """The user-facing error for an atomic rename bail."""
+    template = _BAIL_MESSAGES.get(reason or "", _FALLBACK_BAIL_MESSAGE)
+    return JsonRpcInvalidParams(message=template.format(old=old, new=new))
+
+
 class RenameService:
-    """Provides parameter rename + find-references over a tool document."""
+    """Provides parameter rename + find-references over a tool document and its macros."""
+
+    def __init__(self, workspace: Workspace | None = None) -> None:
+        """*workspace*, when given, makes imported macro reads honour unsaved buffers."""
+        self._workspace = workspace
+
+    def set_workspace(self, workspace: Workspace) -> None:
+        """Record the workspace so imported macro files are read buffer-first."""
+        self._workspace = workspace
+
+    def _macro_targets(self, document: TextDocument) -> list[TextDocument]:
+        """The macro files *document* imports, as ``TextDocument``\\ s (buffer-aware).
+
+        Resolves the tool's transitive ``<import>``s relative to its own location on disk
+        (``imported_macro_paths``). Each macro is read through the workspace when one is set
+        — so an unsaved editor buffer wins — otherwise from disk. Returns ``[]`` for an
+        in-memory document with no filesystem path, or one that imports nothing.
+        """
+        tool_path = to_fs_path(document.uri)
+        if tool_path is None:
+            return []
+        targets: list[TextDocument] = []
+        for macro_path in imported_macro_paths(Path(tool_path)):
+            uri = from_fs_path(str(macro_path))
+            if uri is None:
+                continue
+            if self._workspace is not None:
+                targets.append(self._workspace.get_text_document(uri))
+            else:
+                targets.append(TextDocument(uri, macro_path.read_text(encoding="utf-8")))
+        return targets
 
     def prepare_rename(self, document: TextDocument, position: Position) -> Range | None:
         """The renameable range under *position*, or ``None`` to reject the rename.
@@ -129,22 +189,28 @@ class RenameService:
             raise JsonRpcInvalidParams(message="Place the cursor on a tool parameter to rename it.")
         plan = rename_param_plan(document.source, old=name, new=new_name)
         if plan.bailed:
-            template = _BAIL_MESSAGES.get(plan.reason or "", _FALLBACK_BAIL_MESSAGE)
-            raise JsonRpcInvalidParams(message=template.format(old=name, new=new_name))
-        edits = [
-            TextEdit(
-                range=convert_document_offsets_to_range(document, edit.start, edit.end),
-                new_text=edit.replacement,
-            )
-            for edit in plan.edits
-        ]
-        return WorkspaceEdit(changes={document.uri: edits})
+            raise _bail_error(name, new_name, plan.reason)
+        changes = {document.uri: _text_edits(document, plan)}
+        for macro in self._macro_targets(document):
+            macro_plan = rename_param_plan(macro.source, old=name, new=new_name)
+            if macro_plan.bailed:
+                # The macro does not mention the parameter -> nothing to do for it. Any
+                # other bail means it references the parameter but cannot be rewritten
+                # safely, so the whole (atomic) rename is refused rather than half-applied.
+                if macro_plan.reason == "not-found":
+                    continue
+                raise _bail_error(name, new_name, macro_plan.reason)
+            if macro_plan.edits:
+                changes[macro.uri] = _text_edits(macro, macro_plan)
+        return WorkspaceEdit(changes=changes)
 
     def find_references(self, document: TextDocument, position: Position) -> list[Location] | None:
-        """Every occurrence of the parameter under *position* (definition + references).
+        """Every occurrence of the parameter under *position*, across the tool and its macros.
 
         Returns ``None`` when the cursor is not on a renameable parameter. Reuses the rename
-        plan's edit spans — each covers exactly one occurrence of the name in the source.
+        plan's edit spans — each covers exactly one occurrence of the name in a file. Macro
+        files that cannot be rewritten safely are skipped (references are best-effort and
+        read-only), unlike ``rename`` which bails the whole operation.
         """
         offset = document.offset_at_position(position)
         name = _identifier_at(document.source, offset)
@@ -153,7 +219,15 @@ class RenameService:
         plan = rename_param_plan(document.source, old=name, new=f"{name}Ref")
         if plan.bailed:
             return None
-        return [
+        locations = [
             Location(uri=document.uri, range=convert_document_offsets_to_range(document, edit.start, edit.end))
             for edit in plan.edits
         ]
+        for macro in self._macro_targets(document):
+            macro_plan = rename_param_plan(macro.source, old=name, new=f"{name}Ref")
+            if not macro_plan.bailed:
+                locations.extend(
+                    Location(uri=macro.uri, range=convert_document_offsets_to_range(macro, edit.start, edit.end))
+                    for edit in macro_plan.edits
+                )
+        return locations

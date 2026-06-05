@@ -4,8 +4,11 @@ import pytest
 
 pytest.importorskip("galaxy_tool_xml", reason="the optional rename engine is not installed")
 
+from pathlib import Path  # noqa: E402
+
 from lsprotocol.types import Position, WorkspaceEdit  # noqa: E402
 from pygls.exceptions import JsonRpcInvalidParams  # noqa: E402
+from pygls.uris import from_fs_path  # noqa: E402
 from pygls.workspace import TextDocument  # noqa: E402
 
 from galaxyls.services.tools.rename import RenameService  # noqa: E402
@@ -155,3 +158,94 @@ def test_find_references_none_off_word() -> None:
     # cursor just after $old resolves to "old" — to get a true None, sit on whitespace
     document, position = _document_and_position("<tool><command>run $old ^</command></tool>")
     assert RenameService().find_references(document, position) is None
+
+
+# --- cross-file: rename / references span imported macro files -------------------
+# A parameter is defined in the tool but referenced in an imported macro (the real
+# pal2nal shape). The rename must follow it into the macro file, or it silently breaks.
+
+_PAL2NAL_MACROS = (
+    "<macros><xml name='command'>"
+    "<command><![CDATA[pal2nal '$protein_alignment']]></command></xml></macros>"
+)
+_PAL2NAL_TOOL = (
+    "<tool id='pal2nal'><macros><import>macros.xml</import></macros>"
+    "<inputs><param name='protein_^alignment' type='data'/></inputs>"
+    "<expand macro='command'/></tool>"
+)
+
+
+def _bundle(tmp_path: Path, tool_with_mark: str, macros_source: str) -> tuple[TextDocument, Position]:
+    """Write tool + macros.xml to *tmp_path*; return the tool's (TextDocument, Position)."""
+    (tmp_path / "macros.xml").write_text(macros_source, encoding="utf-8")
+    position, source = TestUtils.extract_mark_from_source(MARK, tool_with_mark)
+    tool_path = tmp_path / "tool.xml"
+    tool_path.write_text(source, encoding="utf-8")
+    return TextDocument(from_fs_path(str(tool_path)), source), position
+
+
+def _macro_uri(tmp_path: Path) -> str:
+    return from_fs_path(str((tmp_path / "macros.xml").resolve()))
+
+
+def _apply_for_uri(uri: str, source: str, workspace_edit: WorkspaceEdit) -> str:
+    """Apply a WorkspaceEdit's TextEdits for one *uri* to *source*, highest offset first."""
+    assert workspace_edit.changes is not None
+    document = TextDocument(uri, source)
+    spans = [
+        (document.offset_at_position(e.range.start), document.offset_at_position(e.range.end), e.new_text)
+        for e in workspace_edit.changes.get(uri, [])
+    ]
+    result = source
+    for start, end, new_text in sorted(spans, reverse=True):
+        result = result[:start] + new_text + result[end:]
+    return result
+
+
+def test_rename_spans_imported_macro(tmp_path: Path) -> None:
+    document, position = _bundle(tmp_path, _PAL2NAL_TOOL, _PAL2NAL_MACROS)
+    edit = RenameService().rename(document, position, "aln")
+    assert edit.changes is not None
+    macro_uri = _macro_uri(tmp_path)
+    assert document.uri in edit.changes and macro_uri in edit.changes  # both files edited
+    # The tool's definition is renamed...
+    tool_result = _apply_for_uri(document.uri, document.source, edit)
+    assert "name='aln'" in tool_result
+    # ...and the reference in the macro file is renamed too.
+    macro_src = (tmp_path / "macros.xml").read_text(encoding="utf-8")
+    macro_result = _apply_for_uri(macro_uri, macro_src, edit)
+    assert "$aln" in macro_result and "protein_alignment" not in macro_result
+
+
+def test_rename_unrelated_macro_is_not_edited(tmp_path: Path) -> None:
+    macros = "<macros><xml name='reqs'><requirement>x</requirement></xml></macros>"
+    tool = (
+        "<tool id='t'><macros><import>macros.xml</import></macros>"
+        "<inputs><param name='o^ld'/></inputs><command>run $old</command></tool>"
+    )
+    document, position = _bundle(tmp_path, tool, macros)
+    edit = RenameService().rename(document, position, "new")
+    assert edit.changes is not None
+    assert _macro_uri(tmp_path) not in edit.changes  # the macro never mentions the param
+    assert document.uri in edit.changes
+
+
+def test_rename_bails_when_macro_reference_is_unsafe(tmp_path: Path) -> None:
+    # The macro references the param but a #set local shadows it -> the whole rename bails.
+    macros = (
+        "<macros><xml name='command'><command>"
+        "#set $protein_alignment = 1\nrun $protein_alignment</command></xml></macros>"
+    )
+    document, position = _bundle(tmp_path, _PAL2NAL_TOOL, macros)
+    with pytest.raises(JsonRpcInvalidParams) as excinfo:
+        RenameService().rename(document, position, "aln")
+    assert "shadow" in str(excinfo.value).lower()
+
+
+def test_find_references_spans_imported_macro(tmp_path: Path) -> None:
+    document, position = _bundle(tmp_path, _PAL2NAL_TOOL, _PAL2NAL_MACROS)
+    locations = RenameService().find_references(document, position)
+    assert locations is not None
+    uris = {location.uri for location in locations}
+    assert document.uri in uris  # the definition in the tool
+    assert _macro_uri(tmp_path) in uris  # the reference in the macro
