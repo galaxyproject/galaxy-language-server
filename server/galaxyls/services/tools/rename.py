@@ -16,6 +16,18 @@ so a reference living only in a macro is not silently left dangling. Macro files
 through the workspace (honouring unsaved editor buffers) when one is available, else from
 disk. The whole rename bails if a macro file references the parameter but cannot be rewritten
 safely (the same atomicity the single-tool rename guarantees).
+
+**Caveat — no shared-macro gate.** An imported macro is rewritten whenever the open tool
+references the parameter through it, *without* checking whether **other** tools also import
+that macro. If the macro is shared, this rename updates the open tool (and the macro) but
+leaves the other importers still defining the old name — they would each need the same
+rename. The editor shows the full multi-file ``WorkspaceEdit`` to review before applying, so
+the macro edit is at least visible; but the *other* importers are not, so a shared-macro
+rename can leave them inconsistent. The ``galaxy-tool-refactor`` CLI enforces this across a
+repository (``rename-param --repo-root`` skips a shared macro, or ``--across-importers``
+renames every importer in lockstep); bringing that cross-tool gate into the editor — via a
+workspace-wide importer scan — is future work (see the integration note in the
+galaxy-tool-refactor repo, ``docs/upgrade_research/lsp_rename_integration.md``).
 """
 
 from pathlib import Path
