@@ -9,7 +9,7 @@ from pathlib import Path  # noqa: E402
 from lsprotocol.types import Position, WorkspaceEdit  # noqa: E402
 from pygls.exceptions import JsonRpcInvalidParams  # noqa: E402
 from pygls.uris import from_fs_path  # noqa: E402
-from pygls.workspace import TextDocument  # noqa: E402
+from pygls.workspace import TextDocument, Workspace  # noqa: E402
 
 from galaxyls.services.tools.rename import RenameService  # noqa: E402
 from galaxyls.tests.unit.utils import TestUtils  # noqa: E402
@@ -249,3 +249,54 @@ def test_find_references_spans_imported_macro(tmp_path: Path) -> None:
     uris = {location.uri for location in locations}
     assert document.uri in uris  # the definition in the tool
     assert _macro_uri(tmp_path) in uris  # the reference in the macro
+
+
+# --- shared-macro gate (workspace-aware) ----------------------------------------
+# When a rename would edit a macro that ANOTHER tool in the workspace imports, the
+# editor refuses (the counterpart of the CLI's sole-owned gate) rather than silently
+# leave the sibling tool referencing the old name.
+
+
+def _open_tool(tmp_path: Path, name: str, source_with_mark: str) -> tuple[TextDocument, Position]:
+    """Write a marked tool to *name* and return its (TextDocument with a real uri, Position)."""
+    position, source = TestUtils.extract_mark_from_source(MARK, source_with_mark)
+    path = tmp_path / name
+    path.write_text(source, encoding="utf-8")
+    return TextDocument(from_fs_path(str(path)), source), position
+
+
+def test_rename_refuses_shared_macro_in_workspace(tmp_path: Path) -> None:
+    (tmp_path / "shared.xml").write_text(_PAL2NAL_MACROS, encoding="utf-8")
+    tail = (
+        "<macros><import>shared.xml</import></macros>"
+        "<inputs><param name='protein_alignment' type='data'/></inputs>"
+        "<expand macro='command'/></tool>"
+    )
+    # b.xml also imports shared.xml -> the macro is shared.
+    (tmp_path / "b.xml").write_text("<tool id='b'>" + tail, encoding="utf-8")
+    a_marked = (
+        "<tool id='a'><macros><import>shared.xml</import></macros>"
+        "<inputs><param name='protein_^alignment' type='data'/></inputs>"
+        "<expand macro='command'/></tool>"
+    )
+    document, position = _open_tool(tmp_path, "a.xml", a_marked)
+    service = RenameService(Workspace(from_fs_path(str(tmp_path))))
+    with pytest.raises(JsonRpcInvalidParams) as excinfo:
+        service.rename(document, position, "aln")
+    message = str(excinfo.value)
+    assert "shared" in message and "b.xml" in message
+
+
+def test_rename_sole_owned_macro_with_workspace_applies(tmp_path: Path) -> None:
+    # Only the open tool imports the macro -> sole-owned -> the gate does not trip.
+    (tmp_path / "shared.xml").write_text(_PAL2NAL_MACROS, encoding="utf-8")
+    a_marked = (
+        "<tool id='a'><macros><import>shared.xml</import></macros>"
+        "<inputs><param name='protein_^alignment' type='data'/></inputs>"
+        "<expand macro='command'/></tool>"
+    )
+    document, position = _open_tool(tmp_path, "a.xml", a_marked)
+    service = RenameService(Workspace(from_fs_path(str(tmp_path))))
+    edit = service.rename(document, position, "aln")
+    assert edit.changes is not None
+    assert from_fs_path(str((tmp_path / "shared.xml").resolve())) in edit.changes

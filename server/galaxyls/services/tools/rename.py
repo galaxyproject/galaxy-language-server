@@ -18,16 +18,19 @@ disk. The whole rename bails if a macro file references the parameter but cannot
 safely (the same atomicity the single-tool rename guarantees).
 
 **Caveat — no shared-macro gate.** An imported macro is rewritten whenever the open tool
-references the parameter through it, *without* checking whether **other** tools also import
-that macro. If the macro is shared, this rename updates the open tool (and the macro) but
-leaves the other importers still defining the old name — they would each need the same
-rename. The editor shows the full multi-file ``WorkspaceEdit`` to review before applying, so
-the macro edit is at least visible; but the *other* importers are not, so a shared-macro
-rename can leave them inconsistent. The ``galaxy-tool-refactor`` CLI enforces this across a
-repository (``rename-param --repo-root`` skips a shared macro, or ``--across-importers``
-renames every importer in lockstep); bringing that cross-tool gate into the editor — via a
-workspace-wide importer scan — is future work (see the integration note in the
-galaxy-tool-refactor repo, ``docs/upgrade_research/lsp_rename_integration.md``).
+references the parameter through it. Editing a macro **shared** by other tools would leave
+those tools referencing the old name, and they are not shown in the ``WorkspaceEdit`` the
+user reviews. So when a rename would rewrite an imported macro, ``_first_shared_macro`` scans
+the workspace for any *other* tool that imports it (an in-binding reverse-import scan, using
+only ``galaxy_tool_xml``); if one is found the rename is **refused** with a message pointing
+at the ``galaxy-tool-refactor`` CLI (``rename-param --across-importers`` renames every
+importer in lockstep). This mirrors the CLI's sole-owned default.
+
+Two limitations remain (see ``docs/upgrade_research/lsp_rename_integration.md`` in the
+galaxy-tool-refactor repo): the scan walks the workspace on each macro-touching rename (no
+cache yet), and there is no in-editor *consensus* rename — a shared macro is refused, not
+widened. With **no** workspace set (e.g. a single unsaved buffer) ownership cannot be
+proven, so the gate is skipped and the rename proceeds (the documented no-gate fallback).
 """
 
 from pathlib import Path
@@ -136,6 +139,16 @@ def _bail_error(old: str, new: str, reason: str | None) -> JsonRpcInvalidParams:
     return JsonRpcInvalidParams(message=template.format(old=old, new=new))
 
 
+def _is_tool_file(path: Path) -> bool:
+    """Whether *path* parses as a Galaxy tool (a ``<tool>`` root); lenient, never raises."""
+    try:
+        tree = etree.parse(str(path), etree.XMLParser(recover=True))
+    except (etree.XMLSyntaxError, OSError):
+        return False
+    root = tree.getroot()
+    return root is not None and root.tag == "tool"
+
+
 class RenameService:
     """Provides parameter rename + find-references over a tool document and its macros."""
 
@@ -146,6 +159,55 @@ class RenameService:
     def set_workspace(self, workspace: Workspace) -> None:
         """Record the workspace so imported macro files are read buffer-first."""
         self._workspace = workspace
+
+    def _workspace_roots(self) -> list[Path]:
+        """The filesystem roots to scan for tools that might share an edited macro."""
+        if self._workspace is None:
+            return []
+        roots: list[Path] = []
+        if self._workspace.root_path:
+            roots.append(Path(self._workspace.root_path))
+        for folder in (self._workspace.folders or {}).values():
+            path = to_fs_path(folder.uri)
+            if path is not None:
+                roots.append(Path(path))
+        return roots
+
+    def _first_shared_macro(
+        self, edited_macros: list[TextDocument], document: TextDocument
+    ) -> tuple[Path, Path] | None:
+        """The first edited macro that another tool imports, as ``(macro, other_tool)``.
+
+        The editor counterpart of the CLI's sole-owned gate: a macro the rename would
+        rewrite is *shared* if any other tool in the workspace imports it, so editing it
+        here would leave that tool referencing the old name. Scans the workspace roots for
+        tool files and resolves each one's transitive imports. Returns ``None`` when every
+        edited macro is sole-owned, or when no workspace is available to prove ownership
+        (the no-gate fallback the caller documents).
+        """
+        roots = self._workspace_roots()
+        if not roots or not edited_macros:
+            return None
+        open_tool = to_fs_path(document.uri)
+        open_resolved = Path(open_tool).resolve() if open_tool else None
+        edited = {
+            Path(path).resolve()
+            for macro in edited_macros
+            if (path := to_fs_path(macro.uri)) is not None
+        }
+        seen: set[Path] = set()
+        for root in roots:
+            for xml in root.rglob("*.xml"):
+                resolved = xml.resolve()
+                if resolved in seen or resolved == open_resolved or resolved in edited:
+                    continue
+                seen.add(resolved)
+                if not _is_tool_file(xml):
+                    continue
+                shared = edited & set(imported_macro_paths(xml))
+                if shared:
+                    return next(iter(shared)), resolved
+        return None
 
     def _macro_targets(self, document: TextDocument) -> list[TextDocument]:
         """The macro files *document* imports, as ``TextDocument``\\ s (buffer-aware).
@@ -203,6 +265,7 @@ class RenameService:
         if plan.bailed:
             raise _bail_error(name, new_name, plan.reason)
         changes = {document.uri: _text_edits(document, plan)}
+        edited_macros: list[TextDocument] = []
         for macro in self._macro_targets(document):
             macro_plan = rename_param_plan(macro.source, old=name, new=new_name)
             if macro_plan.bailed:
@@ -214,6 +277,20 @@ class RenameService:
                 raise _bail_error(name, new_name, macro_plan.reason)
             if macro_plan.edits:
                 changes[macro.uri] = _text_edits(macro, macro_plan)
+                edited_macros.append(macro)
+        # Shared-macro gate: refuse rather than silently leave other importers inconsistent.
+        shared = self._first_shared_macro(edited_macros, document)
+        if shared is not None:
+            macro_path, other_tool = shared
+            raise JsonRpcInvalidParams(
+                message=(
+                    f"Can't rename '{name}' here: it is referenced in '{macro_path.name}', "
+                    f"a macro shared by other tools (e.g. {other_tool.name}). Renaming it in "
+                    f"the editor would leave those tools referencing '{name}'. Use the "
+                    "galaxy-tool-refactor CLI (rename-param --across-importers) to rename "
+                    "across every importer."
+                )
+            )
         return WorkspaceEdit(changes=changes)
 
     def find_references(self, document: TextDocument, position: Position) -> list[Location] | None:
