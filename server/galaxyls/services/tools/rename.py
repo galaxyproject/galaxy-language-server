@@ -1,6 +1,6 @@
 """Rename a Galaxy tool parameter (and every reference to it) from the editor.
 
-This binds the offset-returning rename engine from ``galaxy_tool_xml`` (``rename_param_plan``,
+This binds the offset-returning rename engine from ``galaxy_tool_source`` (``rename_param_plan``,
 which returns minimal ``(start, end, replacement)`` edits over the original source) to the
 LSP ``textDocument/prepareRename`` / ``textDocument/rename`` / ``textDocument/references``
 requests. The engine owns the semantics — which ``$param`` references are real (through
@@ -22,7 +22,7 @@ references the parameter through it. Editing a macro **shared** by other tools w
 those tools referencing the old name, and they are not shown in the ``WorkspaceEdit`` the
 user reviews. So when a rename would rewrite an imported macro, ``_first_shared_macro`` scans
 the workspace for any *other* tool that imports it (an in-binding reverse-import scan, using
-only ``galaxy_tool_xml``); if one is found the rename is **refused** with a message pointing
+only ``galaxy_tool_source``); if one is found the rename is **refused** with a message pointing
 at the ``galaxy-tool-refactor`` CLI (``rename-param --across-importers`` renames every
 importer in lockstep). This mirrors the CLI's sole-owned default.
 
@@ -35,8 +35,8 @@ proven, so the gate is skipped and the rename proceeds (the documented no-gate f
 
 from pathlib import Path
 
-from galaxy_tool_xml.cheetah_rename import RenamePlan, rename_param_plan
-from galaxy_tool_xml.macros import imported_macro_paths
+from galaxy_tool_source.cheetah_rename import RenamePlan, rename_param_plan
+from galaxy_tool_source.macros import imported_macro_paths
 from lsprotocol.types import (
     Location,
     Position,

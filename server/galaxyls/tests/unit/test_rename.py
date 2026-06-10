@@ -2,7 +2,7 @@
 
 import pytest
 
-pytest.importorskip("galaxy_tool_xml", reason="the optional rename engine is not installed")
+pytest.importorskip("galaxy_tool_source", reason="the optional rename engine is not installed")
 
 from pathlib import Path  # noqa: E402
 
@@ -109,10 +109,27 @@ def test_rename_through_multiline_tag_and_entities() -> None:
     assert "&amp;&amp; run $aligned" in result  # entities preserved, only the token changed
 
 
-def test_rename_bails_with_message_on_filter_bare_ref() -> None:
+def test_rename_now_rewrites_a_clean_filter_bare_ref() -> None:
+    # The engine's tokenize-based <filter> rewrite (galaxy-tool-source decisions
+    # §22, shipped after the original pin) renames an unambiguous bare reference
+    # in an output filter instead of bailing — this case used to raise.
     document, position = _document_and_position(
         "<tool><inputs><param name='old'/></inputs><command>run $o^ld</command>"
         "<outputs><data name='out'><filter>old == 'x'</filter></data></outputs></tool>"
+    )
+    edit = RenameService().rename(document, position, "renamed")
+    result = _apply_workspace_edit(document, edit)
+    assert "<filter>renamed == 'x'</filter>" in result
+    assert "run $renamed" in result
+
+
+def test_rename_bails_with_message_on_ambiguous_filter_bare_ref() -> None:
+    # Still-bailing residual: *old* also appears as a string literal in the
+    # filter (a possible cond['old'] sub-parameter key, indistinguishable from a
+    # coincidental value), so the engine refuses rather than guess.
+    document, position = _document_and_position(
+        "<tool><inputs><param name='old'/></inputs><command>run $o^ld</command>"
+        "<outputs><data name='out'><filter>old == 'old'</filter></data></outputs></tool>"
     )
     with pytest.raises(JsonRpcInvalidParams) as excinfo:
         RenameService().rename(document, position, "renamed")

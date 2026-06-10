@@ -40,7 +40,7 @@ from galaxyls.services.tools.refactor import (
 )
 
 try:
-    # Optional: the parameter rename/references engine (galaxy-tool-xml). The feature
+    # Optional: the parameter rename/references engine (galaxy-tool-source). The feature
     # self-registers only when it is importable, so the server still works without it.
     from galaxyls.services.tools.rename import RenameService
 

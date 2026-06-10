@@ -188,7 +188,7 @@ def definition(server: GalaxyToolsLanguageServer, params: TextDocumentPositionPa
 
 
 # The parameter Rename Symbol / Find References feature depends on an optional engine
-# (galaxy-tool-xml); only advertise it to clients when that engine is installed.
+# (galaxy-tool-source); only advertise it to clients when that engine is installed.
 if RENAME_FEATURE_AVAILABLE:
 
     @language_server.feature(TEXT_DOCUMENT_PREPARE_RENAME)
