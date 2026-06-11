@@ -79,6 +79,20 @@ def test_prepare_rename_rejects(source_with_mark: str) -> None:
     assert RenameService().prepare_rename(document, position) is None
 
 
+def test_prepare_rename_surfaces_bail_reason_on_a_defined_param() -> None:
+    # The cursor is on a parameter defined in THIS document, but the rename is unsafe
+    # (an ambiguous bare reference in an output <filter>): prepareRename raises with the
+    # specific reason so the editor shows *why*, rather than the generic "can't be
+    # renamed" a plain None would produce — mirroring what rename() reports.
+    document, position = _document_and_position(
+        "<tool><inputs><param name='old'/></inputs><command>run $o^ld</command>"
+        "<outputs><data name='out'><filter>old == 'old'</filter></data></outputs></tool>"
+    )
+    with pytest.raises(JsonRpcInvalidParams) as excinfo:
+        RenameService().prepare_rename(document, position)
+    assert "filter" in str(excinfo.value).lower()
+
+
 # --- rename ---------------------------------------------------------------------
 
 

@@ -235,9 +235,15 @@ class RenameService:
         """The renameable range under *position*, or ``None`` to reject the rename.
 
         Accepts only when the cursor sits on a real occurrence of a *locally defined*
-        parameter that the rename can rewrite — which rejects ``#raw`` / ``##`` comments /
-        ``${SHELL_VAR}`` / ``<help>`` text, macro-supplied references, and unsafe (bailing)
-        renames.
+        parameter that the rename can rewrite. Returns ``None`` — the editor shows its
+        generic "can't be renamed" — when the cursor is not on a renameable occurrence at
+        all: ``#raw`` / ``##`` comments / ``${SHELL_VAR}`` / ``<help>`` text, a name not
+        defined in this document, or a macro-supplied reference.
+
+        But when the cursor *is* on a parameter defined here that the engine refuses to
+        rewrite **safely**, raises ``JsonRpcInvalidParams`` with the specific bail reason —
+        so the user learns *why* it can't be renamed instead of the generic message (the
+        same human messages ``rename`` reports, surfaced one step earlier).
         """
         offset = document.offset_at_position(position)
         name = _identifier_at(document.source, offset)
@@ -245,7 +251,7 @@ class RenameService:
             return None
         plan = rename_param_plan(document.source, old=name, new=_RENAME_PROBE)
         if plan.bailed:
-            return None
+            raise _bail_error(name, _RENAME_PROBE, plan.reason)
         for edit in plan.edits:
             if edit.start <= offset <= edit.end:
                 return convert_document_offsets_to_range(document, edit.start, edit.end)
