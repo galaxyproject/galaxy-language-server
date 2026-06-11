@@ -12,11 +12,7 @@ setuptools==82.0.1
 types-setuptools==82.0.0.20260518
 
 # Optional engine for the parameter Rename Symbol / Find References feature. It is NOT a
-# runtime requirement (kept out of requirements.txt / install_requires so the published
-# package carries no direct-URL dependency); the feature self-registers only when it is
-# importable. Not yet on PyPI, so it is installed from the public source repo's subdirectory
-# (pinned to a commit). Users who want the feature install it the same way until it ships on
-# PyPI: pip install "galaxy-tool-source @ git+https://github.com/richard-burhans/galaxy-tool-refactor.git#subdirectory=galaxy-tool-source"
-# (the package was renamed from galaxy-tool-xml pre-publish; the former
-# [cheetah-cdm] extra is gone — the CT3 lexer is a base dependency now)
-galaxy-tool-source @ git+https://github.com/richard-burhans/galaxy-tool-refactor.git@24f32e623169cf8f90f861be62a807ec35a38148#subdirectory=galaxy-tool-source
+# runtime requirement (kept out of requirements.txt / install_requires); the feature
+# self-registers only when it is importable. Users who want the feature install it with:
+# pip install galaxy-tool-source
+galaxy-tool-source==0.1.0
