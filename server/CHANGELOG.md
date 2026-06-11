@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [Unreleased]
+
+### Added
+
+- Add **Rename Symbol** and **Find All References** for tool parameters, spanning the tool and its imported macro files. Backed by the optional [`galaxy-tool-source`](https://pypi.org/project/galaxy-tool-source/) engine ([#331](https://github.com/galaxyproject/galaxy-language-server/pull/331)).
+
 ## [0.15.0] - 2026-02-16
 
 ### Changed
