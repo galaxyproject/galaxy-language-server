@@ -37,6 +37,17 @@ from galaxyls.services.tools.refactor import (
     RefactoringService,
     RefactorMacrosService,
 )
+
+try:
+    # Optional: the version-tokenization engine (galaxy-tool-source). The Code Action
+    # self-registers only when the engine is importable, so the server still works
+    # without it installed.
+    from galaxyls.services.tools.version_tokenize import VersionTokenizeService
+
+    VERSION_TOKENIZE_AVAILABLE = True
+except ImportError:
+    VersionTokenizeService = None  # type: ignore[assignment, misc]
+    VERSION_TOKENIZE_AVAILABLE = False
 from galaxyls.services.tools.testing import ToolTestsDiscoveryService
 
 from ..config import CompletionMode
@@ -82,7 +93,8 @@ class GalaxyToolLanguageService:
         self.definitions_provider = DocumentDefinitionsProvider(macro_definitions_provider)
         self.completion_service = XmlCompletionService(self.xsd_tree, self.definitions_provider)
         self.refactoring_service = RefactoringService(
-            RefactorMacrosService(workspace, macro_definitions_provider, self.format_service)
+            RefactorMacrosService(workspace, macro_definitions_provider, self.format_service),
+            VersionTokenizeService() if VersionTokenizeService is not None else None,
         )
 
     def get_diagnostics(self, xml_document: XmlDocument) -> list[Diagnostic]:

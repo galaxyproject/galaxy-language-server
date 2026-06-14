@@ -10,3 +10,10 @@ pytest-mock==3.15.1
 pytest==9.0.3
 setuptools==82.0.1
 types-setuptools==82.0.0.20260518
+
+# Optional: the version-tokenization engine. The Code Action self-registers only when
+# this is importable, so it is NOT a runtime requirement (kept out of requirements.txt /
+# install_requires for clean published metadata; the server runs without it). Tests and
+# CI get it from here. Users who want the feature install it with:
+#   pip install galaxy-tool-source
+galaxy-tool-source==0.3.0

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 import attrs
@@ -37,6 +38,9 @@ from galaxyls.services.tools.macros import (
 )
 from galaxyls.services.xml.document import XmlDocument
 from galaxyls.services.xml.nodes import XmlElement
+
+if TYPE_CHECKING:
+    from galaxyls.services.tools.version_tokenize import VersionTokenizeService
 
 DEFAULT_MACROS_FILENAME = "macros.xml"
 EXCLUDED_TAGS = {TOOL, MACROS, MACRO, XML}
@@ -282,12 +286,21 @@ class RefactorMacrosService:
 
 
 class RefactoringService:
-    def __init__(self, macros_refactoring_service: RefactorMacrosService) -> None:
+    def __init__(
+        self,
+        macros_refactoring_service: RefactorMacrosService,
+        version_tokenize_service: "VersionTokenizeService | None" = None,
+    ) -> None:
         self.macros = macros_refactoring_service
+        # Optional: the version-tokenization engine (galaxy-tool-source), wired in only
+        # when importable (the same gate as the rename engine).
+        self.version_tokenize = version_tokenize_service
 
     def get_available_refactoring_actions(self, xml_document: XmlDocument, params: CodeActionParams) -> list[CodeAction]:
         """Gets a collection of possible refactoring code actions on a selected chunk of the document."""
         code_actions = []
+        if self.version_tokenize is not None:
+            code_actions.extend(self.version_tokenize.create_version_tokenize_actions(xml_document, params))
         text_in_range = xml_document.get_text_in_range(params.range)
         target_element_tag = self._get_valid_full_element_tag(text_in_range)
         if target_element_tag is not None:
