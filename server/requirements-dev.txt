@@ -16,4 +16,4 @@ types-setuptools==82.0.0.20260518
 # install_requires for clean published metadata; the server runs without it). Tests and
 # CI get it from here. Users who want the feature install it with:
 #   pip install galaxy-tool-source
-galaxy-tool-source==0.3.0
+galaxy-tool-source==0.3.3
