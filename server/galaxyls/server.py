@@ -189,6 +189,7 @@ def document_link(server: GalaxyToolsLanguageServer, params: DocumentLinkParams)
     CodeActionOptions(
         code_action_kinds=[
             CodeActionKind.RefactorExtract,
+            CodeActionKind.RefactorRewrite,
         ],
     ),
 )

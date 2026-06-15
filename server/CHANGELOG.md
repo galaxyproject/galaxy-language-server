@@ -1,5 +1,11 @@
 # Galaxy Language Server Changelog
 
+## [Unreleased]
+
+### Added
+
+- Add **Code Actions** to factor a literal tool `version` into `@TOOL_VERSION@` / `@VERSION_SUFFIX@` tokens (the IUC "Tool versions" practice), either inline or in a new imported `macros.xml`. Offered on a `<tool>` whose version is provably tokenizable; kept only when the macro expansion is byte-identical. Backed by the optional [`galaxy-tool-source`](https://pypi.org/project/galaxy-tool-source/) engine, which self-registers only when installed.
+
 ## [0.15.0] - 2026-02-16
 
 ### Changed
