@@ -15,4 +15,4 @@ types-setuptools==82.0.0.20260518
 # runtime requirement (kept out of requirements.txt / install_requires); the feature
 # self-registers only when it is importable. Users who want the feature install it with:
 # pip install galaxy-tool-source
-galaxy-tool-source==0.1.0
+galaxy-tool-source==0.3.3
