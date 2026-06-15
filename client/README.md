@@ -40,7 +40,8 @@ Since version `0.4.0` you can use some of the cool features of [planemo](https:/
     -   [Full Galaxy tool linter integration](#document-validation)
     -   [Document Outline](#document-outline)
     -   [Insert param reference](#insert-param-reference)
-    -   [Automatically update tests to comply with 24.2 profile validation](#automatically-update-tests-to-comply-with-242-profile-validation) _New feature!_ ✨
+    -   [Automatically update tests to comply with 24.2 profile validation](#automatically-update-tests-to-comply-with-242-profile-validation)
+    -   [Rename tool parameters](#rename-tool-parameters) _New feature!_ ✨
 
 # Installation
 
@@ -219,3 +220,13 @@ A new command is available to update old tests to comply with the 24.2 profile v
 You can use this command to automatically update the tests to meet the new validation rules. The command is accessible from the command palette as `Galaxy Tools: Update existing test cases to comply with 24.2 profile validation`, or you can use the default key binding `ctrl+alt+u`.
 
 For more details about how this command works, you can check an example in this [Pull Request](https://github.com/galaxyproject/galaxy-language-server/pull/278).
+
+## Rename Tool Parameters
+
+> This feature requires the optional [`galaxy-tool-source`](https://pypi.org/project/galaxy-tool-source/) engine. Install it into the same environment as the language server with `pip install galaxy-tool-source`; the feature self-registers once that package is present.
+
+Rename a tool parameter and every reference to it in a single edit. Place the cursor on a `<param>` (or any `$param` reference) and invoke **Rename Symbol** (`F2`). The rename updates the definition and every live reference — through `#if` directives, dotted `$param.metadata` accesses, output labels, by-name cross-reference attributes and the `<tests>` mirror — while leaving occurrences inside `#raw` blocks, `##` comments and `<help>` prose untouched.
+
+The rename **spans imported macro files**: a reference that lives only in a macro the tool `<import>`s is rewritten too, so it is never silently left dangling. When a macro is **shared** by other tools in the workspace, the rename is refused (rather than leave the sibling tools referencing the old name) with a pointer to the [`galaxy-tool-refactor`](https://github.com/galaxyproject/galaxy-tool-refactor) CLI (`rename-param --across-importers`), which renames across every importer at once. If a parameter cannot be renamed safely, the editor reports the specific reason.
+
+**Find All References** for the same parameters is available too (`Shift+F12`), listing every occurrence across the tool and its imported macros.
