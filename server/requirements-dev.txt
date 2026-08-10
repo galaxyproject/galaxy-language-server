@@ -9,4 +9,4 @@ pytest-cov==7.1.0
 pytest-mock==3.15.1
 pytest==9.1.1
 setuptools==83.0.0
-types-setuptools==83.0.0.20260724
+types-setuptools==83.0.0.20260807
