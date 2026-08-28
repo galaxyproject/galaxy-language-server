@@ -2,4 +2,5 @@ pygls==2.0.1
 lxml==6.1.1
 anytree==2.13.0
 galaxy-tool-util==26.1.1
+galaxy-tool-util-models==26.1.1
 edam-ontology==1.25.3
