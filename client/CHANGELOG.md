@@ -1,5 +1,14 @@
 # Galaxy Tools (VS Code Extension) Changelog
 
+## [0.16.0] - 2026-09-02
+
+### Changed
+
+-   Modularize Python environment setup and add `uv` support for server dependency installation ([#292](https://github.com/galaxyproject/galaxy-language-server/pull/292)).
+-   Make language server installation silent, removing user prompts and deprecating the `galaxyTools.server.silentInstall` setting ([#297](https://github.com/galaxyproject/galaxy-language-server/pull/297)).
+-   Improve virtual environment health detection and error handling with "Show Output" button ([#297](https://github.com/galaxyproject/galaxy-language-server/pull/297)).
+-   Updated Galaxy Language Server [v0.16.0](./server/CHANGELOG.md#0160)
+
 ## [0.15.0] - 2026-02-16
 
 ### Added

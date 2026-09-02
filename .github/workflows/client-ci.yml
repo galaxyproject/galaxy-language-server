@@ -29,6 +29,8 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - name: Type-check TypeScript
+        run: npx tsc --noEmit --project tsconfig.json
       - name: Run integration tests
         run: xvfb-run -a npm run test:e2e
         if: runner.os == 'Linux'

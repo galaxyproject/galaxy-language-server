@@ -1,5 +1,16 @@
 # Galaxy Language Server Changelog
 
+## [0.16.0] - 2026-09-02
+
+### Changed
+
+- Drop Python 3.9 support and upgrade code to 3.10 syntax ([#307](https://github.com/galaxyproject/galaxy-language-server/pull/307)).
+- Migrate to pygls v2 ([#308](https://github.com/galaxyproject/galaxy-language-server/pull/308)).
+
+### Fixed
+
+- Add missing `galaxy-tool-util-models` requirement to fix installation error ([#352](https://github.com/galaxyproject/galaxy-language-server/pull/352)).
+
 ## [0.15.0] - 2026-02-16
 
 ### Changed
