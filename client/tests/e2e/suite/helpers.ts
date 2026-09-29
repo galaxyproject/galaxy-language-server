@@ -181,6 +181,9 @@ export async function triggerValidationOnSave(
 ): Promise<void> {
     const document = editor.document;
     const endPos = document.positionAt(document.getText().length);
+    // Ensure any pending did_open diagnostics have been received before
+    // setting up the waiter for the did_save diagnostics.
+    await waitForDiagnostics(docUri, 2000);
     // Insert a trailing space to guarantee the document is marked dirty,
     // regardless of current content. Without a real change, VS Code may
     // skip the save and not fire did_save to the language server.
